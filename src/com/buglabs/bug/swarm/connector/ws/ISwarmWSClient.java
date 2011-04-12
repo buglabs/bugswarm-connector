@@ -1,5 +1,6 @@
 package com.buglabs.bug.swarm.connector.ws;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -18,8 +19,9 @@ public interface ISwarmWSClient {
 	 * @param isPublic
 	 * @param description
 	 * @return
+	 * @throws IOException 
 	 */
-	public String create(String name, boolean isPublic, String description);
+	public String create(String name, boolean isPublic, String description) throws IOException;
 	
 	/**
 	 * Update the description of a swarm.

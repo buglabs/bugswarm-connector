@@ -28,26 +28,31 @@ public interface ISwarmWSClient {
 	 * @param isPublic
 	 * @param description
 	 * @return HTTP response of operation.
+	 * @throws IOException 
 	 */
-	public int update(boolean isPublic, String description);
+	public int update(String swarmId, boolean isPublic, String description) throws IOException;
 	
 	/**
 	 * Delete a swarm.
+	 * @param swarmId TODO
 	 * @return HTTP response of operation.
+	 * @throws IOException 
 	 */
-	public int delete();
+	public int destroy(String swarmId) throws IOException;
 	
 	/**
 	 * Get all available swarms.
 	 * @return A list of SwarmModel for all available swarms.
+	 * @throws IOException 
 	 */
-	public List<SwarmModel> list();
+	public List<SwarmModel> list() throws IOException;
 	
 	/**
 	 * Get info of a specific swarm.
 	 * 
 	 * @param swarmId
 	 * @return
+	 * @throws IOException 
 	 */
-	public SwarmModel get(String swarmId);
+	public SwarmModel get(String swarmId) throws IOException;
 }

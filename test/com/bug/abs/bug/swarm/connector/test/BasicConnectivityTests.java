@@ -10,10 +10,6 @@ import junit.framework.TestCase;
  */
 public class BasicConnectivityTests extends TestCase {
 
-	
-	public void testVerifyAPIKey() {
-		
-	}
 	/**
 	 * Connect to a swarm server.
 	 */

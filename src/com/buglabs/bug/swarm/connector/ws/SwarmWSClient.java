@@ -27,6 +27,7 @@ public class SwarmWSClient implements ISwarmWSClient {
 	private final String apiKey;
 	private HTTPRequest httpClient;
 	private HashMap<String, String> staticHeaders;
+	private boolean isValidated = false;
 
 	public SwarmWSClient(String swarmHostUrl, String apiKey) {
 		if (!swarmHostUrl.endsWith("/"))
@@ -47,6 +48,10 @@ public class SwarmWSClient implements ISwarmWSClient {
 	
 	@Override
 	public String create(String name, boolean isPublic, String description) throws IOException {
+		if (!isValidated)
+			if (!isValid())
+				throw new IOException("API_KEY is invalid.");
+		
 		Map<String, String> props = new HashMap<String, String>();
 		props.put("name", name);
 		props.put("public", Boolean.toString(isPublic));
@@ -61,6 +66,10 @@ public class SwarmWSClient implements ISwarmWSClient {
 
 	@Override
 	public int update(String swarmId, boolean isPublic, String description) throws IOException {
+		if (!isValidated)
+			if (!isValid())
+				throw new IOException("API_KEY is invalid.");
+		
 		Map<String, String> props = new HashMap<String, String>();
 
 		props.put("public", Boolean.toString(isPublic));
@@ -73,6 +82,10 @@ public class SwarmWSClient implements ISwarmWSClient {
 
 	@Override
 	public int destroy(String swarmId) throws IOException {
+		if (!isValidated)
+			if (!isValid())
+				throw new IOException("API_KEY is invalid.");
+		
 		HTTPResponse response = httpClient.delete(swarmHostUrl + "swarms/" + swarmId);
 		
 		return response.getResponseCode();
@@ -80,6 +93,10 @@ public class SwarmWSClient implements ISwarmWSClient {
 
 	@Override
 	public List<SwarmModel> list() throws IOException {		
+		if (!isValidated)
+			if (!isValid())
+				throw new IOException("API_KEY is invalid.");
+		
 		HTTPResponse response = httpClient.get(swarmHostUrl + "swarms");
 		
 		JSONArray json = (JSONArray) JSONValue.parse(new InputStreamReader(response.getStream()));
@@ -89,6 +106,10 @@ public class SwarmWSClient implements ISwarmWSClient {
 
 	@Override
 	public SwarmModel get(String swarmId) throws IOException {
+		if (!isValidated)
+			if (!isValid())
+				throw new IOException("API_KEY is invalid.");
+		
 		HTTPResponse response = httpClient.get(swarmHostUrl + "swarms/" + swarmId);
 		JSONObject jo = (JSONObject) JSONValue.parse(new InputStreamReader(response.getStream()));
 		
@@ -98,6 +119,23 @@ public class SwarmWSClient implements ISwarmWSClient {
 		return null;
 	}
 
+	@Override
+	public boolean isValid() throws IOException {
+		try {
+			HTTPResponse response = httpClient.get(swarmHostUrl + "keys/" + apiKey + "/verify");
+			int rval = response.getResponseCode();
+			
+			if (rval == 200) {
+				isValidated = true;
+				return true;
+			}			
+		} catch (HTTPException e) {
+			//Only catch HTTP exceptions so that connection errors are passed back to client.			
+		}
+		
+		return false;
+	}
+	
 	private Map<String, String> getSwarmHeaders() {
 		if (staticHeaders == null) {
 			staticHeaders = new HashMap<String, String>();
@@ -109,15 +147,4 @@ public class SwarmWSClient implements ISwarmWSClient {
 		return staticHeaders;
 	}
 
-	@Override
-	public boolean isValid() throws IOException {
-		try {
-			HTTPResponse response = httpClient.get(swarmHostUrl + "keys/" + apiKey + "/verify");
-			return response.getResponseCode() == 200;
-		} catch (HTTPException e) {
-			//Only catch HTTP exceptions so that connection errors are passed back to client.			
-		}
-		
-		return false;
-	}
 }

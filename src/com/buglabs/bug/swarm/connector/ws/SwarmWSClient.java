@@ -11,6 +11,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
+import com.buglabs.util.simplerestclient.HTTPException;
 import com.buglabs.util.simplerestclient.HTTPRequest;
 import com.buglabs.util.simplerestclient.HTTPResponse;
 
@@ -88,7 +89,7 @@ public class SwarmWSClient implements ISwarmWSClient {
 
 	@Override
 	public SwarmModel get(String swarmId) throws IOException {
-		HTTPResponse response = httpClient.delete(swarmHostUrl + "swarms/" + swarmId);
+		HTTPResponse response = httpClient.get(swarmHostUrl + "swarms/" + swarmId);
 		JSONObject jo = (JSONObject) JSONValue.parse(new InputStreamReader(response.getStream()));
 		
 		if (jo != null)
@@ -106,5 +107,17 @@ public class SwarmWSClient implements ISwarmWSClient {
 		}
 		
 		return staticHeaders;
+	}
+
+	@Override
+	public boolean isValid() throws IOException {
+		try {
+			HTTPResponse response = httpClient.get(swarmHostUrl + "keys/" + apiKey + "/verify");
+			return response.getResponseCode() == 200;
+		} catch (HTTPException e) {
+			//Only catch HTTP exceptions so that connection errors are passed back to client.			
+		}
+		
+		return false;
 	}
 }

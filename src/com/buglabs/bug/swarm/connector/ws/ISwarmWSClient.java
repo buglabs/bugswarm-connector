@@ -55,4 +55,6 @@ public interface ISwarmWSClient {
 	 * @throws IOException 
 	 */
 	public SwarmModel get(String swarmId) throws IOException;
+	
+	public boolean isValid() throws IOException;
 }

@@ -38,7 +38,7 @@ public class SwarmWSAPITests extends TestCase {
 		
 		int rval = client.update(testSwarmId, true, "new description");
 				
-		assertTrue(rval == 0);
+		assertTrue(rval == 200);
 	}
 	
 	public void testGet() throws IOException {
@@ -64,13 +64,23 @@ public class SwarmWSAPITests extends TestCase {
 		
 		assertTrue(swarmIdExists);
 	}
+	
+	public void testVerifyAPIKey() throws IOException {
+		SwarmWSClient client = new SwarmWSClient(SWARM_HOST, API_KEY);
+		
+		assertTrue(client.isValid());
+		
+		client = new SwarmWSClient(SWARM_HOST, "ohmyisthiskeyvalid");
+		
+		assertFalse(client.isValid());
+	}
 
 	public void testDestroy() throws IOException {
 		SwarmWSClient client = new SwarmWSClient(SWARM_HOST, API_KEY);
 		
-		int rval = client.destroy(null);
+		int rval = client.destroy(testSwarmId);
 				
-		assertTrue(rval == 0);
+		assertTrue(rval == 200);
 	}
 
 	// Private helper methods

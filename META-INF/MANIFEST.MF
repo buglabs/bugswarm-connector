@@ -12,4 +12,5 @@ Import-Package: com.buglabs.util.simplerestclient,
  org.jivesoftware.smackx.muc,
  com.buglabs.util,
  org.osgi.service.cm,
- org.osgi.service.log
+ org.osgi.service.log,
+ org.jivesoftware.smack

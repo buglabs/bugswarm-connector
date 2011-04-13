@@ -1,5 +1,12 @@
 package com.bug.abs.bug.swarm.connector.test;
 
+import java.io.IOException;
+
+import org.jivesoftware.smackx.muc.MultiUserChat;
+
+import com.buglabs.bug.swarm.connector.ws.ISwarmWSClient;
+import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
+
 import junit.framework.TestCase;
 
 /**
@@ -10,10 +17,25 @@ import junit.framework.TestCase;
  */
 public class BasicConnectivityTests extends TestCase {
 
+	public static final String API_KEY = "a0fc6588f11db4a1f024445e950ae6ae33bc0313";
+	public static final String SWARM_HOST = "http://api.bugswarm.net";
+	
 	/**
 	 * Connect to a swarm server.
+	 * 
+	 * See https://github.com/buglabs/bugswarm/wiki/Advertise-Member-Capabilities
+	 * @throws IOException 
 	 */
-	public void testConnectToSwarmServer() {
+	public void testConnectToSwarmServer() throws IOException {
+		
+		// ------- Steps 1, 2 - Authenticate w/ server.
+		ISwarmWSClient wsClient = new SwarmWSClient(SWARM_HOST, API_KEY);
+		
+		assertTrue(wsClient.isValid());
+		
+		// ------- Step 3 - Send presence
+		
+		 //MultiUserChat muc2 = new MultiUserChat(getConnection(1), room);
 		
 	}
 	

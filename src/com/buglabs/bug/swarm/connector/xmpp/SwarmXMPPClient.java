@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
+import org.jivesoftware.smack.Connection;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
@@ -81,6 +82,24 @@ public class SwarmXMPPClient  {
 		return dict;
 	}
 
+	public void connect() throws IOException, XMPPException {				
+		// Get a unique ID for the device software is running on.
+		//String clientId = ClientIdentity.getRef().getId();
+		if (connection == null) {				
+			connection = createConnection((String) config.get(CONFIG_KEY_BUGSWARM_SERVER));
+			login(connection, (String) config.get(CONFIG_KEY_BUGSWARM_USERKEY), (String) config.get(CONFIG_KEY_BUGSWARM_NICKNAME));
+			disposed = false;
+		}		
+	}
+	
+	/**
+	 * @return true of the XMPP connection is active.
+	 */
+	public boolean isConnected() {
+		//TODO maybe inspect the connection in some way to make sure its valid.
+		return connection != null;
+	}
+
 	/**
 	 * @param dict
 	 * @return true if the nvp's in the dictionary contain necessary information to connect to a swarm server.
@@ -104,16 +123,6 @@ public class SwarmXMPPClient  {
 		}
 		
 		return true;
-	}
-
-	public void connect() throws IOException, XMPPException {				
-		// Get a unique ID for the device software is running on.
-		//String clientId = ClientIdentity.getRef().getId();
-		if (connection == null) {				
-			connection = createConnection((String) config.get(CONFIG_KEY_BUGSWARM_SERVER));
-			login(connection, (String) config.get(CONFIG_KEY_BUGSWARM_USERKEY), (String) config.get(CONFIG_KEY_BUGSWARM_NICKNAME));
-			disposed = false;
-		}		
 	}
 
 	private static void login(XMPPConnection connection, String user, String pass) throws XMPPException {
@@ -150,5 +159,9 @@ public class SwarmXMPPClient  {
 		connection.disconnect();
 		connection = null;
 		disposed  = true;		
+	}
+
+	public Connection getConnection() {	
+		return connection;
 	}
 }

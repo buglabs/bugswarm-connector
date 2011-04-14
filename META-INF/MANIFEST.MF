@@ -6,11 +6,12 @@ Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: com.buglabs.bug.swarm.connector.Activator
 Bundle-Vendor: Bug Labs, Inc.
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.buglabs.util.simplerestclient,
+Import-Package: com.buglabs.util,
+ com.buglabs.util.simplerestclient,
+ org.jivesoftware.smack,
+ org.jivesoftware.smack.packet,
+ org.jivesoftware.smackx.muc,
  org.json.simple,
  org.osgi.framework;version="1.3.0",
- org.jivesoftware.smackx.muc,
- com.buglabs.util,
  org.osgi.service.cm,
- org.osgi.service.log,
- org.jivesoftware.smack
+ org.osgi.service.log

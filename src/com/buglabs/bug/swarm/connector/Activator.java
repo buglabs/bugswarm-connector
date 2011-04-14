@@ -15,11 +15,6 @@ import com.buglabs.util.LogServiceUtil;
 
 public class Activator implements BundleActivator, ManagedService {
 	public static final String CONFIG_PID_BUGSWARM = "BUGSWARM";
-	public static final String CONFIG_KEY_BUGSWARM_ENABLED = "bugdash.swarm.boolean.enabled";
-	public static final String CONFIG_KEY_BUGSWARM_SERVER = "bugdash.swarm.string.serverurl";
-	public static final String CONFIG_KEY_BUGSWARM_NICKNAME = "bugdash.swarm.string.nickname";
-	public static final String CONFIG_KEY_BUGSWARM_USERKEY = "bugdash.swarm.string.userkey";
-	public static final String SWARM_API_KEY_PROPERTY_NAME = "com.buglabs.swarm.user.key";
 
 	private static BundleContext context;
 	private static LogService log;

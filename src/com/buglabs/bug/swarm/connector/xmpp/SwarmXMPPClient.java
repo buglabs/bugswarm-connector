@@ -29,13 +29,11 @@ package com.buglabs.bug.swarm.connector.xmpp;
 
 import java.io.IOException;
 import java.util.Dictionary;
+import java.util.Hashtable;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
-import org.osgi.framework.BundleContext;
-
-import com.buglabs.bug.swarm.connector.Activator;
 
 /**
  * Default implementation of ISwarmConnector
@@ -44,8 +42,13 @@ import com.buglabs.bug.swarm.connector.Activator;
  * 
  */
 public class SwarmXMPPClient  {
-	private final BundleContext context;
-	private final Dictionary config;
+	public static final String CONFIG_KEY_BUGSWARM_ENABLED = "bugdash.swarm.boolean.enabled";
+	public static final String CONFIG_KEY_BUGSWARM_SERVER = "bugdash.swarm.string.serverurl";
+	public static final String CONFIG_KEY_BUGSWARM_NICKNAME = "bugdash.swarm.string.nickname";
+	public static final String CONFIG_KEY_BUGSWARM_USERKEY = "bugdash.swarm.string.userkey";
+	public static final String SWARM_API_KEY_PROPERTY_NAME = "com.buglabs.swarm.user.key";
+	
+	private final Dictionary<String, String> config;
 	private volatile boolean disposed = false;
 	private XMPPConnection connection;
 	
@@ -53,22 +56,38 @@ public class SwarmXMPPClient  {
 	 * @param config
 	 * @param userKey
 	 */
-	public SwarmXMPPClient(BundleContext context, final Dictionary config) {
+	public SwarmXMPPClient(final Dictionary<String, String> config) {
 		if (! isConfigValid(config)) {
 			throw new IllegalArgumentException("Configuration is invalid.");
 		}
 		
-		this.context = context;
 		this.config = config;	
+	}
+	
+	/**
+	 * Create a Dictionary with the passed in parameters.  For test cases.
+	 * @param host
+	 * @param username
+	 * @param password
+	 * @return
+	 */
+	public static Dictionary<String, String> createConfiguration(String host, String username, String password) {
+		Dictionary<String, String> dict = new Hashtable<String, String>();
+		
+		dict.put(CONFIG_KEY_BUGSWARM_SERVER, host);
+		dict.put(CONFIG_KEY_BUGSWARM_USERKEY, username);
+		dict.put(CONFIG_KEY_BUGSWARM_NICKNAME, password);
+		
+		return dict;
 	}
 
 	/**
 	 * @param dict
 	 * @return true if the nvp's in the dictionary contain necessary information to connect to a swarm server.
 	 */
-	private boolean isConfigValid(Dictionary dict) {
-	
-		return hasValue(dict.get(Activator.CONFIG_KEY_BUGSWARM_SERVER).toString());
+	private boolean isConfigValid(Dictionary<String, String> dict) {
+		//TODO: better validation of configuration
+		return hasValue(dict.get(CONFIG_KEY_BUGSWARM_SERVER).toString());
 	}
 	
 	/**
@@ -89,12 +108,10 @@ public class SwarmXMPPClient  {
 
 	public void connect() throws IOException, XMPPException {				
 		// Get a unique ID for the device software is running on.
-		String clientId = ClientIdentity.getRef().getId();
-		
-		
+		//String clientId = ClientIdentity.getRef().getId();
 		if (connection == null) {				
-			connection = createConnection((String) config.get(Activator.CONFIG_KEY_BUGSWARM_SERVER));
-			login(connection, (String) config.get(Activator.CONFIG_KEY_BUGSWARM_USERKEY), (String) config.get(Activator.CONFIG_KEY_BUGSWARM_NICKNAME));
+			connection = createConnection((String) config.get(CONFIG_KEY_BUGSWARM_SERVER));
+			login(connection, (String) config.get(CONFIG_KEY_BUGSWARM_USERKEY), (String) config.get(CONFIG_KEY_BUGSWARM_NICKNAME));
 			disposed = false;
 		}		
 	}

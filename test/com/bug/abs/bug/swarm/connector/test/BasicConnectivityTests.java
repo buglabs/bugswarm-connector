@@ -3,8 +3,8 @@ package com.bug.abs.bug.swarm.connector.test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+
+import junit.framework.TestCase;
 
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManager;
@@ -20,8 +20,6 @@ import com.buglabs.bug.swarm.connector.ws.ISwarmWSClient;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
 
-import junit.framework.TestCase;
-
 /**
  * See RMI http://redmine/issues/2312
  * 
@@ -31,8 +29,8 @@ import junit.framework.TestCase;
 public class BasicConnectivityTests extends TestCase {
 
 	public static final String API_KEY = "a0fc6588f11db4a1f024445e950ae6ae33bc0313";
-	public static final String XMPP_USERNAME = "test";
-	public static final String SWARM_XMPP_HOST = "api.bugswarm.net";
+	public static final String XMPP_USERNAME = "bugtest";
+	public static final String SWARM_XMPP_HOST = "xmpp.bugswarm.net";
 	public static final String SWARM_WS_HOST = "http://api.bugswarm.net";
 	protected MultiUserChat swarmRoom;
 	protected ChatManager chatManager;
@@ -43,8 +41,9 @@ public class BasicConnectivityTests extends TestCase {
 	 * See https://github.com/buglabs/bugswarm/wiki/Advertise-Member-Capabilities
 	 * @throws IOException 
 	 * @throws XMPPException 
+	 * @throws InterruptedException 
 	 */
-	public void testConnectToSwarmServer() throws IOException, XMPPException {
+	public void testConnectToSwarmServer() throws IOException, XMPPException, InterruptedException {
 		
 		// ------- Steps 1, 2 - Authenticate w/ server.
 		ISwarmWSClient wsClient = new SwarmWSClient(SWARM_WS_HOST, API_KEY);
@@ -53,13 +52,13 @@ public class BasicConnectivityTests extends TestCase {
 		
 		// ------- Step 3 - Send presence
 		
-		SwarmXMPPClient xmppClient = new SwarmXMPPClient(SwarmXMPPClient.createConfiguration(SWARM_XMPP_HOST, XMPP_USERNAME, API_KEY));
+		SwarmXMPPClient xmppClient = new SwarmXMPPClient(SwarmXMPPClient.createConfiguration(SWARM_XMPP_HOST, XMPP_USERNAME, XMPP_USERNAME));
 		xmppClient.connect();
 		
 		assertTrue(xmppClient.isConnected());
 		assertTrue(xmppClient.getConnection() != null);
 		
-		final Lock lock = new ReentrantLock();
+		final Object lock = new Object();
 		final List<String> responders = new ArrayList<String>();
 		
 		// ------- Step 4 - 5 - Accept invitations and respond by joining rooms
@@ -84,7 +83,9 @@ public class BasicConnectivityTests extends TestCase {
 								if (!responders.contains(chat.getParticipant()))
 									responders.add(chat.getParticipant());
 								
-								lock.unlock();
+								synchronized (lock) {
+									notify();
+								}
 							}
 						});
 					}
@@ -94,9 +95,9 @@ public class BasicConnectivityTests extends TestCase {
 			}
 		});
 		
-		lock.lock();
-		//his 2nd call 2 lock will block until unlock is called once service, module, or feed data is sent from another user.
-		lock.lock();
+		synchronized (lock) {
+			lock.wait();
+		}
 		
 		assertTrue(swarmRoom != null);
 		assertTrue(swarmRoom.isJoined());

@@ -2,7 +2,6 @@ package com.buglabs.bug.swarm.connector.ws;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,8 +10,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-import com.buglabs.util.simplerestclient.HTTPException;
-import com.buglabs.util.simplerestclient.HTTPRequest;
 import com.buglabs.util.simplerestclient.HTTPResponse;
 
 /**
@@ -21,36 +18,28 @@ import com.buglabs.util.simplerestclient.HTTPResponse;
  * @author kgilmer
  *
  */
-public class SwarmWSClient implements ISwarmWSClient {
+public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClient {
 
-	private final String swarmHostUrl;
-	private final String apiKey;
-	private HTTPRequest httpClient;
-	private HashMap<String, String> staticHeaders;
-	private boolean isValidated = false;
+	private SwarmMembersWSClient membersClient;
 
 	public SwarmWSClient(String swarmHostUrl, String apiKey) {
-		if (!swarmHostUrl.endsWith("/"))
-			swarmHostUrl = swarmHostUrl + "/";
+		super(swarmHostUrl, apiKey);
+	}
+	
+	/**
+	 * @return Swarm Members API
+	 */
+	public IMembersClient getMembers() {
+		if (membersClient == null)
+			membersClient = new SwarmMembersWSClient(swarmHostUrl, apiKey, httpClient);
 		
-		this.swarmHostUrl = swarmHostUrl;
-		this.apiKey = apiKey;
-		this.httpClient = new HTTPRequest();
-		httpClient.addConfigurator(new com.buglabs.util.simplerestclient.HTTPRequest.HTTPConnectionInitializer() {
-			
-			@Override
-			public void initialize(HttpURLConnection connection) {
-				for (Map.Entry<String, String> e: getSwarmHeaders().entrySet())
-					connection.setRequestProperty(e.getKey(), e.getValue());
-			}
-		});
+		return membersClient;
 	}
 	
 	@Override
 	public String create(String name, boolean isPublic, String description) throws IOException {
-		if (!isValidated)
-			if (!isValid())
-				throw new IOException("API_KEY is invalid.");
+		if (!checkAndValidate(false))			
+			throw new IOException("API_KEY is invalid.");
 		
 		Map<String, String> props = new HashMap<String, String>();
 		props.put("name", name);
@@ -66,9 +55,8 @@ public class SwarmWSClient implements ISwarmWSClient {
 
 	@Override
 	public int update(String swarmId, boolean isPublic, String description) throws IOException {
-		if (!isValidated)
-			if (!isValid())
-				throw new IOException("API_KEY is invalid.");
+		if (!checkAndValidate(false))			
+			throw new IOException("API_KEY is invalid.");
 		
 		Map<String, String> props = new HashMap<String, String>();
 
@@ -82,9 +70,8 @@ public class SwarmWSClient implements ISwarmWSClient {
 
 	@Override
 	public int destroy(String swarmId) throws IOException {
-		if (!isValidated)
-			if (!isValid())
-				throw new IOException("API_KEY is invalid.");
+		if (!checkAndValidate(false))			
+			throw new IOException("API_KEY is invalid.");
 		
 		HTTPResponse response = httpClient.delete(swarmHostUrl + "swarms/" + swarmId);
 		
@@ -93,9 +80,8 @@ public class SwarmWSClient implements ISwarmWSClient {
 
 	@Override
 	public List<SwarmModel> list() throws IOException {		
-		if (!isValidated)
-			if (!isValid())
-				throw new IOException("API_KEY is invalid.");
+		if (!checkAndValidate(false))			
+			throw new IOException("API_KEY is invalid.");
 		
 		HTTPResponse response = httpClient.get(swarmHostUrl + "swarms");
 		
@@ -106,9 +92,8 @@ public class SwarmWSClient implements ISwarmWSClient {
 
 	@Override
 	public SwarmModel get(String swarmId) throws IOException {
-		if (!isValidated)
-			if (!isValid())
-				throw new IOException("API_KEY is invalid.");
+		if (!checkAndValidate(false))			
+			throw new IOException("API_KEY is invalid.");
 		
 		HTTPResponse response = httpClient.get(swarmHostUrl + "swarms/" + swarmId);
 		JSONObject jo = (JSONObject) JSONValue.parse(new InputStreamReader(response.getStream()));
@@ -121,30 +106,6 @@ public class SwarmWSClient implements ISwarmWSClient {
 
 	@Override
 	public boolean isValid() throws IOException {
-		try {
-			HTTPResponse response = httpClient.get(swarmHostUrl + "keys/" + apiKey + "/verify");
-			int rval = response.getResponseCode();
-			
-			if (rval == 200) {
-				isValidated = true;
-				return true;
-			}			
-		} catch (HTTPException e) {
-			//Only catch HTTP exceptions so that connection errors are passed back to client.			
-		}
-		
-		return false;
+		return super.checkAndValidate(false);
 	}
-	
-	private Map<String, String> getSwarmHeaders() {
-		if (staticHeaders == null) {
-			staticHeaders = new HashMap<String, String>();
-			
-			staticHeaders.put("X-BugSwarmApiKey", apiKey);
-			staticHeaders.put("Content-Type", "application/json");
-		}
-		
-		return staticHeaders;
-	}
-
 }

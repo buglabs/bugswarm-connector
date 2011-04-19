@@ -47,11 +47,15 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 	}
 
 	@Override
-	public int remove(String swarmId) throws IOException {
+	public int remove(String swarmId, String userId) throws IOException {
 		if (!checkAndValidate(false))			
 			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
 		
-		return httpClient.delete(swarmHostUrl + "swarms/" + swarmId + "/members").getResponseCode();
+		Map<String, String> props = new HashMap<String, String>();
+		
+		props.put("user_id", userId);		
+		
+		return httpClient.delete(swarmHostUrl + "swarms/" + swarmId + "/members", props).getResponseCode();
 	}
 
 	@Override

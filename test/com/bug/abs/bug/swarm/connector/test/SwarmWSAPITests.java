@@ -2,12 +2,9 @@ package com.bug.abs.bug.swarm.connector.test;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Random;
 
 import com.buglabs.bug.swarm.connector.ws.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
-
-import junit.framework.TestCase;
 
 /**
  * Unit tests for ISwarmWSClient implementation
@@ -15,13 +12,8 @@ import junit.framework.TestCase;
  * @author kgilmer
  *
  */
-public class SwarmWSAPITests extends TestCase {
-	public static final String API_KEY = "a0fc6588f11db4a1f024445e950ae6ae33bc0313";
-	public static final String SWARM_HOST = "http://api.bugswarm.net";
-	
-	private static String testSwarmName;
-	private static String testSwarmId;
-	
+public class SwarmWSAPITests extends BaseWSAPITests {
+
 	public void testCreateSwarm() throws IOException {
 		SwarmWSClient client = new SwarmWSClient(SWARM_HOST, API_KEY);
 		
@@ -81,20 +73,5 @@ public class SwarmWSAPITests extends TestCase {
 		int rval = client.destroy(testSwarmId);
 				
 		assertTrue(rval == 200);
-	}
-
-	// Private helper methods
-
-	private String getTestSwarmName() {		
-		if (testSwarmName == null) {
-			Random r = new Random();
-			testSwarmName = "TestSwarm" + this.getClass().getSimpleName() + r.nextFloat();		
-		}
-		
-		return testSwarmName;		
-	}
-
-	private String getTestSwarmDescription() {
-		return "TestSwarmDescription" + this.getClass().getSimpleName();
 	}
 }

@@ -51,7 +51,7 @@ public interface IMembersClient {
 	 * @return
 	 * @throws IOException 
 	 */
-	public int remove(String swarmId) throws IOException;
+	public int remove(String swarmId, String userId) throws IOException;
 	
 	/**
 	 * @param userId

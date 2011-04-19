@@ -16,6 +16,8 @@ import com.buglabs.util.simplerestclient.HTTPResponse;
  *
  */
 public abstract class AbstractSwarmWSClient {
+	
+	protected static final String INVALID_SWARM_CONNECTION_ERROR_MESSAGE = "API_KEY is invalid.";
 
 	protected final String swarmHostUrl;
 	protected final String apiKey;

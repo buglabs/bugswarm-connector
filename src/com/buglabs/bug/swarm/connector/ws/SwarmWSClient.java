@@ -19,7 +19,6 @@ import com.buglabs.util.simplerestclient.HTTPResponse;
  *
  */
 public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClient {
-
 	private SwarmMembersWSClient membersClient;
 
 	public SwarmWSClient(String swarmHostUrl, String apiKey) {
@@ -39,7 +38,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 	@Override
 	public String create(String name, boolean isPublic, String description) throws IOException {
 		if (!checkAndValidate(false))			
-			throw new IOException("API_KEY is invalid.");
+			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
 		
 		Map<String, String> props = new HashMap<String, String>();
 		props.put("name", name);
@@ -56,7 +55,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 	@Override
 	public int update(String swarmId, boolean isPublic, String description) throws IOException {
 		if (!checkAndValidate(false))			
-			throw new IOException("API_KEY is invalid.");
+			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
 		
 		Map<String, String> props = new HashMap<String, String>();
 
@@ -71,7 +70,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 	@Override
 	public int destroy(String swarmId) throws IOException {
 		if (!checkAndValidate(false))			
-			throw new IOException("API_KEY is invalid.");
+			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
 		
 		HTTPResponse response = httpClient.delete(swarmHostUrl + "swarms/" + swarmId);
 		
@@ -81,7 +80,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 	@Override
 	public List<SwarmModel> list() throws IOException {		
 		if (!checkAndValidate(false))			
-			throw new IOException("API_KEY is invalid.");
+			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
 		
 		HTTPResponse response = httpClient.get(swarmHostUrl + "swarms");
 		
@@ -93,7 +92,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 	@Override
 	public SwarmModel get(String swarmId) throws IOException {
 		if (!checkAndValidate(false))			
-			throw new IOException("API_KEY is invalid.");
+			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
 		
 		HTTPResponse response = httpClient.get(swarmHostUrl + "swarms/" + swarmId);
 		JSONObject jo = (JSONObject) JSONValue.parse(new InputStreamReader(response.getStream()));

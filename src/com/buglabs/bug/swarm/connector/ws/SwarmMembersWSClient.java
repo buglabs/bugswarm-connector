@@ -20,6 +20,9 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 
 	@Override
 	public List<SwarmMemberModel> list(String swarmId, MemberType type) throws IOException {
+		if (!checkAndValidate(false))			
+			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
+		
 		HTTPResponse response = httpClient.get(swarmHostUrl + "swarms/" + swarmId + "/members");
 		
 		JSONArray json = (JSONArray) JSONValue.parse(new InputStreamReader(response.getStream()));
@@ -45,12 +48,17 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 
 	@Override
 	public int remove(String swarmId) throws IOException {
+		if (!checkAndValidate(false))			
+			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
 		
 		return httpClient.delete(swarmHostUrl + "swarms/" + swarmId + "/members").getResponseCode();
 	}
 
 	@Override
 	public List<SwarmModel> getSwarmsByMember(String userId, MemberType type) throws IOException {
+		if (!checkAndValidate(false))			
+			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
+		
 		HTTPResponse response = httpClient.get(swarmHostUrl + "members/" + userId + "/swarms");
 		
 		JSONArray json = (JSONArray) JSONValue.parse(new InputStreamReader(response.getStream()));

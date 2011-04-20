@@ -47,18 +47,6 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 	}
 
 	@Override
-	public int remove(String swarmId, String userId) throws IOException {
-		if (!checkAndValidate(false))			
-			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
-		
-		Map<String, String> props = new HashMap<String, String>();
-		
-		props.put("user_id", userId);		
-		
-		return httpClient.delete(swarmHostUrl + "swarms/" + swarmId + "/members", props).getResponseCode();
-	}
-
-	@Override
 	public List<SwarmModel> getSwarmsByMember(String userId, MemberType type) throws IOException {
 		if (!checkAndValidate(false))			
 			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
@@ -68,5 +56,19 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 		JSONArray json = (JSONArray) JSONValue.parse(new InputStreamReader(response.getStream()));
 		
 		return SwarmModel.createListFromJson(json);
+	}
+
+	@Override
+	public int remove(String swarmId, MemberType type, String userId, String resource) throws IOException {
+		if (!checkAndValidate(false))			
+			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
+		
+		Map<String, String> props = new HashMap<String, String>();
+		
+		props.put("type", type.toString());
+		props.put("user_id", userId);
+		props.put("resource", resource);
+		
+		return httpClient.delete(swarmHostUrl + "swarms/" + swarmId + "/members", props).getResponseCode();
 	}
 }

@@ -15,7 +15,7 @@ public interface IMembersClient {
 	 * A member can be defined as a consumer and(?)/or producer.
 	 */
 	public enum MemberType {
-		ALL(""), CONSUMER("consumer"), PRODUCER("producer");
+		CONSUMER("consumer"), PRODUCER("producer");
 		
 		private final String name;
 		
@@ -51,7 +51,7 @@ public interface IMembersClient {
 	 * @return
 	 * @throws IOException 
 	 */
-	public int remove(String swarmId, String userId) throws IOException;
+	public int remove(String swarmId, IMembersClient.MemberType type, String userId, String resource) throws IOException;
 	
 	/**
 	 * @param userId

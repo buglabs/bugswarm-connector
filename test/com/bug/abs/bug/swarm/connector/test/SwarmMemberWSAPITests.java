@@ -13,6 +13,10 @@ import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
 
 public class SwarmMemberWSAPITests extends BaseWSAPITests {
 	
+	private static final String DEFAULT_TEST_USER = "testUser";
+	private static final String DEFAULT_RESOURCE_STRING = "Psi";
+	private static final MemberType DEFAULT_MEMBER_TYPE = MemberType.CONSUMER;
+
 	public void testListConsumerMembers() throws IOException {
 		ISwarmWSClient client = new SwarmWSClient(SWARM_HOST, API_KEY);
 		IMembersClient membersClient = ((SwarmWSClient) client).getMembers();
@@ -62,7 +66,7 @@ public class SwarmMemberWSAPITests extends BaseWSAPITests {
 		
 		testSwarmId = id;
 		
-		List<SwarmMemberModel> list = membersClient.list(testSwarmId, MemberType.ALL);
+		List<SwarmMemberModel> list = membersClient.list(testSwarmId, MemberType.CONSUMER);
 		
 		assertNotNull(list);
 		assertTrue(list.size() > 0);
@@ -79,7 +83,7 @@ public class SwarmMemberWSAPITests extends BaseWSAPITests {
 		IMembersClient membersClient = ((SwarmWSClient) client).getMembers();
 		
 		//TODO: determine set of test users that can be created or assumed to exist.
-		int rc = membersClient.add(testSwarmId, MemberType.CONSUMER, "testUser", "Psi");
+		int rc = membersClient.add(testSwarmId, DEFAULT_MEMBER_TYPE, DEFAULT_TEST_USER, DEFAULT_RESOURCE_STRING);
 
 		assertTrue(rc == 200);
 	}
@@ -93,7 +97,7 @@ public class SwarmMemberWSAPITests extends BaseWSAPITests {
 		IMembersClient membersClient = ((SwarmWSClient) client).getMembers();
 		
 		//TODO: determine set of test users that can be created or assumed to exist.
-		int rc = membersClient.remove(testSwarmId, "testUser");
+		int rc = membersClient.remove(testSwarmId, DEFAULT_MEMBER_TYPE, DEFAULT_TEST_USER, DEFAULT_RESOURCE_STRING);
 
 		assertTrue(rc == 200);
 	}
@@ -102,18 +106,13 @@ public class SwarmMemberWSAPITests extends BaseWSAPITests {
 		ISwarmWSClient client = new SwarmWSClient(SWARM_HOST, API_KEY);
 		IMembersClient membersClient = ((SwarmWSClient) client).getMembers();
 		
-		List<SwarmModel> members = membersClient.getSwarmsByMember("testUser", MemberType.PRODUCER);
+		List<SwarmModel> members = membersClient.getSwarmsByMember(DEFAULT_TEST_USER, MemberType.PRODUCER);
 		
 		assertNotNull(members);
 		assertTrue(members.size() > 0);
 		
-		members = membersClient.getSwarmsByMember("testUser", MemberType.CONSUMER);
+		members = membersClient.getSwarmsByMember(DEFAULT_TEST_USER, MemberType.CONSUMER);
 			
-		assertNotNull(members);
-		assertTrue(members.size() > 0);
-		
-		members = membersClient.getSwarmsByMember("testUser", MemberType.ALL);
-		
 		assertNotNull(members);
 		assertTrue(members.size() > 0);
 	}

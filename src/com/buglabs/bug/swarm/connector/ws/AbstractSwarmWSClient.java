@@ -27,6 +27,9 @@ public abstract class AbstractSwarmWSClient {
 	private HashMap<String, String> staticHeaders;
 
 	public AbstractSwarmWSClient(String swarmHostUrl, String apiKey) {
+		if (swarmHostUrl == null || apiKey == null)
+			throw new IllegalArgumentException("An input parameter is null.");
+		
 		if (!swarmHostUrl.endsWith("/"))
 			swarmHostUrl = swarmHostUrl + "/";
 		
@@ -44,6 +47,9 @@ public abstract class AbstractSwarmWSClient {
 	}
 
 	protected AbstractSwarmWSClient(String swarmHostUrl, String apiKey, HTTPRequest httpClient) {
+		if (swarmHostUrl == null || apiKey == null || httpClient == null)
+			throw new IllegalArgumentException("An input parameter is null.");
+		
 		if (!swarmHostUrl.endsWith("/"))
 			swarmHostUrl = swarmHostUrl + "/";
 		

@@ -20,6 +20,9 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 
 	@Override
 	public List<SwarmMemberModel> list(String swarmId, MemberType type) throws IOException {
+		if (swarmId == null || type == null)
+			throw new IllegalArgumentException("An input parameter is null.");
+		
 		if (!checkAndValidate(false))			
 			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
 		
@@ -32,6 +35,9 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 
 	@Override
 	public int add(String swarmId, MemberType type, String userId, String resource) throws IOException {
+		if (swarmId == null || type == null || userId == null || resource == null)
+			throw new IllegalArgumentException("An input parameter is null.");
+		
 		if (!checkAndValidate(false))			
 			throw new IOException("API_KEY is invalid.");
 		
@@ -48,6 +54,9 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 
 	@Override
 	public List<SwarmModel> getSwarmsByMember(String userId) throws IOException {
+		if (userId == null)
+			throw new IllegalArgumentException("An input parameter is null.");
+		
 		if (!checkAndValidate(false))			
 			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
 		
@@ -60,6 +69,9 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 
 	@Override
 	public int remove(String swarmId, MemberType type, String userId, String resource) throws IOException {
+		if (swarmId == null || type == null || userId == null || resource == null)
+			throw new IllegalArgumentException("An input parameter is null.");
+		
 		if (!checkAndValidate(false))			
 			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
 		

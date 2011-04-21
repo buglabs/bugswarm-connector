@@ -37,6 +37,9 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 	
 	@Override
 	public String create(String name, boolean isPublic, String description) throws IOException {
+		if (name == null || description == null)
+			throw new IllegalArgumentException("An input parameter is null.");
+		
 		if (!checkAndValidate(false))			
 			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
 		
@@ -54,6 +57,9 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 
 	@Override
 	public int update(String swarmId, boolean isPublic, String description) throws IOException {
+		if (swarmId == null || description == null)
+			throw new IllegalArgumentException("An input parameter is null.");
+		
 		if (!checkAndValidate(false))			
 			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
 		
@@ -69,6 +75,9 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 
 	@Override
 	public int destroy(String swarmId) throws IOException {
+		if (swarmId == null)
+			throw new IllegalArgumentException("An input parameter is null.");
+		
 		if (!checkAndValidate(false))			
 			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
 		
@@ -91,6 +100,9 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 
 	@Override
 	public SwarmModel get(String swarmId) throws IOException {
+		if (swarmId == null)
+			throw new IllegalArgumentException("An input parameter is null.");
+		
 		if (!checkAndValidate(false))			
 			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
 		

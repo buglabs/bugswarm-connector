@@ -12,7 +12,7 @@ import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
  * @author kgilmer
  *
  */
-public class SwarmWSAPITests extends BaseWSAPITests {
+public class SwarmWSAPITests extends BaseWSAPICase {
 
 	public void testCreateSwarm() throws IOException {
 		SwarmWSClient client = new SwarmWSClient(SWARM_HOST, API_KEY);

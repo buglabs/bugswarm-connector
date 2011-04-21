@@ -11,7 +11,7 @@ import com.buglabs.bug.swarm.connector.ws.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
 
 
-public class SwarmMemberWSAPITests extends BaseWSAPITests {
+public class SwarmMemberWSAPITests extends BaseWSAPICase {
 	
 	private static final String DEFAULT_TEST_USER = "testUser";
 	private static final String DEFAULT_RESOURCE_STRING = "Psi";

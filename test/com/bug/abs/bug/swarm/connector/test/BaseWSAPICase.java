@@ -10,7 +10,7 @@ import junit.framework.TestCase;
  * @author kgilmer
  *
  */
-public abstract class BaseWSAPITests extends TestCase {
+public abstract class BaseWSAPICase extends TestCase {
 	public static final String API_KEY = "a0fc6588f11db4a1f024445e950ae6ae33bc0313";
 	public static final String SWARM_HOST = "http://api.bugswarm.net";
 	

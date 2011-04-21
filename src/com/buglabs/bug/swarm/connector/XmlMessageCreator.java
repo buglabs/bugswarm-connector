@@ -2,6 +2,8 @@ package com.buglabs.bug.swarm.connector;
 
 import java.util.List;
 
+import com.buglabs.module.IModuleControl;
+import com.buglabs.services.ws.PublicWSProvider;
 import com.buglabs.util.XmlNode;
 
 /**
@@ -19,7 +21,7 @@ public class XmlMessageCreator {
 	 * @param feeds
 	 * @return
 	 */
-	public static XmlNode createServiceModuleFeedDocument(List services, List modules, List feeds) {
+	public static XmlNode createServiceModuleFeedDocument(List<PublicWSProvider> services, List<IModuleControl> modules, List feeds) {
 		return null;
 	}
 }

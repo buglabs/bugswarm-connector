@@ -63,4 +63,10 @@ public interface ISwarmWSClient {
 	 * @throws IOException
 	 */
 	public boolean isValid() throws IOException;
+	
+	/**
+	 * Convenience method to return WS client for Swarm Membership API.
+	 * @return
+	 */
+	public IMembersClient getMembers();
 }

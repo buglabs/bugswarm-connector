@@ -29,12 +29,19 @@ package com.buglabs.bug.swarm.connector.xmpp;
 
 import java.io.IOException;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
+import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.Connection;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smackx.muc.MultiUserChat;
+
+import com.buglabs.util.XmlNode;
 
 /**
  * Default implementation of ISwarmConnector
@@ -52,6 +59,11 @@ public class SwarmXMPPClient  {
 	private final Dictionary<String, String> config;
 	private volatile boolean disposed = false;
 	private XMPPConnection connection;
+	
+	/**
+	 * Swarm name as key, MUC client as value.
+	 */
+	private Map<String, MultiUserChat> swarmMap = new HashMap<String, MultiUserChat>();
 	
 	/**
 	 * @param config
@@ -98,6 +110,72 @@ public class SwarmXMPPClient  {
 	public boolean isConnected() {
 		//TODO maybe inspect the connection in some way to make sure its valid.
 		return connection != null;
+	}
+	
+	/**
+	 * @return
+	 */
+	public String getUsername() {
+		return config.get(CONFIG_KEY_BUGSWARM_USERKEY);
+	}
+	
+	/**
+	 * @return
+	 */
+	public String getHostname() {
+		return config.get(CONFIG_KEY_BUGSWARM_SERVER);
+	}
+	
+	/**
+	 * @return XMPP connection
+	 */
+	public Connection getConnection() {	
+		return connection;
+	}
+
+	/**
+	 * Send presence to the swarm to notify that client is online.
+	 * @param id
+	 * @throws XMPPException 
+	 */
+	public void joinSwarm(String swarmId) throws XMPPException {
+		MultiUserChat muc = getMUC(swarmId);
+		
+		if (!muc.isJoined())
+			muc.join(getUsername());
+	}
+
+	/**
+	 * Determines if a given user in the given swarm is currently online.
+	 * 
+	 * @param swarmId
+	 * @param userId
+	 * @return
+	 */
+	public boolean isPresent(String swarmId, String userId) {
+		MultiUserChat muc = getMUC(swarmId);
+		
+		Presence presence = muc.getOccupantPresence(userId);
+		
+		if (presence == null)
+			return false;
+		
+		return presence.isAvailable();
+	}
+
+	/**
+	 * Advertise local services to another swarm member.
+	 * 
+	 * @param id
+	 * @param userId
+	 * @param createServiceModuleFeedDocument
+	 * @throws XMPPException 
+	 */
+	public void advertise(String swarmId, String userId, XmlNode serviceModuleFeedDocument) throws XMPPException {
+		MultiUserChat muc = getMUC(swarmId);
+		
+		Chat pchat = muc.createPrivateChat(userId, new DeadMessageListener());
+		pchat.sendMessage(serviceModuleFeedDocument.toString());
 	}
 
 	/**
@@ -148,6 +226,13 @@ public class SwarmXMPPClient  {
 		return new XMPPConnection(config);
 	}
 	
+	private MultiUserChat getMUC(String swarmId) {
+		if (!swarmMap.containsKey(swarmId))
+			swarmMap.put(swarmId, new MultiUserChat(connection, swarmId));
+		
+		return swarmMap.get(swarmId);
+	}
+	
 	/**
 	 * Shutdown all connectors and cleanup.  Once called, this service cannot be used again.
 	 */
@@ -159,9 +244,5 @@ public class SwarmXMPPClient  {
 		connection.disconnect();
 		connection = null;
 		disposed  = true;		
-	}
-
-	public Connection getConnection() {	
-		return connection;
 	}
 }

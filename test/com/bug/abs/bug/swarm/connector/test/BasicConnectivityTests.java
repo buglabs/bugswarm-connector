@@ -16,7 +16,12 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smackx.muc.InvitationListener;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
+import com.buglabs.bug.swarm.connector.OSGiHelper;
+import com.buglabs.bug.swarm.connector.XmlMessageCreator;
+import com.buglabs.bug.swarm.connector.ws.IMembersClient.MemberType;
 import com.buglabs.bug.swarm.connector.ws.ISwarmWSClient;
+import com.buglabs.bug.swarm.connector.ws.SwarmMemberModel;
+import com.buglabs.bug.swarm.connector.ws.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
 
@@ -36,6 +41,58 @@ public class BasicConnectivityTests extends TestCase {
 	protected ChatManager chatManager;
 	
 	/**
+	 * @throws Exception 
+	 * 
+	 */
+	public void testConnectToSwarmServer() throws Exception {
+		/*
+		 * 1. Get the list of swarms where the device is a member. (through the Rest API)
+		 * 2. Get the list of consumer members of every swarm returned by step 1. (through the Rest API)
+		 */
+		
+		ISwarmWSClient wsClient = new SwarmWSClient(SWARM_WS_HOST, API_KEY);
+		
+		assertTrue(wsClient.isValid());
+		List<SwarmModel> consumers = wsClient.getMembers().getSwarmsByMember(XMPP_USERNAME, MemberType.CONSUMER);
+		List<SwarmModel> producers = wsClient.getMembers().getSwarmsByMember(XMPP_USERNAME, MemberType.PRODUCER);
+		
+		List<SwarmModel> allSwarms = new ArrayList<SwarmModel>();
+		allSwarms.addAll(consumers);
+		allSwarms.addAll(producers);
+		
+        /*
+		 * 3. Join to swarms returned by step 1. (xmpp)
+		 */
+		
+		SwarmXMPPClient xmppClient = new SwarmXMPPClient(SwarmXMPPClient.createConfiguration(SWARM_XMPP_HOST, XMPP_USERNAME, XMPP_USERNAME));
+		xmppClient.connect();
+		
+		assertTrue(xmppClient.isConnected());
+		assertTrue(xmppClient.getConnection() != null);
+		
+		for (SwarmModel swarm: allSwarms)
+			 xmppClient.joinSwarm(swarm.getId());
+		
+        /* 
+		 * 4. Advertise device capabilities (services and feeds) only to consumer members that have
+		 */
+		
+		OSGiHelper osgi = OSGiHelper.getRef();
+		
+		for (SwarmModel swarm: consumers) 
+			for (SwarmMemberModel member: swarm.getMembers())
+				if (xmppClient.isPresent(swarm.getId(), member.getUserId()))
+					xmppClient.advertise(
+							swarm.getId(), 
+							member.getUserId(), 
+							XmlMessageCreator.createServiceModuleFeedDocument(
+									osgi.getBUGServices(), 
+									osgi.getBUGModules(), 
+									osgi.getBUGFeeds()));
+			
+	}
+	
+	/**
 	 * Connect to a swarm server.
 	 * 
 	 * See https://github.com/buglabs/bugswarm/wiki/Advertise-Member-Capabilities
@@ -43,7 +100,7 @@ public class BasicConnectivityTests extends TestCase {
 	 * @throws XMPPException 
 	 * @throws InterruptedException 
 	 */
-	public void testConnectToSwarmServer() throws IOException, XMPPException, InterruptedException {
+	public void testConnectToSwarmServerOld() throws IOException, XMPPException, InterruptedException {
 		
 		// ------- Steps 1, 2 - Authenticate w/ server.
 		ISwarmWSClient wsClient = new SwarmWSClient(SWARM_WS_HOST, API_KEY);

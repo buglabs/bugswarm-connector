@@ -95,7 +95,7 @@ public class BasicConnectivityTests extends TestCase {
 	 * @throws XMPPException 
 	 * @throws InterruptedException 
 	 */
-	public void testConnectToSwarmServerOld() throws IOException, XMPPException, InterruptedException {
+	public void notestConnectToSwarmServerOld() throws IOException, XMPPException, InterruptedException {
 		
 		// ------- Steps 1, 2 - Authenticate w/ server.
 		ISwarmWSClient wsClient = new SwarmWSClient(SWARM_WS_HOST, API_KEY);

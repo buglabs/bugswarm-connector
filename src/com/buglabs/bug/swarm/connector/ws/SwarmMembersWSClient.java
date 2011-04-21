@@ -47,7 +47,7 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 	}
 
 	@Override
-	public List<SwarmModel> getSwarmsByMember(String userId, MemberType type) throws IOException {
+	public List<SwarmModel> getSwarmsByMember(String userId) throws IOException {
 		if (!checkAndValidate(false))			
 			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
 		

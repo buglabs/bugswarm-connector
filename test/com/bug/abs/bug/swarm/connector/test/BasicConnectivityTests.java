@@ -53,12 +53,7 @@ public class BasicConnectivityTests extends TestCase {
 		ISwarmWSClient wsClient = new SwarmWSClient(SWARM_WS_HOST, API_KEY);
 		
 		assertTrue(wsClient.isValid());
-		List<SwarmModel> consumers = wsClient.getMembers().getSwarmsByMember(XMPP_USERNAME, MemberType.CONSUMER);
-		List<SwarmModel> producers = wsClient.getMembers().getSwarmsByMember(XMPP_USERNAME, MemberType.PRODUCER);
-		
-		List<SwarmModel> allSwarms = new ArrayList<SwarmModel>();
-		allSwarms.addAll(consumers);
-		allSwarms.addAll(producers);
+		List<SwarmModel> allSwarms = wsClient.getMembers().getSwarmsByMember(XMPP_USERNAME);
 		
         /*
 		 * 3. Join to swarms returned by step 1. (xmpp)
@@ -79,9 +74,9 @@ public class BasicConnectivityTests extends TestCase {
 		
 		OSGiHelper osgi = OSGiHelper.getRef();
 		
-		for (SwarmModel swarm: consumers) 
+		for (SwarmModel swarm: allSwarms) 
 			for (SwarmMemberModel member: swarm.getMembers())
-				if (xmppClient.isPresent(swarm.getId(), member.getUserId()))
+				if (member.getType() == MemberType.CONSUMER &&  xmppClient.isPresent(swarm.getId(), member.getUserId()))
 					xmppClient.advertise(
 							swarm.getId(), 
 							member.getUserId(), 

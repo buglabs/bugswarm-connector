@@ -59,5 +59,5 @@ public interface IMembersClient {
 	 * @return
 	 * @throws IOException 
 	 */
-	public List<SwarmModel> getSwarmsByMember(String userId, IMembersClient.MemberType type) throws IOException;
+	public List<SwarmModel> getSwarmsByMember(String userId) throws IOException;
 }

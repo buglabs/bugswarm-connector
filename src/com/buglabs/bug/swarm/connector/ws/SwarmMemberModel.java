@@ -6,6 +6,8 @@ import java.util.List;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import com.buglabs.bug.swarm.connector.ws.IMembersClient.MemberType;
+
 /**
  * Swarm model class for SwarmMember.  
  * 
@@ -16,12 +18,12 @@ import org.json.simple.JSONObject;
  */
 public class SwarmMemberModel {
 	private final String createdAt;
-	private final String type;
+	private final IMembersClient.MemberType type;
 	private final String userId;
 	private final String resource;
 	private final String swarmId;
 
-	public SwarmMemberModel(String createdAt, String type, String userId, String resource, String swarmId) {
+	public SwarmMemberModel(String createdAt, IMembersClient.MemberType type, String userId, String resource, String swarmId) {
 		this.createdAt = createdAt;
 		this.type = type;
 		this.userId = userId;
@@ -33,7 +35,7 @@ public class SwarmMemberModel {
 		return createdAt;
 	}
 
-	public String getType() {
+	public IMembersClient.MemberType getType() {
 		return type;
 	}
 
@@ -63,12 +65,22 @@ public class SwarmMemberModel {
 			
 			l.add(new SwarmMemberModel(
 					jo.get("created_at").toString(), 
-					jo.get("type").toString(), 
+					MemberType.valueOf(jo.get("type").toString()), 
 					jo.get("user_id").toString(), 
 					jo.get("resource").toString(), 
 					jo.get("swarm_id").toString()));
 		}
 		
 		return l;
+	}
+
+	private static MemberType getMemberType(String type) {
+		if (type.toUpperCase().equals("CONSUMER"))
+			return MemberType.CONSUMER;
+		
+		if (type.toUpperCase().equals("PRODUCER"))
+			return MemberType.PRODUCER;
+		
+		return null;
 	}
 }

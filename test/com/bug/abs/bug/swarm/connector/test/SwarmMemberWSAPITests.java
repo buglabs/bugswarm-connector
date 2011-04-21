@@ -106,13 +106,8 @@ public class SwarmMemberWSAPITests extends BaseWSAPITests {
 		ISwarmWSClient client = new SwarmWSClient(SWARM_HOST, API_KEY);
 		IMembersClient membersClient = ((SwarmWSClient) client).getMembers();
 		
-		List<SwarmModel> members = membersClient.getSwarmsByMember(DEFAULT_TEST_USER, MemberType.PRODUCER);
+		List<SwarmModel> members = membersClient.getSwarmsByMember(DEFAULT_TEST_USER);
 		
-		assertNotNull(members);
-		assertTrue(members.size() > 0);
-		
-		members = membersClient.getSwarmsByMember(DEFAULT_TEST_USER, MemberType.CONSUMER);
-			
 		assertNotNull(members);
 		assertTrue(members.size() > 0);
 	}

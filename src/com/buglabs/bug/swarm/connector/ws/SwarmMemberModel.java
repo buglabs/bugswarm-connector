@@ -65,7 +65,7 @@ public class SwarmMemberModel {
 			
 			l.add(new SwarmMemberModel(
 					jo.get("created_at").toString(), 
-					MemberType.valueOf(jo.get("type").toString()), 
+					MemberType.valueOf(jo.get("type").toString().toUpperCase()), 
 					jo.get("user_id").toString(), 
 					jo.get("resource").toString(), 
 					jo.get("swarm_id").toString()));

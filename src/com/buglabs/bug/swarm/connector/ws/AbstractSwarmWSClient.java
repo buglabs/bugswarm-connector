@@ -62,7 +62,7 @@ public abstract class AbstractSwarmWSClient {
 	 * Validate connection to server.
 	 * 
 	 * @param force ignores any previous successful validation.
-	 * @return
+	 * @return true if response is 200, false if otherwise
 	 * @throws IOException
 	 */
 	public boolean checkAndValidate(boolean force) throws IOException {
@@ -78,7 +78,7 @@ public abstract class AbstractSwarmWSClient {
 				return true;
 			}			
 		} catch (HTTPException e) {
-			e.printStackTrace();
+			throw new IOException(e);
 			//Only catch HTTP exceptions so that connection errors are passed back to client.			
 		}
 		

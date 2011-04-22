@@ -28,7 +28,9 @@ public class OSGiHelper implements ServiceListener {
 		context = Activator.getContext();
 		initializeModuleProviders();
 		initializeWSProviders();
-		context.addServiceListener(this);
+		
+		if (context != null)
+			context.addServiceListener(this);
 	}
 
 	public static OSGiHelper getRef() throws Exception {

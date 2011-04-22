@@ -78,6 +78,7 @@ public abstract class AbstractSwarmWSClient {
 				return true;
 			}			
 		} catch (HTTPException e) {
+			e.printStackTrace();
 			//Only catch HTTP exceptions so that connection errors are passed back to client.			
 		}
 		

@@ -1,4 +1,4 @@
-package com.buglabs.bug.swarm.connector;
+package com.buglabs.bug.swarm.connector.xmpp;
 
 import java.util.List;
 

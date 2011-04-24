@@ -1,4 +1,4 @@
-package com.buglabs.bug.swarm.connector;
+package com.buglabs.bug.swarm.connector.osgi;
 
 import java.io.IOException;
 import java.util.ArrayList;

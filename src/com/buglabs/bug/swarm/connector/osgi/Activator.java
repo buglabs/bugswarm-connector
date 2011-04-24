@@ -1,4 +1,4 @@
-package com.buglabs.bug.swarm.connector;
+package com.buglabs.bug.swarm.connector.osgi;
 
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -7,20 +7,32 @@ import java.util.Hashtable;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
+import org.osgi.util.tracker.ServiceTracker;
 
+import com.buglabs.application.ServiceTrackerHelper;
+import com.buglabs.bug.swarm.connector.ui.ConfigInitRunnable;
+import com.buglabs.osgi.sewing.pub.ISewingService;
 import com.buglabs.util.LogServiceUtil;
 
 public class Activator implements BundleActivator, ManagedService {
 	public static final String CONFIG_PID_BUGSWARM = "BUGSWARM";
 
+	/**
+	 * Services required for BUGswarm to be configured.
+	 */
+	private String[] configurationServices = new String[] { ConfigurationAdmin.class.getName(), ISewingService.class.getName() };
+	
 	private static BundleContext context;
 	private static LogService log;
 	
 	private Dictionary cachedConfig;
 	private ServiceRegistration cmSr;
+	
+	private ServiceTracker sewingST;
 
 	/**
 	 * @return BundleContext
@@ -44,6 +56,7 @@ public class Activator implements BundleActivator, ManagedService {
 		Activator.context = bundleContext;
 		log = LogServiceUtil.getLogService(context);
 		cmSr = context.registerService(ManagedService.class.getName(), this, getCMDictionary());
+		sewingST = ServiceTrackerHelper.openServiceTracker(context, configurationServices , new ConfigInitRunnable(context, log));
 	}
 
 	/*

@@ -16,14 +16,14 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smackx.muc.InvitationListener;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
-import com.buglabs.bug.swarm.connector.OSGiHelper;
-import com.buglabs.bug.swarm.connector.XmlMessageCreator;
-import com.buglabs.bug.swarm.connector.ws.IMembersClient.MemberType;
+import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
 import com.buglabs.bug.swarm.connector.ws.ISwarmWSClient;
 import com.buglabs.bug.swarm.connector.ws.SwarmMemberModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
+import com.buglabs.bug.swarm.connector.ws.IMembersClient.MemberType;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
+import com.buglabs.bug.swarm.connector.xmpp.XmlMessageCreator;
 
 /**
  * See RMI http://redmine/issues/2312

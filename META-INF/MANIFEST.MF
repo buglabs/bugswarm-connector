@@ -3,10 +3,11 @@ Bundle-ManifestVersion: 2
 Bundle-Name: bugswarm-connector
 Bundle-SymbolicName: com.buglabs.bug.swarm.connector
 Bundle-Version: 2.0.0.qualifier
-Bundle-Activator: com.buglabs.bug.swarm.connector.Activator
+Bundle-Activator: com.buglabs.bug.swarm.connector.osgi.Activator
 Bundle-Vendor: Bug Labs, Inc.
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.buglabs.application,
+Import-Package: 
+ com.buglabs.application,
  com.buglabs.module,
  com.buglabs.osgi.sewing.pub,
  com.buglabs.osgi.sewing.pub.util,

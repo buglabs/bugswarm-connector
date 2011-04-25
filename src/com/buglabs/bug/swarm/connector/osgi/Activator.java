@@ -14,7 +14,10 @@ import org.osgi.service.log.LogService;
 import org.osgi.util.tracker.ServiceTracker;
 
 import com.buglabs.application.ServiceTrackerHelper;
+import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
+import com.buglabs.bug.swarm.connector.Configuration;
 import com.buglabs.bug.swarm.connector.ui.ConfigInitRunnable;
+import com.buglabs.bug.swarm.connector.ui.SwarmConfigKeys;
 import com.buglabs.osgi.sewing.pub.ISewingService;
 import com.buglabs.util.LogServiceUtil;
 
@@ -33,6 +36,8 @@ public class Activator implements BundleActivator, ManagedService {
 	private ServiceRegistration cmSr;
 	
 	private ServiceTracker sewingST;
+
+	private BUGSwarmConnector connector;
 
 	/**
 	 * @return BundleContext
@@ -87,9 +92,23 @@ public class Activator implements BundleActivator, ManagedService {
 			return;
 		}
 		
-		throw new RuntimeException("Implement me!");
+		//Handle the case of swarm client being initialized.
+		if (Configuration.isValid(config) && connector == null) {
+			connector = new BUGSwarmConnector(new Configuration(config));
+			connector.start();
+		}
+		
+		//TODO: Handle case of swarm client being shutdown.
+		if (!Configuration.isValid(config) && connector != null) {
+			//TODO Implement me
+		}
+		
+		//TODO: Handle case of swarm client being restarted.
+		if (Configuration.isValid(config) && connector != null) {
+			//TODO Implement me
+		}
 	}
-	
+
 	/**
 	 * Calling .equals on these with identical kvps returns false.  Doing it the hard way.
 	 * @param c1

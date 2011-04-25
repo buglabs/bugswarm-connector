@@ -30,7 +30,6 @@ package com.buglabs.bug.swarm.connector.xmpp;
 import java.io.IOException;
 import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
 
 import org.jivesoftware.smack.Chat;
@@ -41,6 +40,7 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
+import com.buglabs.bug.swarm.connector.Configuration;
 import com.buglabs.util.XmlNode;
 
 /**
@@ -56,7 +56,7 @@ public class SwarmXMPPClient  {
 	public static final String CONFIG_KEY_BUGSWARM_USERKEY = "bugdash.swarm.string.userkey";
 	public static final String SWARM_API_KEY_PROPERTY_NAME = "com.buglabs.swarm.user.key";
 	
-	private final Dictionary<String, String> config;
+	//private final Dictionary<String, String> config;
 	private volatile boolean disposed = false;
 	private XMPPConnection connection;
 	
@@ -64,17 +64,14 @@ public class SwarmXMPPClient  {
 	 * Swarm name as key, MUC client as value.
 	 */
 	private Map<String, MultiUserChat> swarmMap = new HashMap<String, MultiUserChat>();
+	private final Configuration config;
 	
 	/**
 	 * @param config
 	 * @param userKey
 	 */
-	public SwarmXMPPClient(final Dictionary<String, String> config) {
-		if (! isConfigValid(config)) {
-			throw new IllegalArgumentException("Configuration is invalid.");
-		}
-		
-		this.config = config;	
+	public SwarmXMPPClient(final Configuration config) {
+		this.config = config;
 	}
 	
 	/**
@@ -84,7 +81,7 @@ public class SwarmXMPPClient  {
 	 * @param password
 	 * @return
 	 */
-	public static Dictionary<String, String> createConfiguration(String host, String username, String password) {
+	/*public static Dictionary<String, String> createConfiguration(String host, String username, String password) {
 		Dictionary<String, String> dict = new Hashtable<String, String>();
 		
 		dict.put(CONFIG_KEY_BUGSWARM_SERVER, host);
@@ -92,14 +89,14 @@ public class SwarmXMPPClient  {
 		dict.put(CONFIG_KEY_BUGSWARM_NICKNAME, password);
 		
 		return dict;
-	}
+	}*/
 
 	public void connect() throws IOException, XMPPException {				
 		// Get a unique ID for the device software is running on.
 		//String clientId = ClientIdentity.getRef().getId();
 		if (connection == null) {				
-			connection = createConnection((String) config.get(CONFIG_KEY_BUGSWARM_SERVER));
-			login(connection, (String) config.get(CONFIG_KEY_BUGSWARM_USERKEY), (String) config.get(CONFIG_KEY_BUGSWARM_NICKNAME));
+			connection = createConnection(config.getHostname());
+			login(connection, config.getUsername(), config.getApi_key());
 			disposed = false;
 		}		
 	}
@@ -116,14 +113,14 @@ public class SwarmXMPPClient  {
 	 * @return
 	 */
 	public String getUsername() {
-		return config.get(CONFIG_KEY_BUGSWARM_USERKEY);
+		return config.getUsername();
 	}
 	
 	/**
 	 * @return
 	 */
 	public String getHostname() {
-		return config.get(CONFIG_KEY_BUGSWARM_SERVER);
+		return config.getHostname();
 	}
 	
 	/**

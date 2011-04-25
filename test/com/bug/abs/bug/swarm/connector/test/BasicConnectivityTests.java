@@ -16,6 +16,7 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smackx.muc.InvitationListener;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
+import com.buglabs.bug.swarm.connector.Configuration;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
 import com.buglabs.bug.swarm.connector.ws.ISwarmWSClient;
 import com.buglabs.bug.swarm.connector.ws.SwarmMemberModel;
@@ -58,8 +59,8 @@ public class BasicConnectivityTests extends TestCase {
         /*
 		 * 3. Join to swarms returned by step 1. (xmpp)
 		 */
-		
-		SwarmXMPPClient xmppClient = new SwarmXMPPClient(SwarmXMPPClient.createConfiguration(SWARM_XMPP_HOST, XMPP_USERNAME, XMPP_USERNAME));
+		Configuration c = new Configuration(SWARM_XMPP_HOST, API_KEY, XMPP_USERNAME);
+		SwarmXMPPClient xmppClient = new SwarmXMPPClient(c);
 		xmppClient.connect();
 		
 		assertTrue(xmppClient.isConnected());
@@ -103,8 +104,8 @@ public class BasicConnectivityTests extends TestCase {
 		assertTrue(wsClient.isValid());
 		
 		// ------- Step 3 - Send presence
-		
-		SwarmXMPPClient xmppClient = new SwarmXMPPClient(SwarmXMPPClient.createConfiguration(SWARM_XMPP_HOST, XMPP_USERNAME, XMPP_USERNAME));
+		Configuration c = new Configuration(SWARM_XMPP_HOST, API_KEY, XMPP_USERNAME);
+		SwarmXMPPClient xmppClient = new SwarmXMPPClient(c);
 		xmppClient.connect();
 		
 		assertTrue(xmppClient.isConnected());

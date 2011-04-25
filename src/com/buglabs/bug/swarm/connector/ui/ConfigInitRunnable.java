@@ -55,7 +55,7 @@ public class ConfigInitRunnable implements ManagedRunnable {
 	}
 
 	@Override
-	public void run(Map services) {
+	public void run(Map<Object, Object> services) {
 		ConfigurationAdmin ca = (ConfigurationAdmin) services.get(ConfigurationAdmin.class.getName());
 
 		try {

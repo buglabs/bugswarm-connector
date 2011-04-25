@@ -73,14 +73,4 @@ public class SwarmMemberModel {
 		
 		return l;
 	}
-
-	private static MemberType getMemberType(String type) {
-		if (type.toUpperCase().equals("CONSUMER"))
-			return MemberType.CONSUMER;
-		
-		if (type.toUpperCase().equals("PRODUCER"))
-			return MemberType.PRODUCER;
-		
-		return null;
-	}
 }

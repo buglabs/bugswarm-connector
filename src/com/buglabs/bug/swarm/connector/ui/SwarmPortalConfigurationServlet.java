@@ -39,7 +39,6 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.osgi.Activator;
-import com.buglabs.bug.swarm.connector.ui.SwarmConfigKeys;
 import com.buglabs.osgi.sewing.pub.SewingController;
 import com.buglabs.osgi.sewing.pub.SewingHttpServlet;
 import com.buglabs.osgi.sewing.pub.util.ControllerMap;
@@ -47,7 +46,6 @@ import com.buglabs.osgi.sewing.pub.util.RequestParameters;
 import com.buglabs.util.ConfigAdminUtil;
 
 import freemarker.template.SimpleHash;
-import freemarker.template.SimpleList;
 import freemarker.template.SimpleScalar;
 import freemarker.template.TemplateModelRoot;
 
@@ -58,12 +56,10 @@ import freemarker.template.TemplateModelRoot;
 public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 
 	private static final long serialVersionUID = 6913347882663532246L;
-	private LogService log;
 	private Configuration config;
 
 	public SwarmPortalConfigurationServlet(ConfigurationAdmin ca) throws IOException {
 		this.config = ca.getConfiguration(SwarmConfigKeys.CONFIG_PID_BUGSWARM, null);
-		this.log = Activator.getLog();
 	}
 
 	@Override

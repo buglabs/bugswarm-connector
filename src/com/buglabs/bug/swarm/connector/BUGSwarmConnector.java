@@ -1,8 +1,10 @@
 package com.buglabs.bug.swarm.connector;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.jivesoftware.smack.Connection;
+import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smackx.muc.InvitationListener;
 import org.jivesoftware.smackx.muc.MultiUserChat;
@@ -54,28 +56,22 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 			if (!initialized)
 				initialize();
 			
-			//Load data about server configuration and local configuration.
-			List<SwarmModel> allSwarms = wsClient.getMembers().getSwarmsByMember(config.getUsername());
-			XmlNode document = XmlMessageCreator.createServiceModuleFeedDocument(
-					osgiHelper.getBUGServices(), 
-					osgiHelper.getBUGModules(), 
-					osgiHelper.getBUGFeeds());
-			
 			//Listen for invites from swarms
 			MultiUserChat.addInvitationListener(xmppClient.getConnection(), new SwarmInvitationListener());
+			
+			//Load data about server configuration and local configuration.
+			List<SwarmModel> allSwarms = wsClient.getMembers().getSwarmsByMember(config.getUsername());
 			
 			//Notify all swarms of presence.
 			for (SwarmModel swarm: allSwarms)
 				 xmppClient.joinSwarm(swarm.getId());
 			
-			//Notify all consumer-members of swarms of services, feeds, and modules.
-			for (SwarmModel swarm: allSwarms) 
-				for (SwarmMemberModel member: swarm.getMembers())
-					if (member.getType() == MemberType.CONSUMER &&  xmppClient.isPresent(swarm.getId(), member.getUserId()))
-						xmppClient.advertise(
-								swarm.getId(), 
-								member.getUserId(), 
-								document);
+			
+			broadcastState(allSwarms);
+			
+			//Create pubsub nodes for all active feeds
+			//for (BUGSwarmFeed feed: osgiHelper.getBUGFeeds())
+			//awaiting further discussion to determine best approach for feeds
 			
 			osgiHelper.addListener(this);
 			
@@ -83,6 +79,28 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 			e.printStackTrace();
 			//TODO handle errors
 		}
+	}
+
+	/**
+	 * Send the state of this device to all interested swarm members.
+	 * 
+	 * @param allSwarms
+	 * @throws XMPPException
+	 */
+	private void broadcastState(List<SwarmModel> allSwarms) throws XMPPException {
+		XmlNode document = XmlMessageCreator.createServiceModuleFeedDocument(
+				osgiHelper.getBUGServices(), 
+				osgiHelper.getBUGModules(), 
+				osgiHelper.getBUGFeeds());
+		
+		//Notify all consumer-members of swarms of services, feeds, and modules.
+		for (SwarmModel swarm: allSwarms) 
+			for (SwarmMemberModel member: swarm.getMembers())
+				if (member.getType() == MemberType.CONSUMER &&  xmppClient.isPresent(swarm.getId(), member.getUserId()))
+					xmppClient.advertise(
+							swarm.getId(), 
+							member.getUserId(), 
+							document);
 	}
 
 	/**
@@ -114,15 +132,34 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 
 		@Override
 		public void invitationReceived(Connection conn, String room, String inviter, String reason, String password, Message message) {
-			// TODO Auto-generated method stub
-			
+			// TODO Implement this case
+			// FIXME: Assuming the message content is the swarm to be joined.
+			try {
+				xmppClient.joinSwarm(message.getBody());
+			} catch (XMPPException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 	}
 
 	@Override
 	public void change(int eventType, EntityChangeType type, Object source) {
-		// TODO Auto-generated method stub
+		//For now, every time a service, module, or feed changes locally, send the entire state to each interested party.
+		//In the future it may be better to cache and determine delta and send only that.
 		
+		try {
+			//Load data about server configuration and local configuration.
+			List<SwarmModel> allSwarms = wsClient.getMembers().getSwarmsByMember(config.getUsername());
+			
+			broadcastState(allSwarms);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (XMPPException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

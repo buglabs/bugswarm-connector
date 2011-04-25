@@ -17,7 +17,6 @@ import com.buglabs.application.ServiceTrackerHelper;
 import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
 import com.buglabs.bug.swarm.connector.Configuration;
 import com.buglabs.bug.swarm.connector.ui.ConfigInitRunnable;
-import com.buglabs.bug.swarm.connector.ui.SwarmConfigKeys;
 import com.buglabs.osgi.sewing.pub.ISewingService;
 import com.buglabs.util.LogServiceUtil;
 
@@ -32,12 +31,12 @@ public class Activator implements BundleActivator, ManagedService {
 	private static BundleContext context;
 	private static LogService log;
 	
-	private Dictionary cachedConfig;
+	private Dictionary<String, String> cachedConfig;
 	private ServiceRegistration cmSr;
 	
-	private ServiceTracker sewingST;
-
 	private BUGSwarmConnector connector;
+
+	private ServiceTracker sewingST;
 
 	/**
 	 * @return BundleContext
@@ -69,6 +68,7 @@ public class Activator implements BundleActivator, ManagedService {
 	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
 	 */
 	public void stop(BundleContext bundleContext) throws Exception {
+		sewingST.close();
 		Activator.context = null;
 		log = null;
 		cmSr.unregister();
@@ -77,8 +77,8 @@ public class Activator implements BundleActivator, ManagedService {
 	/**
 	 * @return A dictionary defining the configurations we're interested in.
 	 */
-	private Dictionary getCMDictionary() {
-		Dictionary hm = new Hashtable();
+	private Dictionary<String, String> getCMDictionary() {
+		Dictionary<String, String> hm = new Hashtable<String, String>();
 		
 		hm.put("service.pid", CONFIG_PID_BUGSWARM);
 		

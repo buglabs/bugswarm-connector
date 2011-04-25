@@ -28,7 +28,6 @@
 package com.buglabs.bug.swarm.connector.xmpp;
 
 import java.io.IOException;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,7 +55,6 @@ public class SwarmXMPPClient  {
 	public static final String CONFIG_KEY_BUGSWARM_USERKEY = "bugdash.swarm.string.userkey";
 	public static final String SWARM_API_KEY_PROPERTY_NAME = "com.buglabs.swarm.user.key";
 	
-	//private final Dictionary<String, String> config;
 	private volatile boolean disposed = false;
 	private XMPPConnection connection;
 	
@@ -74,23 +72,6 @@ public class SwarmXMPPClient  {
 		this.config = config;
 	}
 	
-	/**
-	 * Create a Dictionary with the passed in parameters.  For test cases.
-	 * @param host
-	 * @param username
-	 * @param password
-	 * @return
-	 */
-	/*public static Dictionary<String, String> createConfiguration(String host, String username, String password) {
-		Dictionary<String, String> dict = new Hashtable<String, String>();
-		
-		dict.put(CONFIG_KEY_BUGSWARM_SERVER, host);
-		dict.put(CONFIG_KEY_BUGSWARM_USERKEY, username);
-		dict.put(CONFIG_KEY_BUGSWARM_NICKNAME, password);
-		
-		return dict;
-	}*/
-
 	public void connect() throws IOException, XMPPException {				
 		// Get a unique ID for the device software is running on.
 		//String clientId = ClientIdentity.getRef().getId();
@@ -173,31 +154,6 @@ public class SwarmXMPPClient  {
 		
 		Chat pchat = muc.createPrivateChat(userId, new DeadMessageListener());
 		pchat.sendMessage(serviceModuleFeedDocument.toString());
-	}
-
-	/**
-	 * @param dict
-	 * @return true if the nvp's in the dictionary contain necessary information to connect to a swarm server.
-	 */
-	private boolean isConfigValid(Dictionary<String, String> dict) {
-		//TODO: better validation of configuration
-		return hasValue(dict.get(CONFIG_KEY_BUGSWARM_SERVER).toString());
-	}
-	
-	/**
-	 * @param s
-	 * @return true if String value contains something.
-	 */
-	private boolean hasValue(String s) {
-		if (s == null) {
-			return false;
-		}
-		
-		if (s.trim().length() == 0) {
-			return false;
-		}
-		
-		return true;
 	}
 
 	private static void login(XMPPConnection connection, String user, String pass) throws XMPPException {

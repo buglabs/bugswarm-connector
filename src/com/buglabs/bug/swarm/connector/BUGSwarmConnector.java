@@ -59,6 +59,9 @@ public class BUGSwarmConnector extends Thread {
 					osgiHelper.getBUGModules(), 
 					osgiHelper.getBUGFeeds());
 			
+			//Listen for invites from swarms
+			MultiUserChat.addInvitationListener(xmppClient.getConnection(), new SwarmInvitationListener());
+			
 			//Notify all swarms of presence.
 			for (SwarmModel swarm: allSwarms)
 				 xmppClient.joinSwarm(swarm.getId());
@@ -71,9 +74,7 @@ public class BUGSwarmConnector extends Thread {
 								swarm.getId(), 
 								member.getUserId(), 
 								document);
-
-			//Listen for invites from swarms
-			MultiUserChat.addInvitationListener(xmppClient.getConnection(), new SwarmInvitationListener());
+			
 			
 			
 		} catch (Exception e) {

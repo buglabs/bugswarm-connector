@@ -8,6 +8,8 @@ import org.jivesoftware.smackx.muc.InvitationListener;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
+import com.buglabs.bug.swarm.connector.osgi.OSGiHelper.EntityChangeListener;
+import com.buglabs.bug.swarm.connector.osgi.OSGiHelper.EntityChangeType;
 import com.buglabs.bug.swarm.connector.ws.IMembersClient.MemberType;
 import com.buglabs.bug.swarm.connector.ws.SwarmMemberModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmModel;
@@ -22,7 +24,7 @@ import com.buglabs.util.XmlNode;
  * @author kgilmer
  * 
  */
-public class BUGSwarmConnector extends Thread {
+public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 
 	/**
 	 * Configuration info for swarm server.
@@ -75,7 +77,7 @@ public class BUGSwarmConnector extends Thread {
 								member.getUserId(), 
 								document);
 			
-			
+			osgiHelper.addListener(this);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -115,6 +117,12 @@ public class BUGSwarmConnector extends Thread {
 			// TODO Auto-generated method stub
 			
 		}
+		
+	}
+
+	@Override
+	public void change(int eventType, EntityChangeType type, Object source) {
+		// TODO Auto-generated method stub
 		
 	}
 }

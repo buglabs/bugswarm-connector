@@ -19,6 +19,8 @@ public abstract class AbstractSwarmWSClient {
 	
 	protected static final String INVALID_SWARM_CONNECTION_ERROR_MESSAGE = "API_KEY is invalid.";
 
+	private static final boolean DEBUG_MODE = true;
+
 	protected final String swarmHostUrl;
 	protected final String apiKey;
 	protected HTTPRequest httpClient;
@@ -35,7 +37,7 @@ public abstract class AbstractSwarmWSClient {
 		
 		this.swarmHostUrl = swarmHostUrl;
 		this.apiKey = apiKey;
-		this.httpClient = new HTTPRequest();
+		this.httpClient = new HTTPRequest(DEBUG_MODE);
 		httpClient.addConfigurator(new com.buglabs.util.simplerestclient.HTTPRequest.HTTPConnectionInitializer() {
 			
 			@Override

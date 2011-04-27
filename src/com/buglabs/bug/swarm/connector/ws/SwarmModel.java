@@ -59,6 +59,10 @@ public class SwarmModel {
 		return userId;
 	}
 
+	@Override
+	public String toString() {		
+		return name + "[" + userId + "]";
+	}
 	/**
 	 * From a json array, create a List of SwarmModel.
 	 * @param json

@@ -24,7 +24,7 @@ public abstract class AbstractSwarmWSClient {
 	protected HTTPRequest httpClient;
 	protected boolean isValidated = false;
 	
-	private HashMap<String, String> staticHeaders;
+	private Map<String, String> staticHeaders;
 
 	public AbstractSwarmWSClient(String swarmHostUrl, String apiKey) {
 		if (swarmHostUrl == null || apiKey == null)
@@ -90,12 +90,26 @@ public abstract class AbstractSwarmWSClient {
 	 */
 	protected Map<String, String> getSwarmHeaders() {
 		if (staticHeaders == null) {
-			staticHeaders = new HashMap<String, String>();
-			
-			staticHeaders.put("X-BugSwarmApiKey", apiKey);
-			staticHeaders.put("Content-Type", "application/json");
+			staticHeaders = toMap("X-BugSwarmApiKey", apiKey, "Content-Type", "application/json");			
 		}
 		
 		return staticHeaders;
+	}
+	
+	/**
+	 * Create a map of strings, each even element being a key, each successive odd element being the value.
+	 * @param elems
+	 * @return
+	 */
+	protected Map<String, String> toMap(String... elems) {
+		if (elems == null || elems.length % 2 != 0)
+			throw new RuntimeException("Must specify name/value pair for each entry in map.");
+		
+		Map<String, String> map = new HashMap<String, String>();
+		for (int i = 0; i < elems.length / 2; i = i + 2) {
+			map.put(elems[i], elems[i + 1]);
+		}
+		
+		return map;
 	}
 }

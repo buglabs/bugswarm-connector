@@ -29,9 +29,9 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 		if (swarmId == null || type == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 		
-		validate();
+		validate();		
 		
-		HTTPResponse response = httpClient.get(swarmHostUrl + "swarms/" + swarmId + "/members");
+		HTTPResponse response = httpClient.get(swarmHostUrl + "swarms/" + swarmId + "/members", toMap("type", type.toString()));
 		
 		JSONArray json = (JSONArray) JSONValue.parse(new InputStreamReader(response.getStream()));
 		

@@ -35,7 +35,7 @@ import com.buglabs.bug.swarm.connector.xmpp.XmlMessageCreator;
 public class BasicConnectivityTests extends TestCase {
 
 	public static final String API_KEY = "a0fc6588f11db4a1f024445e950ae6ae33bc0313";
-	public static final String XMPP_USERNAME = "bugtest";
+	public static final String XMPP_USERNAME = "connector-test";
 	public static final String SWARM_XMPP_HOST = "xmpp.bugswarm.net";
 	public static final String SWARM_WS_HOST = "http://api.bugswarm.net";
 	protected MultiUserChat swarmRoom;

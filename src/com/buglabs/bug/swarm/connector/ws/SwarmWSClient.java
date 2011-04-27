@@ -102,7 +102,14 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 		validate();
 		
 		HTTPResponse response = httpClient.get(swarmHostUrl + "swarms/" + swarmId);
-		JSONObject jo = (JSONObject) JSONValue.parse(new InputStreamReader(response.getStream()));
+		
+		Object o = JSONValue.parse(new InputStreamReader(response.getStream()));
+		JSONObject jo = null;
+		
+		if (o instanceof JSONArray)
+			jo = (JSONObject) ((JSONArray)o).get(0);
+		else if (o instanceof JSONObject) 
+			jo = (JSONObject) o;
 		
 		if (jo != null)
 			return SwarmModel.createFromJson(jo);

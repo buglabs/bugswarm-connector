@@ -50,6 +50,12 @@ public class SwarmMemberModel {
 	public String getSwarmId() {
 		return swarmId;
 	}
+	
+	@Override
+	public String toString() {
+		
+		return swarmId + "[" + userId + "/" + resource + "]";
+	}
 
 	/**
 	 * From a json array, create a List of SwarmMemberModel.

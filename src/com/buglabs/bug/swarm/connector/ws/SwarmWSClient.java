@@ -40,8 +40,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 		if (name == null || description == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 		
-		if (!checkAndValidate(false))			
-			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
+		validate();
 		
 		Map<String, String> props = new HashMap<String, String>();
 		props.put("name", name);
@@ -60,8 +59,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 		if (swarmId == null || description == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 		
-		if (!checkAndValidate(false))			
-			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
+		validate();
 		
 		Map<String, String> props = new HashMap<String, String>();
 
@@ -78,8 +76,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 		if (swarmId == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 		
-		if (!checkAndValidate(false))			
-			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
+		validate();
 		
 		HTTPResponse response = httpClient.delete(swarmHostUrl + "swarms/" + swarmId);
 		
@@ -88,8 +85,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 
 	@Override
 	public List<SwarmModel> list() throws IOException {		
-		if (!checkAndValidate(false))			
-			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
+		validate();
 		
 		HTTPResponse response = httpClient.get(swarmHostUrl + "swarms");
 		
@@ -103,8 +99,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 		if (swarmId == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 		
-		if (!checkAndValidate(false))			
-			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
+		validate();
 		
 		HTTPResponse response = httpClient.get(swarmHostUrl + "swarms/" + swarmId);
 		JSONObject jo = (JSONObject) JSONValue.parse(new InputStreamReader(response.getStream()));
@@ -116,7 +111,13 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 	}
 
 	@Override
-	public boolean isValid() throws IOException {
+	public Throwable isValid() {
 		return super.checkAndValidate(false);
+	}
+	
+	private void validate() throws IOException {
+		Throwable err = checkAndValidate(false);
+		if (err != null)			
+			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE, err);
 	}
 }

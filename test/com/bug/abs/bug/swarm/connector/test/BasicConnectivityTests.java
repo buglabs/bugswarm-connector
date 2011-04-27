@@ -53,7 +53,7 @@ public class BasicConnectivityTests extends TestCase {
 		
 		ISwarmWSClient wsClient = new SwarmWSClient(SWARM_WS_HOST, API_KEY);
 		
-		assertTrue(wsClient.isValid());
+		assertTrue(wsClient.isValid() == null);
 		List<SwarmModel> allSwarms = wsClient.getMembers().getSwarmsByMember(XMPP_USERNAME);
 		
         /*
@@ -101,7 +101,7 @@ public class BasicConnectivityTests extends TestCase {
 		// ------- Steps 1, 2 - Authenticate w/ server.
 		ISwarmWSClient wsClient = new SwarmWSClient(SWARM_WS_HOST, API_KEY);
 		
-		assertTrue(wsClient.isValid());
+		assertTrue(wsClient.isValid() == null);
 		
 		// ------- Step 3 - Send presence
 		Configuration c = new Configuration(SWARM_XMPP_HOST, API_KEY, XMPP_USERNAME);

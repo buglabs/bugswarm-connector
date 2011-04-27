@@ -12,6 +12,12 @@ import org.json.simple.JSONValue;
 import com.buglabs.util.simplerestclient.HTTPRequest;
 import com.buglabs.util.simplerestclient.HTTPResponse;
 
+/**
+ * Client implementation for Swarm Members API.
+ * 
+ * @author kgilmer
+ *
+ */
 public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMembersClient {
 
 	public SwarmMembersWSClient(String swarmHostUrl, String apiKey, HTTPRequest httpClient) {
@@ -23,8 +29,7 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 		if (swarmId == null || type == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 		
-		if (!checkAndValidate(false))			
-			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
+		validate();
 		
 		HTTPResponse response = httpClient.get(swarmHostUrl + "swarms/" + swarmId + "/members");
 		
@@ -38,8 +43,7 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 		if (swarmId == null || type == null || userId == null || resource == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 		
-		if (!checkAndValidate(false))			
-			throw new IOException("API_KEY is invalid.");
+		validate();
 		
 		Map<String, String> props = new HashMap<String, String>();
 
@@ -57,8 +61,7 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 		if (userId == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 		
-		if (!checkAndValidate(false))			
-			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
+		validate();
 		
 		HTTPResponse response = httpClient.get(swarmHostUrl + "members/" + userId + "/swarms");
 		
@@ -72,8 +75,7 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 		if (swarmId == null || type == null || userId == null || resource == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 		
-		if (!checkAndValidate(false))			
-			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE);
+		validate();
 		
 		Map<String, String> props = new HashMap<String, String>();
 		
@@ -82,5 +84,11 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 		props.put("resource", resource);
 		
 		return httpClient.delete(swarmHostUrl + "swarms/" + swarmId + "/members", props).getResponseCode();
+	}
+	
+	private void validate() throws IOException {
+		Throwable err = checkAndValidate(false);
+		if (err != null)			
+			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE, err);
 	}
 }

@@ -65,9 +65,10 @@ public abstract class AbstractSwarmWSClient {
 	 * @return true if response is 200, false if otherwise
 	 * @throws IOException
 	 */
-	public boolean checkAndValidate(boolean force) throws IOException {
+	public Throwable checkAndValidate(boolean force) {
 		if (isValidated && !force)
-			return true;
+			return null;
+		
 		
 		try {
 			HTTPResponse response = httpClient.get(swarmHostUrl + "keys/" + apiKey + "/verify");
@@ -75,14 +76,13 @@ public abstract class AbstractSwarmWSClient {
 			
 			if (rval == 200) {
 				isValidated = true;
-				return true;
+				return null;
 			}			
-		} catch (HTTPException e) {
-			throw new IOException(e);
-			//Only catch HTTP exceptions so that connection errors are passed back to client.			
+			
+			return new HTTPException(rval, "Validation failed.");
+		} catch (IOException e) {
+			return e;					
 		}
-		
-		return false;
 	}
 	
 	/**

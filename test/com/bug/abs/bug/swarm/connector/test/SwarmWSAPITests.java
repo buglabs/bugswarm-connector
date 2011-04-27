@@ -60,11 +60,11 @@ public class SwarmWSAPITests extends BaseWSAPICase {
 	public void testVerifyAPIKey() throws IOException {
 		SwarmWSClient client = new SwarmWSClient(SWARM_HOST, API_KEY);
 		
-		assertTrue(client.isValid());
+		assertTrue(client.isValid() == null);
 		
 		client = new SwarmWSClient(SWARM_HOST, "ohmyisthiskeyvalid");
 		
-		assertFalse(client.isValid());
+		assertFalse(client.isValid() == null);
 	}
 
 	public void testDestroy() throws IOException {

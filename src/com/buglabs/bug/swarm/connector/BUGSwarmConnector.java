@@ -109,7 +109,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 	 */
 	public boolean initialize() throws Exception {
 		wsClient = new SwarmWSClient(config.getHostname(), config.getApi_key());
-		if (wsClient.isValid()) {
+		if (wsClient.isValid() == null) {
 			xmppClient = new SwarmXMPPClient(config);
 			xmppClient.connect();
 			

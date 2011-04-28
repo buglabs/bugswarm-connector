@@ -31,7 +31,7 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 		
 		validate();		
 		
-		HTTPResponse response = httpClient.get(swarmHostUrl + "swarms/" + swarmId + "/members", toMap("type", type.toString()));
+		HTTPResponse response = httpClient.get(swarmHostUrl + "swarms/" + swarmId + "/members?type=" + type);
 		
 		JSONArray json = (JSONArray) JSONValue.parse(new InputStreamReader(response.getStream()));
 		

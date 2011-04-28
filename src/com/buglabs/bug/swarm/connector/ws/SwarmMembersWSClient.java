@@ -31,7 +31,7 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 		
 		validate();		
 		
-		HTTPResponse response = httpClient.get(swarmHostUrl + "swarms/" + swarmId + "/members?type=" + type);
+		HTTPResponse response = httpClient.get(swarmHostUrl + "swarms/" + swarmId + "/resources?type=" + type);
 		
 		JSONArray json = (JSONArray) JSONValue.parse(new InputStreamReader(response.getStream()));
 		
@@ -51,7 +51,7 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 		props.put("user_id", userId);
 		props.put("resource", resource);
 		
-		HTTPResponse response = httpClient.post(swarmHostUrl + "swarms/" + swarmId + "/members", props);
+		HTTPResponse response = httpClient.post(swarmHostUrl + "swarms/" + swarmId + "/resources", props);
 		
 		return response.getResponseCode();
 	}
@@ -63,7 +63,7 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 		
 		validate();
 		
-		HTTPResponse response = httpClient.get(swarmHostUrl + "members/" + resource + "/swarms");
+		HTTPResponse response = httpClient.get(swarmHostUrl + "resources/" + resource + "/swarms");
 		
 		JSONArray json = (JSONArray) JSONValue.parse(new InputStreamReader(response.getStream()));
 		
@@ -83,7 +83,7 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 		props.put("user_id", userId);
 		props.put("resource", resource);
 		
-		return httpClient.delete(swarmHostUrl + "swarms/" + swarmId + "/members", props).getResponseCode();
+		return httpClient.delete(swarmHostUrl + "swarms/" + swarmId + "/resources", props).getResponseCode();
 	}
 	
 	private void validate() throws IOException {

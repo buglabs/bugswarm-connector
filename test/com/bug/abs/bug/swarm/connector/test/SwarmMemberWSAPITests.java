@@ -20,7 +20,6 @@ import com.buglabs.bug.swarm.connector.ws.IMembersClient.MemberType;
 public class SwarmMemberWSAPITests extends BaseWSAPICase {
 	
 	private static final MemberType DEFAULT_MEMBER_TYPE = MemberType.CONSUMER;
-	private static final String DEFAULT_TEST_USER2 = "connector-test2";
 	
 	/**
 	 * This test must occur after testSwarmId is set by a previous test.
@@ -34,9 +33,7 @@ public class SwarmMemberWSAPITests extends BaseWSAPICase {
 		testSwarmId = id;
 		
 		//TODO: determine set of test users that can be created or assumed to exist.
-		int rc = membersClient.add(id, DEFAULT_MEMBER_TYPE, DEFAULT_TEST_USER2, getConfiguration().getResource());
-
-		
+		int rc = membersClient.add(testSwarmId, DEFAULT_MEMBER_TYPE, getConfiguration().getUsername(), getConfiguration().getResource());
 		
 		assertTrue(rc == 201);
 	}
@@ -63,12 +60,16 @@ public class SwarmMemberWSAPITests extends BaseWSAPICase {
 		//There should be no PRODUCERS since we created only a CONSUMER
 		assertTrue(list.size() == 0);
 		
+		//Create WS client for 2nd user.
+		ISwarmWSClient client2 = new SwarmWSClient(getConfiguration2());
+		IMembersClient membersClient2 = ((SwarmWSClient) client2).getMembers();
+		
 		//Now add a producer
-		assertTrue(membersClient.add(testSwarmId, MemberType.PRODUCER, getConfiguration().getUsername(), getConfiguration().getResource()) == 201);
+		assertTrue(membersClient2.add(testSwarmId, MemberType.PRODUCER, getConfiguration2().getUsername(), getConfiguration2().getResource()) == 201);
 		
 		list = membersClient.list(testSwarmId, MemberType.PRODUCER);
 		assertNotNull(list);
-		//There should be no PRODUCERS since we created only a CONSUMER
+		//There should be one PRODUCER now
 		assertTrue(list.size() == 1);
 		
 		//TODO validate that a we are a member of the swarm since we created it.
@@ -86,7 +87,11 @@ public class SwarmMemberWSAPITests extends BaseWSAPICase {
 		assertNotNull(members);
 		assertTrue(members.size() > 0);
 		
-		members = membersClient.getSwarmsByMember(getConfiguration().getResource());
+		//Create client for second user.
+		client = new SwarmWSClient(getConfiguration2());
+		membersClient = ((SwarmWSClient) client).getMembers();
+		
+		members = membersClient.getSwarmsByMember(getConfiguration2().getResource());
 		
 		assertNotNull(members);
 		assertTrue(members.size() > 0);
@@ -109,9 +114,14 @@ public class SwarmMemberWSAPITests extends BaseWSAPICase {
 
 		//Make sure member count has decreased by one.
 		assert(membersClient.getSwarmsByMember(getConfiguration().getResource()).size() == count - 1);
+		
+		client = new SwarmWSClient(getConfiguration2());
+		membersClient = ((SwarmWSClient) client).getMembers();
+		rc = membersClient.remove(testSwarmId, DEFAULT_MEMBER_TYPE, getConfiguration2().getUsername(), getConfiguration2().getResource());
+		assertTrue(rc == 200);
 	}
 	
-	public void testEmptySwarm() throws IOException {
+	public void t3stEmptySwarm() throws IOException {
 		ISwarmWSClient client = new SwarmWSClient(getConfiguration());
 		IMembersClient membersClient = ((SwarmWSClient) client).getMembers();
 		

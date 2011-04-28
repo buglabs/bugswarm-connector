@@ -36,6 +36,7 @@ public class BasicConnectivityTests extends TestCase {
 
 	public static final String API_KEY = "a0fc6588f11db4a1f024445e950ae6ae33bc0313";
 	public static final String XMPP_USERNAME = "connector-test";
+	public static final String XMPP_RESOURCE = "Psi";
 	public static final String SWARM_XMPP_HOST = "xmpp.bugswarm.net";
 	public static final String SWARM_WS_HOST = "http://api.bugswarm.net";
 	protected MultiUserChat swarmRoom;
@@ -54,7 +55,7 @@ public class BasicConnectivityTests extends TestCase {
 		ISwarmWSClient wsClient = new SwarmWSClient(SWARM_WS_HOST, API_KEY);
 		
 		assertTrue(wsClient.isValid() == null);
-		List<SwarmModel> allSwarms = wsClient.getMembers().getSwarmsByMember(XMPP_USERNAME);
+		List<SwarmModel> allSwarms = wsClient.getMembers().getSwarmsByMember(XMPP_RESOURCE);
 		
         /*
 		 * 3. Join to swarms returned by step 1. (xmpp)

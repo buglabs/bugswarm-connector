@@ -60,7 +60,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 			MultiUserChat.addInvitationListener(xmppClient.getConnection(), new SwarmInvitationListener());
 			
 			//Load data about server configuration and local configuration.
-			List<SwarmModel> allSwarms = wsClient.getMembers().getSwarmsByMember(config.getUsername());
+			List<SwarmModel> allSwarms = wsClient.getMembers().getSwarmsByMember(config.getResource());
 			
 			//Notify all swarms of presence.
 			for (SwarmModel swarm: allSwarms)
@@ -108,7 +108,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 	 * @throws Exception 
 	 */
 	public boolean initialize() throws Exception {
-		wsClient = new SwarmWSClient(config.getHostname(), config.getApi_key());
+		wsClient = new SwarmWSClient(config.getHostname(), config.getAPIKey());
 		if (wsClient.isValid() == null) {
 			xmppClient = new SwarmXMPPClient(config);
 			xmppClient.connect();
@@ -151,7 +151,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 		
 		try {
 			//Load data about server configuration and local configuration.
-			List<SwarmModel> allSwarms = wsClient.getMembers().getSwarmsByMember(config.getUsername());
+			List<SwarmModel> allSwarms = wsClient.getMembers().getSwarmsByMember(config.getResource());
 			
 			broadcastState(allSwarms);
 		} catch (IOException e) {

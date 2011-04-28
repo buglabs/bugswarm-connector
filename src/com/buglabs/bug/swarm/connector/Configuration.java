@@ -1,32 +1,67 @@
 package com.buglabs.bug.swarm.connector;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Random;
 
 import com.buglabs.bug.swarm.connector.ui.SwarmConfigKeys;
 
 /**
  * Convenience class to capture the configuration of a swarm connection.
+ * 
  * @author kgilmer
- *
  */
 public class Configuration {
 
-	
+	/**
+	 * Stores the configuration
+	 */
 	private Dictionary<String, String> config;
 
 	/**
+	 * This configuration will create a member value from the machine.
+	 * 
 	 * @param hostname
 	 * @param api_key
-	 * @param username
+	 * @param resource
 	 */
 	public Configuration(String hostname, String api_key, String username) {
-		config = new Hashtable<String, String>();
-		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, hostname);
-		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_NICKNAME, api_key);
-		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERKEY, username);		
+		this(hostname, api_key, username, getMachineResource());		
 	}
 	
+	/**
+	 * Create a configuration
+	 * 
+	 * @param hostname
+	 * @param api_key
+	 * @param resource
+	 */
+	public Configuration(String hostname, String api_key, String username, String resource) {
+		config = new Hashtable<String, String>();
+		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, hostname);
+		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME, username);
+		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY, api_key);
+		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE, getMachineResource());		
+	}
+	
+	/**
+	 * Determine some string that can be used to identify the client,
+	 * Preferably across OS updates, etc..
+	 * 
+	 * @return
+	 */
+	private static String getMachineResource() {
+		//TODO: have this get the ethernet mac address like it does in DP1.
+		try {
+		    return InetAddress.getLocalHost().getHostName();		    
+		} catch (UnknownHostException e) {
+			Random r = new Random();
+			return "UNKNOWNHOST-" + r.nextDouble();
+		}
+	}
+
 	/**
 	 * @param config
 	 */
@@ -44,15 +79,22 @@ public class Configuration {
 	/**
 	 * @return
 	 */
-	public String getApi_key() {
-		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_NICKNAME);
+	public String getAPIKey() {
+		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY);
+	}
+	
+	/**
+	 * @return
+	 */
+	public String getResource() {
+		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE);
 	}
 	
 	/**
 	 * @return
 	 */
 	public String getUsername() {
-		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERKEY);
+		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME);
 	}
 	
 	/**
@@ -65,9 +107,10 @@ public class Configuration {
 			return false;
 		
 		if (!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_ENABLED) ||
-			!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_NICKNAME) ||
+			!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE) ||
 			!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER) ||
-			!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERKEY))
+			!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY) || 
+			!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME))
 			return false;
 		
 		if (!Boolean.parseBoolean(config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_ENABLED).toString()))

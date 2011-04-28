@@ -83,12 +83,12 @@ public class SwarmMemberWSAPITests extends BaseWSAPICase {
 		ISwarmWSClient client = new SwarmWSClient(SWARM_HOST, API_KEY);
 		IMembersClient membersClient = ((SwarmWSClient) client).getMembers();
 		
-		List<SwarmModel> members = membersClient.getSwarmsByMember(DEFAULT_TEST_USER);
+		List<SwarmModel> members = membersClient.getSwarmsByMember(DEFAULT_RESOURCE_STRING);
 		
 		assertNotNull(members);
 		assertTrue(members.size() > 0);
 		
-		members = membersClient.getSwarmsByMember(DEFAULT_TEST_USER2);
+		members = membersClient.getSwarmsByMember(DEFAULT_RESOURCE_STRING);
 		
 		assertNotNull(members);
 		assertTrue(members.size() > 0);
@@ -103,21 +103,21 @@ public class SwarmMemberWSAPITests extends BaseWSAPICase {
 		IMembersClient membersClient = ((SwarmWSClient) client).getMembers();
 		
 		//Get the current number of members.
-		int count = membersClient.getSwarmsByMember(DEFAULT_TEST_USER).size();
+		int count = membersClient.getSwarmsByMember(DEFAULT_RESOURCE_STRING).size();
 		assertTrue(count > 0);
 		//TODO: determine set of test users that can be created or assumed to exist.
 		int rc = membersClient.remove(testSwarmId, DEFAULT_MEMBER_TYPE, DEFAULT_TEST_USER, DEFAULT_RESOURCE_STRING);
 		assertTrue(rc == 200);
 
 		//Make sure member count has decreased by one.
-		assert(membersClient.getSwarmsByMember(DEFAULT_TEST_USER).size() == count - 1);
+		assert(membersClient.getSwarmsByMember(DEFAULT_RESOURCE_STRING).size() == count - 1);
 	}
 	
 	public void testEmptySwarm() throws IOException {
 		ISwarmWSClient client = new SwarmWSClient(SWARM_HOST, API_KEY);
 		IMembersClient membersClient = ((SwarmWSClient) client).getMembers();
 		
-		List<SwarmModel> members = membersClient.getSwarmsByMember(DEFAULT_TEST_USER);
+		List<SwarmModel> members = membersClient.getSwarmsByMember(DEFAULT_RESOURCE_STRING);
 		
 		assertNotNull(members);
 		assertTrue(members.size() == 0);

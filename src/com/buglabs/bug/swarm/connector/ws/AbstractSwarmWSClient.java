@@ -17,6 +17,10 @@ import com.buglabs.util.simplerestclient.HTTPResponse;
  */
 public abstract class AbstractSwarmWSClient {
 	
+	private static final String CONTENT_TYPE_HEADER_KEY = "Content-Type";
+
+	private static final String SWARM_APIKEY_HEADER_KEY = "X-BugSwarmApiKey";
+
 	protected static final String INVALID_SWARM_CONNECTION_ERROR_MESSAGE = "API_KEY is invalid.";
 
 	private static final boolean DEBUG_MODE = true;
@@ -92,7 +96,7 @@ public abstract class AbstractSwarmWSClient {
 	 */
 	protected Map<String, String> getSwarmHeaders() {
 		if (staticHeaders == null) {
-			staticHeaders = toMap("X-BugSwarmApiKey", apiKey, "Content-Type", "application/json");			
+			staticHeaders = toMap(SWARM_APIKEY_HEADER_KEY, apiKey, CONTENT_TYPE_HEADER_KEY, "application/json");			
 		}
 		
 		return staticHeaders;

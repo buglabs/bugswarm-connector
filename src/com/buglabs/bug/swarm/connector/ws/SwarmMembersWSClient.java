@@ -57,13 +57,13 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 	}
 
 	@Override
-	public List<SwarmModel> getSwarmsByMember(String userId) throws IOException {
-		if (userId == null)
+	public List<SwarmModel> getSwarmsByMember(String resource) throws IOException {
+		if (resource == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 		
 		validate();
 		
-		HTTPResponse response = httpClient.get(swarmHostUrl + "members/" + userId + "/swarms");
+		HTTPResponse response = httpClient.get(swarmHostUrl + "members/" + resource + "/swarms");
 		
 		JSONArray json = (JSONArray) JSONValue.parse(new InputStreamReader(response.getStream()));
 		

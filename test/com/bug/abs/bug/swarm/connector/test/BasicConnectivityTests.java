@@ -32,13 +32,9 @@ import com.buglabs.bug.swarm.connector.xmpp.XmlMessageCreator;
  * @author kgilmer
  *
  */
-public class BasicConnectivityTests extends TestCase {
+public class BasicConnectivityTests extends BaseWSAPICase {
 
-	public static final String API_KEY = "a0fc6588f11db4a1f024445e950ae6ae33bc0313";
-	public static final String XMPP_USERNAME = "connector-test";
-	public static final String XMPP_RESOURCE = "Psi";
-	public static final String SWARM_XMPP_HOST = "xmpp.bugswarm.net";
-	public static final String SWARM_WS_HOST = "http://api.bugswarm.net";
+	
 	protected MultiUserChat swarmRoom;
 	protected ChatManager chatManager;
 	
@@ -52,16 +48,15 @@ public class BasicConnectivityTests extends TestCase {
 		 * 2. Get the list of consumer members of every swarm returned by step 1. (through the Rest API)
 		 */
 		
-		ISwarmWSClient wsClient = new SwarmWSClient(SWARM_WS_HOST, API_KEY);
+		ISwarmWSClient wsClient = new SwarmWSClient(getConfiguration().getHostname(), getConfiguration().getAPIKey());
 		
 		assertTrue(wsClient.isValid() == null);
-		List<SwarmModel> allSwarms = wsClient.getMembers().getSwarmsByMember(XMPP_RESOURCE);
+		List<SwarmModel> allSwarms = wsClient.getMembers().getSwarmsByMember(getConfiguration().getResource());
 		
         /*
 		 * 3. Join to swarms returned by step 1. (xmpp)
-		 */
-		Configuration c = new Configuration(SWARM_XMPP_HOST, API_KEY, XMPP_USERNAME);
-		SwarmXMPPClient xmppClient = new SwarmXMPPClient(c);
+		 */		
+		SwarmXMPPClient xmppClient = new SwarmXMPPClient(getConfiguration());
 		xmppClient.connect();
 		
 		assertTrue(xmppClient.isConnected());
@@ -100,13 +95,12 @@ public class BasicConnectivityTests extends TestCase {
 	public void notestConnectToSwarmServerOld() throws IOException, XMPPException, InterruptedException {
 		
 		// ------- Steps 1, 2 - Authenticate w/ server.
-		ISwarmWSClient wsClient = new SwarmWSClient(SWARM_WS_HOST, API_KEY);
+		ISwarmWSClient wsClient = new SwarmWSClient(getConfiguration().getHostname(), getConfiguration().getAPIKey());
 		
 		assertTrue(wsClient.isValid() == null);
 		
 		// ------- Step 3 - Send presence
-		Configuration c = new Configuration(SWARM_XMPP_HOST, API_KEY, XMPP_USERNAME);
-		SwarmXMPPClient xmppClient = new SwarmXMPPClient(c);
+		SwarmXMPPClient xmppClient = new SwarmXMPPClient(getConfiguration());
 		xmppClient.connect();
 		
 		assertTrue(xmppClient.isConnected());

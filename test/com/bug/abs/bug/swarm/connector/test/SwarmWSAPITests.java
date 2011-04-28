@@ -15,7 +15,7 @@ import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
 public class SwarmWSAPITests extends BaseWSAPICase {
 
 	public void testCreateSwarm() throws IOException {
-		SwarmWSClient client = new SwarmWSClient(SWARM_HOST, API_KEY);
+		SwarmWSClient client = new SwarmWSClient(getConfiguration());
 		
 		String id = client.create(getTestSwarmName(), true, getTestSwarmDescription());
 		
@@ -26,7 +26,7 @@ public class SwarmWSAPITests extends BaseWSAPICase {
 	}
 	
 	public void testUpdateSwarm() throws IOException {
-		SwarmWSClient client = new SwarmWSClient(SWARM_HOST, API_KEY);
+		SwarmWSClient client = new SwarmWSClient(getConfiguration());
 		
 		int rval = client.update(testSwarmId, true, "new description");
 				
@@ -34,7 +34,7 @@ public class SwarmWSAPITests extends BaseWSAPICase {
 	}
 	
 	public void testGet() throws IOException {
-		SwarmWSClient client = new SwarmWSClient(SWARM_HOST, API_KEY);
+		SwarmWSClient client = new SwarmWSClient(getConfiguration());
 		
 		SwarmModel swarmInfo = client.get(testSwarmId);
 		
@@ -42,7 +42,7 @@ public class SwarmWSAPITests extends BaseWSAPICase {
 	}
 	
 	public void testList() throws IOException {
-		SwarmWSClient client = new SwarmWSClient(SWARM_HOST, API_KEY);
+		SwarmWSClient client = new SwarmWSClient(getConfiguration());
 		
 		List<SwarmModel> swarms = client.list();
 				
@@ -58,17 +58,17 @@ public class SwarmWSAPITests extends BaseWSAPICase {
 	}
 	
 	public void testVerifyAPIKey() throws IOException {
-		SwarmWSClient client = new SwarmWSClient(SWARM_HOST, API_KEY);
+		SwarmWSClient client = new SwarmWSClient(getConfiguration());
 		
 		assertTrue(client.isValid() == null);
 		
-		client = new SwarmWSClient(SWARM_HOST, "ohmyisthiskeyvalid");
+		client = new SwarmWSClient(getConfiguration().getHostname(), "ohmyisthiskeyvalid");
 		
 		assertFalse(client.isValid() == null);
 	}
 
 	public void testDestroy() throws IOException {
-		SwarmWSClient client = new SwarmWSClient(SWARM_HOST, API_KEY);
+		SwarmWSClient client = new SwarmWSClient(getConfiguration());
 		
 		int rval = client.destroy(testSwarmId);
 				

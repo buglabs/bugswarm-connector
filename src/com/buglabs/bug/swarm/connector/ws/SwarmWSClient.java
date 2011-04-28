@@ -10,6 +10,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
+import com.buglabs.bug.swarm.connector.Configuration;
 import com.buglabs.util.simplerestclient.HTTPResponse;
 
 /**
@@ -21,8 +22,23 @@ import com.buglabs.util.simplerestclient.HTTPResponse;
 public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClient {
 	private SwarmMembersWSClient membersClient;
 
+	/**
+	 * Create a client from a url and apikey.
+	 * 
+	 * @param swarmHostUrl
+	 * @param apiKey
+	 */
 	public SwarmWSClient(String swarmHostUrl, String apiKey) {
 		super(swarmHostUrl, apiKey);
+	}
+	
+	/**
+	 * Create a client from a Configuration.
+	 * 
+	 * @param config
+	 */
+	public SwarmWSClient(Configuration config) {
+		super(config.getHostname(), config.getAPIKey());
 	}
 	
 	/**

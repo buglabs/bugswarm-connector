@@ -81,7 +81,7 @@ public class SwarmModel {
 		
 		return new SwarmModel(
 				Boolean.parseBoolean(jo.get("public").toString()), 
-				SwarmMemberModel.createListFromJson((JSONArray) jo.get("members")), 
+				SwarmMemberModel.createListFromJson((JSONArray) jo.get("resources")), 
 				jo.get("created_at").toString(), 
 				jo.get("id").toString(), 
 				jo.get("description").toString(), 

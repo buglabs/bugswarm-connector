@@ -75,12 +75,11 @@ public abstract class AbstractSwarmWSClient {
 		if (isValidated && !force)
 			return null;
 		
-		
 		try {
 			HTTPResponse response = httpClient.get(swarmHostUrl + "keys/" + apiKey + "/verify");
 			int rval = response.getResponseCode();
 			
-			if (rval == 200) {
+			if (rval >= 200 && rval < 400) {
 				isValidated = true;
 				return null;
 			}			

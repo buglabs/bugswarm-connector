@@ -54,7 +54,7 @@ public class SwarmMemberModel {
 	@Override
 	public String toString() {
 		
-		return swarmId + "[" + userId + "/" + resource + "]";
+		return swarmId + "[" + userId + " (" + type + ")/" + resource + "]";
 	}
 
 	/**

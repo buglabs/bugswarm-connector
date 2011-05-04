@@ -82,8 +82,9 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 		props.put("type", type.toString());
 		props.put("user_id", userId);
 		props.put("resource", resource);
+		props.put("X-HTTP-Method-Override", "DELETE");
 		
-		return httpClient.delete(swarmHostUrl + "swarms/" + swarmId + "/resources", props).getResponseCode();
+		return httpClient.post(swarmHostUrl + "swarms/" + swarmId + "/resources", props).getResponseCode();
 	}
 	
 	private void validate() throws IOException {

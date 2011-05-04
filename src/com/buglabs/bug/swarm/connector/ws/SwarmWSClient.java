@@ -71,7 +71,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 	}
 
 	@Override
-	public int update(String swarmId, boolean isPublic, String description) throws IOException {
+	public SwarmWSResponse update(String swarmId, boolean isPublic, String description) throws IOException {
 		if (swarmId == null || description == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 		
@@ -84,11 +84,11 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 		
 		HTTPResponse response = httpClient.put(swarmHostUrl + "swarms/" + swarmId, props);
 		
-		return response.getResponseCode();
+		return SwarmWSResponse.fromCode(response.getResponseCode());
 	}
 
 	@Override
-	public int destroy(String swarmId) throws IOException {
+	public SwarmWSResponse destroy(String swarmId) throws IOException {
 		if (swarmId == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 		
@@ -96,7 +96,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 		
 		HTTPResponse response = httpClient.delete(swarmHostUrl + "swarms/" + swarmId);
 		
-		return response.getResponseCode();
+		return SwarmWSResponse.fromCode(response.getResponseCode());
 	}
 
 	@Override

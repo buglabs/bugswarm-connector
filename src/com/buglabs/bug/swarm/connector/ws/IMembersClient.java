@@ -44,14 +44,14 @@ public interface IMembersClient {
 	 * @return
 	 * @throws IOException 
 	 */
-	public int add(String swarmId, IMembersClient.MemberType type, String userId, String resource) throws IOException;
+	public SwarmWSResponse add(String swarmId, IMembersClient.MemberType type, String userId, String resource) throws IOException;
 	
 	/**
 	 * @param swarmId
 	 * @return
 	 * @throws IOException 
 	 */
-	public int remove(String swarmId, IMembersClient.MemberType type, String userId, String resource) throws IOException;
+	public SwarmWSResponse remove(String swarmId, IMembersClient.MemberType type, String userId, String resource) throws IOException;
 	
 	/**
 	 * @param userId

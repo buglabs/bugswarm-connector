@@ -39,7 +39,7 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 	}
 
 	@Override
-	public int add(String swarmId, MemberType type, String userId, String resource) throws IOException {
+	public SwarmWSResponse add(String swarmId, MemberType type, String userId, String resource) throws IOException {
 		if (swarmId == null || type == null || userId == null || resource == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 		
@@ -53,7 +53,8 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 		
 		HTTPResponse response = httpClient.post(swarmHostUrl + "swarms/" + swarmId + "/resources", props);
 		
-		return response.getResponseCode();
+		
+		return SwarmWSResponse.fromCode(response.getResponseCode());
 	}
 
 	@Override
@@ -71,7 +72,7 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 	}
 
 	@Override
-	public int remove(String swarmId, MemberType type, String userId, String resource) throws IOException {
+	public SwarmWSResponse remove(String swarmId, MemberType type, String userId, String resource) throws IOException {
 		if (swarmId == null || type == null || userId == null || resource == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 		
@@ -84,7 +85,7 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 		props.put("resource", resource);
 		props.put("X-HTTP-Method-Override", "DELETE");
 		
-		return httpClient.post(swarmHostUrl + "swarms/" + swarmId + "/resources", props).getResponseCode();
+		return SwarmWSResponse.fromCode(httpClient.post(swarmHostUrl + "swarms/" + swarmId + "/resources", props).getResponseCode());
 	}
 	
 	private void validate() throws IOException {

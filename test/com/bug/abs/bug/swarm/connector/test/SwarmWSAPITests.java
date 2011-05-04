@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.buglabs.bug.swarm.connector.ws.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
+import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
 
 /**
  * Unit tests for ISwarmWSClient implementation
@@ -28,9 +29,9 @@ public class SwarmWSAPITests extends BaseWSAPICase {
 	public void testUpdateSwarm() throws IOException {
 		SwarmWSClient client = new SwarmWSClient(getConfiguration());
 		
-		int rval = client.update(testSwarmId, true, "new description");
+		SwarmWSResponse rval = client.update(testSwarmId, true, "new description");
 				
-		assertTrue(rval == 200);
+		assertTrue(!rval.isError());
 	}
 	
 	public void testGet() throws IOException {
@@ -70,8 +71,8 @@ public class SwarmWSAPITests extends BaseWSAPICase {
 	public void testDestroy() throws IOException {
 		SwarmWSClient client = new SwarmWSClient(getConfiguration());
 		
-		int rval = client.destroy(testSwarmId);
+		SwarmWSResponse rval = client.destroy(testSwarmId);
 				
-		assertTrue(rval == 200);
+		assertTrue(!rval.isError());
 	}
 }

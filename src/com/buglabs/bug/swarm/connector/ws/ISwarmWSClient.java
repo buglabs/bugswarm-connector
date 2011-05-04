@@ -30,7 +30,7 @@ public interface ISwarmWSClient {
 	 * @return HTTP response of operation.
 	 * @throws IOException 
 	 */
-	public int update(String swarmId, boolean isPublic, String description) throws IOException;
+	public SwarmWSResponse update(String swarmId, boolean isPublic, String description) throws IOException;
 	
 	/**
 	 * Delete a swarm.
@@ -38,7 +38,7 @@ public interface ISwarmWSClient {
 	 * @return HTTP response of operation.
 	 * @throws IOException 
 	 */
-	public int destroy(String swarmId) throws IOException;
+	public SwarmWSResponse destroy(String swarmId) throws IOException;
 	
 	/**
 	 * Get all available swarms.

@@ -1,0 +1,68 @@
+#!/bin/bash
+
+if [ -z $BUILD_ROOT ]; then
+	echo "Setting BUILD_ROOT TO `pwd`"
+	BUILD_ROOT=`pwd`
+fi
+
+if [ -z $WORKSPACE ]; then
+	DIST_DIR=$BUILD_ROOT/dist
+else
+	DIST_DIR=$WORKSPACE/dist
+fi
+
+DEPS_DIR=$BUILD_ROOT/deps
+
+###### Create build dir layout
+mkdir $DIST_DIR
+mkdir $DEPS_DIR
+
+###### Get non-compiled external dependencies
+if [ ! -f $DEPS_DIR/osgi.core.jar ]; then
+	wget -P $DEPS_DIR http://www.osgi.org/download/r4v42/osgi.core.jar
+fi
+
+if [ ! -f $DEPS_DIR/osgi.cmpn.jar ]; then
+	wget -P $DEPS_DIR http://www.osgi.org/download/r4v42/osgi.cmpn.jar
+fi
+
+if [ ! -f $DEPS_DIR/smack-smackx-osgi.jar ]; then
+	wget --no-check-certificate -P $DEPS_DIR https://github.com/downloads/buglabs/smack-smackx-osgi/smack-smackx-osgi.jar
+fi
+
+if [ ! -f $DEPS_DIR/junit-dep-4.9b2.jar ]; then
+	wget --no-check-certificate -P $DEPS_DIR https://github.com/downloads/KentBeck/junit/junit-dep-4.9b2.jar
+fi 
+
+if [ ! -f $DEPS_DIR/json_simple-1.1.jar ]; then
+	wget --no-check-certificate -P $DEPS_DIR http://json-simple.googlecode.com/files/json_simple-1.1.jar
+fi
+
+if [ ! -f $DEPS_DIR/xpp3-1.1.4c.jar ]; then
+	wget --no-check-certificate -P $DEPS_DIR http://www.extreme.indiana.edu/dist/java-repository/xpp3/jars/xpp3-1.1.4c.jar
+fi
+
+if [ ! -f $DEPS_DIR/javax.servlet_2.3.0.v200806031603.jar ]; then
+	wget --no-check-certificate -O $DEPS_DIR/javax.servlet_2.3.0.v200806031603.jar "http://www.eclipse.org/downloads/download.php?r=1&file=/tools/orbit/downloads/drops/R20100519200754/bundles/javax.servlet_2.3.0.v200806031603.jar"
+fi
+
+###### Clean old checkouts
+rm -Rf com.buglabs.common
+rm -Rf bugswarm-connector
+
+###### Get source dependencies that will be compiled
+git clone git@github.com:buglabs/com.buglabs.common.git
+git clone git@github.com:buglabs/com.buglabs.osgi.sewing.git
+svn export --force svn://bugcamp.net/dragonfly/trunk/com.buglabs.build
+
+###### Build dependencies
+
+# com.buglabs.common
+ant -Dbase.build.dir=$BUILD_ROOT/com.buglabs.build -Dcheckout.dir=$BUILD_ROOT -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f com.buglabs.common/build.xml build.jars
+
+# com.buglabs.osgi.sewing
+ant -Dbase.build.dir=$BUILD_ROOT/com.buglabs.build -Dcheckout.dir=$BUILD_ROOT -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f com.buglabs.osgi.sewing/build.xml build.jars
+
+###### Build bugswarm-connector
+ant -Dbase.build.dir=$BUILD_ROOT/com.buglabs.build -Dcheckout.dir=$BUILD_ROOT -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f bugswarm-connector/build.xml build.jars
+ant -Dbase.build.dir=$BUILD_ROOT/com.buglabs.build -Dcheckout.dir=$BUILD_ROOT -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f bugswarm-connector/build.xml test

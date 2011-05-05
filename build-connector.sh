@@ -1,17 +1,17 @@
 #!/bin/bash
 
-if [ -z $BUILD_ROOT ]; then
-	echo "Setting BUILD_ROOT TO `pwd`"
-	BUILD_ROOT=`pwd`
+if [ -z $WORKSPACE ]; then
+	echo "Setting WORKSPACE TO `pwd`"
+	WORKSPACE=`pwd`
 fi
 
 if [ -z $WORKSPACE ]; then
-	DIST_DIR=$BUILD_ROOT/dist
+	DIST_DIR=$WORKSPACE/dist
 else
 	DIST_DIR=$WORKSPACE/dist
 fi
 
-DEPS_DIR=$BUILD_ROOT/deps
+DEPS_DIR=$WORKSPACE/deps
 
 ###### Create build dir layout
 mkdir $DIST_DIR
@@ -58,11 +58,11 @@ svn export --force svn://bugcamp.net/dragonfly/trunk/com.buglabs.build
 ###### Build dependencies
 
 # com.buglabs.common
-ant -Dbase.build.dir=$BUILD_ROOT/com.buglabs.build -Dcheckout.dir=$BUILD_ROOT -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f com.buglabs.common/build.xml build.jars
+ant -Dbase.build.dir=$WORKSPACE/com.buglabs.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f com.buglabs.common/build.xml build.jars
 
 # com.buglabs.osgi.sewing
-ant -Dbase.build.dir=$BUILD_ROOT/com.buglabs.build -Dcheckout.dir=$BUILD_ROOT -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f com.buglabs.osgi.sewing/build.xml build.jars
+ant -Dbase.build.dir=$WORKSPACE/com.buglabs.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f com.buglabs.osgi.sewing/build.xml build.jars
 
 ###### Build bugswarm-connector
-ant -Dbase.build.dir=$BUILD_ROOT/com.buglabs.build -Dcheckout.dir=$BUILD_ROOT -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f bugswarm-connector/build.xml build.jars
-ant -Dbase.build.dir=$BUILD_ROOT/com.buglabs.build -Dcheckout.dir=$BUILD_ROOT -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f bugswarm-connector/build.xml test
+ant -Dbase.build.dir=$WORKSPACE/com.buglabs.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/bugswarm-connector/build.xml build.jars
+ant -Dbase.build.dir=$WORKSPACE/com.buglabs.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/bugswarm-connector/build.xml test

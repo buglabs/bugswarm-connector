@@ -48,7 +48,6 @@ fi
 
 ###### Clean old checkouts
 rm -Rf com.buglabs.common
-rm -Rf bugswarm-connector
 
 ###### Get source dependencies that will be compiled
 git clone git@github.com:buglabs/com.buglabs.common.git

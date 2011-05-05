@@ -51,13 +51,15 @@ rm -Rf com.buglabs.common
 
 ###### Get source dependencies that will be compiled
 git clone git@github.com:buglabs/bug-osgi.git
+mv bug-osgi/com.buglabs.common $WORKSPACE
+rm -Rf bug-osgi
 git clone git@github.com:buglabs/com.buglabs.osgi.sewing.git
 svn export --force svn://bugcamp.net/dragonfly/trunk/com.buglabs.build
 
 ###### Build dependencies
 
 # com.buglabs.common
-ant -Dbase.build.dir=$WORKSPACE/com.buglabs.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f bug-osgi/com.buglabs.common/build.xml build.jars
+ant -Dbase.build.dir=$WORKSPACE/com.buglabs.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f com.buglabs.common/build.xml build.jars
 
 # com.buglabs.osgi.sewing
 ant -Dbase.build.dir=$WORKSPACE/com.buglabs.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f com.buglabs.osgi.sewing/build.xml build.jars

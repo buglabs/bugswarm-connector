@@ -20,12 +20,14 @@ public abstract class BaseWSAPICase extends TestCase {
 	private static final String SWARM_HOST = "api.bugswarm.net";
 	
 	private static final String XMPP_USERNAME = "connector-test";
+	private static final String XMPP_HOST = "xmpp.bugswarm.net";
 	//private static final String XMPP_RESOURCE = "Psi";
 	
 	protected static String testSwarmName;
 	protected static String testSwarmId;
 	// helper methods
 	private Configuration config;
+	private Configuration xmppconfig;
 	
 	protected Configuration getConfiguration() {
 		if (config == null) {
@@ -33,6 +35,14 @@ public abstract class BaseWSAPICase extends TestCase {
 		}
 		
 		return config;
+	}
+	
+	protected Configuration getXmppConfiguration() {
+		if (xmppconfig == null) {
+			xmppconfig = new Configuration(XMPP_HOST, API_KEY, XMPP_USERNAME);
+		}
+		
+		return xmppconfig;
 	}
 	
 	protected Configuration getConfiguration2() {

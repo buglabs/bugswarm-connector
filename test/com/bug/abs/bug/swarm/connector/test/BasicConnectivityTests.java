@@ -56,7 +56,7 @@ public class BasicConnectivityTests extends BaseWSAPICase {
         /*
 		 * 3. Join to swarms returned by step 1. (xmpp)
 		 */		
-		SwarmXMPPClient xmppClient = new SwarmXMPPClient(getConfiguration());
+		SwarmXMPPClient xmppClient = new SwarmXMPPClient(getXmppConfiguration());
 		xmppClient.connect();
 		
 		assertTrue(xmppClient.isConnected());

@@ -71,7 +71,7 @@ public class SwarmXMPPClient  {
 		//String clientId = ClientIdentity.getRef().getId();
 		if (connection == null) {				
 			connection = createConnection(config.getHostname());
-			login(connection, config.getResource(), config.getAPIKey());
+			login(connection, config.getUsername(), config.getUsername());
 			disposed = false;
 		}		
 	}

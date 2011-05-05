@@ -88,7 +88,7 @@ public class SwarmXMPPClient  {
 	 * @return
 	 */
 	public String getUsername() {
-		return config.getResource();
+		return config.getUsername();
 	}
 	
 	/**
@@ -173,13 +173,28 @@ public class SwarmXMPPClient  {
 		return new XMPPConnection(config);
 	}
 	
-	private MultiUserChat getMUC(String swarmId) {
-		if (!swarmMap.containsKey(swarmId))
-			swarmMap.put(swarmId, new MultiUserChat(connection, swarmId));
+	/**
+	 * Get or create if necessary the MUC for a swarm.
+	 * @param roomId
+	 * @return
+	 */
+	private MultiUserChat getMUC(String roomId) {
+		if (!swarmMap.containsKey(roomId))
+			swarmMap.put(roomId, new MultiUserChat(connection, getMUCRoomName(roomId, connection.getHost())));
 		
-		return swarmMap.get(swarmId);
+		return swarmMap.get(roomId);
 	}
 	
+	/**
+	 * Create the identifier for a MUC Room based on name and host.
+	 * @param roomId
+	 * @param host
+	 * @return
+	 */
+	private String getMUCRoomName(String roomId, String host) {
+		return roomId + "@" + host;
+	}
+
 	/**
 	 * Shutdown all connectors and cleanup.  Once called, this service cannot be used again.
 	 */

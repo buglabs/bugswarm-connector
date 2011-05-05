@@ -65,7 +65,7 @@ public class SwarmXMPPClient  {
 	public SwarmXMPPClient(final Configuration config) {
 		this.config = config;
 	}
-	
+		
 	public void connect() throws IOException, XMPPException {				
 		// Get a unique ID for the device software is running on.
 		//String clientId = ClientIdentity.getRef().getId();
@@ -91,6 +91,10 @@ public class SwarmXMPPClient  {
 		return config.getUsername();
 	}
 	
+	public String getResource() {
+		return config.getResource();
+	}
+	
 	/**
 	 * @return
 	 */
@@ -114,7 +118,7 @@ public class SwarmXMPPClient  {
 		MultiUserChat muc = getMUC(swarmId);
 		
 		if (!muc.isJoined())
-			muc.join(getUsername());
+			muc.join(getResource());
 	}
 
 	/**

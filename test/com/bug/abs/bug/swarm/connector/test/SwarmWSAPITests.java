@@ -52,8 +52,10 @@ public class SwarmWSAPITests extends BaseWSAPICase {
 		
 		boolean swarmIdExists = false;
 		for (SwarmModel sm: swarms)
-			if (sm.getId().equals(testSwarmId))
+			if (sm.getId().equals(testSwarmId)) {
 				swarmIdExists = true;
+				break;
+			}
 		
 		assertTrue(swarmIdExists);
 	}

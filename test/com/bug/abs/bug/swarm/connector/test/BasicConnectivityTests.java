@@ -62,8 +62,17 @@ public class BasicConnectivityTests extends BaseWSAPICase {
 		assertTrue(xmppClient.isConnected());
 		assertTrue(xmppClient.getConnection() != null);
 		
-		for (SwarmModel swarm: allSwarms)
-			 xmppClient.joinSwarm(swarm.getId());
+		List<SwarmModel> connectedSwarms = new ArrayList<SwarmModel>();
+		for (SwarmModel swarm: allSwarms) {
+			try {
+				 xmppClient.joinSwarm(swarm.getId());
+				 connectedSwarms.add(swarm);
+			} catch (XMPPException e) {
+				System.err.println("Failed to join swarm " + swarm.getName() + ": " + e.getMessage());
+			}
+		}
+		
+		assertTrue(connectedSwarms.size() > 0);
 		
         /* 
 		 * 4. Advertise device capabilities (services and feeds) only to consumer members that have
@@ -71,7 +80,7 @@ public class BasicConnectivityTests extends BaseWSAPICase {
 		
 		OSGiHelper osgi = OSGiHelper.getRef();
 		
-		for (SwarmModel swarm: allSwarms) 
+		for (SwarmModel swarm: connectedSwarms) 
 			for (SwarmMemberModel member: swarm.getMembers())
 				if (member.getType() == MemberType.CONSUMER &&  xmppClient.isPresent(swarm.getId(), member.getUserId()))
 					xmppClient.advertise(

@@ -2,6 +2,7 @@ package com.buglabs.bug.swarm.connector.xmpp;
 
 import java.util.List;
 
+import com.buglabs.bug.swarm.connector.osgi.OSGiHelper.BUGSwarmFeed;
 import com.buglabs.module.IModuleControl;
 import com.buglabs.module.IModuleProperty;
 import com.buglabs.services.ws.PublicWSDefinition;
@@ -23,7 +24,7 @@ public class XMLDocCreator {
 	 * @param feeds
 	 * @return
 	 */
-	public static XmlNode createServiceModuleFeedDocument(List<PublicWSProvider> services, List<IModuleControl> modules, List feeds) {
+	public static XmlNode createServiceModuleFeedDocument(List<PublicWSProvider> services, List<IModuleControl> modules, List<BUGSwarmFeed> feeds) {
 		XmlNode root = new XmlNode("device_info");
 		
 		//Services
@@ -37,7 +38,9 @@ public class XMLDocCreator {
 			modulesNode.addChild(createModuleNode(module));
 		
 		//Feeds
-		//Need futher definition of feeds
+		XmlNode feedsNode = new XmlNode(root, "feeds");
+		for (BUGSwarmFeed feed: feeds)
+			feedsNode.addChild(createFeedNode(feed));
 		
 		return root;
 	}
@@ -59,6 +62,19 @@ public class XMLDocCreator {
 			pn.addAttribute("name", mp.getName());
 			pn.addAttribute("value", mp.getValue().toString());
 		}
+		
+		return n;
+	}
+	
+	/**
+	 * Create xml document for a feed.
+	 * 
+	 * @param module
+	 * @return
+	 */
+	private static XmlNode createFeedNode(BUGSwarmFeed feed) {
+		XmlNode n = new XmlNode("feed");
+		n.addAttribute("name", feed.getName());
 		
 		return n;
 	}

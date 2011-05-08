@@ -40,15 +40,15 @@ public class BasicConnectivityTests extends TestCase {
 		 * 2. Get the list of consumer members of every swarm returned by step 1. (through the Rest API)
 		 */
 		
-		ISwarmWSClient wsClient = new SwarmWSClient(TestUtil.getConfiguration().getHostname(), TestUtil.getConfiguration().getAPIKey());
+		ISwarmWSClient wsClient = new SwarmWSClient(AccountConfig.getConfiguration().getHostname(), AccountConfig.getConfiguration().getAPIKey());
 		
 		assertTrue(wsClient.isValid() == null);
-		List<SwarmModel> allSwarms = wsClient.getMembers().getSwarmsByMember(TestUtil.getConfiguration().getResource());
+		List<SwarmModel> allSwarms = wsClient.getMembers().getSwarmsByMember(AccountConfig.getConfiguration().getResource());
 		
         /*
 		 * 3. Join to swarms returned by step 1. (xmpp)
 		 */		
-		SwarmXMPPClient xmppClient = new SwarmXMPPClient(TestUtil.getXmppConfiguration());
+		SwarmXMPPClient xmppClient = new SwarmXMPPClient(AccountConfig.getXmppConfiguration());
 		xmppClient.connect();
 		
 		assertTrue(xmppClient.isConnected());

@@ -10,7 +10,7 @@ import com.buglabs.bug.swarm.connector.Configuration;
  * @author kgilmer
  *
  */
-public final class TestUtil {
+public final class AccountConfig {
 	protected static final String XMPP_USERNAME2 = "test";
 	protected static final String API_KEY2 = "a0fc6588f11db4a1f024445e950ae6ae33bc0313";
 	
@@ -54,7 +54,7 @@ public final class TestUtil {
 	protected static String getTestSwarmName() {		
 		if (testSwarmName == null) {
 			Random r = new Random();
-			testSwarmName = "TestSwarm-" + TestUtil.class.getSimpleName() + r.nextFloat();		
+			testSwarmName = "TestSwarm-" + AccountConfig.class.getSimpleName() + r.nextFloat();		
 		}
 		
 		return testSwarmName;		
@@ -65,10 +65,10 @@ public final class TestUtil {
 	 */
 	protected static String generateRandomSwarmName() {		
 		Random r = new Random();
-		return "TestSwarm-" + TestUtil.class.getSimpleName() + r.nextFloat();					
+		return "TestSwarm-" + AccountConfig.class.getSimpleName() + r.nextFloat();					
 	}
 
 	protected static String getTestSwarmDescription() {
-		return "TestSwarmDescription-" + TestUtil.class.getSimpleName();
+		return "TestSwarmDescription-" + AccountConfig.class.getSimpleName();
 	}
 }

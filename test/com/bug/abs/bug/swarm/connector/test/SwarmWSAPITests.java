@@ -18,34 +18,34 @@ import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
 public class SwarmWSAPITests extends TestCase {
 
 	public void testCreateSwarm() throws IOException {
-		SwarmWSClient client = new SwarmWSClient(TestUtil.getConfiguration());
+		SwarmWSClient client = new SwarmWSClient(AccountConfig.getConfiguration());
 		
-		String id = client.create(TestUtil.getTestSwarmName(), true, TestUtil.getTestSwarmDescription());
+		String id = client.create(AccountConfig.getTestSwarmName(), true, AccountConfig.getTestSwarmDescription());
 		
 		assertNotNull(id);
 		assertTrue(id.length() > 0);
 		
-		TestUtil.testSwarmId = id;
+		AccountConfig.testSwarmId = id;
 	}
 	
 	public void testUpdateSwarm() throws IOException {
-		SwarmWSClient client = new SwarmWSClient(TestUtil.getConfiguration());
+		SwarmWSClient client = new SwarmWSClient(AccountConfig.getConfiguration());
 		
-		SwarmWSResponse rval = client.update(TestUtil.testSwarmId, true, "new description");
+		SwarmWSResponse rval = client.update(AccountConfig.testSwarmId, true, "new description");
 				
 		assertTrue(!rval.isError());
 	}
 	
 	public void testGet() throws IOException {
-		SwarmWSClient client = new SwarmWSClient(TestUtil.getConfiguration());
+		SwarmWSClient client = new SwarmWSClient(AccountConfig.getConfiguration());
 		
-		SwarmModel swarmInfo = client.get(TestUtil.testSwarmId);
+		SwarmModel swarmInfo = client.get(AccountConfig.testSwarmId);
 		
 		assertTrue(swarmInfo != null);
 	}
 	
 	public void testList() throws IOException {
-		SwarmWSClient client = new SwarmWSClient(TestUtil.getConfiguration());
+		SwarmWSClient client = new SwarmWSClient(AccountConfig.getConfiguration());
 		
 		List<SwarmModel> swarms = client.list();
 				
@@ -54,7 +54,7 @@ public class SwarmWSAPITests extends TestCase {
 		
 		boolean swarmIdExists = false;
 		for (SwarmModel sm: swarms)
-			if (sm.getId().equals(TestUtil.testSwarmId)) {
+			if (sm.getId().equals(AccountConfig.testSwarmId)) {
 				swarmIdExists = true;
 				break;
 			}
@@ -63,19 +63,19 @@ public class SwarmWSAPITests extends TestCase {
 	}
 	
 	public void testVerifyAPIKey() throws IOException {
-		SwarmWSClient client = new SwarmWSClient(TestUtil.getConfiguration());
+		SwarmWSClient client = new SwarmWSClient(AccountConfig.getConfiguration());
 		
 		assertTrue(client.isValid() == null);
 		
-		client = new SwarmWSClient(TestUtil.getConfiguration().getHostname(), "ohmyisthiskeyvalid");
+		client = new SwarmWSClient(AccountConfig.getConfiguration().getHostname(), "ohmyisthiskeyvalid");
 		
 		assertFalse(client.isValid() == null);
 	}
 
 	public void testDestroy() throws IOException {
-		SwarmWSClient client = new SwarmWSClient(TestUtil.getConfiguration());
+		SwarmWSClient client = new SwarmWSClient(AccountConfig.getConfiguration());
 		
-		SwarmWSResponse rval = client.destroy(TestUtil.testSwarmId);
+		SwarmWSResponse rval = client.destroy(AccountConfig.testSwarmId);
 				
 		assertTrue(!rval.isError());
 	}

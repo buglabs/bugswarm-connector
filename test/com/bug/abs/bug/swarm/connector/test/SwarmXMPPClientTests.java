@@ -19,6 +19,7 @@ public class SwarmXMPPClientTests extends TestCase {
 	 * @throws Exception
 	 */
 	public void testOSGiHelper() throws Exception {
+		//This class requires an OSGi context to run correctly but will try to mock the service registry when running in a plain JVM context.
 		OSGiHelper osgi = OSGiHelper.getRef();
 		
 		assertNotNull(osgi);
@@ -37,13 +38,14 @@ public class SwarmXMPPClientTests extends TestCase {
 	public void testXmlDocCreator() throws Exception {
 		OSGiHelper osgi = OSGiHelper.getRef();
 		
+		//Create the document.
 		XmlNode xd = XMLDocCreator.createServiceModuleFeedDocument(
 				osgi.getBUGServices(), 
 				osgi.getBUGModules(), 
 				osgi.getBUGFeeds());
 		
+		//Verify it's what we expect
 		assertTrue(xd != null);
-		
 		assertTrue(xd.childExists("services"));
 		assertTrue(xd.childExists("modules"));
 		assertTrue(xd.childExists("feeds"));

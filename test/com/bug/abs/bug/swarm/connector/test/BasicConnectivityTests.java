@@ -60,6 +60,10 @@ public class BasicConnectivityTests extends TestCase {
 				 xmppClient.joinSwarm(swarm.getId());
 				 connectedSwarms.add(swarm);
 			} catch (XMPPException e) {
+				//Some swarm joins are failing, not sure yet if this is valid or invalid.  For now assume it's
+				//ok for some joins to fail and proceed with test.
+				//TODO: confirm with Camilo this is alright.
+				
 				System.err.println("Failed to join swarm " + swarm.getName() + ": " + e.getMessage());
 			}
 		}

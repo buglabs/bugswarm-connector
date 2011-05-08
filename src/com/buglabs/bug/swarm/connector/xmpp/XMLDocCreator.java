@@ -13,7 +13,7 @@ import com.buglabs.util.XmlNode;
  * @author kgilmer
  *
  */
-public class XmlMessageCreator {
+public class XMLDocCreator {
 
 	/**
 	 * See https://github.com/buglabs/bugswarm/wiki/Advertise-Member-Capabilities (step 6)

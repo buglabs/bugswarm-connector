@@ -17,7 +17,7 @@ import com.buglabs.bug.swarm.connector.ws.SwarmMemberModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
-import com.buglabs.bug.swarm.connector.xmpp.XmlMessageCreator;
+import com.buglabs.bug.swarm.connector.xmpp.XMLDocCreator;
 import com.buglabs.util.XmlNode;
 
 /**
@@ -88,7 +88,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 	 * @throws XMPPException
 	 */
 	private void broadcastState(List<SwarmModel> allSwarms) throws XMPPException {
-		XmlNode document = XmlMessageCreator.createServiceModuleFeedDocument(
+		XmlNode document = XMLDocCreator.createServiceModuleFeedDocument(
 				osgiHelper.getBUGServices(), 
 				osgiHelper.getBUGModules(), 
 				osgiHelper.getBUGFeeds());

@@ -10,7 +10,7 @@ import org.jivesoftware.smack.packet.Message;
  * @author kgilmer
  *
  */
-public class DeadMessageListener implements MessageListener {
+public class NullMessageListener implements MessageListener {
 
 	@Override
 	public void processMessage(Chat chat, Message message) {		

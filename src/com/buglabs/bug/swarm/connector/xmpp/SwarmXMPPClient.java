@@ -150,7 +150,7 @@ public class SwarmXMPPClient  {
 	public void advertise(String swarmId, String userId, XmlNode serviceModuleFeedDocument) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
 		
-		Chat pchat = muc.createPrivateChat(userId, new DeadMessageListener());
+		Chat pchat = muc.createPrivateChat(userId, new NullMessageListener());
 		pchat.sendMessage(serviceModuleFeedDocument.toString());
 	}
 

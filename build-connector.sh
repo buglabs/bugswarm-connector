@@ -38,6 +38,10 @@ if [ ! -f $DEPS_DIR/json_simple-1.1.jar ]; then
 	wget --no-check-certificate -P $DEPS_DIR http://json-simple.googlecode.com/files/json_simple-1.1.jar
 fi
 
+if [ ! -f $DEPS_DIR/hamcrest-core-1.3.0RC2.jar ]; then
+	wget --no-check-certificate -P $DEPS_DIR http://hamcrest.googlecode.com/files/hamcrest-core-1.3.0RC2.jar
+fi
+
 if [ ! -f $DEPS_DIR/xpp3-1.1.4c.jar ]; then
 	wget --no-check-certificate -P $DEPS_DIR http://www.extreme.indiana.edu/dist/java-repository/xpp3/jars/xpp3-1.1.4c.jar
 fi

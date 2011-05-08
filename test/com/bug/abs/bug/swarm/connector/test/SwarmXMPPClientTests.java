@@ -1,12 +1,10 @@
 package com.bug.abs.bug.swarm.connector.test;
 
-import java.beans.XMLDecoder;
+import junit.framework.TestCase;
 
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
 import com.buglabs.bug.swarm.connector.xmpp.XMLDocCreator;
 import com.buglabs.util.XmlNode;
-
-import junit.framework.TestCase;
 
 /**
  * Test the Swarm-XMPP client

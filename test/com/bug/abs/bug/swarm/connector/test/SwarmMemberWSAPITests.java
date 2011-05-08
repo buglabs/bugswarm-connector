@@ -6,11 +6,11 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import com.buglabs.bug.swarm.connector.ws.IMembersClient;
+import com.buglabs.bug.swarm.connector.ws.IMembersClient.MemberType;
 import com.buglabs.bug.swarm.connector.ws.ISwarmWSClient;
 import com.buglabs.bug.swarm.connector.ws.SwarmMemberModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
-import com.buglabs.bug.swarm.connector.ws.IMembersClient.MemberType;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
 
 

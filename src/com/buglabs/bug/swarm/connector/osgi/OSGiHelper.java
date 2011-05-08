@@ -14,8 +14,6 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 
-import com.buglabs.bug.swarm.connector.osgi.OSGiHelper.BUGSwarmFeed;
-import com.buglabs.bug.swarm.connector.osgi.OSGiHelper.EntityChangeType;
 import com.buglabs.module.IModuleControl;
 import com.buglabs.module.IModuleProperty;
 import com.buglabs.services.ws.IWSResponse;

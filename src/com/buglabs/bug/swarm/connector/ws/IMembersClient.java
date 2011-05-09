@@ -15,8 +15,14 @@ public interface IMembersClient {
 	 * A member can be defined as a consumer and(?)/or producer.
 	 */
 	public enum MemberType {
+		/**
+		 * There are two types of members, 'consumer' and 'producer'.
+		 */
 		CONSUMER("consumer"), PRODUCER("producer");
 		
+		/**
+		 * Name of member
+		 */
 		private final String name;
 		
 		private MemberType(String name) {

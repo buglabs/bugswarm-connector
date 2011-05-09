@@ -10,13 +10,16 @@ import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
 
 /**
- * Unit tests for ISwarmWSClient implementation
+ * Unit tests for ISwarmWSClient implementation.
  * 
  * @author kgilmer
  *
  */
 public class SwarmWSAPITests extends TestCase {
 
+	/**
+	 * @throws IOException on error
+	 */
 	public void testCreateSwarm() throws IOException {
 		SwarmWSClient client = new SwarmWSClient(AccountConfig.getConfiguration());
 		
@@ -28,6 +31,9 @@ public class SwarmWSAPITests extends TestCase {
 		AccountConfig.testSwarmId = id;
 	}
 	
+	/**
+	 * @throws IOException on error
+	 */
 	public void testUpdateSwarm() throws IOException {
 		SwarmWSClient client = new SwarmWSClient(AccountConfig.getConfiguration());
 		
@@ -36,6 +42,9 @@ public class SwarmWSAPITests extends TestCase {
 		assertTrue(!rval.isError());
 	}
 	
+	/**
+	 * @throws IOException on error
+	 */
 	public void testGet() throws IOException {
 		SwarmWSClient client = new SwarmWSClient(AccountConfig.getConfiguration());
 		
@@ -44,6 +53,9 @@ public class SwarmWSAPITests extends TestCase {
 		assertTrue(swarmInfo != null);
 	}
 	
+	/**
+	 * @throws IOException on error
+	 */
 	public void testList() throws IOException {
 		SwarmWSClient client = new SwarmWSClient(AccountConfig.getConfiguration());
 		
@@ -53,7 +65,7 @@ public class SwarmWSAPITests extends TestCase {
 		assertTrue(swarms.size() > 0);
 		
 		boolean swarmIdExists = false;
-		for (SwarmModel sm: swarms)
+		for (SwarmModel sm : swarms)
 			if (sm.getId().equals(AccountConfig.testSwarmId)) {
 				swarmIdExists = true;
 				break;
@@ -62,6 +74,9 @@ public class SwarmWSAPITests extends TestCase {
 		assertTrue(swarmIdExists);
 	}
 	
+	/**
+	 * @throws IOException on error
+	 */
 	public void testVerifyAPIKey() throws IOException {
 		SwarmWSClient client = new SwarmWSClient(AccountConfig.getConfiguration());
 		
@@ -72,6 +87,9 @@ public class SwarmWSAPITests extends TestCase {
 		assertFalse(client.isValid() == null);
 	}
 
+	/**
+	 * @throws IOException on error
+	 */
 	public void testDestroy() throws IOException {
 		SwarmWSClient client = new SwarmWSClient(AccountConfig.getConfiguration());
 		

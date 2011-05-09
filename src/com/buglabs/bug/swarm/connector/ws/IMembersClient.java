@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Contract for the API defined at https://github.com/buglabs/bugswarm/wiki/Swarm-Members-API
+ * Contract for the API defined at https://github.com/buglabs/bugswarm/wiki/Swarm-Members-API.
  * 
  * @author kgilmer
  *
@@ -21,11 +21,14 @@ public interface IMembersClient {
 		CONSUMER("consumer"), PRODUCER("producer");
 		
 		/**
-		 * Name of member
+		 * Name of member.
 		 */
 		private final String name;
 		
-		private MemberType(String name) {
+		/**
+		 * @param name
+		 */
+		private MemberType(final String name) {
 			this.name = name;
 		}
 		
@@ -40,7 +43,7 @@ public interface IMembersClient {
 	 * @return
 	 * @throws IOException 
 	 */
-	public List<SwarmMemberModel> list(String swarmId, IMembersClient.MemberType type) throws IOException;
+	List<SwarmMemberModel> list(String swarmId, IMembersClient.MemberType type) throws IOException;
 	
 	/**
 	 * @param swarmId
@@ -50,14 +53,14 @@ public interface IMembersClient {
 	 * @return
 	 * @throws IOException 
 	 */
-	public SwarmWSResponse add(String swarmId, IMembersClient.MemberType type, String userId, String resource) throws IOException;
+	SwarmWSResponse add(String swarmId, IMembersClient.MemberType type, String userId, String resource) throws IOException;
 	
 	/**
 	 * @param swarmId
 	 * @return
 	 * @throws IOException 
 	 */
-	public SwarmWSResponse remove(String swarmId, IMembersClient.MemberType type, String userId, String resource) throws IOException;
+	SwarmWSResponse remove(String swarmId, IMembersClient.MemberType type, String userId, String resource) throws IOException;
 	
 	/**
 	 * @param userId
@@ -65,5 +68,5 @@ public interface IMembersClient {
 	 * @return
 	 * @throws IOException 
 	 */
-	public List<SwarmModel> getSwarmsByMember(String resource) throws IOException;
+	List<SwarmModel> getSwarmsByMember(String resource) throws IOException;
 }

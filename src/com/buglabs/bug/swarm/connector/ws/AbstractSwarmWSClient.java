@@ -32,7 +32,11 @@ public abstract class AbstractSwarmWSClient {
 	
 	private Map<String, String> staticHeaders;
 
-	public AbstractSwarmWSClient(String swarmHostUrl, String apiKey) {
+	/**
+	 * @param swarmHostUrl url of swarm host, with scheme. 
+	 * @param apiKey api key as provided by server
+	 */
+	public AbstractSwarmWSClient(String swarmHostUrl, final String apiKey) {
 		if (swarmHostUrl == null || apiKey == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 		
@@ -45,14 +49,19 @@ public abstract class AbstractSwarmWSClient {
 		httpClient.addConfigurator(new com.buglabs.util.simplerestclient.HTTPRequest.HTTPConnectionInitializer() {
 			
 			@Override
-			public void initialize(HttpURLConnection connection) {
-				for (Map.Entry<String, String> e: getSwarmHeaders().entrySet())
+			public void initialize(final HttpURLConnection connection) {
+				for (Map.Entry<String, String> e : getSwarmHeaders().entrySet())
 					connection.setRequestProperty(e.getKey(), e.getValue());
 			}
 		});
 	}
 
-	protected AbstractSwarmWSClient(String swarmHostUrl, String apiKey, HTTPRequest httpClient) {
+	/**
+	 * @param swarmHostUrl url of swarm host, with scheme. 
+	 * @param apiKey api key as provided by server
+	 * @param httpClient client-provided client
+	 */
+	protected AbstractSwarmWSClient(String swarmHostUrl, final String apiKey, final HTTPRequest httpClient) {
 		if (swarmHostUrl == null || apiKey == null || httpClient == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 		
@@ -71,20 +80,20 @@ public abstract class AbstractSwarmWSClient {
 	 * @return true if response is 200, false if otherwise
 	 * @throws IOException
 	 */
-	public Throwable checkAndValidate(boolean force) {
+	public Throwable checkAndValidate(final boolean force) {
 		if (isValidated && !force)
 			return null;
 		
 		try {
 			HTTPResponse response = httpClient.get(swarmHostUrl + "keys/" + apiKey + "/verify");
-			int rval = response.getResponseCode();
+			SwarmWSResponse wsr = SwarmWSResponse.fromCode(response.getResponseCode());
 			
-			if (rval >= 200 && rval < 400) {
+			if (!wsr.isError()) {
 				isValidated = true;
 				return null;
 			}			
 			
-			return new HTTPException(rval, "Validation failed.");
+			return new HTTPException(wsr.getCode(), "Validation failed: " + wsr.toString());
 		} catch (IOException e) {
 			return e;					
 		}
@@ -95,7 +104,7 @@ public abstract class AbstractSwarmWSClient {
 	 */
 	protected Map<String, String> getSwarmHeaders() {
 		if (staticHeaders == null) {
-			staticHeaders = toMap(SWARM_APIKEY_HEADER_KEY, apiKey, CONTENT_TYPE_HEADER_KEY, "application/json");			
+			staticHeaders = toMap(SWARM_APIKEY_HEADER_KEY, apiKey, CONTENT_TYPE_HEADER_KEY, "application/json");
 		}
 		
 		return staticHeaders;
@@ -103,10 +112,10 @@ public abstract class AbstractSwarmWSClient {
 	
 	/**
 	 * Create a map of strings, each even element being a key, each successive odd element being the value.
-	 * @param elems
-	 * @return
+	 * @param elems input array
+	 * @return A map representing nvp of input array
 	 */
-	protected Map<String, String> toMap(String... elems) {
+	protected Map<String, String> toMap(final String... elems) {
 		if (elems == null || elems.length % 2 != 0)
 			throw new RuntimeException("Must specify name/value pair for each entry in map.");
 		

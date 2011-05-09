@@ -7,6 +7,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 /**
+ * Model class to represent a Swarm.
+ * 
  * @author kgilmer
  * 
  */
@@ -20,6 +22,16 @@ public class SwarmModel {
 	private final String name;
 	private final String userId;
 
+	/**
+	 * @param isPublic swarm public?
+	 * @param members list of existing members
+	 * @param createdAt String datetime of creation
+	 * @param id swarmId as defined by server
+	 * @param description Textual description of swarm
+	 * @param modifiedAt last modified
+	 * @param name name of swarm
+	 * @param userId userId of owner
+	 */
 	public SwarmModel(final boolean isPublic, final List<SwarmMemberModel> members, final String createdAt, final String id,
 			final String description, final String modifiedAt, final String name, final String userId) {
 		this.isPublic = isPublic;
@@ -35,7 +47,7 @@ public class SwarmModel {
 	/**
 	 * Returns true if the swarm is public.
 	 * 
-	 * @return
+	 * @return true if public
 	 */
 	public boolean isPublic() {
 		return isPublic;
@@ -49,42 +61,42 @@ public class SwarmModel {
 	}
 
 	/**
-	 * @return
+	 * @return date as String for creation.
 	 */
 	public String getCreatedAt() {
 		return createdAt;
 	}
 
 	/**
-	 * @return
+	 * @return id of swarm
 	 */
 	public String getId() {
 		return id;
 	}
 
 	/**
-	 * @return
+	 * @return desc of swarm
 	 */
 	public String getDescription() {
 		return description;
 	}
 
 	/**
-	 * @return
+	 * @return modified date as String
 	 */
 	public String getModifiedAt() {
 		return modifiedAt;
 	}
 
 	/**
-	 * @return
+	 * @return name of swarm
 	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * @return
+	 * @return user id of creator
 	 */
 	public String getUserId() {
 		return userId;
@@ -98,8 +110,8 @@ public class SwarmModel {
 	/**
 	 * From a json array, create a List of SwarmModel.
 	 * 
-	 * @param json
-	 * @return
+	 * @param json input object
+	 * @return List of SwarmModel
 	 */
 	public static List<SwarmModel> createListFromJson(final JSONArray json) {
 		List<SwarmModel> l = new ArrayList<SwarmModel>();
@@ -113,13 +125,19 @@ public class SwarmModel {
 	/**
 	 * Create a SwarmModel from a JSON object.
 	 * 
-	 * @param jo
-	 * @return
+	 * @param jsonObject input object
+	 * @return SwarmModel instance of SwarmModel
 	 */
-	public static SwarmModel createFromJson(final JSONObject jo) {
+	public static SwarmModel createFromJson(final JSONObject jsonObject) {
 		// server is currently not returning modified_at
-		return new SwarmModel(Boolean.parseBoolean(jo.get("public").toString()), SwarmMemberModel.createListFromJson((JSONArray) jo
-				.get("resources")), jo.get("created_at").toString(), jo.get("id").toString(), jo.get("description").toString(), null, jo
-				.get("name").toString(), jo.get("user_id").toString());
+		return new SwarmModel(
+				Boolean.parseBoolean(jsonObject.get("public").toString()), 
+				SwarmMemberModel.createListFromJson((JSONArray) jsonObject.get("resources")), 
+				jsonObject.get("created_at").toString(), 
+				jsonObject.get("id").toString(), 
+				jsonObject.get("description").toString(), 
+				null, 
+				jsonObject.get("name").toString(), 
+				jsonObject.get("user_id").toString());
 	}
 }

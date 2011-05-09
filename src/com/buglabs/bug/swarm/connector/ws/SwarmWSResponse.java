@@ -47,6 +47,13 @@ public enum SwarmWSResponse {
 	}
 	
 	/**
+	 * @return Swarm-specific message associated with response.
+	 */
+	public String getMessage() {
+		return message;
+	}
+	
+	/**
 	 * @param code HTTP code
 	 * @return instance
 	 */

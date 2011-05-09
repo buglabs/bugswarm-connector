@@ -26,7 +26,7 @@ public interface IMembersClient {
 		private final String name;
 		
 		/**
-		 * @param name
+		 * @param name of member
 		 */
 		private MemberType(final String name) {
 			this.name = name;
@@ -39,33 +39,36 @@ public interface IMembersClient {
 	}
 	
 	/**
-	 * @param swarmId
-	 * @return
-	 * @throws IOException 
+	 * @param swarmId id of swarm
+	 * @param type consumer or producer
+	 * @return List of SwarmMemberModel
+	 * @throws IOException on connection error
 	 */
 	List<SwarmMemberModel> list(String swarmId, IMembersClient.MemberType type) throws IOException;
 	
 	/**
-	 * @param swarmId
-	 * @param type
-	 * @param userId
-	 * @param resource
-	 * @return
+	 * @param swarmId id of swarm
+	 * @param type consumer or producer
+	 * @param userId user id
+	 * @param resource XMPP resource
+	 * @return HTTP response of operation
 	 * @throws IOException 
 	 */
 	SwarmWSResponse add(String swarmId, IMembersClient.MemberType type, String userId, String resource) throws IOException;
 	
 	/**
-	 * @param swarmId
-	 * @return
+	 * @param swarmId id of swarm
+	 * @param type consumer or producer
+	 * @param userId user id
+	 * @param resource XMPP resource
+	 * @return HTTP response of operation
 	 * @throws IOException 
 	 */
 	SwarmWSResponse remove(String swarmId, IMembersClient.MemberType type, String userId, String resource) throws IOException;
 	
 	/**
-	 * @param userId
-	 * @param type
-	 * @return
+	 * @param resource XMPP resource
+	 * @return list of SwarmModel or emtpy list
 	 * @throws IOException 
 	 */
 	List<SwarmModel> getSwarmsByMember(String resource) throws IOException;

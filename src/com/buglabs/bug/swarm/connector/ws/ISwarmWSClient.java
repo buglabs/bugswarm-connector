@@ -15,22 +15,23 @@ import java.util.List;
 public interface ISwarmWSClient {
 	/**
 	 * Create a swarm.
-	 * @param name
-	 * @param isPublic
-	 * @param description
-	 * @return
+	 * @param name name of swarm
+	 * @param isPublic swarm can be public or private
+	 * @param description textual description of swarm
+	 * @return the id of the newly created swarm
 	 * @throws IOException 
 	 */
-	public String create(String name, boolean isPublic, String description) throws IOException;
+	String create(String name, boolean isPublic, String description) throws IOException;
 	
 	/**
 	 * Update the description of a swarm.
-	 * @param isPublic
-	 * @param description
+	 * @param swarmId id of swarm
+	 * @param isPublic swarm can be public or private
+	 * @param description description
 	 * @return HTTP response of operation.
 	 * @throws IOException 
 	 */
-	public SwarmWSResponse update(String swarmId, boolean isPublic, String description) throws IOException;
+	SwarmWSResponse update(String swarmId, boolean isPublic, String description) throws IOException;
 	
 	/**
 	 * Delete a swarm.
@@ -38,37 +39,37 @@ public interface ISwarmWSClient {
 	 * @return HTTP response of operation.
 	 * @throws IOException 
 	 */
-	public SwarmWSResponse destroy(String swarmId) throws IOException;
+	SwarmWSResponse destroy(String swarmId) throws IOException;
 	
 	/**
 	 * Get all available swarms.
 	 * @return A list of SwarmModel for all available swarms.
 	 * @throws IOException 
 	 */
-	public List<SwarmModel> list() throws IOException;
+	List<SwarmModel> list() throws IOException;
 	
 	/**
 	 * Get info of a specific swarm.
 	 * 
-	 * @param swarmId
-	 * @return
+	 * @param swarmId swarmId
+	 * @return a SwarmModel instance for the given id
 	 * @throws IOException 
 	 */
-	public SwarmModel get(String swarmId) throws IOException;
+	SwarmModel get(String swarmId) throws IOException;
 	
 	/**
 	 * Returns null if client was able to validate with the Swarm server.
 	 * If an error occurred while validating, or the validation failed, 
 	 * a Throwable will be returned.
 	 * 
-	 * @return
+	 * @return null or a Throwable if there was a problem in communication with swarm server.
 	 * @throws IOException
 	 */
-	public Throwable isValid();
+	Throwable isValid();
 	
 	/**
 	 * Convenience method to return WS client for Swarm Membership API.
-	 * @return
+	 * @return the WS API client for members
 	 */
-	public IMembersClient getMembers();
+	IMembersClient getMembers();
 }

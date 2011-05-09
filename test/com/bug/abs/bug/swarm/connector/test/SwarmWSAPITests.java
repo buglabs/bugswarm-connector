@@ -97,4 +97,8 @@ public class SwarmWSAPITests extends TestCase {
 				
 		assertTrue(!rval.isError());
 	}
+	
+	public void testResponseCodes() {
+		
+	}
 }

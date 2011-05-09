@@ -1,6 +1,7 @@
 package com.bug.abs.bug.swarm.connector.test;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -98,7 +99,38 @@ public class SwarmWSAPITests extends TestCase {
 		assertTrue(!rval.isError());
 	}
 	
-	public void testResponseCodes() {
+	/**
+	 * Test the SwarmWSResponse class.
+	 */
+	public void testSwarmWSResponse() {
+		//Test that valid HTTP responses can be created.
+		SwarmWSResponse rs = SwarmWSResponse.R200;
 		
+		assertNotNull(rs);
+		assertEquals(rs.getCode(), 200);
+		
+		Integer[] validCodes = new Integer[] {200, 201, 400, 401, 403, 404, 409, 500};
+		
+		for (int i : Arrays.asList(validCodes)) {
+			rs = SwarmWSResponse.fromCode(i);
+			assertTrue(rs.getCode() == i);
+			
+			//Test that only 200, 201 are non-error codes.
+			if (rs.getCode() == 200 || rs.getCode() == 201) {
+				assertFalse(rs.isError());
+			} else {
+				assertTrue(rs.isError());
+			}
+		}
+		
+		//Test that invalid http code throws runtime exception.
+		boolean caught = false;
+		try {
+			rs = SwarmWSResponse.fromCode(2);
+		} catch (RuntimeException e) {
+			caught = true;
+		}
+		
+		assertTrue(caught);
 	}
 }

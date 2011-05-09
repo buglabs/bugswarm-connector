@@ -40,6 +40,13 @@ public enum SwarmWSResponse {
 	}
 	
 	/**
+	 * @return HTTP code
+	 */
+	public int getCode() {
+		return code;
+	}
+	
+	/**
 	 * @param code HTTP code
 	 * @return instance
 	 */

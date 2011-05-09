@@ -10,5 +10,9 @@
 	<!-- JUnit tests -->
 	<property name="report.dir" location="junit-reports"/>
 	<property name="report.src" location="test/"/>
-
+	
+	<!-- Checkstyle -->
+	<property name="checkstyle.config" location="${base.build.dir}/toolbox/checkstyle/buglabs_checks.xml" />
+	<property name="checkstyle.dir" location="checkstyle-reports"/>
+	<property name="checkstyle.src" location="src/"/>
 </project>

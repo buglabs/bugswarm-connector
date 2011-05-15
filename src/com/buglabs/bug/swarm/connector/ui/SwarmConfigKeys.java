@@ -31,7 +31,13 @@ package com.buglabs.bug.swarm.connector.ui;
  * Configuration keys used for configuration of BUGswarm.
  *
  */
-public interface SwarmConfigKeys {
+public final class SwarmConfigKeys {
+	
+	/**
+	 * Cannot create class.
+	 */
+	private SwarmConfigKeys() {
+	};
 	
 	/**
 	 * ConfigAdmin ID for swarm configuration dictionary.
@@ -39,7 +45,7 @@ public interface SwarmConfigKeys {
 	public static final String CONFIG_PID_BUGSWARM 				= "BUGSWARM"; 
 	
 	/**
-	 * A local-only value to determine if bugswarm is enabled
+	 * A local-only value to determine if bugswarm is enabled.
 	 */
 	public static final String CONFIG_KEY_BUGSWARM_ENABLED 		= "bugdash.swarm.boolean.enabled";
 	

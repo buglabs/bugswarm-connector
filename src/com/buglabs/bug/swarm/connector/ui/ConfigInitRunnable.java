@@ -49,13 +49,17 @@ public class ConfigInitRunnable implements ManagedRunnable {
 	private final LogService log;
 	private final BundleContext context;
 
-	public ConfigInitRunnable(BundleContext context, LogService log) {
+	/**
+	 * @param context BundleContext
+	 * @param log LogService
+	 */
+	public ConfigInitRunnable(final BundleContext context, final LogService log) {
 		this.context = context;
 		this.log = log;
 	}
 
 	@Override
-	public void run(Map<Object, Object> services) {
+	public void run(final Map<Object, Object> services) {
 		ConfigurationAdmin ca = (ConfigurationAdmin) services.get(ConfigurationAdmin.class.getName());
 
 		try {

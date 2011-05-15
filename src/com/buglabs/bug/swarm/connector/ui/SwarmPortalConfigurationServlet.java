@@ -58,7 +58,11 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 	private static final long serialVersionUID = 6913347882663532246L;
 	private Configuration config;
 
-	public SwarmPortalConfigurationServlet(ConfigurationAdmin ca) throws IOException {
+	/**
+	 * @param ca ConfigAdmin
+	 * @throws IOException thrown if ConfigAdmin fails
+	 */
+	public SwarmPortalConfigurationServlet(final ConfigurationAdmin ca) throws IOException {
 		this.config = ca.getConfiguration(SwarmConfigKeys.CONFIG_PID_BUGSWARM, null);
 	}
 
@@ -69,6 +73,9 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 		return controllers;
 	}
 
+	/**	
+	 *
+	 */
 	public class index extends SewingController {
 
 		@Override

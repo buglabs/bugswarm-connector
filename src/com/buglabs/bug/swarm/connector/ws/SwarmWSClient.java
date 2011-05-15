@@ -25,19 +25,19 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 	/**
 	 * Create a client from a url and apikey.
 	 * 
-	 * @param swarmHostUrl
-	 * @param apiKey
+	 * @param swarmHostUrl URL of swarm server WS API
+	 * @param apiKey API_KEY provided by server
 	 */
-	public SwarmWSClient(String swarmHostUrl, String apiKey) {
+	public SwarmWSClient(final String swarmHostUrl, final String apiKey) {
 		super(swarmHostUrl, apiKey);
 	}
 	
 	/**
 	 * Create a client from a Configuration.
 	 * 
-	 * @param config
+	 * @param config client configuration
 	 */
-	public SwarmWSClient(Configuration config) {
+	public SwarmWSClient(final Configuration config) {
 		super(config.getHostname(), config.getAPIKey());
 	}
 	
@@ -52,7 +52,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 	}
 	
 	@Override
-	public String create(String name, boolean isPublic, String description) throws IOException {
+	public String create(final String name, final boolean isPublic, final String description) throws IOException {
 		if (name == null || description == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 		
@@ -71,7 +71,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 	}
 
 	@Override
-	public SwarmWSResponse update(String swarmId, boolean isPublic, String description) throws IOException {
+	public SwarmWSResponse update(final String swarmId, final boolean isPublic, final String description) throws IOException {
 		if (swarmId == null || description == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 		
@@ -88,7 +88,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 	}
 
 	@Override
-	public SwarmWSResponse destroy(String swarmId) throws IOException {
+	public SwarmWSResponse destroy(final String swarmId) throws IOException {
 		if (swarmId == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 		
@@ -111,7 +111,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 	}
 
 	@Override
-	public SwarmModel get(String swarmId) throws IOException {
+	public SwarmModel get(final String swarmId) throws IOException {
 		if (swarmId == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 		
@@ -123,7 +123,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 		JSONObject jo = null;
 		
 		if (o instanceof JSONArray)
-			jo = (JSONObject) ((JSONArray)o).get(0);
+			jo = (JSONObject) ((JSONArray) o).get(0);
 		else if (o instanceof JSONObject) 
 			jo = (JSONObject) o;
 		
@@ -138,6 +138,9 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 		return super.checkAndValidate(false);
 	}
 	
+	/**
+	 * @throws IOException thrown when connection error occurs
+	 */
 	private void validate() throws IOException {
 		Throwable err = checkAndValidate(false);
 		if (err != null)			

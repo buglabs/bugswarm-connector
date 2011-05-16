@@ -14,7 +14,7 @@ import org.json.simple.JSONObject;
  */
 public class SwarmModel {
 	private final boolean isPublic;
-	private final List<SwarmMemberModel> members;
+	private final List<SwarmResourceModel> members;
 	private final String createdAt;
 	private final String id;
 	private final String description;
@@ -32,7 +32,7 @@ public class SwarmModel {
 	 * @param name name of swarm
 	 * @param userId userId of owner
 	 */
-	public SwarmModel(final boolean isPublic, final List<SwarmMemberModel> members, final String createdAt, final String id,
+	public SwarmModel(final boolean isPublic, final List<SwarmResourceModel> members, final String createdAt, final String id,
 			final String description, final String modifiedAt, final String name, final String userId) {
 		this.isPublic = isPublic;
 		this.members = members;
@@ -56,7 +56,7 @@ public class SwarmModel {
 	/**
 	 * @return List of SwarmMemberModel of group members.
 	 */
-	public List<SwarmMemberModel> getMembers() {
+	public List<SwarmResourceModel> getMembers() {
 		return members;
 	}
 
@@ -132,7 +132,7 @@ public class SwarmModel {
 		// server is currently not returning modified_at
 		return new SwarmModel(
 				Boolean.parseBoolean(jsonObject.get("public").toString()), 
-				SwarmMemberModel.createListFromJson((JSONArray) jsonObject.get("resources")), 
+				SwarmResourceModel.createListFromJson((JSONArray) jsonObject.get("resources")), 
 				jsonObject.get("created_at").toString(), 
 				jsonObject.get("id").toString(), 
 				jsonObject.get("description").toString(), 

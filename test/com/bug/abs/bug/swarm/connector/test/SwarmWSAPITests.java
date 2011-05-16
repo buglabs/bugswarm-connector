@@ -6,6 +6,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.connector.ws.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
@@ -22,7 +23,12 @@ public class SwarmWSAPITests extends TestCase {
 	 * @throws IOException on error
 	 */
 	public void testCreateSwarm() throws IOException {
+		assertNotNull(AccountConfig.getConfiguration());
+		
 		SwarmWSClient client = new SwarmWSClient(AccountConfig.getConfiguration());
+		
+		assertNotNull(client.getSwarmResourceClient());
+		assertNotNull(AccountConfig.getConfiguration().getResource());
 		
 		String id = client.create(AccountConfig.getTestSwarmName(), true, AccountConfig.getTestSwarmDescription());
 		
@@ -30,6 +36,12 @@ public class SwarmWSAPITests extends TestCase {
 		assertTrue(id.length() > 0);
 		
 		AccountConfig.testSwarmId = id;
+		
+		//Creator must be added as member to swarm.
+		SwarmWSResponse response = client.getSwarmResourceClient().add(id, MemberType.CONSUMER, id, AccountConfig.getConfiguration().getResource());
+		
+		assertNotNull(response);
+		assertFalse(response.isError());
 	}
 	
 	/**

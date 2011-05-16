@@ -12,7 +12,7 @@ import java.util.List;
  * @author kgilmer
  *
  */
-public interface ISwarmWSClient {
+public interface ISwarmClient {
 	/**
 	 * Create a swarm.
 	 * @param name name of swarm
@@ -71,5 +71,5 @@ public interface ISwarmWSClient {
 	 * Convenience method to return WS client for Swarm Membership API.
 	 * @return the WS API client for members
 	 */
-	IMembersClient getMembers();
+	ISwarmResourcesClient getSwarmResourceClient();
 }

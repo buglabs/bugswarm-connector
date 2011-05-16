@@ -6,7 +6,7 @@ import java.util.List;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import com.buglabs.bug.swarm.connector.ws.IMembersClient.MemberType;
+import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
 
 /**
  * Swarm model class for SwarmMember.
@@ -16,9 +16,9 @@ import com.buglabs.bug.swarm.connector.ws.IMembersClient.MemberType;
  * @author kgilmer
  * 
  */
-public class SwarmMemberModel {
+public class SwarmResourceModel {
 	private final String createdAt;
-	private final IMembersClient.MemberType type;
+	private final ISwarmResourcesClient.MemberType type;
 	private final String userId;
 	private final String resource;
 	private final String swarmId;
@@ -30,7 +30,7 @@ public class SwarmMemberModel {
 	 * @param resource resource (XMPP)
 	 * @param swarmId id of swarm
 	 */
-	public SwarmMemberModel(final String createdAt, final IMembersClient.MemberType type, final String userId, final String resource,
+	public SwarmResourceModel(final String createdAt, final ISwarmResourcesClient.MemberType type, final String userId, final String resource,
 			final String swarmId) {
 		this.createdAt = createdAt;
 		this.type = type;
@@ -49,7 +49,7 @@ public class SwarmMemberModel {
 	/**
 	 * @return type
 	 */
-	public IMembersClient.MemberType getType() {
+	public ISwarmResourcesClient.MemberType getType() {
 		return type;
 	}
 
@@ -86,13 +86,13 @@ public class SwarmMemberModel {
 	 * @param json input object
 	 * @return a List of SwarmMemberModel
 	 */
-	public static List<SwarmMemberModel> createListFromJson(final JSONArray json) {
-		List<SwarmMemberModel> l = new ArrayList<SwarmMemberModel>();
+	public static List<SwarmResourceModel> createListFromJson(final JSONArray json) {
+		List<SwarmResourceModel> l = new ArrayList<SwarmResourceModel>();
 
 		for (Object o : json) {
 			JSONObject jo = (JSONObject) o;
 
-			l.add(new SwarmMemberModel(jo.get("created_at").toString(), 
+			l.add(new SwarmResourceModel(jo.get("created_at").toString(), 
 					MemberType.valueOf(jo.get("type").toString().toUpperCase()), 
 					jo.get("user_id").toString(), jo.get("id").toString(), jo.get("swarm_id").toString()));
 		}

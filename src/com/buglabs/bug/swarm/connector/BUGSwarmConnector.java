@@ -12,8 +12,8 @@ import org.jivesoftware.smackx.muc.MultiUserChat;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper.EntityChangeListener;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper.EntityChangeType;
-import com.buglabs.bug.swarm.connector.ws.IMembersClient.MemberType;
-import com.buglabs.bug.swarm.connector.ws.SwarmMemberModel;
+import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
+import com.buglabs.bug.swarm.connector.ws.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
@@ -60,7 +60,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 			MultiUserChat.addInvitationListener(xmppClient.getConnection(), new SwarmInvitationListener());
 			
 			//Load data about server configuration and local configuration.
-			List<SwarmModel> allSwarms = wsClient.getMembers().getSwarmsByMember(config.getResource());
+			List<SwarmModel> allSwarms = wsClient.getSwarmResourceClient().getSwarmsByMember(config.getResource());
 			
 			//Notify all swarms of presence.
 			for (SwarmModel swarm: allSwarms)
@@ -91,7 +91,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 		
 		//Notify all consumer-members of swarms of services, feeds, and modules.
 		for (SwarmModel swarm: allSwarms) 
-			for (SwarmMemberModel member: swarm.getMembers())
+			for (SwarmResourceModel member: swarm.getMembers())
 				if (member.getType() == MemberType.CONSUMER &&  xmppClient.isPresent(swarm.getId(), member.getUserId()))
 					xmppClient.advertise(
 							swarm.getId(), 
@@ -147,7 +147,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 		
 		try {
 			//Load data about server configuration and local configuration.
-			List<SwarmModel> allSwarms = wsClient.getMembers().getSwarmsByMember(config.getResource());
+			List<SwarmModel> allSwarms = wsClient.getSwarmResourceClient().getSwarmsByMember(config.getResource());
 			
 			broadcastState(allSwarms);
 		} catch (IOException e) {

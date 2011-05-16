@@ -9,7 +9,7 @@ import java.util.List;
  * @author kgilmer
  *
  */
-public interface IMembersClient {
+public interface ISwarmResourcesClient {
 
 	/**
 	 * A member can be defined as a consumer and(?)/or producer.
@@ -44,7 +44,7 @@ public interface IMembersClient {
 	 * @return List of SwarmMemberModel
 	 * @throws IOException on connection error
 	 */
-	List<SwarmMemberModel> list(String swarmId, IMembersClient.MemberType type) throws IOException;
+	List<SwarmResourceModel> list(String swarmId, ISwarmResourcesClient.MemberType type) throws IOException;
 	
 	/**
 	 * @param swarmId id of swarm
@@ -54,7 +54,7 @@ public interface IMembersClient {
 	 * @return HTTP response of operation
 	 * @throws IOException 
 	 */
-	SwarmWSResponse add(String swarmId, IMembersClient.MemberType type, String userId, String resource) throws IOException;
+	SwarmWSResponse add(String swarmId, ISwarmResourcesClient.MemberType type, String userId, String resource) throws IOException;
 	
 	/**
 	 * @param swarmId id of swarm
@@ -64,7 +64,7 @@ public interface IMembersClient {
 	 * @return HTTP response of operation
 	 * @throws IOException 
 	 */
-	SwarmWSResponse remove(String swarmId, IMembersClient.MemberType type, String userId, String resource) throws IOException;
+	SwarmWSResponse remove(String swarmId, ISwarmResourcesClient.MemberType type, String userId, String resource) throws IOException;
 	
 	/**
 	 * @param resource XMPP resource

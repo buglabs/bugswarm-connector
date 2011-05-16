@@ -18,19 +18,19 @@ import com.buglabs.util.simplerestclient.HTTPResponse;
  * @author kgilmer
  *
  */
-public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMembersClient {
+public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwarmResourcesClient {
 
 	/**
 	 * @param swarmHostUrl URL of swarm WS server
 	 * @param apiKey API_KEY
 	 * @param httpClient base HTTP client
 	 */
-	public SwarmMembersWSClient(final String swarmHostUrl, final String apiKey, final HTTPRequest httpClient) {
+	public SwarmResourceWSClient(final String swarmHostUrl, final String apiKey, final HTTPRequest httpClient) {
 		super(swarmHostUrl, apiKey, httpClient);		
 	}
 
 	@Override
-	public List<SwarmMemberModel> list(final String swarmId, final MemberType type) throws IOException {
+	public List<SwarmResourceModel> list(final String swarmId, final MemberType type) throws IOException {
 		if (swarmId == null || type == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 		
@@ -40,7 +40,7 @@ public class SwarmMembersWSClient extends AbstractSwarmWSClient implements IMemb
 		
 		JSONArray json = (JSONArray) JSONValue.parse(new InputStreamReader(response.getStream()));
 		
-		return SwarmMemberModel.createListFromJson(json);
+		return SwarmResourceModel.createListFromJson(json);
 	}
 
 	@Override

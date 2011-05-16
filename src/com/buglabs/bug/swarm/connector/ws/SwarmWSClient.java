@@ -19,8 +19,8 @@ import com.buglabs.util.simplerestclient.HTTPResponse;
  * @author kgilmer
  *
  */
-public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClient {
-	private SwarmMembersWSClient membersClient;
+public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient {
+	private SwarmResourceWSClient membersClient;
 
 	/**
 	 * Create a client from a url and apikey.
@@ -44,9 +44,9 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmWSClie
 	/**
 	 * @return Swarm Members API
 	 */
-	public IMembersClient getMembers() {
+	public ISwarmResourcesClient getSwarmResourceClient() {
 		if (membersClient == null)
-			membersClient = new SwarmMembersWSClient(swarmHostUrl, apiKey, httpClient);
+			membersClient = new SwarmResourceWSClient(swarmHostUrl, apiKey, httpClient);
 		
 		return membersClient;
 	}

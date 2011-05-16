@@ -10,9 +10,9 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
-import com.buglabs.bug.swarm.connector.ws.IMembersClient.MemberType;
-import com.buglabs.bug.swarm.connector.ws.ISwarmWSClient;
-import com.buglabs.bug.swarm.connector.ws.SwarmMemberModel;
+import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
+import com.buglabs.bug.swarm.connector.ws.ISwarmClient;
+import com.buglabs.bug.swarm.connector.ws.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
@@ -40,10 +40,10 @@ public class BasicConnectivityTests extends TestCase {
 		 * 2. Get the list of consumer members of every swarm returned by step 1. (through the Rest API)
 		 */
 		
-		ISwarmWSClient wsClient = new SwarmWSClient(AccountConfig.getConfiguration().getHostname(), AccountConfig.getConfiguration().getAPIKey());
+		ISwarmClient wsClient = new SwarmWSClient(AccountConfig.getConfiguration().getHostname(), AccountConfig.getConfiguration().getAPIKey());
 		
 		assertTrue(wsClient.isValid() == null);
-		List<SwarmModel> allSwarms = wsClient.getMembers().getSwarmsByMember(AccountConfig.getConfiguration().getResource());
+		List<SwarmModel> allSwarms = wsClient.getSwarmResourceClient().getSwarmsByMember(AccountConfig.getConfiguration().getResource());
 		
         /*
 		 * 3. Join to swarms returned by step 1. (xmpp)
@@ -78,7 +78,7 @@ public class BasicConnectivityTests extends TestCase {
 		OSGiHelper osgi = OSGiHelper.getRef();
 		
 		for (SwarmModel swarm: connectedSwarms) 
-			for (SwarmMemberModel member: swarm.getMembers())
+			for (SwarmResourceModel member: swarm.getMembers())
 				if (member.getType() == MemberType.CONSUMER &&  xmppClient.isPresent(swarm.getId(), member.getUserId()))
 					xmppClient.advertise(
 							swarm.getId(), 
@@ -94,7 +94,7 @@ public class BasicConnectivityTests extends TestCase {
 			
 			//Check to see that I am a member of all swarms that I should be
 			boolean iAmAMember = false;
-			for (SwarmMemberModel member: sd.getMembers())
+			for (SwarmResourceModel member: sd.getMembers())
 				if (member.getUserId().equals(AccountConfig.getConfiguration().getUsername()))
 						iAmAMember = true;
 				

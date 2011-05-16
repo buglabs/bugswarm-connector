@@ -66,11 +66,13 @@ public class SwarmWSAPITests extends TestCase {
 		assertTrue(swarms.size() > 0);
 		
 		boolean swarmIdExists = false;
-		for (SwarmModel sm : swarms)
+		for (SwarmModel sm : swarms) {
+			System.out.println("testSwarmId: " + AccountConfig.testSwarmId + " SwarmModelId: " + sm.getId());
 			if (sm.getId().equals(AccountConfig.testSwarmId)) {
 				swarmIdExists = true;
 				break;
 			}
+		}
 		
 		assertTrue(swarmIdExists);
 	}

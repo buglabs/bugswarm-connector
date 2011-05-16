@@ -69,10 +69,6 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 			
 			broadcastState(allSwarms);
 			
-			//Create pubsub nodes for all active feeds
-			//for (BUGSwarmFeed feed: osgiHelper.getBUGFeeds())
-			//awaiting further discussion to determine best approach for feeds
-			
 			osgiHelper.addListener(this);
 			
 		} catch (Exception e) {

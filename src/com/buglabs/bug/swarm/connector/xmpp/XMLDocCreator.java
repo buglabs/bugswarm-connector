@@ -27,11 +27,6 @@ public class XMLDocCreator {
 	public static XmlNode createServiceModuleFeedDocument(List<PublicWSProvider> services, List<IModuleControl> modules, List<BUGSwarmFeed> feeds) {
 		XmlNode root = new XmlNode("device_info");
 		
-		//Services
-		XmlNode servicesNode = new XmlNode(root, "services");
-		for (PublicWSProvider service: services)
-			servicesNode.addChild(createServiceNode(service));
-		
 		//Modules
 		XmlNode modulesNode = new XmlNode(root, "modules");
 		for (IModuleControl module: modules)
@@ -39,6 +34,8 @@ public class XMLDocCreator {
 		
 		//Feeds
 		XmlNode feedsNode = new XmlNode(root, "feeds");
+		for (PublicWSProvider service: services)
+			feedsNode.addChild(createServiceFeedNode(service));
 		for (BUGSwarmFeed feed: feeds)
 			feedsNode.addChild(createFeedNode(feed));
 		
@@ -85,8 +82,8 @@ public class XMLDocCreator {
 	 * @param service
 	 * @return
 	 */
-	private static XmlNode createServiceNode(PublicWSProvider service) {
-		XmlNode n = new XmlNode(service.getPublicName());
+	private static XmlNode createServiceFeedNode(PublicWSProvider service) {
+		XmlNode n = new XmlNode("feed").addAttribute("name", service.getPublicName());
 		n.addAttribute("description", "" + service.getDescription());
 		
 		PublicWSDefinition method = service.discover(PublicWSProvider.GET);

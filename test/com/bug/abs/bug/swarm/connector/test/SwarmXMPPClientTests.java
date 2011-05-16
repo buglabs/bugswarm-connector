@@ -46,7 +46,9 @@ public class SwarmXMPPClientTests extends TestCase {
 		
 		//Verify it's what we expect
 		assertTrue(xd != null);
-		assertTrue(xd.childExists("services"));
+		
+		//No longer use services
+		//assertTrue(xd.childExists("services"));
 		assertTrue(xd.childExists("modules"));
 		assertTrue(xd.childExists("feeds"));
 		

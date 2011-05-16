@@ -59,6 +59,7 @@ public class BasicConnectivityTests extends TestCase {
 			try {
 				 xmppClient.joinSwarm(swarm.getId());
 				 connectedSwarms.add(swarm);
+				 System.out.println("Joined swarm: " + swarm.getId());
 			} catch (XMPPException e) {
 				//Some swarm joins are failing, not sure yet if this is valid or invalid.  For now assume it's
 				//ok for some joins to fail and proceed with test.
@@ -83,9 +84,22 @@ public class BasicConnectivityTests extends TestCase {
 							swarm.getId(), 
 							member.getUserId(), 
 							XMLDocCreator.createServiceModuleFeedDocument(
-									osgi.getBUGServices(), 
+									osgi.getBUGServices(),
 									osgi.getBUGModules(), 
 									osgi.getBUGFeeds()));
+		
+		//At this point we should be connected to the swarm server, verify.
+		for (SwarmModel swarm : connectedSwarms) {
+			SwarmModel sd = wsClient.get(swarm.getId());
+			
+			//Check to see that I am a member of all swarms that I should be
+			boolean iAmAMember = false;
+			for (SwarmMemberModel member: sd.getMembers())
+				if (member.getUserId().equals(AccountConfig.getConfiguration().getUsername()))
+						iAmAMember = true;
+				
+			assertTrue(iAmAMember);
+		}
 			
 	}
 	

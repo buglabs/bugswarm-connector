@@ -96,12 +96,12 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 
 			if (action.equals("activate")) {
 				String server = params.get("server");
-				String userKey = params.get("user-key");
-				String deviceName = params.get("device-name");
+				String apiKey = params.get("api-key");
+				String userName = params.get("user-name");
 
-				if (server != null && userKey != null && deviceName != null) {
+				if (server != null && apiKey != null && userName != null) {
 					try {
-						saveConfiguration(server, deviceName, userKey);
+						saveConfiguration(server, userName, apiKey);
 
 						setEnabled(true);
 						msg = "BugSwarm has been activated";
@@ -155,7 +155,7 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 		}
 	}
 
-	public void saveConfiguration(String server, String nick, String userKey) throws IOException {
+	public void saveConfiguration(String server, String username, String apiKey) throws IOException {
 		Dictionary d = config.getProperties();
 
 		if (d == null) {
@@ -163,8 +163,8 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 		}
 
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, server);
-		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE, nick);
-		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY, userKey);
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME, username);
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY, apiKey);
 
 		config.update(d);
 	}

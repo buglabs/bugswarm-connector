@@ -173,12 +173,12 @@
 						<input type="text" name="server" value="${server}"></input>
 					</li>
 					<li>
-						<label for="user-key">User key</label>
-						<input type="text" name="user-key" value="${user_key}"></input>
+						<label for="api-key">API Key</label>
+						<input type="text" name="api-key" value="$api_key}"></input>
 					</li>
 					<li>
-						<label for="device-name">Device name</label>
-						<input type="text" name="device-name" value="${device_name}"></input>
+						<label for="user-name">Username</label>
+						<input type="text" name="user-name" value="${user_name}"></input>
 					</li>
 				</ol>
 			</fieldset>

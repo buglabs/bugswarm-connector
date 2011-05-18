@@ -21,17 +21,7 @@ import com.buglabs.services.ws.PublicWSDefinition;
 import com.buglabs.services.ws.PublicWSProvider;
 import com.buglabs.util.OSGiServiceLoader;
 
-public class OSGiHelper implements ServiceListener {
-
-	/**
-	 * Swarm-represented entities
-	 * 
-	 * @author kgilmer
-	 * 
-	 */
-	public enum EntityChangeType {
-		SERVICE, MODULE, FEED
-	}
+public class OSGiHelper implements ServiceListener {	
 
 	/**
 	 * A listener for events that occur in the OSGi context for any
@@ -41,7 +31,7 @@ public class OSGiHelper implements ServiceListener {
 	 * 
 	 */
 	public interface EntityChangeListener {
-		public void change(int eventType, EntityChangeType type, Object source);
+		public void change(int eventType, Object source);
 	}
 
 	/**
@@ -52,9 +42,9 @@ public class OSGiHelper implements ServiceListener {
 	 */
 	public class BUGSwarmFeed {
 		private String feedName;
-		private Map feed;
+		private Map<?, ?> feed;
 
-		public BUGSwarmFeed(String feedName, Map feed) {
+		public BUGSwarmFeed(String feedName, Map<?, ?> feed) {
 
 			this.feedName = feedName;
 			this.feed = feed;
@@ -64,7 +54,7 @@ public class OSGiHelper implements ServiceListener {
 			return feedName;
 		}
 
-		public Map getFeed() {
+		public Map<?, ?> getFeed() {
 			return feed;
 		}
 	}
@@ -270,20 +260,9 @@ public class OSGiHelper implements ServiceListener {
 			}
 			
 			//If we have event listeners, send notifications of the change.
-			if (listeners != null && listeners.size() > 0) {
-				EntityChangeType entity = null;
-				if (event.getSource() instanceof IModuleControl)
-					entity  = EntityChangeType.MODULE;
-				else if (event.getSource() instanceof PublicWSProvider)
-					entity = EntityChangeType.SERVICE;
-				else if (event.getSource() instanceof Map)
-					entity = EntityChangeType.FEED;
-					
-				if (entity == null)
-					throw new RuntimeException("An invalid event source has made it deep into the serviceChanged() method.  Panic!");
-				
+			if (listeners != null && listeners.size() > 0) {				
 				for (EntityChangeListener listener: listeners) 
-					listener.change(event.getType(), entity, event.getSource());
+					listener.change(event.getType(), event.getSource());
 			}
 		}
 	}

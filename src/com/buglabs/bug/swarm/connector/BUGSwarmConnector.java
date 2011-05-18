@@ -11,10 +11,9 @@ import org.jivesoftware.smackx.muc.MultiUserChat;
 
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper.EntityChangeListener;
-import com.buglabs.bug.swarm.connector.osgi.OSGiHelper.EntityChangeType;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
-import com.buglabs.bug.swarm.connector.ws.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmModel;
+import com.buglabs.bug.swarm.connector.ws.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
 import com.buglabs.bug.swarm.connector.xmpp.XMLDocCreator;
@@ -141,7 +140,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 	}
 
 	@Override
-	public void change(int eventType, EntityChangeType type, Object source) {
+	public void change(int eventType, Object source) {
 		//For now, every time a service, module, or feed changes locally, send the entire state to each interested party.
 		//In the future it may be better to cache and determine delta and send only that.
 		

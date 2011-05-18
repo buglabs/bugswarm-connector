@@ -5,7 +5,7 @@ import org.json.simple.JSONArray;
 import junit.framework.TestCase;
 
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
-import com.buglabs.bug.swarm.connector.xmpp.XMLDocCreator;
+import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 import com.buglabs.util.XmlNode;
 
 /**
@@ -39,7 +39,7 @@ public class SwarmXMPPClientTests extends TestCase {
 		OSGiHelper osgi = OSGiHelper.getRef();
 		
 		//Create the document.
-		JSONArray xd = XMLDocCreator.createFeedArray(osgi.getBUGFeeds());
+		JSONArray xd = JSONElementCreator.createFeedArray(osgi.getBUGFeeds());
 		
 		//Verify it's what we expect
 		assertTrue(xd != null);

@@ -16,7 +16,7 @@ import com.buglabs.bug.swarm.connector.ws.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
-import com.buglabs.bug.swarm.connector.xmpp.XMLDocCreator;
+import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 
 /**
  * See RMI http://redmine/issues/2312
@@ -83,7 +83,7 @@ public class BasicConnectivityTests extends TestCase {
 					xmppClient.advertise(
 							swarm.getId(), 
 							member.getUserId(), 
-							XMLDocCreator.createFeedArray(osgi.getBUGFeeds()));
+							JSONElementCreator.createFeedArray(osgi.getBUGFeeds()));
 		
 		//At this point we should be connected to the swarm server, verify.
 		for (SwarmModel swarm : connectedSwarms) {

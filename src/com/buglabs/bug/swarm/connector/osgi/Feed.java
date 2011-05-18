@@ -8,18 +8,21 @@ import com.buglabs.module.IModuleControl;
 import com.buglabs.services.ws.PublicWSProvider;
 
 /**
- * Internall represents a swarm-feed.
+ * Internally represents a swarm-feed.  Essentially a named Map.
  * 
  * @author kgilmer
  * 
  */
-public class BUGSwarmFeed {
+public class Feed {
+	/**
+	 * OSGi service property key for the feed name.
+	 */
 	public static final String FEED_SERVICE_NAME_PROPERTY = "SWARM.FEED.NAME";
 	
 	private String feedName;
 	private Map<?, ?> feed;
 
-	protected BUGSwarmFeed(String feedName, Map<?, ?> feed) {
+	protected Feed(String feedName, Map<?, ?> feed) {
 
 		this.feedName = feedName;
 		this.feed = feed;
@@ -36,8 +39,8 @@ public class BUGSwarmFeed {
 	@Override
 	public boolean equals(Object obj) {
 		//Feed names are unique
-		if (obj instanceof BUGSwarmFeed)
-			return ((BUGSwarmFeed) obj).getName().equals(feedName);
+		if (obj instanceof Feed)
+			return ((Feed) obj).getName().equals(feedName);
 			
 		return super.equals(obj);
 	}
@@ -47,17 +50,17 @@ public class BUGSwarmFeed {
 	 * @param input
 	 * @return
 	 */
-	public static BUGSwarmFeed createForType(Object input) {
+	public static Feed createForType(Object input) {
 		if (input instanceof IModuleControl)
-			return new ModuleFeed((IModuleControl) input);
+			return new ModuleFeedAdapter((IModuleControl) input);
 		
 		if (input instanceof PublicWSProvider)
-			return new ServiceFeed((PublicWSProvider) input);
+			return new ServiceFeedAdapter((PublicWSProvider) input);
 		
 		if (input instanceof ServiceReference) {
 			ServiceReference sr = (ServiceReference) input;
-			if (sr.getProperty(BUGSwarmFeed.FEED_SERVICE_NAME_PROPERTY) != null) 
-				return new BUGSwarmFeed((String) sr.getProperty(BUGSwarmFeed.FEED_SERVICE_NAME_PROPERTY), (Map <?, ?>) Activator.getContext().getService(sr));
+			if (sr.getProperty(Feed.FEED_SERVICE_NAME_PROPERTY) != null) 
+				return new Feed((String) sr.getProperty(Feed.FEED_SERVICE_NAME_PROPERTY), (Map <?, ?>) Activator.getContext().getService(sr));
 		}
 		
 		return null;

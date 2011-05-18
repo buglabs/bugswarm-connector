@@ -6,9 +6,15 @@ import java.util.Map;
 import com.buglabs.services.ws.PublicWSDefinition;
 import com.buglabs.services.ws.PublicWSProvider;
 
-public class ServiceFeed extends BUGSwarmFeed {
+/**
+ * Adapts PublicWSProvider to Feed.
+ * 
+ * @author kgilmer
+ *
+ */
+public class ServiceFeedAdapter extends Feed {
 
-	public ServiceFeed(PublicWSProvider service) {
+	public ServiceFeedAdapter(PublicWSProvider service) {
 		super(service.getPublicName(), adaptServiceToFeedMap(service));
 	}
 

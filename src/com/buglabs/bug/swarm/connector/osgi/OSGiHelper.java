@@ -39,13 +39,13 @@ public class OSGiHelper implements ServiceListener {
 
 	/*private List<IModuleControl> moduleList;
 	private List<PublicWSProvider> serviceList;*/
-	private Map<Object, BUGSwarmFeed> feeds;
+	private Map<Object, Feed> feeds;
 
 	private List<EntityChangeListener> listeners;
 
 	private OSGiHelper() throws Exception {
 		context = Activator.getContext();
-		feeds = new HashMap<Object, BUGSwarmFeed>();
+		feeds = new HashMap<Object, Feed>();
 		
 		initializeModuleProviders();
 		initializeWSProviders();
@@ -79,8 +79,8 @@ public class OSGiHelper implements ServiceListener {
 		listeners.remove(listener);
 	}
 
-	public List<BUGSwarmFeed> getBUGFeeds() {
-		return new ArrayList<BUGSwarmFeed>(feeds.values());
+	public List<Feed> getBUGFeeds() {
+		return new ArrayList<Feed>(feeds.values());
 	}
 
 	private void initializeModuleProviders() throws Exception {	
@@ -89,7 +89,7 @@ public class OSGiHelper implements ServiceListener {
 				OSGiServiceLoader.loadServices(context, IModuleControl.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
 					public void load(Object service) throws Exception {					
 						if (!feeds.containsKey(service)) {
-							feeds.put(service, BUGSwarmFeed.createForType(service));
+							feeds.put(service, Feed.createForType(service));
 						}
 					}
 				});
@@ -113,7 +113,7 @@ public class OSGiHelper implements ServiceListener {
 				OSGiServiceLoader.loadServices(context, PublicWSProvider.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
 					public void load(Object service) throws Exception {					
 						if (!feeds.containsKey(service)) {
-							feeds.put(service, BUGSwarmFeed.createForType(service));
+							feeds.put(service, Feed.createForType(service));
 						}
 					}
 				});
@@ -136,7 +136,7 @@ public class OSGiHelper implements ServiceListener {
 			synchronized (feeds) {
 				// TODO: Optimize by specifying a proper filter rather than filter in code.
 				for (ServiceReference sr : Arrays.asList(context.getAllServiceReferences(Map.class.getName(), null))) {
-					BUGSwarmFeed feed = BUGSwarmFeed.createForType(sr);
+					Feed feed = Feed.createForType(sr);
 					
 					if (feed != null && !feeds.entrySet().contains(feed)) {
 						feeds.put(context.getService(sr), feed);	
@@ -211,20 +211,20 @@ public class OSGiHelper implements ServiceListener {
 	
 	private void loadMockFeedProviders() {
 		Map<String, String> f1 = new HashMap<String, String>();
-		feeds.put(f1, new BUGSwarmFeed("feed1", f1));
+		feeds.put(f1, new Feed("feed1", f1));
 		f1 = new HashMap<String, String>();
-		feeds.put(f1, new BUGSwarmFeed("feed2", new HashMap<String, String>()));
+		feeds.put(f1, new Feed("feed2", new HashMap<String, String>()));
 		f1 = new HashMap<String, String>();
-		feeds.put(f1, new BUGSwarmFeed("feed3", new HashMap<String, String>()));
+		feeds.put(f1, new Feed("feed3", new HashMap<String, String>()));
 	}
 
 	private void loadMockIModuleControls() {
 		IModuleControl mc = new MockIModuleControl("GPS", 1, createMockProperties());
-		feeds.put(mc, BUGSwarmFeed.createForType(mc));
+		feeds.put(mc, Feed.createForType(mc));
 		mc = new MockIModuleControl("LCD", 2, createMockProperties());
-		feeds.put(mc, BUGSwarmFeed.createForType(mc));
+		feeds.put(mc, Feed.createForType(mc));
 		mc = new MockIModuleControl("CAMERA", 3, createMockProperties());
-		feeds.put(mc, BUGSwarmFeed.createForType(mc));
+		feeds.put(mc, Feed.createForType(mc));
 	}
 
 	private List createMockProperties() {
@@ -262,10 +262,10 @@ public class OSGiHelper implements ServiceListener {
 
 	private void loadMockPublicWSProviders() {
 		PublicWSProvider wsp = new MockPublicWSProvider("Picture", "Take a picture using the camera module.");
-		feeds.put(wsp, BUGSwarmFeed.createForType(wsp));
+		feeds.put(wsp, Feed.createForType(wsp));
 		
 		wsp = new MockPublicWSProvider("Location", "Determine your location using GPS services.");
-		feeds.put(wsp, BUGSwarmFeed.createForType(wsp));
+		feeds.put(wsp, Feed.createForType(wsp));
 	}
 
 	private class MockPublicWSProvider implements PublicWSProvider {

@@ -5,7 +5,7 @@ import java.util.List;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import com.buglabs.bug.swarm.connector.osgi.BUGSwarmFeed;
+import com.buglabs.bug.swarm.connector.osgi.Feed;
 import com.buglabs.module.IModuleControl;
 import com.buglabs.module.IModuleProperty;
 import com.buglabs.services.ws.PublicWSDefinition;
@@ -24,16 +24,16 @@ public class JSONElementCreator {
 	 * @param feeds
 	 * @return
 	 */
-	public static JSONArray createFeedArray(List<BUGSwarmFeed> feeds) {
+	public static JSONArray createFeedArray(List<Feed> feeds) {
 		JSONArray array = new JSONArray();
 		
-		for (BUGSwarmFeed feed : feeds)
+		for (Feed feed : feeds)
 			array.add(createFeedElement(feed));
 			
 		return array;
 	}
 
-	public static JSONObject createFeedElement(BUGSwarmFeed feed) {
+	public static JSONObject createFeedElement(Feed feed) {
 		JSONObject jobj = new JSONObject();
 		jobj.put(feed.getName(), feed.getFeed());
 		

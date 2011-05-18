@@ -8,14 +8,20 @@ import java.util.Map;
 import com.buglabs.module.IModuleControl;
 import com.buglabs.module.IModuleProperty;
 
-public class ModuleFeed extends BUGSwarmFeed {
+/**
+ * Adapts IModule control to Feed.
+ * 
+ * @author kgilmer
+ *
+ */
+public class ModuleFeedAdapter extends Feed {
 
-	public ModuleFeed(String feedName, Map<?, ?> feed) {
+	public ModuleFeedAdapter(String feedName, Map<?, ?> feed) {
 		super(feedName, feed);
 		
 	}
 
-	public ModuleFeed(IModuleControl service) {
+	public ModuleFeedAdapter(IModuleControl service) {
 		super(service.getModuleName() + service.getSlotId(), adaptModulePropertiesToFeedMap(service.getModuleProperties()));
 	}
 

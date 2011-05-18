@@ -135,15 +135,17 @@ public class OSGiHelper implements ServiceListener {
 		if (context != null) {
 			synchronized (feeds) {
 				// TODO: Optimize by specifying a proper filter rather than filter in code.
-				for (ServiceReference sr : Arrays.asList(context.getAllServiceReferences(Map.class.getName(), null))) {
-					Feed feed = Feed.createForType(sr);
-					
-					if (feed != null && !feeds.entrySet().contains(feed)) {
-						feeds.put(context.getService(sr), feed);	
-					} else {
-						//TODO: log that ignoring a map because it doesn't have required properties.
+				ServiceReference[] srs = context.getAllServiceReferences(Map.class.getName(), null);
+				if (srs != null)
+					for (ServiceReference sr : Arrays.asList(srs)) {
+						Feed feed = Feed.createForType(sr);
+						
+						if (feed != null && !feeds.entrySet().contains(feed)) {
+							feeds.put(context.getService(sr), feed);	
+						} else {
+							//TODO: log that ignoring a map because it doesn't have required properties.
+						}
 					}
-				}
 			}
 		} else {
 			loadMockFeedProviders();

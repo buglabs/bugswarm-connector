@@ -16,6 +16,8 @@ Import-Package:
  com.buglabs.util.simplerestclient,
  freemarker.template,
  javax.servlet.http,
+ javax.net,
+ javax.net.ssl,
  org.jivesoftware.smack,
  org.jivesoftware.smack.packet,
  org.jivesoftware.smackx.muc,

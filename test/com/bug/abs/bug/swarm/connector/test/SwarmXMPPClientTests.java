@@ -43,5 +43,7 @@ public class SwarmXMPPClientTests extends TestCase {
 		
 		//Verify it's what we expect
 		assertTrue(xd != null);
+		
+		System.out.println(xd.toJSONString());
 	}
 }

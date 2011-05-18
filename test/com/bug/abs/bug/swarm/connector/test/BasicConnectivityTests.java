@@ -9,6 +9,7 @@ import org.jivesoftware.smack.ChatManager;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
+import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.connector.ws.ISwarmClient;
@@ -40,7 +41,7 @@ public class BasicConnectivityTests extends TestCase {
 		 * 2. Get the list of consumer members of every swarm returned by step 1. (through the Rest API)
 		 */
 		
-		ISwarmClient wsClient = new SwarmWSClient(AccountConfig.getConfiguration().getHostname(), AccountConfig.getConfiguration().getAPIKey());
+		ISwarmClient wsClient = new SwarmWSClient(AccountConfig.getConfiguration().getHostname(Protocol.HTTP), AccountConfig.getConfiguration().getAPIKey());
 		
 		assertTrue(wsClient.isValid() == null);
 		List<SwarmModel> allSwarms = wsClient.getSwarmResourceClient().getSwarmsByMember(AccountConfig.getConfiguration().getResource());

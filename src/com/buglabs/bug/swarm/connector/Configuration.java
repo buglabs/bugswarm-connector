@@ -14,7 +14,13 @@ import com.buglabs.bug.swarm.connector.ui.SwarmConfigKeys;
  * @author kgilmer
  */
 public class Configuration {
-
+	public enum Protocol {
+		HTTP, XMPP
+	};
+	
+	private static final String HTTP_SCHEME = "HTTP://";
+	private static final String XMPP_PREFIX = "xmpp.";
+	private static final String HTTP_PREFIX = "api.";
 	/**
 	 * Stores the configuration
 	 */
@@ -39,6 +45,9 @@ public class Configuration {
 	 * @param resource
 	 */
 	public Configuration(String hostname, String api_key, String username, String resource) {
+		if (hostname.contains("://"))
+			throw new IllegalArgumentException("Hostname must note include a scheme.");
+		
 		config = new Hashtable<String, String>();
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, hostname);
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME, username);
@@ -72,8 +81,15 @@ public class Configuration {
 	/**
 	 * @return
 	 */
-	public String getHostname() {
-		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER);
+	public String getHostname(Protocol protocol) {
+		switch (protocol) {
+		case HTTP:
+			return HTTP_SCHEME + HTTP_PREFIX + config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER);
+		case XMPP:
+			return XMPP_PREFIX + config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER);
+		}
+		
+		throw new IllegalArgumentException("Unknown protocol");
 	}
 	
 	/**
@@ -92,7 +108,7 @@ public class Configuration {
 	
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName() + " (" + getHostname() + ", " + getUsername() + ", " + getAPIKey() + ", " + getResource() +")";
+		return this.getClass().getSimpleName() + " (" + config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER) + ", " + getUsername() + ", " + getAPIKey() + ", " + getResource() +")";
 	}
 	
 	/**

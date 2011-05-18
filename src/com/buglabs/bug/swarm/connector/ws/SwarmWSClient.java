@@ -11,6 +11,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import com.buglabs.bug.swarm.connector.Configuration;
+import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.util.simplerestclient.HTTPResponse;
 
 /**
@@ -38,7 +39,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 	 * @param config client configuration
 	 */
 	public SwarmWSClient(final Configuration config) {
-		super(config.getHostname(), config.getAPIKey());
+		super(config.getHostname(Protocol.HTTP), config.getAPIKey());
 	}
 	
 	/**

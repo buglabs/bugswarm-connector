@@ -41,7 +41,7 @@ import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.json.simple.JSONArray;
 
 import com.buglabs.bug.swarm.connector.Configuration;
-import com.buglabs.util.XmlNode;
+import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 
 /**
  * Default implementation of ISwarmConnector
@@ -71,7 +71,7 @@ public class SwarmXMPPClient  {
 		// Get a unique ID for the device software is running on.
 		//String clientId = ClientIdentity.getRef().getId();
 		if (connection == null) {				
-			connection = createConnection(config.getHostname());
+			connection = createConnection(config.getHostname(Protocol.XMPP));
 			login(connection, config.getUsername(), config.getUsername());
 			disposed = false;
 		}		
@@ -100,7 +100,7 @@ public class SwarmXMPPClient  {
 	 * @return
 	 */
 	public String getHostname() {
-		return config.getHostname();
+		return config.getHostname(Protocol.XMPP);
 	}
 	
 	/**

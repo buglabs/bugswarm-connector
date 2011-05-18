@@ -6,6 +6,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.connector.ws.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
@@ -106,7 +107,7 @@ public class SwarmWSAPITests extends TestCase {
 		
 		assertTrue(client.isValid() == null);
 		
-		client = new SwarmWSClient(AccountConfig.getConfiguration().getHostname(), "ohmyisthiskeyvalid");
+		client = new SwarmWSClient(AccountConfig.getConfiguration().getHostname(Protocol.HTTP), "ohmyisthiskeyvalid");
 		
 		assertFalse(client.isValid() == null);
 	}

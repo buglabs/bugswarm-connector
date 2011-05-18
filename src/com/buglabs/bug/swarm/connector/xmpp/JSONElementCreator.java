@@ -6,11 +6,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import com.buglabs.bug.swarm.connector.osgi.Feed;
-import com.buglabs.module.IModuleControl;
-import com.buglabs.module.IModuleProperty;
-import com.buglabs.services.ws.PublicWSDefinition;
-import com.buglabs.services.ws.PublicWSProvider;
-import com.buglabs.util.XmlNode;
 
 /**
  * This stateless class handles all xml message creation for bugswarm-connector.

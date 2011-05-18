@@ -143,8 +143,8 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 
 				root.put("server", getSwarmServer());
 
-				root.put("device_name", getNickname());
-				root.put("user_key", getUserKey());
+				root.put("user_name", getUsername());
+				root.put("api_key", getAPIKey());
 
 				root.put("message", new SimpleScalar(msg));
 			} catch (IOException e) {
@@ -211,7 +211,7 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 		return o.toString();
 	}
 
-	private String getUserKey() throws IOException {
+	private String getAPIKey() throws IOException {
 		Dictionary dict = ConfigAdminUtil.getPropertiesSafely(config);
 
 		Object o = dict.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY);
@@ -223,10 +223,10 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 		return o.toString();
 	}
 
-	private String getNickname() throws IOException {
+	private String getUsername() throws IOException {
 		Dictionary dict = ConfigAdminUtil.getPropertiesSafely(config);
 
-		Object o = dict.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE);
+		Object o = dict.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME);
 
 		if (o == null) {
 			return null;

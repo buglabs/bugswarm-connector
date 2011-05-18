@@ -13,6 +13,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.log.LogService;
 
 import com.buglabs.module.IModuleControl;
 import com.buglabs.module.IModuleProperty;
@@ -143,7 +144,7 @@ public class OSGiHelper implements ServiceListener {
 						if (feed != null && !feeds.entrySet().contains(feed)) {
 							feeds.put(context.getService(sr), feed);	
 						} else {
-							//TODO: log that ignoring a map because it doesn't have required properties.
+							Activator.getLog().log(LogService.LOG_WARNING, Map.class.getName() + " ignored: " + Feed.FEED_SERVICE_NAME_PROPERTY + " is not a property.");
 						}
 					}
 			}

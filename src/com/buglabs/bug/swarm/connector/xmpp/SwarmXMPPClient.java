@@ -38,6 +38,7 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.json.simple.JSONArray;
 
 import com.buglabs.bug.swarm.connector.Configuration;
 import com.buglabs.util.XmlNode;
@@ -147,11 +148,11 @@ public class SwarmXMPPClient  {
 	 * @param createServiceModuleFeedDocument
 	 * @throws XMPPException 
 	 */
-	public void advertise(String swarmId, String userId, XmlNode serviceModuleFeedDocument) throws XMPPException {
+	public void advertise(String swarmId, String userId, JSONArray feedDocument) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
 		
 		Chat pchat = muc.createPrivateChat(userId, new NullMessageListener());
-		pchat.sendMessage(serviceModuleFeedDocument.toString());
+		pchat.sendMessage(feedDocument.toString());
 	}
 
 	private static void login(XMPPConnection connection, String user, String pass) throws XMPPException {

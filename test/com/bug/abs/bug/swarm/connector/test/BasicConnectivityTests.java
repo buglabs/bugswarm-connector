@@ -83,10 +83,7 @@ public class BasicConnectivityTests extends TestCase {
 					xmppClient.advertise(
 							swarm.getId(), 
 							member.getUserId(), 
-							XMLDocCreator.createServiceModuleFeedDocument(
-									osgi.getBUGServices(),
-									osgi.getBUGModules(), 
-									osgi.getBUGFeeds()));
+							XMLDocCreator.createFeedArray(osgi.getBUGFeeds()));
 		
 		//At this point we should be connected to the swarm server, verify.
 		for (SwarmModel swarm : connectedSwarms) {

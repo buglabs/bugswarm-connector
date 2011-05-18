@@ -1,5 +1,7 @@
 package com.bug.abs.bug.swarm.connector.test;
 
+import org.json.simple.JSONArray;
+
 import junit.framework.TestCase;
 
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
@@ -24,9 +26,7 @@ public class SwarmXMPPClientTests extends TestCase {
 		
 		assertNotNull(osgi);
 		
-		assertNotNull(osgi.getBUGFeeds());
-		assertNotNull(osgi.getBUGModules());
-		assertNotNull(osgi.getBUGServices());
+		assertNotNull(osgi.getBUGFeeds());	
 	}
 	
 	
@@ -39,18 +39,9 @@ public class SwarmXMPPClientTests extends TestCase {
 		OSGiHelper osgi = OSGiHelper.getRef();
 		
 		//Create the document.
-		XmlNode xd = XMLDocCreator.createServiceModuleFeedDocument(
-				osgi.getBUGServices(), 
-				osgi.getBUGModules(), 
-				osgi.getBUGFeeds());
+		JSONArray xd = XMLDocCreator.createFeedArray(osgi.getBUGFeeds());
 		
 		//Verify it's what we expect
 		assertTrue(xd != null);
-		
-		//No longer use services
-		//assertTrue(xd.childExists("services"));
-		assertTrue(xd.childExists("modules"));
-		assertTrue(xd.childExists("feeds"));
-		
 	}
 }

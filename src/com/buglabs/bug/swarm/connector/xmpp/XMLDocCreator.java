@@ -2,7 +2,9 @@ package com.buglabs.bug.swarm.connector.xmpp;
 
 import java.util.List;
 
-import com.buglabs.bug.swarm.connector.osgi.OSGiHelper.BUGSwarmFeed;
+import org.json.simple.JSONArray;
+
+import com.buglabs.bug.swarm.connector.osgi.BUGSwarmFeed;
 import com.buglabs.module.IModuleControl;
 import com.buglabs.module.IModuleProperty;
 import com.buglabs.services.ws.PublicWSDefinition;
@@ -15,6 +17,10 @@ import com.buglabs.util.XmlNode;
  *
  */
 public class XMLDocCreator {
+	
+	public static JSONArray createFeedArray(List<BUGSwarmFeed> feeds) {
+		return null;
+	}
 
 	/**
 	 * See https://github.com/buglabs/bugswarm/wiki/Advertise-Member-Capabilities (step 6)

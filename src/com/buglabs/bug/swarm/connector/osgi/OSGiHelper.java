@@ -34,42 +34,19 @@ public class OSGiHelper implements ServiceListener {
 		public void change(int eventType, Object source);
 	}
 
-	/**
-	 * Represents a swarm-feed.
-	 * 
-	 * @author kgilmer
-	 * 
-	 */
-	public class BUGSwarmFeed {
-		private String feedName;
-		private Map<?, ?> feed;
-
-		public BUGSwarmFeed(String feedName, Map<?, ?> feed) {
-
-			this.feedName = feedName;
-			this.feed = feed;
-		}
-
-		public String getName() {
-			return feedName;
-		}
-
-		public Map<?, ?> getFeed() {
-			return feed;
-		}
-	}
-
 	private static BundleContext context;
 	private static OSGiHelper ref;
 
-	private List<IModuleControl> moduleList;
-	private List<PublicWSProvider> serviceList;
-	private List<BUGSwarmFeed> feedList;
+	/*private List<IModuleControl> moduleList;
+	private List<PublicWSProvider> serviceList;*/
+	private Map<Object, BUGSwarmFeed> feeds;
 
 	private List<EntityChangeListener> listeners;
 
 	private OSGiHelper() throws Exception {
 		context = Activator.getContext();
+		feeds = new HashMap<Object, BUGSwarmFeed>();
+		
 		initializeModuleProviders();
 		initializeWSProviders();
 		initializeFeedProviders();
@@ -102,40 +79,17 @@ public class OSGiHelper implements ServiceListener {
 		listeners.remove(listener);
 	}
 
-	/**
-	 * Get the list of WS providers at time of call.
-	 * 
-	 * @return
-	 */
-	public List<PublicWSProvider> getBUGServices() {
-		return serviceList;
-	}
-
-	/**
-	 * Get the list of BUG modules attached at time of call.
-	 * 
-	 * @return
-	 */
-	public List<IModuleControl> getBUGModules() {
-		return moduleList;
-	}
-
 	public List<BUGSwarmFeed> getBUGFeeds() {
-		return new ArrayList<BUGSwarmFeed>();
+		return new ArrayList<BUGSwarmFeed>(feeds.values());
 	}
 
-	private void initializeModuleProviders() throws Exception {
-		if (moduleList == null)
-			moduleList = new ArrayList<IModuleControl>();
-		else
-			moduleList.clear();
-
+	private void initializeModuleProviders() throws Exception {	
 		if (context != null) {
-			synchronized (moduleList) {
+			synchronized (feeds) {
 				OSGiServiceLoader.loadServices(context, IModuleControl.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
-					public void load(Object service) throws Exception {
-						if (!moduleList.contains(service)) {
-							moduleList.add((IModuleControl) service);
+					public void load(Object service) throws Exception {					
+						if (!feeds.containsKey(service)) {
+							feeds.put(service, BUGSwarmFeed.createForType(service));
 						}
 					}
 				});
@@ -153,18 +107,13 @@ public class OSGiHelper implements ServiceListener {
 	 * @return
 	 * @throws Exception
 	 */
-	private void initializeWSProviders() throws Exception {
-		if (serviceList == null)
-			serviceList = new ArrayList<PublicWSProvider>();
-		else
-			serviceList.clear();
-
+	private void initializeWSProviders() throws Exception {		
 		if (context != null) {
-			synchronized (serviceList) {
+			synchronized (feeds) {
 				OSGiServiceLoader.loadServices(context, PublicWSProvider.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
-					public void load(Object service) throws Exception {
-						if (!serviceList.contains(service)) {
-							serviceList.add((PublicWSProvider) service);
+					public void load(Object service) throws Exception {					
+						if (!feeds.containsKey(service)) {
+							feeds.put(service, BUGSwarmFeed.createForType(service));
 						}
 					}
 				});
@@ -182,22 +131,19 @@ public class OSGiHelper implements ServiceListener {
 	 * @return
 	 * @throws Exception
 	 */
-	private void initializeFeedProviders() throws Exception {
-		if (feedList == null)
-			feedList = new ArrayList<BUGSwarmFeed>();
-		else
-			feedList.clear();
-
+	private void initializeFeedProviders() throws Exception {		
 		if (context != null) {
-			synchronized (feedList) {
-				// TODO: specify a proper filter rather than filter in code.
-				for (ServiceReference sr : Arrays.asList(context.getAllServiceReferences(Map.class.getName(), null)))
-					if (sr.getProperty("SWARM.FEED.NAME") != null) {
-						BUGSwarmFeed feed = new BUGSwarmFeed((String) sr.getProperty("SWARM.FEED.NAME"), (Map) context.getService(sr));
-						if (!feedList.contains(feed))
-							feedList.add(feed);
+			synchronized (feeds) {
+				// TODO: Optimize by specifying a proper filter rather than filter in code.
+				for (ServiceReference sr : Arrays.asList(context.getAllServiceReferences(Map.class.getName(), null))) {
+					BUGSwarmFeed feed = BUGSwarmFeed.createForType(sr);
+					
+					if (feed != null && !feeds.entrySet().contains(feed)) {
+						feeds.put(context.getService(sr), feed);	
+					} else {
+						//TODO: log that ignoring a map because it doesn't have required properties.
 					}
-
+				}
 			}
 		} else {
 			loadMockFeedProviders();
@@ -212,28 +158,9 @@ public class OSGiHelper implements ServiceListener {
 			context.removeServiceListener(this);
 		}
 
-		if (serviceList != null) {
-			serviceList.clear();
+		if (feeds != null) {
+			feeds.clear();
 		}
-
-		if (moduleList != null) {
-			moduleList.clear();
-		}
-	}
-
-	/**
-	 * Find the PublicWSProvider service that uses specific name, or null if no
-	 * instance is available.
-	 * 
-	 * @param name
-	 * @return
-	 */
-	public PublicWSProvider getPublicWSProviderByName(String name) {
-		for (PublicWSProvider p : serviceList)
-			if (p.getPublicName().equals(name))
-				return p;
-
-		return null;
 	}
 
 	@Override
@@ -268,29 +195,36 @@ public class OSGiHelper implements ServiceListener {
 	}
 
 	/**
-	 * Is ServiceEvent relevent for swarm?
+	 * Is ServiceEvent relevant for swarm?
 	 * 
 	 * @param event
 	 * @return
 	 */
 	private boolean isValidEvent(ServiceEvent event) {
 		boolean typeValid = event.getType() == ServiceEvent.REGISTERED || event.getType() == ServiceEvent.UNREGISTERING;
-		boolean classValid = event.getSource() instanceof IModuleControl || event.getSource() instanceof PublicWSProvider;
+		boolean classValid = event.getSource() instanceof IModuleControl || event.getSource() instanceof PublicWSProvider || event.getSource() instanceof Map<?, ?>;
+		
 		return typeValid && classValid;
 	}
 
 	// //////////// Test code follows, can be removed for production
 	
 	private void loadMockFeedProviders() {
-		feedList.add(new BUGSwarmFeed("feed1", new HashMap<String, String>()));
-		feedList.add(new BUGSwarmFeed("feed2", new HashMap<String, String>()));
-		feedList.add(new BUGSwarmFeed("feed3", new HashMap<String, String>()));
+		Map<String, String> f1 = new HashMap<String, String>();
+		feeds.put(f1, new BUGSwarmFeed("feed1", f1));
+		f1 = new HashMap<String, String>();
+		feeds.put(f1, new BUGSwarmFeed("feed2", new HashMap<String, String>()));
+		f1 = new HashMap<String, String>();
+		feeds.put(f1, new BUGSwarmFeed("feed3", new HashMap<String, String>()));
 	}
 
 	private void loadMockIModuleControls() {
-		moduleList.add(new MockIModuleControl("GPS", 1, createMockProperties()));
-		moduleList.add(new MockIModuleControl("LCD", 2, createMockProperties()));
-		moduleList.add(new MockIModuleControl("CAMERA", 3, createMockProperties()));
+		IModuleControl mc = new MockIModuleControl("GPS", 1, createMockProperties());
+		feeds.put(mc, BUGSwarmFeed.createForType(mc));
+		mc = new MockIModuleControl("LCD", 2, createMockProperties());
+		feeds.put(mc, BUGSwarmFeed.createForType(mc));
+		mc = new MockIModuleControl("CAMERA", 3, createMockProperties());
+		feeds.put(mc, BUGSwarmFeed.createForType(mc));
 	}
 
 	private List createMockProperties() {
@@ -327,8 +261,11 @@ public class OSGiHelper implements ServiceListener {
 	}
 
 	private void loadMockPublicWSProviders() {
-		serviceList.add(new MockPublicWSProvider("Picture", "Take a picture using the camera module."));
-		serviceList.add(new MockPublicWSProvider("Location", "Determine your location using GPS services."));
+		PublicWSProvider wsp = new MockPublicWSProvider("Picture", "Take a picture using the camera module.");
+		feeds.put(wsp, BUGSwarmFeed.createForType(wsp));
+		
+		wsp = new MockPublicWSProvider("Location", "Determine your location using GPS services.");
+		feeds.put(wsp, BUGSwarmFeed.createForType(wsp));
 	}
 
 	private class MockPublicWSProvider implements PublicWSProvider {

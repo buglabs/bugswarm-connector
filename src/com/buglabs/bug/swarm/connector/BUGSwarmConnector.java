@@ -8,6 +8,7 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smackx.muc.InvitationListener;
 import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.json.simple.JSONArray;
 
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper.EntityChangeListener;
@@ -83,10 +84,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 	 * @throws XMPPException
 	 */
 	private void broadcastState(List<SwarmModel> allSwarms) throws XMPPException {
-		XmlNode document = XMLDocCreator.createServiceModuleFeedDocument(
-				osgiHelper.getBUGServices(), 
-				osgiHelper.getBUGModules(), 
-				osgiHelper.getBUGFeeds());
+		JSONArray document = XMLDocCreator.createFeedArray(osgiHelper.getBUGFeeds());
 		
 		//Notify all consumer-members of swarms of services, feeds, and modules.
 		for (SwarmModel swarm: allSwarms) 

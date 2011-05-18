@@ -87,6 +87,7 @@ public class Activator implements BundleActivator, ManagedService {
 
 	@Override
 	public void updated(Dictionary config) throws ConfigurationException {
+		log.log(LogService.LOG_DEBUG, this.getClass().getName() + " configuration updated.");
 		if (config == null || (cachedConfig != null && configsIdentical(cachedConfig, config))) {
 			//Nothing has changed, ignore event.
 			return;
@@ -94,7 +95,9 @@ public class Activator implements BundleActivator, ManagedService {
 		
 		//Handle the case of swarm client being initialized.
 		if (Configuration.isValid(config) && connector == null) {
-			connector = new BUGSwarmConnector(new Configuration(config));
+			Configuration nc = new Configuration(config);
+			connector = new BUGSwarmConnector(nc);
+			log.log(LogService.LOG_DEBUG, this.getClass().getName() + " starting connector with configuration: " + nc);
 			connector.start();
 		}
 		

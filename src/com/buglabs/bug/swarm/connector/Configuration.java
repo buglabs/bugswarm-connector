@@ -90,6 +90,11 @@ public class Configuration {
 		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE);
 	}
 	
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + " (" + getHostname() + ", " + getUsername() + ", " + getAPIKey() + ", " + getResource() +")";
+	}
+	
 	/**
 	 * @return
 	 */

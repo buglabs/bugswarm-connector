@@ -174,7 +174,7 @@
 					</li>
 					<li>
 						<label for="api-key">API Key</label>
-						<input type="text" name="api-key" value="$api_key}"></input>
+						<input type="text" name="api-key" value="${api_key}"></input>
 					</li>
 					<li>
 						<label for="user-name">Username</label>

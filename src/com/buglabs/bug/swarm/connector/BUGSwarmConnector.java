@@ -102,7 +102,8 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 	 */
 	public boolean initialize() throws Exception {
 		wsClient = new SwarmWSClient(config.getHostname(), config.getAPIKey());
-		if (wsClient.isValid() == null) {
+		Throwable error = wsClient.isValid();
+		if (error == null) {
 			xmppClient = new SwarmXMPPClient(config);
 			xmppClient.connect();
 			
@@ -111,6 +112,8 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 				initialized = true;
 				return true;
 			}
+		} else {
+			throw new IOException(error);
 		}
 		
 		return false;

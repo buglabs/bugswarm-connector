@@ -1,5 +1,9 @@
 package com.buglabs.bug.swarm.connector;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Dictionary;
@@ -21,6 +25,7 @@ public class Configuration {
 	private static final String HTTP_SCHEME = "HTTP://";
 	private static final String XMPP_PREFIX = "xmpp.";
 	private static final String HTTP_PREFIX = "api.";
+	private static final String BUG20_SYSFS_MACADDR_FILE = "/sys/devices/platform/ehci-omap.0/usb1/1-2/1-2.4/1-2.4:1.0/net/eth0/address";
 	/**
 	 * Stores the configuration
 	 */
@@ -64,11 +69,27 @@ public class Configuration {
 	private static String getMachineResource() {
 		//TODO: have this get the ethernet mac address like it does in DP1.
 		try {
+			File f = new File(BUG20_SYSFS_MACADDR_FILE);
+			if (f.exists() && f.isFile())
+				return readFirstLine(f);
 		    return InetAddress.getLocalHost().getHostName();		    
-		} catch (UnknownHostException e) {
+		} catch (Exception e) {
 			Random r = new Random();
 			return "UNKNOWNHOST-" + r.nextDouble();
 		}
+	}
+
+	/**
+	 * @param f
+	 * @return
+	 * @throws IOException
+	 */
+	private static String readFirstLine(File f) throws IOException {
+		BufferedReader br = new BufferedReader(new FileReader(f));
+		String line = br.readLine();
+		br.close();
+		
+		return line;
 	}
 
 	/**

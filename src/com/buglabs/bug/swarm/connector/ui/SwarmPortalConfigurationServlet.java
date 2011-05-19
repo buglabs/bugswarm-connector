@@ -57,6 +57,7 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 
 	private static final long serialVersionUID = 6913347882663532246L;
 	private Configuration config;
+	private Dictionary confDictionary;
 
 	/**
 	 * @param ca ConfigAdmin
@@ -97,11 +98,12 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 			if (action.equals("activate")) {
 				String server = params.get("server");
 				String apiKey = params.get("api-key");
-				String userName = params.get("user-name");
+				String username = params.get("user-name");
+				String password = params.get("password");
 
-				if (server != null && apiKey != null && userName != null) {
+				if (server != null && apiKey != null && username != null) {
 					try {
-						saveConfiguration(server, userName, apiKey);
+						saveConfiguration(server, username, password, apiKey);
 
 						setEnabled(true);
 						msg = "BugSwarm has been activated";
@@ -141,10 +143,10 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 					root.put("action", "activate");
 				}
 
-				root.put("server", getSwarmServer());
-
-				root.put("user_name", getUsername());
-				root.put("api_key", getAPIKey());
+				root.put("server", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER));
+				root.put("user_name",getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME));
+				root.put("password", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PASSWORD));
+				root.put("api_key", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY));
 
 				root.put("message", new SimpleScalar(msg));
 			} catch (IOException e) {
@@ -155,7 +157,7 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 		}
 	}
 
-	public void saveConfiguration(String server, String username, String apiKey) throws IOException {
+	public void saveConfiguration(String server, String username, String password, String apiKey) throws IOException {
 		Dictionary d = config.getProperties();
 
 		if (d == null) {
@@ -164,6 +166,7 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, server);
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME, username);
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PASSWORD, password);
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY, apiKey);
 
 		config.update(d);
@@ -198,42 +201,26 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 
 		return Boolean.parseBoolean(o.toString());
 	}
-
-	public String getSwarmServer() throws IOException {
-		Dictionary dict = ConfigAdminUtil.getPropertiesSafely(config);
-
-		Object o = dict.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER);
-
-		if (o == null) {
-			return null;
-		}
-
-		return o.toString();
+	
+	/**
+	 * Get a value from the configuration, or return empty string if no value exists.
+	 * 
+	 * @param key
+	 * @return
+	 * @throws IOException
+	 */
+	public String getValue(String key) throws IOException {
+		if (confDictionary == null)
+			confDictionary =  ConfigAdminUtil.getPropertiesSafely(config);
+		
+		Object val = confDictionary.get(key);
+		
+		if (val == null)
+			return "";
+		
+		return val.toString();
 	}
 
-	private String getAPIKey() throws IOException {
-		Dictionary dict = ConfigAdminUtil.getPropertiesSafely(config);
-
-		Object o = dict.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY);
-
-		if (o == null) {
-			return null;
-		}
-
-		return o.toString();
-	}
-
-	private String getUsername() throws IOException {
-		Dictionary dict = ConfigAdminUtil.getPropertiesSafely(config);
-
-		Object o = dict.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME);
-
-		if (o == null) {
-			return null;
-		}
-
-		return o.toString();
-	}
 
 	private void updateConfig(String key, String val) throws IOException {
 		Dictionary d = config.getProperties();

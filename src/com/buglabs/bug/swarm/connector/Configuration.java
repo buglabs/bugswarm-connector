@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Random;
@@ -30,17 +29,8 @@ public class Configuration {
 	 * Stores the configuration
 	 */
 	private Dictionary<String, String> config;
+	private String resource;
 
-	/**
-	 * This configuration will create a member value from the machine.
-	 * 
-	 * @param hostname
-	 * @param api_key
-	 * @param resource
-	 */
-	public Configuration(String hostname, String api_key, String username) {
-		this(hostname, api_key, username, getMachineResource());		
-	}
 	
 	/**
 	 * Create a configuration
@@ -49,7 +39,7 @@ public class Configuration {
 	 * @param api_key
 	 * @param resource
 	 */
-	public Configuration(String hostname, String api_key, String username, String resource) {
+	public Configuration(String hostname, String api_key, String username) {
 		if (hostname.contains("://"))
 			throw new IllegalArgumentException("Hostname must note include a scheme.");
 		
@@ -57,7 +47,7 @@ public class Configuration {
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, hostname);
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME, username);
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY, api_key);
-		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE, resource);		
+		resource = getMachineResource();		
 	}
 	
 	/**
@@ -125,7 +115,7 @@ public class Configuration {
 	 * @return
 	 */
 	public String getResource() {
-		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE);
+		return resource;
 	}
 	
 	@Override
@@ -150,7 +140,6 @@ public class Configuration {
 			return false;
 		
 		if (!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_ENABLED) ||
-			!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE) ||
 			!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER) ||
 			!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY) || 
 			!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME))

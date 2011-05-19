@@ -42,31 +42,36 @@ public final class SwarmConfigKeys {
 	/**
 	 * ConfigAdmin ID for swarm configuration dictionary.
 	 */
-	public static final String CONFIG_PID_BUGSWARM 				= "BUGSWARM"; 
+	public static final String CONFIG_PID_BUGSWARM 				= "com.buglabs.bugswarm"; 
 	
 	/**
 	 * A local-only value to determine if bugswarm is enabled.
 	 */
-	public static final String CONFIG_KEY_BUGSWARM_ENABLED 		= "bugdash.swarm.boolean.enabled";
+	public static final String CONFIG_KEY_BUGSWARM_ENABLED 		= "com.buglabs.bugswarm.enabled";
 	
 	/**
 	 * The root hostname which is used to access WS APIs and XMPP server.
 	 */
-	public static final String CONFIG_KEY_BUGSWARM_SERVER 		= "bugdash.swarm.string.serverurl";
+	public static final String CONFIG_KEY_BUGSWARM_SERVER 		= "com.buglabs.bugswarm.hostname";
 	
 	/**
 	 * The resource is the device id.  One user can have multiple resources, or 'contexts'.  Refer
 	 * to XMPP specs for further details on Resource.
 	 */
-	public static final String CONFIG_KEY_BUGSWARM_RESOURCE		= "bugdash.swarm.string.nickname";
+	//public static final String CONFIG_KEY_BUGSWARM_RESOURCE		= "com.buglabs.bugswarm.resource";
 	
 	/**
-	 * The API key is what identifies the user and is issued via human transaction.
+	 * The API key is the password for the web service layer.
 	 */
-	public static final String CONFIG_KEY_BUGSWARM_APIKEY		= "bugdash.swarm.string.userkey";
+	public static final String CONFIG_KEY_BUGSWARM_APIKEY		= "com.buglabs.bugswarm.apikey";
 
 	/**
 	 * The username used in the XMPP server.
 	 */
-	public static final String CONFIG_KEY_BUGSWARM_USERNAME = "bugdash.swarm.string.username";
+	public static final String CONFIG_KEY_BUGSWARM_USERNAME = "com.buglabs.bugswarm.username";
+	
+	/**
+	 * The password used for the XMPP server.
+	 */
+	public static final String CONFIG_KEY_BUGSWARM_PASSWORD = "com.buglabs.bugswarm.password";
 }

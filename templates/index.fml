@@ -180,6 +180,10 @@
 						<label for="user-name">Username</label>
 						<input type="text" name="user-name" value="${user_name}"></input>
 					</li>
+					<li>
+						<label for="password">Password</label>
+						<input type="password" name="password" value="${password}"></input>
+					</li>
 				</ol>
 			</fieldset>
 			<fieldset>

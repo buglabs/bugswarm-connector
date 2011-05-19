@@ -17,61 +17,70 @@ import com.buglabs.bug.swarm.connector.ui.SwarmConfigKeys;
  * @author kgilmer
  */
 public class Configuration {
+	/**
+	 * Defines which protocol is requested when getting server URL.
+	 * 
+	 * @author kgilmer
+	 * 
+	 */
 	public enum Protocol {
 		HTTP, XMPP
 	};
-	
+
 	private static final String HTTP_SCHEME = "HTTP://";
 	private static final String XMPP_PREFIX = "xmpp.";
 	private static final String HTTP_PREFIX = "api.";
-	private static final String BUG20_SYSFS_MACADDR_FILE = "/sys/devices/platform/ehci-omap.0/usb1/1-2/1-2.4/1-2.4:1.0/net/eth0/address";
+	private static final String BUG20_SYSFS_MACADDR_FILE = 
+		"/sys/devices/platform/ehci-omap.0/usb1/1-2/1-2.4/1-2.4:1.0/net/eth0/address";
 	/**
-	 * Stores the configuration
+	 * Stores the configuration.
 	 */
 	private Dictionary<String, String> config;
 	private final String resource;
 
-	
 	/**
-	 * Create a configuration
+	 * Create a configuration from discrete parameters.
 	 * 
 	 * @param hostname
-	 * @param api_key
-	 * @param resource
+	 *            name of host without scheme or prefix for protocol, such as
+	 *            "api."
+	 * @param apiKey
+	 *            API_KEY as defined by server
+	 * @param username
+	 *            swarm username
 	 */
-	public Configuration(String hostname, String api_key, String username) {
+	public Configuration(final String hostname, final String apiKey, final String username) {
 		if (hostname.contains("://"))
 			throw new IllegalArgumentException("Hostname must note include a scheme.");
-		
+
 		config = new Hashtable<String, String>();
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, hostname);
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME, username);
-		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY, api_key);
-		resource = getMachineResource();		
+		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY, apiKey);
+		resource = getMachineResource();
 	}
-	
 
 	/**
 	 * @param config
+	 *            pre-loaded Configuration
 	 */
-	public Configuration(Dictionary<String, String> config) {
+	public Configuration(final Dictionary<String, String> config) {
 		this.config = config;
 		resource = getMachineResource();
 	}
 
-	
 	/**
-	 * Determine some string that can be used to identify the client,
-	 * Preferably across OS updates, etc..
+	 * Determine some string that can be used to identify the client, Preferably
+	 * across OS updates, etc..
 	 * 
-	 * @return
+	 * @return the resource name for this device.
 	 */
 	private static String getMachineResource() {
 		try {
 			File f = new File(BUG20_SYSFS_MACADDR_FILE);
 			if (f.exists() && f.isFile())
 				return readFirstLine(f);
-		    return InetAddress.getLocalHost().getHostName();		    
+			return InetAddress.getLocalHost().getHostName();
 		} catch (Exception e) {
 			Random r = new Random();
 			return "UNKNOWNHOST-" + r.nextDouble();
@@ -81,98 +90,106 @@ public class Configuration {
 	/**
 	 * Return the first line of a file as a String.
 	 * 
-	 * @param f file to be read
+	 * @param file
+	 *            file to be read
 	 * @return first line as String
-	 * @throws IOException if there is an IO error
+	 * @throws IOException
+	 *             if there is an IO error
 	 */
-	private static String readFirstLine(File f) throws IOException {
-		BufferedReader br = new BufferedReader(new FileReader(f));
+	private static String readFirstLine(final File file) throws IOException {
+		BufferedReader br = new BufferedReader(new FileReader(file));
 		String line = br.readLine();
 		br.close();
-		
+
 		return line;
 	}
-	
+
 	/**
-	 * @return
+	 * @param protocol
+	 *            The protocol type requested for hostname
+	 * @return a server name with scheme
 	 */
-	public String getHostname(Protocol protocol) {
+	public String getHostname(final Protocol protocol) {
 		switch (protocol) {
 		case HTTP:
 			return HTTP_SCHEME + HTTP_PREFIX + config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER);
 		case XMPP:
 			return XMPP_PREFIX + config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER);
+		default:
+			throw new IllegalArgumentException("Unknown protocol");
 		}
-		
-		throw new IllegalArgumentException("Unknown protocol");
 	}
-	
+
 	/**
-	 * @return
+	 * @return the client API_KEY
 	 */
 	public String getAPIKey() {
 		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY);
 	}
-	
+
 	/**
-	 * @return
+	 * @return The resource associated with device.
 	 */
 	public String getResource() {
 		return resource;
 	}
-	
+
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName() + " (" + config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER) + ", " + getUsername() + ", " + getAPIKey() + ", " + getResource() +")";
+		return this.getClass().getSimpleName() + " (" + config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER) 
+			+ ", " + getUsername() + ", " + getAPIKey() + ", " + getResource() + ")";
 	}
-	
+
 	/**
-	 * @return
+	 * @return the username as defined on client.
 	 */
 	public String getUsername() {
 		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME);
 	}
-	
+
 	/**
 	 * A local-only check to see if a configuration appears to be valid.
-	 * @param config
-	 * @return true if the dictionary has values for the necessary keys to create a swarm connection.
+	 * 
+	 * @param config Dictionary of configuration
+	 * @return true if the dictionary has values for the necessary keys to
+	 *         create a swarm connection.
 	 */
-	public static boolean isValid(Dictionary<String, String> config) {
+	public static boolean isValid(final Dictionary<String, String> config) {
 		if (config.isEmpty())
 			return false;
-		
-		if (!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_ENABLED) ||
-			!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER) ||
-			!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY) || 
-			!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME))
+
+		if (!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_ENABLED)
+				|| !hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER)
+				|| !hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY)
+				|| !hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME))
 			return false;
-		
+
 		if (!Boolean.parseBoolean(config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_ENABLED).toString()))
 			return false;
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * @return true if this instance is valid.
 	 */
 	public boolean isValid() {
 		return isValid(this.config);
 	}
-	
+
 	/**
-	 * @param d
-	 * @param key
-	 * @return true if the passed dictionary contains a key and a value that does not evaluate to empty string or null.
+	 * @param dictionary Dictionary to check key
+	 * @param key to check in dictionary
+	 * @return true if the passed dictionary contains a key and a value that
+	 *         does not evaluate to empty string or null.
 	 */
-	private static boolean hasEntry(Dictionary<String, String> d, String key) {
-		if (d.get(key) == null)
+	private static boolean hasEntry(final Dictionary<String, String> dictionary, final String key) {
+		if (dictionary.get(key) == null)
 			return false;
-		
-		if (d.get(key).trim().length() == 0)
+
+		if (dictionary.get(key).trim().length() == 0)
 			return false;
-		
+
 		return true;
 	}
 }

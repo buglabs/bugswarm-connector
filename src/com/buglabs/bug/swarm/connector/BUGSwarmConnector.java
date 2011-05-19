@@ -43,7 +43,10 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 	private SwarmXMPPClient xmppClient;
 	private OSGiHelper osgiHelper;
 
-	public BUGSwarmConnector(Configuration config) {
+	/**
+	 * @param config Predefined configuration
+	 */
+	public BUGSwarmConnector(final Configuration config) {
 		this.config = config;
 		if (!config.isValid())
 			throw new IllegalArgumentException("Invalid configuration");
@@ -63,7 +66,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 			List<SwarmModel> allSwarms = wsClient.getSwarmResourceClient().getSwarmsByMember(config.getResource());
 			
 			//Notify all swarms of presence.
-			for (SwarmModel swarm: allSwarms)
+			for (SwarmModel swarm : allSwarms)
 				 xmppClient.joinSwarm(swarm.getId());
 			
 			
@@ -80,15 +83,15 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 	/**
 	 * Send the state of this device to all interested swarm members.
 	 * 
-	 * @param allSwarms
-	 * @throws XMPPException
+	 * @param allSwarms list of SwarmModel to send state to
+	 * @throws XMPPException upon XMPP failure
 	 */
-	private void broadcastState(List<SwarmModel> allSwarms) throws XMPPException {
+	private void broadcastState(final List<SwarmModel> allSwarms) throws XMPPException {
 		JSONArray document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
 		
 		//Notify all consumer-members of swarms of services, feeds, and modules.
-		for (SwarmModel swarm: allSwarms) 
-			for (SwarmResourceModel member: swarm.getMembers())
+		for (SwarmModel swarm : allSwarms) 
+			for (SwarmResourceModel member : swarm.getMembers())
 				if (member.getType() == MemberType.CONSUMER &&  xmppClient.isPresent(swarm.getId(), member.getUserId()))
 					xmppClient.advertise(
 							swarm.getId(), 
@@ -98,6 +101,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 
 	/**
 	 * Initialize the connection to the swarm server.
+	 * @return true if initialization successful
 	 * @throws Exception 
 	 */
 	public boolean initialize() throws Exception {
@@ -127,7 +131,9 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 	private class SwarmInvitationListener implements InvitationListener {
 
 		@Override
-		public void invitationReceived(Connection conn, String room, String inviter, String reason, String password, Message message) {
+		public void invitationReceived(final Connection conn, 
+				final String room, final String inviter, final String reason, 
+				final String password, final Message message) {
 			// TODO Implement this case
 			// FIXME: Assuming the message content is the swarm to be joined.
 			try {
@@ -141,7 +147,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 	}
 
 	@Override
-	public void change(int eventType, Object source) {
+	public void change(final int eventType, final Object source) {
 		//For now, every time a service, module, or feed changes locally, send the entire state to each interested party.
 		//In the future it may be better to cache and determine delta and send only that.
 		

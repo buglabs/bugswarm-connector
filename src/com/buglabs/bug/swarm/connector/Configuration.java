@@ -67,7 +67,6 @@ public class Configuration {
 	 * @return
 	 */
 	private static String getMachineResource() {
-		//TODO: have this get the ethernet mac address like it does in DP1.
 		try {
 			File f = new File(BUG20_SYSFS_MACADDR_FILE);
 			if (f.exists() && f.isFile())
@@ -80,9 +79,11 @@ public class Configuration {
 	}
 
 	/**
-	 * @param f
-	 * @return
-	 * @throws IOException
+	 * Return the first line of a file as a String.
+	 * 
+	 * @param f file to be read
+	 * @return first line as String
+	 * @throws IOException if there is an IO error
 	 */
 	private static String readFirstLine(File f) throws IOException {
 		BufferedReader br = new BufferedReader(new FileReader(f));

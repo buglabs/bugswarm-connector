@@ -29,7 +29,7 @@ public class Configuration {
 	 * Stores the configuration
 	 */
 	private Dictionary<String, String> config;
-	private String resource;
+	private final String resource;
 
 	
 	/**
@@ -49,6 +49,16 @@ public class Configuration {
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY, api_key);
 		resource = getMachineResource();		
 	}
+	
+
+	/**
+	 * @param config
+	 */
+	public Configuration(Dictionary<String, String> config) {
+		this.config = config;
+		resource = getMachineResource();
+	}
+
 	
 	/**
 	 * Determine some string that can be used to identify the client,
@@ -82,14 +92,7 @@ public class Configuration {
 		
 		return line;
 	}
-
-	/**
-	 * @param config
-	 */
-	public Configuration(Dictionary<String, String> config) {
-		this.config = config;
-	}
-
+	
 	/**
 	 * @return
 	 */

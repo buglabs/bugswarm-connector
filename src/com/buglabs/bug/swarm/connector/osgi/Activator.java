@@ -17,11 +17,12 @@ import com.buglabs.application.ServiceTrackerHelper;
 import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
 import com.buglabs.bug.swarm.connector.Configuration;
 import com.buglabs.bug.swarm.connector.ui.ConfigInitRunnable;
+import com.buglabs.bug.swarm.connector.ui.SwarmConfigKeys;
 import com.buglabs.osgi.sewing.pub.ISewingService;
 import com.buglabs.util.LogServiceUtil;
 
 public class Activator implements BundleActivator, ManagedService {
-	public static final String CONFIG_PID_BUGSWARM = "BUGSWARM";
+	//public static final String CONFIG_PID_BUGSWARM = "BUGSWARM";
 
 	/**
 	 * Services required for BUGswarm to be configured.
@@ -80,7 +81,7 @@ public class Activator implements BundleActivator, ManagedService {
 	private Dictionary<String, String> getCMDictionary() {
 		Dictionary<String, String> hm = new Hashtable<String, String>();
 		
-		hm.put("service.pid", CONFIG_PID_BUGSWARM);
+		hm.put("service.pid", SwarmConfigKeys.CONFIG_PID_BUGSWARM);
 		
 		return hm;
 	}

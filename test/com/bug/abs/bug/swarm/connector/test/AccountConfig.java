@@ -15,10 +15,9 @@ public final class AccountConfig {
 	protected static final String API_KEY2 = "a0fc6588f11db4a1f024445e950ae6ae33bc0313";
 	
 	protected static final String API_KEY = "76aa4ce0d07e4a41e5018de58445b1e4d7812711";
-	protected static final String SWARM_HOST = "api.bugswarm.net";
+	protected static final String SWARM_HOST = "bugswarm.net";
 	
 	protected static final String XMPP_USERNAME = "connector-test";
-	protected static final String XMPP_HOST = "xmpp.bugswarm.net";
 	//private static final String XMPP_RESOURCE = "Psi";
 	
 	protected static String testSwarmName;
@@ -37,7 +36,7 @@ public final class AccountConfig {
 	
 	protected static Configuration getXmppConfiguration() {
 		if (xmppconfig == null) {
-			xmppconfig = new Configuration(XMPP_HOST, API_KEY, XMPP_USERNAME);
+			xmppconfig = new Configuration(SWARM_HOST, API_KEY, XMPP_USERNAME);
 		}
 		
 		return xmppconfig;

@@ -22,7 +22,7 @@ public class Feed {
 	private String feedName;
 	private Map<?, ?> feed;
 
-	protected Feed(String feedName, Map<?, ?> feed) {
+	public Feed(String feedName, Map<?, ?> feed) {
 
 		this.feedName = feedName;
 		this.feed = feed;

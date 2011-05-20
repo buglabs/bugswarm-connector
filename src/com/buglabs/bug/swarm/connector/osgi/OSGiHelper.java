@@ -15,6 +15,7 @@ import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogService;
 
+import com.buglabs.bug.swarm.connector.test.OSGiHelperTester;
 import com.buglabs.module.IModuleControl;
 import com.buglabs.module.IModuleProperty;
 import com.buglabs.services.ws.IWSResponse;
@@ -37,9 +38,6 @@ public class OSGiHelper implements ServiceListener {
 
 	private static BundleContext context;
 	private static OSGiHelper ref;
-
-	/*private List<IModuleControl> moduleList;
-	private List<PublicWSProvider> serviceList;*/
 	private Map<Object, Feed> feeds;
 
 	private List<EntityChangeListener> listeners;
@@ -96,7 +94,7 @@ public class OSGiHelper implements ServiceListener {
 				});
 			}
 		} else {
-			loadMockIModuleControls();
+			OSGiHelperTester.loadMockIModuleControls(feeds);
 		}
 	}
 
@@ -120,7 +118,7 @@ public class OSGiHelper implements ServiceListener {
 				});
 			}
 		} else {
-			loadMockPublicWSProviders();
+			OSGiHelperTester.loadMockPublicWSProviders(feeds);
 		}
 	}
 
@@ -149,7 +147,7 @@ public class OSGiHelper implements ServiceListener {
 					}
 			}
 		} else {
-			loadMockFeedProviders();
+			OSGiHelperTester.loadMockFeedProviders(feeds);
 		}
 	}
 
@@ -169,29 +167,24 @@ public class OSGiHelper implements ServiceListener {
 	@Override
 	public void serviceChanged(ServiceEvent event) {
 		if (isValidEvent(event)) {
-			// To keep the code simple, just repopulate the Module and Service
-			// lists from the service registry.
 			try {
-				initializeModuleProviders();
+				if (event.getType() == ServiceEvent.REGISTERED) {
+					if (isFeedEvent(event))
+						initializeFeedProviders();
+					else if (isServiceEvent(event))
+						initializeWSProviders();
+					else if (isModuleEvent(event))
+						initializeModuleProviders();
+				} else if (event.getType() == ServiceEvent.UNREGISTERING) {
+					feeds.remove(event.getSource());
+				}
 			} catch (Exception e) {
-				// TODO: handle exception
+				Activator.getLog().log(LogService.LOG_ERROR, "Failed to update state from OSGi service event.", e);
 			}
 
-			try {
-				initializeWSProviders();
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
-			
-			try {
-				initializeFeedProviders();
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
-			
 			//If we have event listeners, send notifications of the change.
 			if (listeners != null && listeners.size() > 0) {				
-				for (EntityChangeListener listener: listeners) 
+				for (EntityChangeListener listener : listeners) 
 					listener.change(event.getType(), event.getSource());
 			}
 		}
@@ -205,152 +198,32 @@ public class OSGiHelper implements ServiceListener {
 	 */
 	private boolean isValidEvent(ServiceEvent event) {
 		boolean typeValid = event.getType() == ServiceEvent.REGISTERED || event.getType() == ServiceEvent.UNREGISTERING;
-		boolean classValid = event.getSource() instanceof IModuleControl || event.getSource() instanceof PublicWSProvider || event.getSource() instanceof Map<?, ?>;
+		boolean classValid = isModuleEvent(event) || isServiceEvent(event) || isFeedEvent(event);
 		
 		return typeValid && classValid;
 	}
 
-	// //////////// Test code follows, can be removed for production
-	
-	private void loadMockFeedProviders() {
-		Map<String, String> f1 = new HashMap<String, String>();
-		feeds.put(f1, new Feed("feed1", f1));
-		f1 = new HashMap<String, String>();
-		feeds.put(f1, new Feed("feed2", new HashMap<String, String>()));
-		f1 = new HashMap<String, String>();
-		feeds.put(f1, new Feed("feed3", new HashMap<String, String>()));
+	/**
+	 * @param event
+	 * @return true if event is from a feed.
+	 */
+	private boolean isFeedEvent(ServiceEvent event) {
+		return event.getSource() instanceof Map<?, ?>;
 	}
 
-	private void loadMockIModuleControls() {
-		IModuleControl mc = new MockIModuleControl("GPS", 1, createMockProperties());
-		feeds.put(mc, Feed.createForType(mc));
-		mc = new MockIModuleControl("LCD", 2, createMockProperties());
-		feeds.put(mc, Feed.createForType(mc));
-		mc = new MockIModuleControl("CAMERA", 3, createMockProperties());
-		feeds.put(mc, Feed.createForType(mc));
+	/**
+	 * @param event
+	 * @return true if event is from a BUG service.
+	 */
+	private boolean isServiceEvent(ServiceEvent event) {
+		return event.getSource() instanceof PublicWSProvider;
 	}
 
-	private List createMockProperties() {
-		List l = new ArrayList();
-		final Random r = new Random();
-		l.add(new IModuleProperty() {
-
-			@Override
-			public boolean isMutable() {
-				// TODO Auto-generated method stub
-				return false;
-			}
-
-			@Override
-			public Object getValue() {
-
-				return "" + r.nextDouble();
-			}
-
-			@Override
-			public String getType() {
-				// TODO Auto-generated method stub
-				return "String";
-			}
-
-			@Override
-			public String getName() {
-				// TODO Auto-generated method stub
-				return "" + r.nextDouble();
-			}
-		});
-
-		return l;
-	}
-
-	private void loadMockPublicWSProviders() {
-		PublicWSProvider wsp = new MockPublicWSProvider("Picture", "Take a picture using the camera module.");
-		feeds.put(wsp, Feed.createForType(wsp));
-		
-		wsp = new MockPublicWSProvider("Location", "Determine your location using GPS services.");
-		feeds.put(wsp, Feed.createForType(wsp));
-	}
-
-	private class MockPublicWSProvider implements PublicWSProvider {
-
-		private final String name;
-		private final String desc;
-
-		public MockPublicWSProvider(String name, String desc) {
-			this.name = name;
-			this.desc = desc;
-
-		}
-
-		@Override
-		public PublicWSDefinition discover(int operation) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public IWSResponse execute(int operation, String input) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public String getPublicName() {
-			return name;
-		}
-
-		@Override
-		public String getDescription() {
-			return desc;
-		}
-
-	}
-
-	private class MockIModuleControl implements IModuleControl {
-
-		private final String name;
-		private final int slot;
-		private final List properties;
-
-		MockIModuleControl(String name, int slot, List properties) {
-			this.name = name;
-			this.slot = slot;
-			this.properties = properties;
-
-		}
-
-		@Override
-		public List getModuleProperties() {
-			return properties;
-		}
-
-		@Override
-		public String getModuleName() {
-			return name;
-		}
-
-		@Override
-		public int getSlotId() {
-			return slot;
-		}
-
-		@Override
-		public boolean setModuleProperty(IModuleProperty property) {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		@Override
-		public int suspend() throws IOException {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-
-		@Override
-		public int resume() throws IOException {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-
+	/**
+	 * @param event
+	 * @return true if event is from a BUG module.
+	 */
+	private boolean isModuleEvent(ServiceEvent event) {	
+		return event.getSource() instanceof IModuleControl;
 	}
 }

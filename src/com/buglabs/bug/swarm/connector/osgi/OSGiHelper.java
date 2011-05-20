@@ -1,12 +1,10 @@
 package com.buglabs.bug.swarm.connector.osgi;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.framework.BundleContext;
@@ -17,13 +15,16 @@ import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.test.OSGiHelperTester;
 import com.buglabs.module.IModuleControl;
-import com.buglabs.module.IModuleProperty;
-import com.buglabs.services.ws.IWSResponse;
-import com.buglabs.services.ws.PublicWSDefinition;
 import com.buglabs.services.ws.PublicWSProvider;
 import com.buglabs.util.OSGiServiceLoader;
 
-public class OSGiHelper implements ServiceListener {	
+/**
+ * Class to encapsulate OSGi service access for bugswarm-connector.
+ * 
+ * @author kgilmer
+ *
+ */
+public final class OSGiHelper implements ServiceListener {	
 
 	/**
 	 * A listener for events that occur in the OSGi context for any
@@ -33,7 +34,11 @@ public class OSGiHelper implements ServiceListener {
 	 * 
 	 */
 	public interface EntityChangeListener {
-		public void change(int eventType, Object source);
+		/**
+		 * @param eventType event type
+		 * @param source object source
+		 */
+		void change(int eventType, Object source);
 	}
 
 	private static BundleContext context;
@@ -42,6 +47,9 @@ public class OSGiHelper implements ServiceListener {
 
 	private List<EntityChangeListener> listeners;
 
+	/**
+	 * @throws Exception should not be thrown
+	 */
 	private OSGiHelper() throws Exception {
 		context = Activator.getContext();
 		feeds = new HashMap<Object, Feed>();
@@ -56,6 +64,10 @@ public class OSGiHelper implements ServiceListener {
 		listeners = new CopyOnWriteArrayList<OSGiHelper.EntityChangeListener>();
 	}
 
+	/**
+	 * @return reference to OSGiHelper singleton
+	 * @throws Exception should not be thrown unless defect in code
+	 */
 	public static OSGiHelper getRef() throws Exception {
 		if (ref == null)
 			ref = new OSGiHelper();
@@ -69,24 +81,39 @@ public class OSGiHelper implements ServiceListener {
 		return ref;
 	}
 
-	public void addListener(EntityChangeListener listener) {
+	/**
+	 * Add listener for OSGi service change events that relate to bugswarm events.
+	 * @param listener listener
+	 */
+	public void addListener(final EntityChangeListener listener) {
 		if (!listeners.contains(listener))
 			listeners.add(listener);
 	}
 
-	public void removeListener(EntityChangeListener listener) {
+	/**
+	 * Remove listener for OSGi service change events that relate to bugswarm events.
+	 * @param listener listener
+	 */
+	public void removeListener(final EntityChangeListener listener) {
 		listeners.remove(listener);
 	}
 
+	/**
+	 * @return List of Feed services available at time of call from OSGi service registry.
+	 */
 	public List<Feed> getBUGFeeds() {
 		return new ArrayList<Feed>(feeds.values());
 	}
 
+	/**
+	 * @throws Exception should not be thrown
+	 */
 	private void initializeModuleProviders() throws Exception {	
 		if (context != null) {
 			synchronized (feeds) {
-				OSGiServiceLoader.loadServices(context, IModuleControl.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
-					public void load(Object service) throws Exception {					
+				OSGiServiceLoader.loadServices(
+						context, IModuleControl.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
+					public void load(final Object service) throws Exception {					
 						if (!feeds.containsKey(service)) {
 							feeds.put(service, Feed.createForType(service));
 						}
@@ -102,15 +129,14 @@ public class OSGiHelper implements ServiceListener {
 	 * Scan OSGi service registry and return a list of all available
 	 * PublicWSProvider instances.
 	 * 
-	 * @param context
-	 * @return
-	 * @throws Exception
+	 * @throws Exception should not be thrown
 	 */
 	private void initializeWSProviders() throws Exception {		
 		if (context != null) {
 			synchronized (feeds) {
-				OSGiServiceLoader.loadServices(context, PublicWSProvider.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
-					public void load(Object service) throws Exception {					
+				OSGiServiceLoader.loadServices(
+						context, PublicWSProvider.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
+					public void load(final Object service) throws Exception {					
 						if (!feeds.containsKey(service)) {
 							feeds.put(service, Feed.createForType(service));
 						}
@@ -126,9 +152,7 @@ public class OSGiHelper implements ServiceListener {
 	 * Scan OSGi service registry and return a list of all available
 	 * java.util.Map instances with swarm properties.
 	 * 
-	 * @param context
-	 * @return
-	 * @throws Exception
+	 * @throws Exception should not be thrown
 	 */
 	private void initializeFeedProviders() throws Exception {		
 		if (context != null) {
@@ -165,7 +189,7 @@ public class OSGiHelper implements ServiceListener {
 	}
 
 	@Override
-	public void serviceChanged(ServiceEvent event) {
+	public void serviceChanged(final ServiceEvent event) {
 		if (isValidEvent(event)) {
 			try {
 				if (event.getType() == ServiceEvent.REGISTERED) {
@@ -193,10 +217,10 @@ public class OSGiHelper implements ServiceListener {
 	/**
 	 * Is ServiceEvent relevant for swarm?
 	 * 
-	 * @param event
-	 * @return
+	 * @param event service event
+	 * @return true if the event pertains to bugswarm-connector
 	 */
-	private boolean isValidEvent(ServiceEvent event) {
+	private boolean isValidEvent(final ServiceEvent event) {
 		boolean typeValid = event.getType() == ServiceEvent.REGISTERED || event.getType() == ServiceEvent.UNREGISTERING;
 		boolean classValid = isModuleEvent(event) || isServiceEvent(event) || isFeedEvent(event);
 		
@@ -204,26 +228,26 @@ public class OSGiHelper implements ServiceListener {
 	}
 
 	/**
-	 * @param event
+	 * @param event service event
 	 * @return true if event is from a feed.
 	 */
-	private boolean isFeedEvent(ServiceEvent event) {
-		return event.getSource() instanceof Map<?, ?>;
+	private boolean isFeedEvent(final ServiceEvent event) {
+		return event.getSource() instanceof Map;
 	}
 
 	/**
-	 * @param event
+	 * @param event service event
 	 * @return true if event is from a BUG service.
 	 */
-	private boolean isServiceEvent(ServiceEvent event) {
+	private boolean isServiceEvent(final ServiceEvent event) {
 		return event.getSource() instanceof PublicWSProvider;
 	}
 
 	/**
-	 * @param event
+	 * @param event service event
 	 * @return true if event is from a BUG module.
 	 */
-	private boolean isModuleEvent(ServiceEvent event) {	
+	private boolean isModuleEvent(final ServiceEvent event) {	
 		return event.getSource() instanceof IModuleControl;
 	}
 }

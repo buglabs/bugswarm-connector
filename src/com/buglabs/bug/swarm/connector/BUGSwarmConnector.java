@@ -9,8 +9,10 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smackx.muc.InvitationListener;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.json.simple.JSONArray;
+import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
+import com.buglabs.bug.swarm.connector.osgi.Activator;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper.EntityChangeListener;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
@@ -75,8 +77,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 			osgiHelper.addListener(this);
 			
 		} catch (Exception e) {
-			e.printStackTrace();
-			//TODO handle errors
+			Activator.getLog().log(LogService.LOG_ERROR, "Error occurred while initializing swarm client.", e);
 		}
 	}
 
@@ -139,8 +140,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 			try {
 				xmppClient.joinSwarm(message.getBody());
 			} catch (XMPPException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Activator.getLog().log(LogService.LOG_ERROR, "Error occurred while responding to invite from swarm server.", e);
 			}
 		}
 		
@@ -156,12 +156,8 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 			List<SwarmModel> allSwarms = wsClient.getSwarmResourceClient().getSwarmsByMember(config.getResource());
 			
 			broadcastState(allSwarms);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (XMPPException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (Exception e) {
+			Activator.getLog().log(LogService.LOG_ERROR, "Error occurred while sending updated device state to swarm server.", e);
 		}
 	}
 }

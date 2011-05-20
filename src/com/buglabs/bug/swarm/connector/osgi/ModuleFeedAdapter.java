@@ -16,16 +16,29 @@ import com.buglabs.module.IModuleProperty;
  */
 public class ModuleFeedAdapter extends Feed {
 
-	public ModuleFeedAdapter(String feedName, Map<?, ?> feed) {
+	/**
+	 * @param feedName name of feed
+	 * @param feed contents of feed
+	 */
+	public ModuleFeedAdapter(final String feedName, final Map<?, ?> feed) {
 		super(feedName, feed);
 		
 	}
 
-	public ModuleFeedAdapter(IModuleControl service) {
-		super(service.getModuleName() + service.getSlotId(), adaptModulePropertiesToFeedMap(service.getModuleProperties()));
+	/**
+	 * @param moduleControl instance of IModuleControl to create the feed from
+	 */
+	public ModuleFeedAdapter(final IModuleControl moduleControl) {
+		super(moduleControl.getModuleName()
+				+ moduleControl.getSlotId(), 
+				adaptModulePropertiesToFeedMap(moduleControl.getModuleProperties()));
 	}
 
-	public static Map<?, ?> adaptModulePropertiesToFeedMap(List moduleProperties) {
+	/**
+	 * @param moduleProperties List of IModuleProperty
+	 * @return A Feed map from list of module properties.
+	 */
+	public static Map<?, ?> adaptModulePropertiesToFeedMap(final List moduleProperties) {
 		Map<String, Object> m = new HashMap<String, Object>();
 		
 		for (Iterator i = moduleProperties.iterator(); i.hasNext();) {

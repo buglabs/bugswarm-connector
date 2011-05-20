@@ -22,22 +22,32 @@ public class Feed {
 	private String feedName;
 	private Map<?, ?> feed;
 
-	public Feed(String feedName, Map<?, ?> feed) {
+	/**
+	 * @param feedName Name of feed
+	 * @param feed feed contents
+	 */
+	public Feed(final String feedName, final Map<?, ?> feed) {
 
 		this.feedName = feedName;
 		this.feed = feed;
 	}
 
+	/**
+	 * @return Name of feed
+	 */
 	public String getName() {
 		return feedName;
 	}
 
+	/**
+	 * @return Feed contents
+	 */
 	public Map<?, ?> getFeed() {
 		return feed;
 	}
 	
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		//Feed names are unique
 		if (obj instanceof Feed)
 			return ((Feed) obj).getName().equals(feedName);
@@ -47,10 +57,10 @@ public class Feed {
 	
 	/**
 	 * Convenience factory for feed type.
-	 * @param input
-	 * @return
+	 * @param input IModuleControl, PublicWSProvider, or ServiceReference of Map.  Other types will yield null on return.
+	 * @return new Feed based on input
 	 */
-	public static Feed createForType(Object input) {
+	public static Feed createForType(final Object input) {
 		if (input instanceof IModuleControl)
 			return new ModuleFeedAdapter((IModuleControl) input);
 		
@@ -60,7 +70,9 @@ public class Feed {
 		if (input instanceof ServiceReference) {
 			ServiceReference sr = (ServiceReference) input;
 			if (sr.getProperty(Feed.FEED_SERVICE_NAME_PROPERTY) != null) 
-				return new Feed((String) sr.getProperty(Feed.FEED_SERVICE_NAME_PROPERTY), (Map <?, ?>) Activator.getContext().getService(sr));
+				return new Feed((String) 
+						sr.getProperty(Feed.FEED_SERVICE_NAME_PROPERTY), 
+						(Map<?, ?>) Activator.getContext().getService(sr));
 		}
 		
 		return null;

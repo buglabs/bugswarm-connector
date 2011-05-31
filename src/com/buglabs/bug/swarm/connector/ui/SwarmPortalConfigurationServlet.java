@@ -70,14 +70,14 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 	@Override
 	public ControllerMap getControllerMap() {
 		ControllerMap controllers = new ControllerMap();
-		controllers.put("index", new index());
+		controllers.put("index", new Index());
 		return controllers;
 	}
 
 	/**	
 	 *
 	 */
-	public class index extends SewingController {
+	public class Index extends SewingController {
 
 		@Override
 		public String getTemplateName() {
@@ -85,12 +85,13 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 		}
 
 		@Override
-		public TemplateModelRoot get(RequestParameters params, HttpServletRequest req, HttpServletResponse resp) {
+		public TemplateModelRoot get(final RequestParameters params, final HttpServletRequest req, final HttpServletResponse resp) {
 			return loadSwarmInfo();
 		}
 
 		@Override
-		public TemplateModelRoot post(RequestParameters params, HttpServletRequest req, HttpServletResponse resp) {
+		public TemplateModelRoot post(final RequestParameters params, 
+				final HttpServletRequest req, final HttpServletResponse resp) {
 
 			String action = params.get("action");
 			String msg = null;
@@ -126,6 +127,9 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 			return root;
 		}
 
+		/**
+		 * @return template with swarm model
+		 */
 		private TemplateModelRoot loadSwarmInfo() {
 			SimpleHash root = new SimpleHash();
 			String msg = "";
@@ -139,7 +143,7 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 					root.put("action", "activate");
 				}
 
-				root.put("user_name",getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME));
+				root.put("user_name", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME));
 				root.put("api_key", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY));
 
 				root.put("message", new SimpleScalar(msg));
@@ -151,7 +155,14 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 		}
 	}
 
-	public void saveConfiguration(String username, String apiKey) throws IOException {
+	/**
+	 * Save the configuration as set by the webui user.
+	 * 
+	 * @param username username
+	 * @param apiKey API_KEY
+	 * @throws IOException on file I/O error
+	 */
+	private void saveConfiguration(final String username, final String apiKey) throws IOException {
 		Dictionary d = config.getProperties();
 
 		if (d == null) {
@@ -168,10 +179,10 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 	 * Try to set bugswarm to enabled. This does not make a server call but does
 	 * validate connection information.
 	 * 
-	 * @param enabled
-	 * @return true if enablement successful.
+	 * @param enabled true for enabled, false otherwise
+	 * @return true if enable successful.
 	 */
-	public boolean setEnabled(boolean enabled) {
+	public boolean setEnabled(final boolean enabled) {
 		try {
 			// validateServerAndClientId();
 			updateConfig(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_ENABLED, "" + enabled);
@@ -182,6 +193,10 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 		return true;
 	}
 
+	/**
+	 * @return true if bugswarm is enabled, false otherwise
+	 * @throws IOException on connection or file error
+	 */
 	public boolean isEnabled() throws IOException {
 		Dictionary dict = ConfigAdminUtil.getPropertiesSafely(config);
 
@@ -197,11 +212,11 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 	/**
 	 * Get a value from the configuration, or return empty string if no value exists.
 	 * 
-	 * @param key
-	 * @return
-	 * @throws IOException
+	 * @param key of dictionary
+	 * @return value or empty string if not present
+	 * @throws IOException on file I/O error
 	 */
-	public String getValue(String key) throws IOException {
+	private String getValue(final String key) throws IOException {
 		if (confDictionary == null)
 			confDictionary =  ConfigAdminUtil.getPropertiesSafely(config);
 		
@@ -214,7 +229,12 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 	}
 
 
-	private void updateConfig(String key, String val) throws IOException {
+	/**
+	 * @param key of dictionary
+	 * @param val of dictionary
+	 * @throws IOException on file i/o error
+	 */
+	private void updateConfig(final String key, final String val) throws IOException {
 		Dictionary d = config.getProperties();
 		if (d == null) {
 			d = new Hashtable();

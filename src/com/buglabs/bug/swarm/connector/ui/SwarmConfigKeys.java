@@ -55,12 +55,6 @@ public final class SwarmConfigKeys {
 	public static final String CONFIG_KEY_BUGSWARM_SERVER 		= "com.buglabs.bugswarm.hostname";
 	
 	/**
-	 * The resource is the device id.  One user can have multiple resources, or 'contexts'.  Refer
-	 * to XMPP specs for further details on Resource.
-	 */
-	//public static final String CONFIG_KEY_BUGSWARM_RESOURCE		= "com.buglabs.bugswarm.resource";
-	
-	/**
 	 * The API key is the password for the web service layer.
 	 */
 	public static final String CONFIG_KEY_BUGSWARM_APIKEY		= "com.buglabs.bugswarm.apikey";
@@ -69,9 +63,4 @@ public final class SwarmConfigKeys {
 	 * The username used in the XMPP server.
 	 */
 	public static final String CONFIG_KEY_BUGSWARM_USERNAME = "com.buglabs.bugswarm.username";
-	
-	/**
-	 * The password used for the XMPP server.
-	 */
-	//public static final String CONFIG_KEY_BUGSWARM_PASSWORD = "com.buglabs.bugswarm.password";
 }

@@ -21,13 +21,20 @@ import com.buglabs.bug.swarm.connector.ui.SwarmConfigKeys;
 import com.buglabs.osgi.sewing.pub.ISewingService;
 import com.buglabs.util.LogServiceUtil;
 
+/**
+ * Activator for bugswarm-connector.  Entry point for OSGi.
+ * @author kgilmer
+ *
+ */
 public class Activator implements BundleActivator, ManagedService {
 	//public static final String CONFIG_PID_BUGSWARM = "BUGSWARM";
 
 	/**
 	 * Services required for BUGswarm to be configured.
 	 */
-	private String[] configurationServices = new String[] { ConfigurationAdmin.class.getName(), ISewingService.class.getName() };
+	private String[] configurationServices = new String[] { 
+			ConfigurationAdmin.class.getName(), 
+			ISewingService.class.getName() };
 	
 	private static BundleContext context;
 	private static LogService log;
@@ -87,29 +94,36 @@ public class Activator implements BundleActivator, ManagedService {
 	}
 
 	@Override
-	public void updated(Dictionary config) throws ConfigurationException {
-		log.log(LogService.LOG_DEBUG, this.getClass().getName() + " configuration updated.");
+	public void updated(final Dictionary config) throws ConfigurationException {
+		log.log(LogService.LOG_DEBUG, this.getClass().getSimpleName() + " configuration updated.");
+		
 		if (config == null || (cachedConfig != null && configsIdentical(cachedConfig, config))) {
-			//Nothing has changed, ignore event.
+			log.log(LogService.LOG_DEBUG, this.getClass().getSimpleName() + " configuration updated.");
 			return;
 		}
 		
 		//Handle the case of swarm client being initialized.
 		if (Configuration.isValid(config) && connector == null) {
+			log.log(LogService.LOG_DEBUG, this.getClass().getSimpleName() + " starting connector.");
 			Configuration nc = new Configuration(config);
-			connector = new BUGSwarmConnector(nc);
-			log.log(LogService.LOG_DEBUG, this.getClass().getName() + " starting connector with configuration: " + nc);
+			log.log(LogService.LOG_DEBUG, this.getClass().getSimpleName() + " connector configuration: " + nc);
+			connector = new BUGSwarmConnector(nc);			
 			connector.start();
+			return;
 		}
 		
 		//TODO: Handle case of swarm client being shutdown.
 		if (!Configuration.isValid(config) && connector != null) {
+			log.log(LogService.LOG_DEBUG, this.getClass().getSimpleName() + " stopping connector.");
 			//TODO Implement me
+			return;
 		}
 		
 		//TODO: Handle case of swarm client being restarted.
 		if (Configuration.isValid(config) && connector != null) {
+			log.log(LogService.LOG_DEBUG, this.getClass().getSimpleName() + " restarting connector.");
 			//TODO Implement me
+			return;
 		}
 	}
 

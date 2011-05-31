@@ -126,6 +126,13 @@ public class Activator implements BundleActivator, ManagedService {
 			return;
 		}
 	}
+	
+	/**
+	 * @return Hostname property as defined as a OSGi property, or null if undefined.
+	 */
+	public static String getHostnameProperty() {
+		return context.getProperty(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER);
+	}
 
 	/**
 	 * Calling .equals on these with identical kvps returns false.  Doing it the hard way.

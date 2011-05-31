@@ -9,6 +9,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Random;
 
+import com.buglabs.bug.swarm.connector.osgi.Activator;
 import com.buglabs.bug.swarm.connector.ui.SwarmConfigKeys;
 
 /**
@@ -17,6 +18,10 @@ import com.buglabs.bug.swarm.connector.ui.SwarmConfigKeys;
  * @author kgilmer
  */
 public class Configuration {
+	/**
+	 * Default hostname for swarm server if none specified as a system property.
+	 */
+	public static final String DEFAULT_HOSTNAME = "bugswarm.net";
 	/**
 	 * Defines which protocol is requested when getting server URL.
 	 * 
@@ -67,7 +72,14 @@ public class Configuration {
 	public Configuration(final Dictionary<String, String> config) {
 		this.config = config;
 		resource = getMachineResource();
+		
+		String hostname = Activator.getHostnameProperty();
+		if (hostname != null)
+			config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, hostname);
+		else
+			config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, DEFAULT_HOSTNAME);
 	}
+
 
 	/**
 	 * Determine some string that can be used to identify the client, Preferably
@@ -159,7 +171,6 @@ public class Configuration {
 			return false;
 
 		if (!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_ENABLED)
-				|| !hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER)
 				|| !hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY)
 				|| !hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME))
 			return false;

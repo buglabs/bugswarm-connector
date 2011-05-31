@@ -73,5 +73,5 @@ public final class SwarmConfigKeys {
 	/**
 	 * The password used for the XMPP server.
 	 */
-	public static final String CONFIG_KEY_BUGSWARM_PASSWORD = "com.buglabs.bugswarm.password";
+	//public static final String CONFIG_KEY_BUGSWARM_PASSWORD = "com.buglabs.bugswarm.password";
 }

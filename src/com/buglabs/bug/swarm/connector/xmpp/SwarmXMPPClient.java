@@ -44,12 +44,13 @@ import com.buglabs.bug.swarm.connector.Configuration;
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 
 /**
- * Default implementation of ISwarmConnector
+ * Default implementation of the bugswarm-specific XMPP client.
  * 
  * @author kgilmer
  * 
  */
 public class SwarmXMPPClient  {
+	private static final int DEFAULT_XMPP_SERVER_PORT = 5222;
 	private volatile boolean disposed = false;
 	private XMPPConnection connection;
 	
@@ -60,19 +61,24 @@ public class SwarmXMPPClient  {
 	private final Configuration config;
 	
 	/**
-	 * @param config
-	 * @param userKey
+	 * @param config Configuration to be used to create connection.
 	 */
 	public SwarmXMPPClient(final Configuration config) {
 		this.config = config;
 	}
 		
+	/**
+	 * Connect to XMPP server using the configuration passed in the constructor.
+	 * 
+	 * @throws IOException on connection failure
+	 * @throws XMPPException on XMPP protocol failure
+	 */
 	public void connect() throws IOException, XMPPException {				
 		// Get a unique ID for the device software is running on.
 		//String clientId = ClientIdentity.getRef().getId();
 		if (connection == null) {				
-			connection = createConnection(config.getHostname(Protocol.XMPP));
-			login(connection, config.getUsername(), config.getUsername());
+			connection = createConnection(config.getHostname(Protocol.XMPP), DEFAULT_XMPP_SERVER_PORT);
+			login(connection, config.getUsername(), config.getAPIKey());
 			disposed = false;
 		}		
 	}
@@ -86,18 +92,21 @@ public class SwarmXMPPClient  {
 	}
 	
 	/**
-	 * @return
+	 * @return Username
 	 */
 	public String getUsername() {
 		return config.getUsername();
 	}
 	
+	/**
+	 * @return XMPP Resource
+	 */
 	public String getResource() {
 		return config.getResource();
 	}
 	
 	/**
-	 * @return
+	 * @return XMPP server hostname
 	 */
 	public String getHostname() {
 		return config.getHostname(Protocol.XMPP);
@@ -112,10 +121,10 @@ public class SwarmXMPPClient  {
 
 	/**
 	 * Send presence to the swarm to notify that client is online.
-	 * @param id
+	 * @param swarmId swarm id
 	 * @throws XMPPException 
 	 */
-	public void joinSwarm(String swarmId) throws XMPPException {
+	public void joinSwarm(final String swarmId) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
 		
 		if (!muc.isJoined())
@@ -125,11 +134,11 @@ public class SwarmXMPPClient  {
 	/**
 	 * Determines if a given user in the given swarm is currently online.
 	 * 
-	 * @param swarmId
-	 * @param userId
-	 * @return
+	 * @param swarmId id of swarm
+	 * @param userId id of user
+	 * @return true if presence is set 
 	 */
-	public boolean isPresent(String swarmId, String userId) {
+	public boolean isPresent(final String swarmId, final String userId) {
 		MultiUserChat muc = getMUC(swarmId);
 		
 		Presence presence = muc.getOccupantPresence(userId);
@@ -143,19 +152,25 @@ public class SwarmXMPPClient  {
 	/**
 	 * Advertise local services to another swarm member.
 	 * 
-	 * @param id
-	 * @param userId
-	 * @param createServiceModuleFeedDocument
-	 * @throws XMPPException 
+	 * @param swarmId id of swarm
+	 * @param userId id of user
+	 * @param feedDocument document that should be sent as advertisement
+	 * @throws XMPPException on XMPP protocol error
 	 */
-	public void advertise(String swarmId, String userId, JSONArray feedDocument) throws XMPPException {
+	public void advertise(final String swarmId, final String userId, final JSONArray feedDocument) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
 		
 		Chat pchat = muc.createPrivateChat(userId, new NullMessageListener());
 		pchat.sendMessage(feedDocument.toString());
 	}
 
-	private static void login(XMPPConnection connection, String user, String pass) throws XMPPException {
+	/**
+	 * @param connection XMPP connection
+	 * @param user username
+	 * @param pass password
+	 * @throws XMPPException on XMPP protocol error
+	 */
+	private static void login(final XMPPConnection connection, final String user, final String pass) throws XMPPException {
 		connection.connect();
 		//TODO break out resource into property.
 		connection.login(user, pass, "Home");
@@ -166,11 +181,13 @@ public class SwarmXMPPClient  {
 	 * useful when not using a connection from the connection pool in a test
 	 * case.
 	 * 
+	 * @param host hostname of XMPP server
+	 * @param port port of XMPP server
 	 * @return a new XMPP connection.
 	 */
-	private static XMPPConnection createConnection(String host) {
+	private static XMPPConnection createConnection(final String host, final int port) {
 		// Create the configuration for this new connection
-		ConnectionConfiguration config = new ConnectionConfiguration(host, 5222);
+		ConnectionConfiguration config = new ConnectionConfiguration(host, port);
 		// TODO breakout port and other config options into properties
 		config.setCompressionEnabled(Boolean.getBoolean("test.compressionEnabled"));
 		config.setSendPresence(true);
@@ -180,10 +197,10 @@ public class SwarmXMPPClient  {
 	
 	/**
 	 * Get or create if necessary the MUC for a swarm.
-	 * @param roomId
-	 * @return
+	 * @param roomId id of room
+	 * @return chat client
 	 */
-	private MultiUserChat getMUC(String roomId) {
+	private MultiUserChat getMUC(final String roomId) {
 		if (!swarmMap.containsKey(roomId))
 			swarmMap.put(roomId, new MultiUserChat(connection, getMUCRoomName(roomId, connection.getHost())));
 		
@@ -192,11 +209,11 @@ public class SwarmXMPPClient  {
 	
 	/**
 	 * Create the identifier for a MUC Room based on name and host.
-	 * @param roomId
-	 * @param host
-	 * @return
+	 * @param roomId id of room
+	 * @param host hostname
+	 * @return String for full XMPP room name
 	 */
-	private String getMUCRoomName(String roomId, String host) {
+	private String getMUCRoomName(final String roomId, final String host) {
 		//This name is generated by convention of bugswarm
 		return roomId + "@" + "swarms." + host;
 	}

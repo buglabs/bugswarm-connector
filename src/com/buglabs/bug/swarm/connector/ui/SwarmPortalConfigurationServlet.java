@@ -96,14 +96,12 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 			String msg = null;
 
 			if (action.equals("activate")) {
-				String server = params.get("server");
 				String apiKey = params.get("api-key");
 				String username = params.get("user-name");
-				String password = params.get("password");
 
-				if (server != null && apiKey != null && username != null) {
+				if (apiKey != null && username != null) {
 					try {
-						saveConfiguration(server, username, password, apiKey);
+						saveConfiguration(username, apiKey);
 
 						setEnabled(true);
 						msg = "BugSwarm has been activated";
@@ -119,10 +117,8 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 				setEnabled(false);
 
 				msg = "BugSwarm has been deactivated";
-			} else if (action.equals("join")) {
-				throw new RuntimeException("Unimplemented");
 			}
-
+			
 			SimpleHash root = (SimpleHash) loadSwarmInfo();
 			if (msg != null) {
 				root.put("message", msg);
@@ -143,9 +139,7 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 					root.put("action", "activate");
 				}
 
-				root.put("server", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER));
 				root.put("user_name",getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME));
-				root.put("password", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PASSWORD));
 				root.put("api_key", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY));
 
 				root.put("message", new SimpleScalar(msg));
@@ -157,18 +151,16 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 		}
 	}
 
-	public void saveConfiguration(String server, String username, String password, String apiKey) throws IOException {
+	public void saveConfiguration(String username, String apiKey) throws IOException {
 		Dictionary d = config.getProperties();
 
 		if (d == null) {
 			d = new Hashtable();
 		}
 
-		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, server);
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME, username);
-		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PASSWORD, password);
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY, apiKey);
-
+		
 		config.update(d);
 	}
 

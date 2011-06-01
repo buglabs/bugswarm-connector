@@ -30,8 +30,8 @@ public class SwarmResourceModel {
 	 * @param resource resource (XMPP)
 	 * @param swarmId id of swarm
 	 */
-	public SwarmResourceModel(final String createdAt, final ISwarmResourcesClient.MemberType type, final String userId, final String resource,
-			final String swarmId) {
+	public SwarmResourceModel(final String createdAt, final ISwarmResourcesClient.MemberType type, 
+			final String userId, final String resource,	final String swarmId) {
 		this.createdAt = createdAt;
 		this.type = type;
 		this.userId = userId;

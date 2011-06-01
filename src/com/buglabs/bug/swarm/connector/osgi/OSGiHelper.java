@@ -166,7 +166,8 @@ public final class OSGiHelper implements ServiceListener {
 						if (feed != null && !feeds.entrySet().contains(feed)) {
 							feeds.put(context.getService(sr), feed);	
 						} else {
-							Activator.getLog().log(LogService.LOG_WARNING, Map.class.getName() + " ignored: " + Feed.FEED_SERVICE_NAME_PROPERTY + " is not a property.");
+							Activator.getLog().log(LogService.LOG_WARNING, Map.class.getName() 
+								+ " ignored: " + Feed.FEED_SERVICE_NAME_PROPERTY + " is not a property.");
 						}
 					}
 			}

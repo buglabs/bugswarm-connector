@@ -32,8 +32,8 @@ public class SwarmModel {
 	 * @param name name of swarm
 	 * @param userId userId of owner
 	 */
-	public SwarmModel(final boolean isPublic, final List<SwarmResourceModel> members, final String createdAt, final String id,
-			final String description, final String modifiedAt, final String name, final String userId) {
+	public SwarmModel(final boolean isPublic, final List<SwarmResourceModel> members, final String createdAt, 
+			final String id, final String description, final String modifiedAt, final String name, final String userId) {
 		this.isPublic = isPublic;
 		this.members = members;
 		this.createdAt = createdAt;

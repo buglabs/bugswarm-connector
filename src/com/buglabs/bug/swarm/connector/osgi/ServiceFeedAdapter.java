@@ -14,11 +14,18 @@ import com.buglabs.services.ws.PublicWSProvider;
  */
 public class ServiceFeedAdapter extends Feed {
 
-	public ServiceFeedAdapter(PublicWSProvider service) {
+	/**
+	 * @param service ws provider to adapt to a feed
+	 */
+	public ServiceFeedAdapter(final PublicWSProvider service) {
 		super(service.getPublicName(), adaptServiceToFeedMap(service));
 	}
 
-	public static Map<?, ?> adaptServiceToFeedMap(PublicWSProvider service) {
+	/**
+	 * @param service ws provider to create feed from
+	 * @return feed as Map of service
+	 */
+	public static Map<?, ?> adaptServiceToFeedMap(final PublicWSProvider service) {
 		Map<String, Object> sm = new HashMap<String, Object>();
 		PublicWSDefinition def = service.discover(PublicWSProvider.GET);
 
@@ -40,7 +47,11 @@ public class ServiceFeedAdapter extends Feed {
 		return sm;
 	}
 
-	private static Map<String, Object> adaptServiceDefinition(PublicWSDefinition def) {
+	/**
+	 * @param def ws definition
+	 * @return map to adapt feed
+	 */
+	private static Map<String, Object> adaptServiceDefinition(final PublicWSDefinition def) {
 		Map<String, Object> sm = new HashMap<String, Object>();
 		sm.put("returns", def.getReturnType());
 		sm.put("params", def.getParameters());

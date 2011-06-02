@@ -63,19 +63,25 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 				initialize();
 			
 			//Listen for invites from swarms
+			Activator.getLog().log(LogService.LOG_DEBUG, "Registering to receive invites.");
 			invitationListener = new SwarmInvitationListener();
 			MultiUserChat.addInvitationListener(xmppClient.getConnection(), invitationListener);
 			
 			//Load data about server configuration and local configuration.
+			Activator.getLog().log(LogService.LOG_DEBUG, "Getting member swarms.");
 			List<SwarmModel> allSwarms = wsClient.getSwarmResourceClient().getSwarmsByMember(config.getResource());
 			
 			//Notify all swarms of presence.
-			for (SwarmModel swarm : allSwarms)
-				 xmppClient.joinSwarm(swarm.getId());
+			for (SwarmModel swarm : allSwarms) {
+				Activator.getLog().log(LogService.LOG_DEBUG, "Joining swarm " + swarm.getId());
+				xmppClient.joinSwarm(swarm.getId());
+			}
 			
-			
+			//Send feed state to other swarm peers
+			Activator.getLog().log(LogService.LOG_DEBUG, "Sending local state to swarm peers.");
 			broadcastState(allSwarms);
 			
+			//Listen for local changes
 			osgiHelper.addListener(this);
 			
 		} catch (Exception e) {
@@ -108,6 +114,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 	 * @throws Exception 
 	 */
 	private boolean initialize() throws Exception {
+		Activator.getLog().log(LogService.LOG_DEBUG, "Initializing " + BUGSwarmConnector.class.getSimpleName());
 		wsClient = new SwarmWSClient(config.getHostname(Protocol.HTTP), config.getAPIKey());
 		Throwable error = wsClient.isValid();
 		if (error == null) {

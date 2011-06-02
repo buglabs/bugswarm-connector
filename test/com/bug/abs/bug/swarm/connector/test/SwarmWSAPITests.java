@@ -65,6 +65,8 @@ public class SwarmWSAPITests extends TestCase {
 		assertNotNull(client);
 		assertNotNull(AccountConfig.testSwarmId);
 		
+		System.out.println("in testGet(), testSwarmId: " + AccountConfig.testSwarmId);
+		
 		SwarmModel swarmInfo = client.get(AccountConfig.testSwarmId);
 		
 		assertTrue(swarmInfo != null);
@@ -75,6 +77,7 @@ public class SwarmWSAPITests extends TestCase {
 	 */
 	public void testList() throws IOException {
 		SwarmWSClient client = new SwarmWSClient(AccountConfig.getConfiguration());
+		System.out.println("in testList(), testSwarmId: " + AccountConfig.testSwarmId);
 		assertNotNull(AccountConfig.testSwarmId);
 		assertNotNull(client);
 		

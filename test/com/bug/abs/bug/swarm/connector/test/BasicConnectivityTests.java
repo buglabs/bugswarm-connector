@@ -8,6 +8,7 @@ import junit.framework.TestCase;
 import org.jivesoftware.smack.ChatManager;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.json.simple.JSONArray;
 
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
@@ -79,12 +80,19 @@ public class BasicConnectivityTests extends TestCase {
 		OSGiHelper osgi = OSGiHelper.getRef();
 		
 		for (SwarmModel swarm: connectedSwarms) 
-			for (SwarmResourceModel member: swarm.getMembers())
-				if (member.getType() == MemberType.CONSUMER &&  xmppClient.isPresent(swarm.getId(), member.getUserId()))
+			for (SwarmResourceModel member: swarm.getMembers()) {
+				System.out.println("Looking at member " + member.getUserId() + " in swarm: " + swarm.getId());
+				
+				if (member.getType() == MemberType.CONSUMER &&  xmppClient.isPresent(swarm.getId(), member.getUserId())) {
+					JSONArray advertisement = JSONElementCreator.createFeedArray(osgi.getBUGFeeds());
+					System.out.println("Sending advertisement " + advertisement + " to member " + member.getUserId() + " in swarm: " + swarm.getId());
+					
 					xmppClient.advertise(
 							swarm.getId(), 
 							member.getUserId(), 
-							JSONElementCreator.createFeedArray(osgi.getBUGFeeds()));
+							advertisement);
+				}
+			}
 		
 		//At this point we should be connected to the swarm server, verify.
 		for (SwarmModel swarm : connectedSwarms) {
@@ -92,9 +100,14 @@ public class BasicConnectivityTests extends TestCase {
 			
 			//Check to see that I am a member of all swarms that I should be
 			boolean iAmAMember = false;
-			for (SwarmResourceModel member: sd.getMembers())
-				if (member.getUserId().equals(AccountConfig.getConfiguration().getUsername()))
+			for (SwarmResourceModel member: sd.getMembers()) {
+				System.out.println("Checking if  " + member.getUserId() + " belongs to " + swarm.getId());
+				
+				if (member.getUserId().equals(AccountConfig.getConfiguration().getUsername())) {
 						iAmAMember = true;
+						System.out.println("Confirmed that " + member.getUserId() + " belongs to " + swarm.getId());
+				}
+			}
 				
 			assertTrue(iAmAMember);
 		}

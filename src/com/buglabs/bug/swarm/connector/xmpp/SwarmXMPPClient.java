@@ -163,6 +163,18 @@ public class SwarmXMPPClient  {
 		Chat pchat = muc.createPrivateChat(userId, new NullMessageListener());
 		pchat.sendMessage(feedDocument.toString());
 	}
+	
+	/**
+	 * Announce local services on a swarm.
+	 * 
+	 * @param swarmId id of swarm
+	 * @param feedDocument document that should be sent as advertisement
+	 * @throws XMPPException on XMPP protocol error
+	 */
+	public void announce(final String swarmId, final JSONArray feedDocument) throws XMPPException {
+		MultiUserChat muc = getMUC(swarmId);
+		muc.sendMessage(feedDocument.toString());		
+	}
 
 	/**
 	 * @param connection XMPP connection

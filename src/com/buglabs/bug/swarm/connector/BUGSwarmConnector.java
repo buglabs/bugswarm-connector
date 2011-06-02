@@ -78,8 +78,8 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 			}
 			
 			//Send feed state to other swarm peers
-			Activator.getLog().log(LogService.LOG_DEBUG, "Sending local state to swarm peers.");
-			broadcastState(allSwarms);
+			Activator.getLog().log(LogService.LOG_DEBUG, "Announcing local state to member swarms.");
+			announceState(allSwarms);
 			
 			//Listen for local changes
 			osgiHelper.addListener(this);
@@ -106,6 +106,16 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 							swarm.getId(), 
 							member.getUserId(), 
 							document);
+	}
+	
+	private void announceState(final List<SwarmModel> allSwarms) throws XMPPException {
+		JSONArray document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
+		
+		//Notify all consumer-members of swarms of services, feeds, and modules.
+		for (SwarmModel swarm : allSwarms) {
+			Activator.getLog().log(LogService.LOG_DEBUG, "Announcing state " + document + " to swarm " + swarm.getId());
+			xmppClient.announce(swarm.getId(), document);
+		}
 	}
 
 	/**

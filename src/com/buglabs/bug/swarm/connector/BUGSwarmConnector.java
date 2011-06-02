@@ -44,6 +44,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 	private boolean initialized = false;
 	private SwarmXMPPClient xmppClient;
 	private OSGiHelper osgiHelper;
+	private SwarmInvitationListener invitationListener;
 
 	/**
 	 * @param config Predefined configuration
@@ -62,7 +63,8 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 				initialize();
 			
 			//Listen for invites from swarms
-			MultiUserChat.addInvitationListener(xmppClient.getConnection(), new SwarmInvitationListener());
+			invitationListener = new SwarmInvitationListener();
+			MultiUserChat.addInvitationListener(xmppClient.getConnection(), invitationListener);
 			
 			//Load data about server configuration and local configuration.
 			List<SwarmModel> allSwarms = wsClient.getSwarmResourceClient().getSwarmsByMember(config.getResource());
@@ -105,7 +107,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 	 * @return true if initialization successful
 	 * @throws Exception 
 	 */
-	public boolean initialize() throws Exception {
+	private boolean initialize() throws Exception {
 		wsClient = new SwarmWSClient(config.getHostname(Protocol.HTTP), config.getAPIKey());
 		Throwable error = wsClient.isValid();
 		if (error == null) {
@@ -140,7 +142,8 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 			try {
 				xmppClient.joinSwarm(message.getBody());
 			} catch (XMPPException e) {
-				Activator.getLog().log(LogService.LOG_ERROR, "Error occurred while responding to invite from swarm server.", e);
+				Activator.getLog().log(LogService.LOG_ERROR, 
+						"Error occurred while responding to invite from swarm server.", e);
 			}
 		}
 		
@@ -157,7 +160,22 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 			
 			broadcastState(allSwarms);
 		} catch (Exception e) {
-			Activator.getLog().log(LogService.LOG_ERROR, "Error occurred while sending updated device state to swarm server.", e);
+			Activator.getLog().log(LogService.LOG_ERROR, 
+					"Error occurred while sending updated device state to swarm server.", e);
 		}
+	}
+
+	/**
+	 * Shutdown the connector and free any local and remote resources in use.
+	 */
+	public void shutdown() {
+		//Stop listening to local events
+		osgiHelper.removeListener(this);
+		
+		//Stop listening for new invitations from server
+		MultiUserChat.removeInvitationListener(xmppClient.getConnection(), invitationListener);
+		
+		//Send unpresence and disconnect from server
+		xmppClient.disconnect();
 	}
 }

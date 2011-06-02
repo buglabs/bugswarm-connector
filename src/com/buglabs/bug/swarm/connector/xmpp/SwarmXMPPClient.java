@@ -230,4 +230,12 @@ public class SwarmXMPPClient  {
 		connection = null;
 		disposed  = true;		
 	}
+
+	/**
+	 * Disconnect from server.
+	 */
+	public void disconnect() {
+		if (!disposed)
+			dispose();
+	}
 }

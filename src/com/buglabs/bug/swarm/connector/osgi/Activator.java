@@ -101,7 +101,7 @@ public class Activator implements BundleActivator, ManagedService {
 			return;
 		}
 		
-		//Handle the case of swarm client being initialized.
+		//Swarm client being started.
 		if (Configuration.isValid(config) && connector == null) {
 			log.log(LogService.LOG_DEBUG, this.getClass().getSimpleName() + " starting connector.");
 			Configuration nc = new Configuration(config);
@@ -111,19 +111,15 @@ public class Activator implements BundleActivator, ManagedService {
 			return;
 		}
 		
-		//TODO: Handle case of swarm client being shutdown.
+		//Swarm client being shutdown.
 		if (!Configuration.isValid(config) && connector != null) {
 			log.log(LogService.LOG_DEBUG, this.getClass().getSimpleName() + " stopping connector.");
-			//TODO Implement me
+			connector.shutdown();
+			connector = null;
 			return;
 		}
 		
-		//TODO: Handle case of swarm client being restarted.
-		if (Configuration.isValid(config) && connector != null) {
-			log.log(LogService.LOG_DEBUG, this.getClass().getSimpleName() + " restarting connector.");
-			//TODO Implement me
-			return;
-		}
+		log.log(LogService.LOG_WARNING, this.getClass().getSimpleName() + " configuration changed but no action performed.");
 	}
 	
 	/**

@@ -1,6 +1,5 @@
 <project name="bugswarm-connector" basedir=".">
-	<!-- PROJECT CONSTANTS -->
-	<property name="project" value="${ant.project.name}" />
+	<fail unless="base.build.dir"     message="base.build.dir must be defined."/>
 	
 	<!-- PROJECT IMPORTS -->
 	<property name="common.ant.file" location="${base.build.dir}/toolbox/common-osgi.xml" />

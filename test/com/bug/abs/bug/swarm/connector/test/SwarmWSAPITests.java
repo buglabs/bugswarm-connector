@@ -50,6 +50,7 @@ public class SwarmWSAPITests extends TestCase {
 	 * @throws IOException on error
 	 */
 	public void testUpdateSwarm() throws IOException {
+		testCreateSwarm();
 		SwarmWSClient client = new SwarmWSClient(AccountConfig.getConfiguration());
 		
 		SwarmWSResponse rval = client.update(AccountConfig.testSwarmId, true, "new description");
@@ -61,11 +62,10 @@ public class SwarmWSAPITests extends TestCase {
 	 * @throws IOException on error
 	 */
 	public void testGet() throws IOException {
+		testCreateSwarm();
 		SwarmWSClient client = new SwarmWSClient(AccountConfig.getConfiguration());
 		assertNotNull(client);
 		assertNotNull(AccountConfig.testSwarmId);
-		
-		System.out.println("in testGet(), testSwarmId: " + AccountConfig.testSwarmId);
 		
 		SwarmModel swarmInfo = client.get(AccountConfig.testSwarmId);
 		
@@ -76,8 +76,9 @@ public class SwarmWSAPITests extends TestCase {
 	 * @throws IOException on error
 	 */
 	public void testList() throws IOException {
+		testCreateSwarm();
 		SwarmWSClient client = new SwarmWSClient(AccountConfig.getConfiguration());
-		System.out.println("in testList(), testSwarmId: " + AccountConfig.testSwarmId);
+
 		assertNotNull(AccountConfig.testSwarmId);
 		assertNotNull(client);
 		
@@ -116,6 +117,7 @@ public class SwarmWSAPITests extends TestCase {
 	 * @throws IOException on error
 	 */
 	public void testDestroy() throws IOException {
+		testCreateSwarm();
 		SwarmWSClient client = new SwarmWSClient(AccountConfig.getConfiguration());
 		
 		assertNotNull(client);

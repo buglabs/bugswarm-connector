@@ -8,18 +8,27 @@ import org.json.simple.JSONObject;
 import com.buglabs.bug.swarm.connector.osgi.Feed;
 
 /**
- * This stateless class handles all xml message creation for bugswarm-connector.
+ * This stateless class handles all JSON message creation for bugswarm-connector.
+ * 
  * @author kgilmer
  *
  */
-public class JSONElementCreator {
+public final class JSONElementCreator {
 	
 	/**
-	 * For a list of BUGSwarmFeed create a JSON array
-	 * @param feeds
-	 * @return
+	 * No instance allowed.
 	 */
-	public static JSONArray createFeedArray(List<Feed> feeds) {
+	private JSONElementCreator() {
+		
+	}
+	
+	/**
+	 * For a list of BUGSwarmFeed create a JSON array.
+	 * 
+	 * @param feeds list of feeds
+	 * @return JSON array
+	 */
+	public static JSONArray createFeedArray(final List<Feed> feeds) {
 		JSONArray array = new JSONArray();
 		
 		for (Feed feed : feeds)
@@ -28,7 +37,13 @@ public class JSONElementCreator {
 		return array;
 	}
 
-	public static JSONObject createFeedElement(Feed feed) {
+	/**
+	 * Create a JSON object for a feed.
+	 * 
+	 * @param feed feed to be converted
+	 * @return JSON representation of feed
+	 */
+	public static JSONObject createFeedElement(final Feed feed) {
 		JSONObject jobj = new JSONObject();
 		jobj.put(feed.getName(), feed.getFeed());
 		

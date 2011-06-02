@@ -13,6 +13,6 @@ import org.jivesoftware.smack.packet.Message;
 public class NullMessageListener implements MessageListener {
 
 	@Override
-	public void processMessage(Chat chat, Message message) {		
+	public void processMessage(final Chat chat, final Message message) {		
 	}
 }

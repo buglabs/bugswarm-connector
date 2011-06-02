@@ -38,17 +38,25 @@ import java.text.ParseException;
 import java.util.StringTokenizer;
 
 /**
- * Encapsulates unique device id.
+ * Encapsulates unique device id, aka XMPP resource.
  *
  */
-public class ClientIdentity {
+public final class ClientIdentity {
+	private static final int MAC_ADDRESS_POSITION = 6;
+	private static final int LINUX_MAC_ADDRESS_LENGTH = 17;
 	private static ClientIdentity ref;
 	private String id;
 
+	/**
+	 * Singleton that cannot be externally constructed.
+	 */
 	private ClientIdentity() {
 		
 	}
 	
+	/**
+	 * @return A reference to ClientIdentity singleton.
+	 */
 	public static ClientIdentity getRef() {
 		if (ref == null) {
 			ref = new ClientIdentity();
@@ -59,7 +67,7 @@ public class ClientIdentity {
 	
 	/**
 	 * @return GUID for device.
-	 * @throws IOException
+	 * @throws IOException on file I/O errors
 	 */
 	public String getId() throws IOException {
 		if (id == null) {
@@ -84,7 +92,12 @@ public class ClientIdentity {
 		return id;
 	}
 	
-	private final static String getMacAddress() throws IOException {
+	/**
+	 * Parse mac address from 'ifconfig' commmand.
+	 * @return String of mac address
+	 * @throws IOException on IO error
+	 */
+	private static String getMacAddress() throws IOException {
 		try {
 			return linuxParseMacAddress(linuxRunIfConfigCommand());
 		} catch (ParseException ex) {
@@ -93,7 +106,11 @@ public class ClientIdentity {
 		}
 	}
 	
-	private final static String linuxRunIfConfigCommand() throws IOException {
+	/**
+	 * @return contents of 'ifconfig' command
+	 * @throws IOException on io error
+	 */
+	private static String linuxRunIfConfigCommand() throws IOException {
 		Process p = Runtime.getRuntime().exec("ifconfig");
 		InputStream stdoutStream = new BufferedInputStream(p.getInputStream());
 		StringBuffer buffer = new StringBuffer();
@@ -108,7 +125,12 @@ public class ClientIdentity {
 		return outputText;
 	}	
 	
-	private final static String linuxParseMacAddress(String ipConfigResponse) throws ParseException {
+	/**
+	 * @param ipConfigResponse contents of 'ifconfig' command
+	 * @return mac address
+	 * @throws ParseException on parse failure
+	 */
+	private static String linuxParseMacAddress(final String ipConfigResponse) throws ParseException {
 		String localHost = null;
 		try {
 			localHost = InetAddress.getLocalHost().getHostAddress();
@@ -130,7 +152,7 @@ public class ClientIdentity {
 			int macAddressPosition = line.indexOf("HWaddr");
 			if (macAddressPosition <= 0)
 				continue;
-			String macAddressCandidate = line.substring(macAddressPosition + 6).trim();
+			String macAddressCandidate = line.substring(macAddressPosition + MAC_ADDRESS_POSITION).trim();
 			if (linuxIsMacAddress(macAddressCandidate)) {
 				lastMacAddress = macAddressCandidate;
 				continue;
@@ -147,11 +169,12 @@ public class ClientIdentity {
 		ex.printStackTrace();
 		throw ex;
 	}
-	
-	private final static boolean linuxIsMacAddress(String macAddressCandidate) {
-		// TODO: use a smart regular expression
-		if (macAddressCandidate.length() != 17)
-			return false;
-		return true;
+
+	/**
+	 * @param macAddressCandidate mac address as string
+	 * @return true if looks like a valid mac address, false otherwise
+	 */
+	private static boolean linuxIsMacAddress(final String macAddressCandidate) {
+		return macAddressCandidate.length() == LINUX_MAC_ADDRESS_LENGTH;
 	}
 }

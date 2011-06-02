@@ -5,7 +5,7 @@ import java.util.Random;
 import com.buglabs.bug.swarm.connector.Configuration;
 
 /**
- * Unit tests for ISwarmWSClient implementation
+ * Unit tests for ISwarmWSClient implementation.
  * 
  * @author kgilmer
  *
@@ -18,11 +18,10 @@ public final class AccountConfig {
 	protected static final String SWARM_HOST = "bugswarm.net";
 	
 	protected static final String XMPP_USERNAME = "connector-test";
-	//private static final String XMPP_RESOURCE = "Psi";
 	
 	protected static String testSwarmName;
 	protected static String testSwarmId;
-	// helper methods
+	
 	private static Configuration config;
 	private static Configuration xmppconfig;
 	

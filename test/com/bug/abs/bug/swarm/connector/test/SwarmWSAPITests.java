@@ -39,7 +39,8 @@ public class SwarmWSAPITests extends TestCase {
 		AccountConfig.testSwarmId = id;
 		
 		//Creator must be added as member to swarm.
-		SwarmWSResponse response = client.getSwarmResourceClient().add(id, MemberType.CONSUMER, id, AccountConfig.getConfiguration().getResource());
+		SwarmWSResponse response = 
+			client.getSwarmResourceClient().add(id, MemberType.CONSUMER, id, AccountConfig.getConfiguration().getResource());
 		
 		assertNotNull(response);
 		assertFalse(response.isError());
@@ -74,8 +75,8 @@ public class SwarmWSAPITests extends TestCase {
 	 */
 	public void testList() throws IOException {
 		SwarmWSClient client = new SwarmWSClient(AccountConfig.getConfiguration());
-		assertNotNull(client);
 		assertNotNull(AccountConfig.testSwarmId);
+		assertNotNull(client);
 		
 		List<SwarmModel> swarms = client.list();
 				

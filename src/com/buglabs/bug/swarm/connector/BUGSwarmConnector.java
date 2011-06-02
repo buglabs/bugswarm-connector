@@ -161,6 +161,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 		//For now, every time a service, module, or feed changes locally, send the entire state to each interested party.
 		//In the future it may be better to cache and determine delta and send only that.
 		
+		Activator.getLog().log(LogService.LOG_DEBUG, "Local feed notification.");
 		try {
 			//Load data about server configuration and local configuration.
 			List<SwarmModel> allSwarms = wsClient.getSwarmResourceClient().getSwarmsByMember(config.getResource());

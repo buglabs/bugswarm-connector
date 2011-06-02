@@ -20,8 +20,6 @@ import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
  */
 public class SwarmWSAPITests extends TestCase {
 
-	private static String myTestId = null;
-	
 	/**
 	 * @throws IOException on error
 	 */
@@ -39,7 +37,6 @@ public class SwarmWSAPITests extends TestCase {
 		assertTrue(id.length() > 0);
 		
 		AccountConfig.testSwarmId = id;
-		myTestId = id;
 		
 		//Creator must be added as member to swarm.
 		SwarmWSResponse response = client.getSwarmResourceClient().add(id, MemberType.CONSUMER, id, AccountConfig.getConfiguration().getResource());
@@ -78,7 +75,6 @@ public class SwarmWSAPITests extends TestCase {
 	public void testList() throws IOException {
 		SwarmWSClient client = new SwarmWSClient(AccountConfig.getConfiguration());
 		assertNotNull(client);
-		assertNotNull(myTestId);
 		assertNotNull(AccountConfig.testSwarmId);
 		
 		List<SwarmModel> swarms = client.list();

@@ -43,9 +43,12 @@ public class BasicConnectivityTests extends TestCase {
 		assertTrue(wsClient.isValid() == null);
 	}
 
-	public void testConnectXMPPClient() throws IOException, XMPPException {
-		if (xmppClient != null && xmppClient.isConnected())
+	public void testConnectXMPPClient() throws IOException, XMPPException, InterruptedException {
+		if (xmppClient != null && xmppClient.isConnected()) {
+			System.out.println("Disconnecting existing session for " + xmppClient.getUsername());
 			xmppClient.disconnect();
+			Thread.sleep(2000);
+		}
 		
 		xmppClient = new SwarmXMPPClient(AccountConfig.getXmppConfiguration());
 		xmppClient.connect();

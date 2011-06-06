@@ -137,13 +137,15 @@ public class SwarmXMPPClient  {
 				
 				@Override
 				public void processPacket(Packet packet) {
-					System.out.println("Swarm " + swarmId + " received new public message: " + packet.toString() + " from "
-							+ packet.getFrom()); 
+					System.out.println("Packet XML: " + packet.toXML());
+					System.out.println("Swarm " + swarmId + " received new public message " + packet.getPacketID() + " from "
+							+ packet.getFrom() + " to: " + packet.getTo()); 
 					
-					if (packet instanceof Message)
-						System.out.println("is a message");
-					else 
-						System.out.println("is NOT a message");
+					if (packet instanceof Message) {
+						Message m = (Message) packet;
+						
+						System.out.println("Message body: " + m.getBody());
+					}
 				}
 			});
 		}

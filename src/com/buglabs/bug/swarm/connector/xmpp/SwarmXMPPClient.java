@@ -81,7 +81,7 @@ public class SwarmXMPPClient  {
 		//String clientId = ClientIdentity.getRef().getId();
 		if (connection == null) {				
 			connection = createConnection(config.getHostname(Protocol.XMPP), DEFAULT_XMPP_SERVER_PORT);
-			login(connection, config.getUsername(), config.getAPIKey());
+			login(connection, config.getUsername(), config.getAPIKey(), config.getResource());
 			disposed = false;
 		}		
 	}
@@ -138,6 +138,11 @@ public class SwarmXMPPClient  {
 				@Override
 				public void processPacket(Packet packet) {
 					System.out.println("Packet XML: " + packet.toXML());
+					if (packet.getFrom().endsWith(config.getResource())) {
+						System.out.println("Ignoring message from self: " + packet.getPacketID());
+						return;
+					}
+					
 					System.out.println("Swarm " + swarmId + " received new public message " + packet.getPacketID() + " from "
 							+ packet.getFrom() + " to: " + packet.getTo()); 
 					
@@ -202,10 +207,10 @@ public class SwarmXMPPClient  {
 	 * @param pass password
 	 * @throws XMPPException on XMPP protocol error
 	 */
-	private static void login(final XMPPConnection connection, final String user, final String pass) throws XMPPException {
+	private static void login(final XMPPConnection connection, final String user, final String pass, final String resource) throws XMPPException {
 		connection.connect();
 		//TODO break out resource into property.
-		connection.login(user, pass, "Home");
+		connection.login(user, pass, resource);
 	}
 
 	/**

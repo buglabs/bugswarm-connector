@@ -28,17 +28,16 @@
 package com.buglabs.bug.swarm.connector.xmpp;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.Connection;
 import org.jivesoftware.smack.ConnectionConfiguration;
-import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.packet.Message;
-import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.json.simple.JSONArray;
@@ -62,12 +61,16 @@ public class SwarmXMPPClient  {
 	 */
 	private Map<String, MultiUserChat> swarmMap = new HashMap<String, MultiUserChat>();
 	private final Configuration config;
+	private final String jid;
+	private List<ISwarmServerRequestListener> requestListeners;
 	
 	/**
 	 * @param config Configuration to be used to create connection.
 	 */
 	public SwarmXMPPClient(final Configuration config) {
 		this.config = config;
+		this.jid = config.getUsername() + "@" + config.getHostname(Protocol.XMPP) + "/" + config.getResource();
+		requestListeners = new ArrayList<ISwarmServerRequestListener>();
 	}
 		
 	/**
@@ -127,32 +130,14 @@ public class SwarmXMPPClient  {
 	 * @param swarmId swarm id
 	 * @throws XMPPException 
 	 */
-	public void joinSwarm(final String swarmId) throws XMPPException {
+	public void joinSwarm(final String swarmId, ISwarmServerRequestListener listener) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
 		
 		if (!muc.isJoined()) {
+			requestListeners.add(listener);
 			muc.join(getResource());
 			
-			muc.addMessageListener(new PacketListener() {
-				
-				@Override
-				public void processPacket(Packet packet) {
-					System.out.println("Packet XML: " + packet.toXML());
-					if (packet.getFrom().endsWith(config.getResource())) {
-						System.out.println("Ignoring message from self: " + packet.getPacketID());
-						return;
-					}
-					
-					System.out.println("Swarm " + swarmId + " received new public message " + packet.getPacketID() + " from "
-							+ packet.getFrom() + " to: " + packet.getTo()); 
-					
-					if (packet instanceof Message) {
-						Message m = (Message) packet;
-						
-						System.out.println("Message body: " + m.getBody());
-					}
-				}
-			});
+			muc.addMessageListener(new GroupChatMessageRequestHandler(jid, swarmId, requestListeners));
 		}
 	}
 
@@ -274,5 +259,19 @@ public class SwarmXMPPClient  {
 	public void disconnect() {
 		if (!disposed)
 			dispose();
+	}
+
+	/**
+	 * @param requestJid
+	 * @param swarmId
+	 * @param document
+	 * @throws XMPPException
+	 */
+	public void sendAllFeedsToUser(String requestJid, String swarmId, JSONArray document) throws XMPPException {
+		MultiUserChat muc = getMUC(swarmId);
+		
+		Chat pchat = muc.createPrivateChat(requestJid, null);
+		
+		pchat.sendMessage(document.toJSONString());
 	}
 }

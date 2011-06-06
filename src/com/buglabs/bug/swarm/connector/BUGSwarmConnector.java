@@ -19,6 +19,7 @@ import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.connector.ws.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
+import com.buglabs.bug.swarm.connector.xmpp.ISwarmServerRequestListener;
 import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
 
@@ -28,7 +29,7 @@ import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
  * @author kgilmer
  * 
  */
-public class BUGSwarmConnector extends Thread implements EntityChangeListener {
+public class BUGSwarmConnector extends Thread implements EntityChangeListener, ISwarmServerRequestListener {
 
 	/**
 	 * Configuration info for swarm server.
@@ -74,7 +75,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 			//Notify all swarms of presence.
 			for (SwarmModel swarm : allSwarms) {
 				Activator.getLog().log(LogService.LOG_DEBUG, "Joining swarm " + swarm.getId());
-				xmppClient.joinSwarm(swarm.getId());
+				xmppClient.joinSwarm(swarm.getId(), this);
 			}
 			
 			//Send feed state to other swarm peers
@@ -157,7 +158,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 			// TODO Implement this case
 			// FIXME: Assuming the message content is the swarm to be joined.
 			try {
-				xmppClient.joinSwarm(message.getBody());
+				xmppClient.joinSwarm(message.getBody(), BUGSwarmConnector.this);
 			} catch (XMPPException e) {
 				Activator.getLog().log(LogService.LOG_ERROR, 
 						"Error occurred while responding to invite from swarm server.", e);
@@ -195,5 +196,17 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener {
 		
 		//Send unpresence and disconnect from server
 		xmppClient.disconnect();
+	}
+
+	@Override
+	public void feedListRequest(String requestJid, String swarmId) {
+		JSONArray document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
+		
+		try {
+			xmppClient.sendAllFeedsToUser(requestJid, swarmId, document);
+		} catch (XMPPException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

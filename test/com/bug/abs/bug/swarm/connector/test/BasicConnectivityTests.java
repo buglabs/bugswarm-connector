@@ -20,6 +20,7 @@ import com.buglabs.bug.swarm.connector.ws.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
+import com.buglabs.bug.swarm.connector.xmpp.ISwarmServerRequestListener;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
 import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 
@@ -82,7 +83,13 @@ public class BasicConnectivityTests extends TestCase {
 		List<SwarmModel> connectedSwarms = new ArrayList<SwarmModel>();
 		for (SwarmModel swarm : allSwarms) {
 			try {
-				xmppClient.joinSwarm(swarm.getId());
+				xmppClient.joinSwarm(swarm.getId(), new ISwarmServerRequestListener() {
+					
+					@Override
+					public void feedListRequest(String jid, String swarmId) {
+						System.out.println("feedListRequest() " + jid + " " + swarmId);
+					}
+				});
 				connectedSwarms.add(swarm);
 				System.out.println("Joined swarm: " + swarm.getId());
 			} catch (XMPPException e) {
@@ -161,7 +168,13 @@ public class BasicConnectivityTests extends TestCase {
 		assertTrue(swarmInfo.getMembers().size() == 2);
 		
 		// Join the swarm w/ the xmpp client
-		xmppClient.joinSwarm(id);
+		xmppClient.joinSwarm(id, new ISwarmServerRequestListener() {
+			
+			@Override
+			public void feedListRequest(String jid, String swarmId) {
+				System.out.println("feedListRequest() " + jid + " " + swarmId);
+			}
+		});
 		assertTrue(xmppClient.isPresent(id, xmppClient.getUsername()));
 		
 		xmppClient.disconnect();

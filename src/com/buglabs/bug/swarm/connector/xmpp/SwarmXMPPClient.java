@@ -34,8 +34,11 @@ import java.util.Map;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.Connection;
 import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.json.simple.JSONArray;
@@ -127,8 +130,23 @@ public class SwarmXMPPClient  {
 	public void joinSwarm(final String swarmId) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
 		
-		if (!muc.isJoined())
+		if (!muc.isJoined()) {
 			muc.join(getResource());
+			
+			muc.addMessageListener(new PacketListener() {
+				
+				@Override
+				public void processPacket(Packet packet) {
+					System.out.println("Swarm " + swarmId + " received new public message: " + packet.toString() + " from "
+							+ packet.getFrom()); 
+					
+					if (packet instanceof Message)
+						System.out.println("is a message");
+					else 
+						System.out.println("is NOT a message");
+				}
+			});
+		}
 	}
 
 	/**

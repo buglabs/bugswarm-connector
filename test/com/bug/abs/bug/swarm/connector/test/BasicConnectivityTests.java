@@ -44,6 +44,9 @@ public class BasicConnectivityTests extends TestCase {
 	}
 
 	public void testConnectXMPPClient() throws IOException, XMPPException {
+		if (xmppClient != null && xmppClient.isConnected())
+			xmppClient.disconnect();
+		
 		xmppClient = new SwarmXMPPClient(AccountConfig.getXmppConfiguration());
 		xmppClient.connect();
 
@@ -98,16 +101,11 @@ public class BasicConnectivityTests extends TestCase {
 
 		OSGiHelper osgi = OSGiHelper.getRef();
 
-		for (SwarmModel swarm : connectedSwarms)
-			for (SwarmResourceModel member : swarm.getMembers()) {
-				System.out.println("Looking at member " + member.getUserId() + " in swarm: " + swarm.getId());
-
-				if (member.getType() == MemberType.CONSUMER && xmppClient.isPresent(swarm.getId(), member.getUserId())) {
-					JSONArray advertisement = JSONElementCreator.createFeedArray(osgi.getBUGFeeds());
-					System.out.println("Announcing " + advertisement + " to swarm: " + swarm.getId());
-					xmppClient.announce(swarm.getId(), advertisement);
-				}
-			}
+		for (SwarmModel swarm : connectedSwarms) {
+			JSONArray advertisement = JSONElementCreator.createFeedArray(osgi.getBUGFeeds());
+			System.out.println("Announcing " + advertisement + " to swarm: " + swarm.getId());
+			xmppClient.announce(swarm.getId(), advertisement);
+		}
 
 		// At this point we should be connected to the swarm server, verify.
 		for (SwarmModel swarm : connectedSwarms) {

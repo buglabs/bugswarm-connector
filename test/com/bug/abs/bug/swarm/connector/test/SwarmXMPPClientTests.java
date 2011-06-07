@@ -1,12 +1,12 @@
 package com.bug.abs.bug.swarm.connector.test;
 
-import org.json.simple.JSONArray;
-
 import junit.framework.TestCase;
+
+import org.json.simple.JSONArray;
 
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
 import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
-import com.buglabs.util.XmlNode;
+import com.buglabs.bug.swarm.connector.xmpp.Jid;
 
 /**
  * Test the Swarm-XMPP client
@@ -45,5 +45,53 @@ public class SwarmXMPPClientTests extends TestCase {
 		assertTrue(xd != null);
 		
 		System.out.println(xd.toJSONString());
+	}
+	
+	public void testJidParsing() throws Exception {
+		Jid j = new Jid("username", "hostname", "resource");
+		
+		assertTrue(j.getHostname().equals("hostname"));
+		assertTrue(j.getUsername().equals("username"));
+		assertTrue(j.getResource().equals("resource"));
+		assertTrue(j.toString().equals("username@hostname/resource"));
+		
+		j = new Jid("username@hostname/resource");
+		
+		assertTrue(j.getHostname().equals("hostname"));
+		assertTrue(j.getUsername().equals("username"));
+		assertTrue(j.getResource().equals("resource"));
+		assertTrue(j.toString().equals("username@hostname/resource"));
+		
+		boolean failed = false;
+		try {
+			j = new Jid(null);
+		} catch (Exception e) {
+			failed = true;
+		}
+		assertTrue(failed);
+		
+		failed = false;
+		try {
+			j = new Jid("asdf");
+		} catch (Exception e) {
+			failed = true;
+		}
+		assertTrue(failed);
+		
+		failed = false;
+		try {
+			j = new Jid("username@hostname");
+		} catch (Exception e) {
+			failed = true;
+		}
+		assertTrue(failed);
+		
+		failed = false;
+		try {
+			j = new Jid("hostname/resource");
+		} catch (Exception e) {
+			failed = true;
+		}
+		assertTrue(failed);
 	}
 }

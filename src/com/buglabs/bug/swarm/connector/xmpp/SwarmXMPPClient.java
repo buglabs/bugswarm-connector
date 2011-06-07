@@ -130,7 +130,7 @@ public class SwarmXMPPClient  {
 	 * @param swarmId swarm id
 	 * @throws XMPPException 
 	 */
-	public void joinSwarm(final String swarmId, ISwarmServerRequestListener listener) throws XMPPException {
+	public void joinSwarm(final String swarmId, ISwarmServerRequestListener listener) throws Exception {
 		MultiUserChat muc = getMUC(swarmId);
 		
 		if (!muc.isJoined()) {

@@ -154,7 +154,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		// FIXME: Assuming the message content is the swarm to be joined.
 		try {
 			xmppClient.joinSwarm(message.getBody(), BUGSwarmConnector.this);
-		} catch (XMPPException e) {
+		} catch (Exception e) {
 			Activator.getLog().log(LogService.LOG_ERROR, 
 					"Error occurred while responding to invite from swarm server.", e);
 		}

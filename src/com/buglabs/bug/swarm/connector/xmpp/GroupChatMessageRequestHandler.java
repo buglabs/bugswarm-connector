@@ -7,6 +7,9 @@ import org.jivesoftware.smack.ChatManagerListener;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
+import org.osgi.service.log.LogService;
+
+import com.buglabs.bug.swarm.connector.osgi.Activator;
 
 public class GroupChatMessageRequestHandler implements PacketListener, ChatManagerListener {
 	
@@ -47,12 +50,13 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 				}
 			}
 		} else {
-			//TODO: log warning here, as is unexpected condition.
+			Activator.getLog().log(LogService.LOG_WARNING, "Unhandled packet received from swarm " + swarmId);
 		}
 	}
 
 	private boolean isFeedListRequest(Message m) {
 		//TODO: make work
+		System.out.println("Checking if " + m.getBody() + " is a Feed List Request");
 		return true;
 	}
 

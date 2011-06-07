@@ -165,7 +165,6 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 						"Error occurred while responding to invite from swarm server.", e);
 			}
 		}
-		
 	}
 
 	@Override

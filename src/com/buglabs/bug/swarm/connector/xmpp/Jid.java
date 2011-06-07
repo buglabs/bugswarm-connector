@@ -13,18 +13,18 @@ public class Jid {
 	
 	}
 
-	public Jid(String rawJid) {
+	public Jid(String rawJid) throws Exception {
 		String [] elems = rawJid.split("@");
 		
-		if (elems.length != 2)
-			throw new IllegalArgumentException("Invalid raw Jid: " + rawJid);
+		if (elems.length < 2)
+			throw new Exception("Invalid raw Jid: " + rawJid);
 		
 		this.username = elems[0];
 		
-		elems = elems[1].split("/");
+		elems = rawJid.substring(username.length() + 1).split("/");
 		
 		if (elems.length != 2)
-			throw new IllegalArgumentException("Invalid raw Jid: " + rawJid);
+			throw new Exception("Invalid raw Jid: " + rawJid);
 		
 		this.hostname = elems[0];
 		this.resource = elems[1];

@@ -34,9 +34,16 @@ public class GroupChatMessageRequestHandler implements PacketListener {
 		if (packet instanceof Message) {
 			Message m = (Message) packet;
 			
-			if (isFeedListRequest(m))
-				for (ISwarmServerRequestListener listener : requestListeners)
-					listener.feedListRequest(new Jid(packet.getFrom()), swarmId);						
+			if (isFeedListRequest(m)) {
+				for (ISwarmServerRequestListener listener : requestListeners) {
+					try {
+						listener.feedListRequest(new Jid(packet.getFrom()), swarmId);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}					
+				}
+			}
 		} else {
 			//TODO: log warning here, as is unexpected condition.
 		}

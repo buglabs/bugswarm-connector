@@ -79,8 +79,9 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			}
 			
 			//Send feed state to other swarm peers
-			Activator.getLog().log(LogService.LOG_DEBUG, "Announcing local state to member swarms.");
-			announceState(allSwarms);
+			//This is disabled as it's only used by the Web UI which is not currently available.
+			/*Activator.getLog().log(LogService.LOG_DEBUG, "Announcing local state to member swarms.");
+			announceState(allSwarms);*/
 			
 			//Listen for local changes
 			osgiHelper.addListener(this);

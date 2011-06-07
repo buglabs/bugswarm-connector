@@ -14,6 +14,12 @@ import org.osgi.service.log.LogService;
 import com.buglabs.bug.swarm.connector.osgi.Activator;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
 
+/**
+ * Centralized class for handing unsolicited messages from XMPP server.
+ * 
+ * @author kgilmer
+ *
+ */
 public class GroupChatMessageRequestHandler implements PacketListener, ChatManagerListener {
 	
 	private final Jid jid;
@@ -21,7 +27,16 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 	private final List<ISwarmServerRequestListener> requestListeners;
 	private OSGiHelper osgiHelper;
 
-	protected GroupChatMessageRequestHandler(Jid jid, String swarmId, List<ISwarmServerRequestListener> requestListeners) throws Exception {
+	/**
+	 * Construct the handler with a jid, swarmid, and list of local listeners.
+	 * 
+	 * @param jid local jid
+	 * @param swarmId swarm associated with handler
+	 * @param requestListeners list of ISwarmServerRequestListeners
+	 * @throws Exception thrown if OSGi service binding fails
+	 */
+	protected GroupChatMessageRequestHandler(
+			final Jid jid, final String swarmId, final List<ISwarmServerRequestListener> requestListeners) throws Exception {
 		if (jid == null || swarmId == null || requestListeners == null)
 			throw new IllegalArgumentException("Input parameter to constructor is null.");
 		
@@ -32,13 +47,13 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 	}
 	
 	@Override
-	public void processPacket(Packet packet) {
+	public void processPacket(final Packet packet) {
 		if (isFromSelf(packet)) {
 			System.out.println("Ignoring message from self: " + packet.getPacketID() + "  " + jid);
 			return;
 		}
 		
-		System.out.println("Swarm " + swarmId + " received new public message " + packet.getPacketID() + " from "
+		Activator.getLog().log(LogService.LOG_INFO, "Swarm " + swarmId + " received new public message " + packet.getPacketID() + " from "
 				+ packet.getFrom() + " to: " + packet.getTo()); 
 		
 		if (packet instanceof Message) {
@@ -59,24 +74,28 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 		}
 	}
 
-	private boolean isFeedListRequest(Message m) {
+	/**
+	 * @param m message
+	 * @return true if message is a feed list request
+	 */
+	private boolean isFeedListRequest(final Message m) {
 		//TODO: make work
-		System.out.println("Checking if " + m.getBody() + " is a Feed List Request");
+		Activator.getLog().log(LogService.LOG_DEBUG, "Checking if " + m.getBody() + " is a Feed List Request");
 		return true;
 	}
 
 	/**
-	 * @param packet
+	 * @param packet XMPP packet
 	 * @return true if XMPP packet came from self.
 	 */
-	private boolean isFromSelf(Packet packet) {
+	private boolean isFromSelf(final Packet packet) {
 		//TODO: determine better way of determining if packet is from self
 		return packet.getFrom().endsWith(jid.getResource());
 	}
 
 	@Override
-	public void chatCreated(Chat chat, boolean createdLocally) {
-		System.out.println("Private chat created with " + chat.getParticipant());
+	public void chatCreated(final Chat chat, final boolean createdLocally) {
+		Activator.getLog().log(LogService.LOG_DEBUG, "Private chat created with " + chat.getParticipant());
 		
 		JSONArray document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
 		
@@ -86,6 +105,6 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 			Activator.getLog().log(LogService.LOG_ERROR, "Failed to send private message to " + chat.getParticipant(), e);
 		}
 		
-		System.out.println("Sent " + document.toJSONString() + " to " + chat.getParticipant());
+		Activator.getLog().log(LogService.LOG_DEBUG, "Sent " + document.toJSONString() + " to " + chat.getParticipant());
 	}
 }

@@ -1,5 +1,7 @@
 package com.buglabs.bug.swarm.connector.xmpp;
 
+import java.text.ParseException;
+
 /**
  * Represents an XMPP JID (user, host, resource).
  * 
@@ -30,13 +32,13 @@ public class Jid {
 	 * Construct a JID from a String.
 	 * 
 	 * @param rawJid JID in format of 'username@hostname/resource'
-	 * @throws Exception thrown on parse exception
+	 * @throws ParseException thrown on parse exception
 	 */
-	public Jid(final String rawJid) throws Exception {
+	public Jid(final String rawJid) throws ParseException {
 		String [] elems = rawJid.split("@");
 		
 		if (elems.length < 2)
-			throw new Exception("Invalid raw Jid: " + rawJid);
+			throw new ParseException("Invalid raw Jid: " + rawJid, 0);
 		
 		this.username = elems[0];
 		
@@ -44,7 +46,7 @@ public class Jid {
 		elems = rawJid.substring(username.length() + 1).split("/");
 		
 		if (elems.length != 2)
-			throw new Exception("Invalid raw Jid: " + rawJid);
+			throw new ParseException("Invalid raw Jid: " + rawJid, 0);
 		
 		this.hostname = elems[0];
 		this.resource = elems[1];

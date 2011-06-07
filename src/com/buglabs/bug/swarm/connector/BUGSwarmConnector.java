@@ -189,7 +189,8 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	 */
 	public void shutdown() {
 		//Stop listening to local events
-		osgiHelper.removeListener(this);
+		if (osgiHelper != null)
+			osgiHelper.removeListener(this);
 		
 		//Stop listening for new invitations from server
 		MultiUserChat.removeInvitationListener(xmppClient.getConnection(), this);
@@ -221,5 +222,12 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		}
 		
 		Activator.getLog().log(LogService.LOG_DEBUG, "Sent " + document.toJSONString() + " to " + chat.getParticipant());
+	}
+
+	/**
+	 * @return true if connector has been successfully initialized.
+	 */
+	public boolean isInitialized() {
+		return initialized;
 	}
 }

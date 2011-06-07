@@ -95,7 +95,8 @@ public final class OSGiHelper implements ServiceListener {
 	 * @param listener listener
 	 */
 	public void removeListener(final EntityChangeListener listener) {
-		listeners.remove(listener);
+		if (listeners != null)
+			listeners.remove(listener);
 	}
 
 	/**

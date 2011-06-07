@@ -62,6 +62,7 @@ public class Configuration {
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, hostname);
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME, username);
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY, apiKey);
+		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_ENABLED, Boolean.toString(true));
 		resource = getMachineResource();
 	}
 

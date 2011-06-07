@@ -61,7 +61,7 @@ public class SwarmXMPPClient  {
 	 */
 	private Map<String, MultiUserChat> swarmMap = new HashMap<String, MultiUserChat>();
 	private final Configuration config;
-	private final String jid;
+	private final Jid jid;
 	private List<ISwarmServerRequestListener> requestListeners;
 	
 	/**
@@ -69,7 +69,7 @@ public class SwarmXMPPClient  {
 	 */
 	public SwarmXMPPClient(final Configuration config) {
 		this.config = config;
-		this.jid = config.getUsername() + "@" + config.getHostname(Protocol.XMPP) + "/" + config.getResource();
+		this.jid = new Jid(config.getUsername(), config.getHostname(Protocol.XMPP),config.getResource());
 		requestListeners = new ArrayList<ISwarmServerRequestListener>();
 	}
 		
@@ -267,10 +267,10 @@ public class SwarmXMPPClient  {
 	 * @param document
 	 * @throws XMPPException
 	 */
-	public void sendAllFeedsToUser(String requestJid, String swarmId, JSONArray document) throws XMPPException {
+	public void sendAllFeedsToUser(Jid requestJid, String swarmId, JSONArray document) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
 		
-		Chat pchat = muc.createPrivateChat(requestJid, null);
+		Chat pchat = muc.createPrivateChat(requestJid.toString(), null);
 		
 		pchat.sendMessage(document.toJSONString());
 	}

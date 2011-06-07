@@ -21,6 +21,7 @@ import com.buglabs.bug.swarm.connector.ws.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
 import com.buglabs.bug.swarm.connector.xmpp.ISwarmServerRequestListener;
 import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
+import com.buglabs.bug.swarm.connector.xmpp.Jid;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
 
 /**
@@ -199,7 +200,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	}
 
 	@Override
-	public void feedListRequest(String requestJid, String swarmId) {
+	public void feedListRequest(Jid requestJid, String swarmId) {
 		JSONArray document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
 		
 		try {

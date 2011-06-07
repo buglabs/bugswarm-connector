@@ -21,6 +21,7 @@ import com.buglabs.bug.swarm.connector.ws.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
 import com.buglabs.bug.swarm.connector.xmpp.ISwarmServerRequestListener;
+import com.buglabs.bug.swarm.connector.xmpp.Jid;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
 import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 
@@ -86,7 +87,7 @@ public class BasicConnectivityTests extends TestCase {
 				xmppClient.joinSwarm(swarm.getId(), new ISwarmServerRequestListener() {
 					
 					@Override
-					public void feedListRequest(String jid, String swarmId) {
+					public void feedListRequest(Jid jid, String swarmId) {
 						System.out.println("feedListRequest() " + jid + " " + swarmId);
 					}
 				});
@@ -171,7 +172,7 @@ public class BasicConnectivityTests extends TestCase {
 		xmppClient.joinSwarm(id, new ISwarmServerRequestListener() {
 			
 			@Override
-			public void feedListRequest(String jid, String swarmId) {
+			public void feedListRequest(Jid jid, String swarmId) {
 				System.out.println("feedListRequest() " + jid + " " + swarmId);
 			}
 		});

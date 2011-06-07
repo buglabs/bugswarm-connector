@@ -1,5 +1,6 @@
 package com.buglabs.bug.swarm.connector.xmpp;
 
+import java.text.ParseException;
 import java.util.List;
 
 import org.jivesoftware.smack.Chat;
@@ -53,8 +54,8 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 			return;
 		}
 		
-		Activator.getLog().log(LogService.LOG_INFO, "Swarm " + swarmId + " received new public message " + packet.getPacketID() + " from "
-				+ packet.getFrom() + " to: " + packet.getTo()); 
+		Activator.getLog().log(LogService.LOG_INFO, "Swarm " + swarmId + " received new public message "
+				+ packet.getPacketID() + " from "	+ packet.getFrom() + " to: " + packet.getTo()); 
 		
 		if (packet instanceof Message) {
 			Message m = (Message) packet;
@@ -63,9 +64,8 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 				for (ISwarmServerRequestListener listener : requestListeners) {
 					try {
 						listener.feedListRequest(new Jid(packet.getFrom()), swarmId);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					} catch (ParseException e) {
+						Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
 					}					
 				}
 			}
@@ -79,8 +79,17 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 	 * @return true if message is a feed list request
 	 */
 	private boolean isFeedListRequest(final Message m) {
-		//TODO: make work
+		//TODO: implement
 		Activator.getLog().log(LogService.LOG_DEBUG, "Checking if " + m.getBody() + " is a Feed List Request");
+		return true;
+	}
+	
+	/**
+	 * @param chat
+	 * @return
+	 */
+	private boolean isDirectFeedListRequest(Chat chat) {
+		//TODO: implement
 		return true;
 	}
 
@@ -97,14 +106,14 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 	public void chatCreated(final Chat chat, final boolean createdLocally) {
 		Activator.getLog().log(LogService.LOG_DEBUG, "Private chat created with " + chat.getParticipant());
 		
-		JSONArray document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
-		
-		try {
-			chat.sendMessage(document.toJSONString());
-		} catch (XMPPException e) {
-			Activator.getLog().log(LogService.LOG_ERROR, "Failed to send private message to " + chat.getParticipant(), e);
+		if (isDirectFeedListRequest(chat)) {
+			for (ISwarmServerRequestListener listener : requestListeners) {
+				try {
+					listener.feedListRequest(chat, swarmId);
+				} catch (Exception e) {
+					Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
+				}					
+			}
 		}
-		
-		Activator.getLog().log(LogService.LOG_DEBUG, "Sent " + document.toJSONString() + " to " + chat.getParticipant());
 	}
 }

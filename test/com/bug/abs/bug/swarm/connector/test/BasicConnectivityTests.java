@@ -6,6 +6,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManager;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smackx.muc.MultiUserChat;
@@ -14,16 +15,14 @@ import org.json.simple.JSONArray;
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient;
-import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
-import com.buglabs.bug.swarm.connector.ws.ISwarmClient;
-import com.buglabs.bug.swarm.connector.ws.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmModel;
+import com.buglabs.bug.swarm.connector.ws.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
 import com.buglabs.bug.swarm.connector.xmpp.ISwarmServerRequestListener;
+import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 import com.buglabs.bug.swarm.connector.xmpp.Jid;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
-import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 
 /**
  * See RMI http://redmine/issues/2312
@@ -89,6 +88,11 @@ public class BasicConnectivityTests extends TestCase {
 					@Override
 					public void feedListRequest(Jid jid, String swarmId) {
 						System.out.println("feedListRequest() " + jid + " " + swarmId);
+					}
+
+					@Override
+					public void feedListRequest(Chat chat, String swarmId) {
+						System.out.println("feedListRequest() " + chat.getParticipant() + " " + swarmId);
 					}
 				});
 				connectedSwarms.add(swarm);
@@ -174,6 +178,11 @@ public class BasicConnectivityTests extends TestCase {
 			@Override
 			public void feedListRequest(Jid jid, String swarmId) {
 				System.out.println("feedListRequest() " + jid + " " + swarmId);
+			}
+
+			@Override
+			public void feedListRequest(Chat chat, String swarmId) {
+				System.out.println("feedListRequest() " + chat.getParticipant() + " " + swarmId);
 			}
 		});
 		assertTrue(xmppClient.isPresent(id, xmppClient.getUsername()));

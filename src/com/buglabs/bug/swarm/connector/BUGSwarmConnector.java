@@ -3,6 +3,7 @@ package com.buglabs.bug.swarm.connector;
 import java.io.IOException;
 import java.util.List;
 
+import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.Connection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
@@ -108,6 +109,10 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 							document);
 	}
 	
+	/**
+	 * @param allSwarms list of swarms to announce state to
+	 * @throws XMPPException on XMPP error
+	 */
 	private void announceState(final List<SwarmModel> allSwarms) throws XMPPException {
 		JSONArray document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
 		
@@ -148,7 +153,8 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			final String room, final String inviter, final String reason, 
 			final String password, final Message message) {
 		
-		Activator.getLog().log(LogService.LOG_INFO, "Recieved invitation for room " + room + " from " + inviter + " for reason " + reason + " w message " + message);
+		Activator.getLog().log(LogService.LOG_INFO, "Recieved invitation for room " + room
+				+ " from " + inviter + " for reason " + reason + " w message " + message);
 		
 		// TODO Implement this case
 		// FIXME: Assuming the message content is the swarm to be joined.
@@ -192,7 +198,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	}
 
 	@Override
-	public void feedListRequest(Jid requestJid, String swarmId) {
+	public void feedListRequest(final Jid requestJid, final String swarmId) {
 		JSONArray document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
 		
 		try {
@@ -201,5 +207,18 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			Activator.getLog().log(LogService.LOG_ERROR, 
 					"Error occurred while sending feeds to " + requestJid, e);
 		}
+	}
+
+	@Override
+	public void feedListRequest(final Chat chat, final String swarmId) {
+		JSONArray document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
+		
+		try {
+			chat.sendMessage(document.toJSONString());
+		} catch (XMPPException e) {
+			Activator.getLog().log(LogService.LOG_ERROR, "Failed to send private message to " + chat.getParticipant(), e);
+		}
+		
+		Activator.getLog().log(LogService.LOG_DEBUG, "Sent " + document.toJSONString() + " to " + chat.getParticipant());
 	}
 }

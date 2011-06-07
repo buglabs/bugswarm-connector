@@ -2,11 +2,13 @@ package com.buglabs.bug.swarm.connector.xmpp;
 
 import java.util.List;
 
+import org.jivesoftware.smack.Chat;
+import org.jivesoftware.smack.ChatManagerListener;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 
-public class GroupChatMessageRequestHandler implements PacketListener {
+public class GroupChatMessageRequestHandler implements PacketListener, ChatManagerListener {
 	
 	private final Jid jid;
 	private final String swarmId;
@@ -61,5 +63,10 @@ public class GroupChatMessageRequestHandler implements PacketListener {
 	private boolean isFromSelf(Packet packet) {
 		//TODO: determine better way of determining if packet is from self
 		return packet.getFrom().endsWith(jid.getResource());
+	}
+
+	@Override
+	public void chatCreated(Chat chat, boolean createdLocally) {
+		System.out.println("Chat created with " + chat.getParticipant());
 	}
 }

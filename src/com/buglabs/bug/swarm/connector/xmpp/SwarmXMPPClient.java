@@ -136,8 +136,9 @@ public class SwarmXMPPClient  {
 		if (!muc.isJoined()) {
 			requestListeners.add(listener);
 			muc.join(getResource());
-			
-			muc.addMessageListener(new GroupChatMessageRequestHandler(jid, swarmId, requestListeners));
+			GroupChatMessageRequestHandler requestHandler = new GroupChatMessageRequestHandler(jid, swarmId, requestListeners);
+			connection.getChatManager().addChatListener(requestHandler);
+			muc.addMessageListener(requestHandler);
 		}
 	}
 

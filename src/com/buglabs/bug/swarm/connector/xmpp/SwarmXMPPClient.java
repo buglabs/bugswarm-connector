@@ -270,8 +270,13 @@ public class SwarmXMPPClient  {
 	public void sendAllFeedsToUser(Jid requestJid, String swarmId, JSONArray document) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
 		
+		if (muc == null) 
+			throw new XMPPException("Connector is not attached to room " + swarmId);
+		
+		System.out.println("Creating private chat with " + requestJid.toString());
 		Chat pchat = muc.createPrivateChat(requestJid.toString(), null);
 		
+		System.out.println("Sending " + document.toJSONString());
 		pchat.sendMessage(document.toJSONString());
 	}
 }

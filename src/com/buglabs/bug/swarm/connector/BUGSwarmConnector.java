@@ -206,8 +206,8 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		try {
 			xmppClient.sendAllFeedsToUser(requestJid, swarmId, document);
 		} catch (XMPPException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Activator.getLog().log(LogService.LOG_ERROR, 
+					"Error occurred while sending feeds to " + requestJid, e);
 		}
 	}
 }

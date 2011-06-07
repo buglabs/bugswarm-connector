@@ -13,6 +13,9 @@ public class GroupChatMessageRequestHandler implements PacketListener {
 	private final List<ISwarmServerRequestListener> requestListeners;
 
 	protected GroupChatMessageRequestHandler(Jid jid, String swarmId, List<ISwarmServerRequestListener> requestListeners) {
+		if (jid == null || swarmId == null || requestListeners == null)
+			throw new IllegalArgumentException("Input parameter to constructor is null.");
+		
 		this.jid = jid;
 		this.swarmId = swarmId;
 		this.requestListeners = requestListeners;	
@@ -31,9 +34,17 @@ public class GroupChatMessageRequestHandler implements PacketListener {
 		if (packet instanceof Message) {
 			Message m = (Message) packet;
 			
-			for (ISwarmServerRequestListener listener : requestListeners)
-				listener.feedListRequest(jid, swarmId);						
+			if (isFeedListRequest(m))
+				for (ISwarmServerRequestListener listener : requestListeners)
+					listener.feedListRequest(new Jid(packet.getFrom()), swarmId);						
+		} else {
+			//TODO: log warning here, as is unexpected condition.
 		}
+	}
+
+	private boolean isFeedListRequest(Message m) {
+		//TODO: make work
+		return true;
 	}
 
 	/**

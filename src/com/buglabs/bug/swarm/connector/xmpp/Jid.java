@@ -13,6 +13,23 @@ public class Jid {
 	
 	}
 
+	public Jid(String rawJid) {
+		String [] elems = rawJid.split("@");
+		
+		if (elems.length != 2)
+			throw new IllegalArgumentException("Invalid raw Jid: " + rawJid);
+		
+		this.username = elems[0];
+		
+		elems = elems[1].split("/");
+		
+		if (elems.length != 2)
+			throw new IllegalArgumentException("Invalid raw Jid: " + rawJid);
+		
+		this.hostname = elems[0];
+		this.resource = elems[1];
+	}
+
 	public String getUsername() {
 		return username;
 	}

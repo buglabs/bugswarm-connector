@@ -5,25 +5,30 @@ import java.util.List;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManagerListener;
 import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
+import org.json.simple.JSONArray;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.osgi.Activator;
+import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
 
 public class GroupChatMessageRequestHandler implements PacketListener, ChatManagerListener {
 	
 	private final Jid jid;
 	private final String swarmId;
 	private final List<ISwarmServerRequestListener> requestListeners;
+	private OSGiHelper osgiHelper;
 
-	protected GroupChatMessageRequestHandler(Jid jid, String swarmId, List<ISwarmServerRequestListener> requestListeners) {
+	protected GroupChatMessageRequestHandler(Jid jid, String swarmId, List<ISwarmServerRequestListener> requestListeners) throws Exception {
 		if (jid == null || swarmId == null || requestListeners == null)
 			throw new IllegalArgumentException("Input parameter to constructor is null.");
 		
 		this.jid = jid;
 		this.swarmId = swarmId;
 		this.requestListeners = requestListeners;	
+		this.osgiHelper = OSGiHelper.getRef();
 	}
 	
 	@Override
@@ -71,6 +76,16 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 
 	@Override
 	public void chatCreated(Chat chat, boolean createdLocally) {
-		System.out.println("Chat created with " + chat.getParticipant());
+		System.out.println("Private chat created with " + chat.getParticipant());
+		
+		JSONArray document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
+		
+		try {
+			chat.sendMessage(document.toJSONString());
+		} catch (XMPPException e) {
+			Activator.getLog().log(LogService.LOG_ERROR, "Failed to send private message to " + chat.getParticipant(), e);
+		}
+		
+		System.out.println("Sent " + document.toJSONString() + " to " + chat.getParticipant());
 	}
 }

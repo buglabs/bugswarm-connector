@@ -158,34 +158,38 @@ public class BasicConnectivityTests extends TestCase {
 		assertNotNull(id);
 		assertTrue(id.length() > 0);
 		
-		// Add my xmpp client as a member
-		ISwarmResourcesClient resClient = wsClient.getSwarmResourceClient();
-		assertNotNull(resClient);
-		SwarmWSResponse response = resClient.add(id, ISwarmResourcesClient.MemberType.PRODUCER, xmppClient.getUsername() , xmppClient.getResource());
-		assertFalse(response.isError());
-		
-		// Create the 'web' resource, this will be used later w/ feed api
-		response = resClient.add(id, ISwarmResourcesClient.MemberType.CONSUMER, xmppClient.getUsername() , "web");
-		assertFalse(response.isError());
-		
-		// Confirm swarm has two members
-		SwarmModel swarmInfo = wsClient.get(id);
-		assertTrue(swarmInfo.getMembers().size() == 2);
-		
-		// Join the swarm w/ the xmpp client
-		xmppClient.joinSwarm(id, new ISwarmServerRequestListener() {
+		try {
+			// Add my xmpp client as a member
+			ISwarmResourcesClient resClient = wsClient.getSwarmResourceClient();
+			assertNotNull(resClient);
+			SwarmWSResponse response = resClient.add(id, ISwarmResourcesClient.MemberType.PRODUCER, xmppClient.getUsername() , xmppClient.getResource());
+			assertFalse(response.isError());
 			
-			@Override
-			public void feedListRequest(Jid jid, String swarmId) {
-				System.out.println("feedListRequest() " + jid + " " + swarmId);
-			}
-
-			@Override
-			public void feedListRequest(Chat chat, String swarmId) {
-				System.out.println("feedListRequest() " + chat.getParticipant() + " " + swarmId);
-			}
-		});
-		assertTrue(xmppClient.isPresent(id, xmppClient.getUsername()));
+			// Create the 'web' resource, this will be used later w/ feed api
+			response = resClient.add(id, ISwarmResourcesClient.MemberType.CONSUMER, xmppClient.getUsername() , "web");
+			assertFalse(response.isError());
+			
+			// Confirm swarm has two members
+			SwarmModel swarmInfo = wsClient.get(id);
+			assertTrue(swarmInfo.getMembers().size() == 2);
+			
+			// Join the swarm w/ the xmpp client
+			xmppClient.joinSwarm(id, new ISwarmServerRequestListener() {
+				
+				@Override
+				public void feedListRequest(Jid jid, String swarmId) {
+					System.out.println("feedListRequest() " + jid + " " + swarmId);
+				}
+	
+				@Override
+				public void feedListRequest(Chat chat, String swarmId) {
+					System.out.println("feedListRequest() " + chat.getParticipant() + " " + swarmId);
+				}
+			});
+			assertTrue(xmppClient.isPresent(id, xmppClient.getUsername()));
+		} catch (Exception e) {
+			wsClient.destroy(id);
+		}
 		
 		xmppClient.disconnect();
 		xmppClient = null;

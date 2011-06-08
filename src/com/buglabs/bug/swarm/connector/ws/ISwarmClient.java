@@ -52,7 +52,7 @@ public interface ISwarmClient {
 	 * Get info of a specific swarm.
 	 * 
 	 * @param swarmId swarmId
-	 * @return a SwarmModel instance for the given id
+	 * @return a SwarmModel instance for the given id, or throws HTTP 404 if swarm does not exist.
 	 * @throws IOException 
 	 */
 	SwarmModel get(String swarmId) throws IOException;

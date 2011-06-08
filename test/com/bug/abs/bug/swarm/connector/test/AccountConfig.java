@@ -12,9 +12,10 @@ import com.buglabs.bug.swarm.connector.Configuration;
  */
 public final class AccountConfig {
 	protected static final String XMPP_USERNAME2 = "test";
-	protected static final String API_KEY2 = "a0fc6588f11db4a1f024445e950ae6ae33bc0313";
+	protected static final String API_KEY2 = "8ff77d6a0ce48d0677ca854470ff0e5c3ee565c3";
 	
-	protected static final String API_KEY = "76aa4ce0d07e4a41e5018de58445b1e4d7812711";
+	protected static final String API_KEY = "8dfb3f3f8238d15400b86b087ea3cf09ba14263a"; 
+	
 	protected static final String SWARM_HOST = "bugswarm.net";
 	
 	protected static final String XMPP_USERNAME = "connector-test";

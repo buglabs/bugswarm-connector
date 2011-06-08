@@ -24,6 +24,14 @@ public class SwarmMemberWSAPITests extends TestCase {
 	
 	private static final MemberType DEFAULT_MEMBER_TYPE = MemberType.CONSUMER;
 	
+	@Override
+	protected void tearDown() throws Exception {
+		if (AccountConfig.testSwarmId != null) {
+			ISwarmClient client = new SwarmWSClient(AccountConfig.getConfiguration());
+			assertTrue(client.isValid() == null);
+			client.destroy(AccountConfig.testSwarmId);
+		}
+	}
 	/**
 	 * This test must occur after testSwarmId is set by a previous test.
 	 * @throws IOException 
@@ -124,7 +132,7 @@ public class SwarmMemberWSAPITests extends TestCase {
 		assertFalse(rc.isError());
 	}
 	
-	public void t3stEmptySwarm() throws IOException {
+	public void testEmptySwarm() throws IOException {
 		ISwarmClient client = new SwarmWSClient(AccountConfig.getConfiguration());
 		ISwarmResourcesClient membersClient = ((SwarmWSClient) client).getSwarmResourceClient();
 		

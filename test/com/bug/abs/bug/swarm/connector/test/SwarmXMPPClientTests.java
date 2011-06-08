@@ -7,6 +7,7 @@ import org.json.simple.JSONArray;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
 import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 import com.buglabs.bug.swarm.connector.xmpp.Jid;
+import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
 
 /**
  * Test the Swarm-XMPP client
@@ -29,6 +30,24 @@ public class SwarmXMPPClientTests extends TestCase {
 		assertNotNull(osgi.getBUGFeeds());	
 	}
 	
+	
+	/**
+	 * Test creating, connecting, and disconnecting to XMPP server with client.
+	 * 
+	 * @throws Exception on any error
+	 */
+	public void testCreateXMPPClient() throws Exception {
+		SwarmXMPPClient xmppClient = new SwarmXMPPClient(AccountConfig.getConfiguration());
+		xmppClient.connect();
+		
+		Thread.sleep(5000);
+		
+		assertTrue(xmppClient.isConnected());
+		
+		xmppClient.disconnect();
+		
+		assertFalse(xmppClient.isConnected());
+	}
 	
 	/**
 	 * Test the XMLDocCreator class that creates all XML documents destined for the swarm server.

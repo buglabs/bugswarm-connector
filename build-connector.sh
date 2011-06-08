@@ -55,7 +55,8 @@ mv bug-osgi/com.buglabs.osgi.build $WORKSPACE
 rm -Rf bug-osgi
 
 git clone git://github.com/buglabs/smack-smackx-osgi.git
-
+# Do not compile/run tests
+rm -Rf smack-smackx-osgi/test
 
 ###### Build dependencies
 set -e

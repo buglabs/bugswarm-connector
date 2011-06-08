@@ -58,6 +58,7 @@ git clone git://github.com/buglabs/smack-smackx-osgi.git
 
 
 ###### Build dependencies
+set -e
 
 # com.buglabs.common
 ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f com.buglabs.common/build.xml build.jars
@@ -66,7 +67,7 @@ ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE
 ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f com.buglabs.osgi.sewing/build.xml build.jars
 
 # smack-smackx-osgi
-ant -Dbase.build.dir=$WORKSPACE/smack-smackx-osgi -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f smack-smackx-osgi/build.xml build.jars
+ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f smack-smackx-osgi/build.xml build.jars
 
 
 ###### Build bugswarm-connector

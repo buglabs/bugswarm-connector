@@ -51,11 +51,11 @@ public class BUGSwarmConnectorTests extends TestCase {
 		assertFalse(response.isError());
 	}
 
-	public void donttestInitializeConnector() throws InterruptedException {
+	public void testInitializeConnector() throws InterruptedException {
 		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
 
 		connector.start();
-		Thread.sleep(15000);
+		Thread.sleep(20000);
 
 		assertTrue(connector.isInitialized());
 
@@ -66,6 +66,14 @@ public class BUGSwarmConnectorTests extends TestCase {
 		Thread.sleep(10000);
 	}
 
+	/**
+	 * https://github.com/buglabs/bugswarm/wiki/Swarm-Feeds-API
+	 * 
+	 * Test 'Querying available Feeds in a Swarm'
+	 * 
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
 	public void testGetFeedsGlobal() throws IOException, InterruptedException {
 		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
 
@@ -87,9 +95,45 @@ public class BUGSwarmConnectorTests extends TestCase {
 		Thread.sleep(5000);
 
 		assertTrue(scanner.hasInputBeenRecieved());
+		
+		scanner.interrupt();
 		connector.interrupt();
 		connector.shutdown();
+	}
+	
+	/**
+	 * https://github.com/buglabs/bugswarm/wiki/Swarm-Feeds-API
+	 * 
+	 * Test 'Querying available Feeds in a Swarm Resource'
+	 * 
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	public void testGetFeedsResource() throws IOException, InterruptedException {
+		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
 
+		// Start the connector
+		connector.start();
+
+		// Wait for the feeds to initialize
+		Thread.sleep(20000);
+
+		HTTPRequest request = new HTTPRequest();
+		Map<String, String> headers = new HashMap<String, String>();
+		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getAPIKey());
+
+		HTTPResponse response = request.get("http://api.bugswarm.net/swarms/" + AccountConfig.testSwarmId + "/resources/" + AccountConfig.getConfiguration().getResource() + "/feeds?stream=true", headers);
+
+		StreamScanner scanner = new StreamScanner(response.getStream());
+		scanner.start();
+
+		Thread.sleep(5000);
+
+		assertTrue(scanner.hasInputBeenRecieved());
+		
+		scanner.interrupt();
+		connector.interrupt();
+		connector.shutdown();
 	}
 
 	private class StreamScanner extends Thread {

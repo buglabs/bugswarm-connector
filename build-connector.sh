@@ -5,12 +5,7 @@ if [ -z $WORKSPACE ]; then
 	WORKSPACE=`pwd`
 fi
 
-if [ -z $WORKSPACE ]; then
-	DIST_DIR=$WORKSPACE/dist
-else
-	DIST_DIR=$WORKSPACE/dist
-fi
-
+DIST_DIR=$WORKSPACE/dist
 DEPS_DIR=$WORKSPACE/deps
 
 ###### Create build dir layout
@@ -24,10 +19,6 @@ fi
 
 if [ ! -f $DEPS_DIR/osgi.cmpn.jar ]; then
 	wget -P $DEPS_DIR http://www.osgi.org/download/r4v42/osgi.cmpn.jar
-fi
-
-if [ ! -f $DEPS_DIR/smack-smackx-osgi.jar ]; then
-	wget --no-check-certificate -P $DEPS_DIR https://github.com/downloads/buglabs/smack-smackx-osgi/smack-smackx-osgi.jar
 fi
 
 if [ ! -f $DEPS_DIR/junit-dep-4.9b2.jar ]; then
@@ -54,6 +45,7 @@ fi
 rm -Rf com.buglabs.common
 rm -Rf com.buglabs.osgi.sewing
 rm -Rf com.buglabs.osgi.build
+rm -Rf smack-smackx-osgi
 
 ###### Get source dependencies that will be compiled
 git clone git@github.com:buglabs/bug-osgi.git
@@ -62,6 +54,9 @@ mv bug-osgi/com.buglabs.osgi.sewing $WORKSPACE
 mv bug-osgi/com.buglabs.osgi.build $WORKSPACE
 rm -Rf bug-osgi
 
+git clone git://github.com/buglabs/smack-smackx-osgi.git
+
+
 ###### Build dependencies
 
 # com.buglabs.common
@@ -69,6 +64,10 @@ ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE
 
 # com.buglabs.osgi.sewing
 ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f com.buglabs.osgi.sewing/build.xml build.jars
+
+# smack-smackx-osgi
+ant -Dbase.build.dir=$WORKSPACE/smack-smackx-osgi -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f smack-smackx-osgi/build.xml build.jars
+
 
 ###### Build bugswarm-connector
 # echo "Cleaning bugswarm-connector"

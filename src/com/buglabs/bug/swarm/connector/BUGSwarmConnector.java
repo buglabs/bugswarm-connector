@@ -24,6 +24,7 @@ import com.buglabs.bug.swarm.connector.xmpp.ISwarmServerRequestListener;
 import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 import com.buglabs.bug.swarm.connector.xmpp.Jid;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
+import com.buglabs.util.simplerestclient.HTTPException;
 
 /**
  * The swarm connector client for BUGswarm system.
@@ -70,12 +71,20 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			
 			//Load data about server configuration and local configuration.
 			Activator.getLog().log(LogService.LOG_DEBUG, "Getting member swarms.");
-			List<SwarmModel> allSwarms = wsClient.getSwarmResourceClient().getSwarmsByMember(config.getResource());
 			
-			//Notify all swarms of presence.
-			for (SwarmModel swarm : allSwarms) {
-				Activator.getLog().log(LogService.LOG_DEBUG, "Joining swarm " + swarm.getId());
-				xmppClient.joinSwarm(swarm.getId(), this);
+			try {
+				List<SwarmModel> allSwarms = wsClient.getSwarmResourceClient().getSwarmsByMember(config.getResource());
+				
+				//Notify all swarms of presence.
+				for (SwarmModel swarm : allSwarms) {
+					Activator.getLog().log(LogService.LOG_DEBUG, "Joining swarm " + swarm.getId());
+					xmppClient.joinSwarm(swarm.getId(), this);
+				}
+			} catch (HTTPException e) {
+				if (e.getErrorCode() == 404)
+					Activator.getLog().log(LogService.LOG_WARNING, "Not a member of any swarms, not publishing feeds.");
+				else 
+					throw e;
 			}
 			
 			//Send feed state to other swarm peers

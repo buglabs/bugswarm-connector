@@ -31,7 +31,7 @@ public class SwarmWSAPITests extends TestCase {
 		assertNotNull(client.getSwarmResourceClient());
 		assertNotNull(AccountConfig.getConfiguration().getResource());
 		
-		String id = client.create(AccountConfig.getTestSwarmName(), true, AccountConfig.getTestSwarmDescription());
+		String id = client.create(AccountConfig.generateRandomSwarmName(), true, AccountConfig.getTestSwarmDescription());
 		
 		assertNotNull(id);
 		assertTrue(id.length() > 0);

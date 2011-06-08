@@ -40,7 +40,7 @@ public class SwarmMemberWSAPITests extends TestCase {
 		ISwarmClient client = new SwarmWSClient(AccountConfig.getConfiguration());
 		ISwarmResourcesClient membersClient = ((SwarmWSClient) client).getSwarmResourceClient();
 		
-		String id = client.create(AccountConfig.getTestSwarmName(), true, AccountConfig.getTestSwarmDescription());
+		String id = client.create(AccountConfig.generateRandomSwarmName(), true, AccountConfig.getTestSwarmDescription());
 		AccountConfig.testSwarmId = id;
 		
 		//TODO: determine set of test users that can be created or assumed to exist.

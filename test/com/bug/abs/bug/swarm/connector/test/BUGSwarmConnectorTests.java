@@ -34,10 +34,10 @@ public class BUGSwarmConnectorTests extends TestCase {
 		AccountConfig.testSwarmId = c.create(AccountConfig.generateRandomSwarmName(), false, "A test swarm.");
 
 		SwarmWSResponse response = c.getSwarmResourceClient().add(AccountConfig.testSwarmId, MemberType.PRODUCER,
-				AccountConfig.testSwarmId, AccountConfig.getConfiguration().getResource());
+				AccountConfig.XMPP_USERNAME, AccountConfig.getConfiguration().getResource());
 		assertFalse(response.isError());
 		// Resource 'web' is required so that http streaming will work
-		response = c.getSwarmResourceClient().add(AccountConfig.testSwarmId, MemberType.CONSUMER, AccountConfig.testSwarmId, "web");
+		response = c.getSwarmResourceClient().add(AccountConfig.testSwarmId, MemberType.CONSUMER, AccountConfig.XMPP_USERNAME, "web");
 		assertFalse(response.isError());
 	}
 

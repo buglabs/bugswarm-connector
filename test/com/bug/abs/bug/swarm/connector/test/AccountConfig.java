@@ -12,15 +12,14 @@ import com.buglabs.bug.swarm.connector.Configuration;
  */
 public final class AccountConfig {
 	protected static final String XMPP_USERNAME2 = "test";
-	protected static final String API_KEY2 = "8ff77d6a0ce48d0677ca854470ff0e5c3ee565c3";
+	protected static final String API_KEY2 = "df6fc25c0edcb2d76a7930754f37c33c5d009705";
 	
-	protected static final String API_KEY = "8dfb3f3f8238d15400b86b087ea3cf09ba14263a"; 
+	protected static final String API_KEY = "7339d4a60c729308086341600d44c6424a4079cb"; 
 	
 	protected static final String SWARM_HOST = "bugswarm.net";
 	
-	protected static final String XMPP_USERNAME = "connector-test";
+	protected static final String XMPP_USERNAME = "connector_test";
 	
-	protected static String testSwarmName;
 	protected static String testSwarmId;
 	
 	private static Configuration config;
@@ -48,15 +47,6 @@ public final class AccountConfig {
 		}
 		
 		return config;
-	}
-
-	protected static String getTestSwarmName() {		
-		if (testSwarmName == null) {
-			Random r = new Random();
-			testSwarmName = "TestSwarm-" + AccountConfig.class.getSimpleName() + r.nextFloat();		
-		}
-		
-		return testSwarmName;		
 	}
 	
 	/**

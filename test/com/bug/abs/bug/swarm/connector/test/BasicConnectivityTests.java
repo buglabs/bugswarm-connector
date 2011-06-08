@@ -24,6 +24,7 @@ import com.buglabs.bug.swarm.connector.xmpp.ISwarmServerRequestListener;
 import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 import com.buglabs.bug.swarm.connector.xmpp.Jid;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
+import com.buglabs.util.simplerestclient.HTTPException;
 
 /**
  * See RMI http://redmine/issues/2312
@@ -40,11 +41,27 @@ public class BasicConnectivityTests extends TestCase {
 	
 	@Override
 	protected void setUp() throws Exception {
+		System.out.println("setUp()");
 		wsClient = new SwarmWSClient(AccountConfig.getConfiguration().getHostname(Protocol.HTTP), AccountConfig.getConfiguration()
 				.getAPIKey());
 
 		assertTrue(wsClient.isValid() == null);
 		
+		//Delete all pre-existing swarms owned by test user.
+		try {
+			List<SwarmModel> swarms = wsClient.list();
+			
+			for (SwarmModel sm : swarms) {
+				if (sm.getUserId().equals(AccountConfig.getConfiguration().getUsername())) {
+					wsClient.destroy(sm.getId());
+				}
+			}
+		} catch (HTTPException e) {
+			//Ignore 404s.  They are not errors.  But unfortunately they have to be handled as errors since this is the REST way according to Camilo.
+			if (e.getErrorCode() != 404)
+				throw e;
+		}
+				
 		assertNotNull(wsClient.getSwarmResourceClient());
 		assertNotNull(AccountConfig.getConfiguration().getResource());
 		
@@ -69,6 +86,7 @@ public class BasicConnectivityTests extends TestCase {
 	
 	@Override
 	protected void tearDown() throws Exception {
+		System.out.println("tearDown()");
 		if (xmppClient != null)
 			xmppClient.disconnect();
 		
@@ -81,7 +99,7 @@ public class BasicConnectivityTests extends TestCase {
 	 * 
 	 */
 	public void testConnectToSwarmServer() throws Exception {
-		
+		//setup() is the test 
 	}
 
 	/**

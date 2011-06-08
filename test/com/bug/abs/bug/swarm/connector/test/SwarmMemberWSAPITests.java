@@ -12,6 +12,7 @@ import com.buglabs.bug.swarm.connector.ws.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
+import com.buglabs.util.simplerestclient.HTTPException;
 
 
 /**
@@ -30,6 +31,21 @@ public class SwarmMemberWSAPITests extends TestCase {
 		
 		String id = client.create(AccountConfig.generateRandomSwarmName(), true, AccountConfig.getTestSwarmDescription());
 		AccountConfig.testSwarmId = id;
+		
+		//Delete all pre-existing swarms owned by test user.
+		try {
+			List<SwarmModel> swarms = client.list();
+			
+			for (SwarmModel sm : swarms) {
+				if (sm.getUserId().equals(AccountConfig.getConfiguration().getUsername())) {
+					client.destroy(sm.getId());
+				}
+			}
+		} catch (HTTPException e) {
+			//Ignore 404s.  They are not errors.  But unfortunately they have to be handled as errors since this is the REST way according to Camilo.
+			if (e.getErrorCode() != 404)
+				throw e;
+		}
 	}
 	
 	@Override

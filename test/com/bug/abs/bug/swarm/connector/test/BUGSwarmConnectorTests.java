@@ -4,11 +4,20 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
 import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
+import com.buglabs.bug.swarm.connector.ws.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
 import com.buglabs.util.simplerestclient.HTTPException;
@@ -27,9 +36,25 @@ public class BUGSwarmConnectorTests extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
+		System.out.println("setUp()");
 		SwarmWSClient c = new SwarmWSClient(AccountConfig.getConfiguration());
 
 		assertTrue(c.isValid() == null);
+		
+		//Delete all pre-existing swarms owned by test user.
+		try {
+			List<SwarmModel> swarms = c.list();
+			
+			for (SwarmModel sm : swarms) {
+				if (sm.getUserId().equals(AccountConfig.getConfiguration().getUsername())) {
+					c.destroy(sm.getId());
+				}
+			}
+		} catch (HTTPException e) {
+			//Ignore 404s.  They are not errors.  But unfortunately they have to be handled as errors since this is the REST way according to Camilo.
+			if (e.getErrorCode() != 404)
+				throw e;
+		}
 
 		AccountConfig.testSwarmId = c.create(AccountConfig.generateRandomSwarmName(), false, "A test swarm.");
 
@@ -43,6 +68,7 @@ public class BUGSwarmConnectorTests extends TestCase {
 
 	@Override
 	protected void tearDown() throws Exception {
+		System.out.println("tearDown()");
 		SwarmWSClient c = new SwarmWSClient(AccountConfig.getConfiguration());
 
 		assertTrue(c.isValid() == null);
@@ -55,15 +81,14 @@ public class BUGSwarmConnectorTests extends TestCase {
 		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
 
 		connector.start();
-		Thread.sleep(20000);
+		Thread.sleep(15000);
 
 		assertTrue(connector.isInitialized());
 
-		Thread.sleep(10000);
 		connector.interrupt();
 		connector.shutdown();
 
-		Thread.sleep(10000);
+		Thread.sleep(5000);
 	}
 
 	/**
@@ -81,7 +106,7 @@ public class BUGSwarmConnectorTests extends TestCase {
 		connector.start();
 
 		// Wait for the feeds to initialize
-		Thread.sleep(20000);
+		Thread.sleep(15000);
 
 		HTTPRequest request = new HTTPRequest();
 		Map<String, String> headers = new HashMap<String, String>();
@@ -92,9 +117,21 @@ public class BUGSwarmConnectorTests extends TestCase {
 		StreamScanner scanner = new StreamScanner(response.getStream());
 		scanner.start();
 
-		Thread.sleep(5000);
+		Thread.sleep(2000);
 
 		assertTrue(scanner.hasInputBeenRecieved());
+		
+		for (String r : scanner.getResponses()) {
+			System.out.println("Testing r is a JSON object: " + r);
+			Object o = JSONValue.parse(r);
+			
+			assertNotNull(o);
+			assertTrue(o instanceof JSONObject);
+			
+			JSONObject ja = (JSONObject) o;
+			
+			assertFalse(ja.isEmpty());			
+		}
 		
 		scanner.interrupt();
 		connector.interrupt();
@@ -116,7 +153,7 @@ public class BUGSwarmConnectorTests extends TestCase {
 		connector.start();
 
 		// Wait for the feeds to initialize
-		Thread.sleep(20000);
+		Thread.sleep(15000);
 
 		HTTPRequest request = new HTTPRequest();
 		Map<String, String> headers = new HashMap<String, String>();
@@ -127,9 +164,21 @@ public class BUGSwarmConnectorTests extends TestCase {
 		StreamScanner scanner = new StreamScanner(response.getStream());
 		scanner.start();
 
-		Thread.sleep(5000);
+		Thread.sleep(2000);
 
 		assertTrue(scanner.hasInputBeenRecieved());
+		
+		for (String r : scanner.getResponses()) {
+			System.out.println("Testing r is a JSON object: " + r);
+			Object o = JSONValue.parse(r);
+			
+			assertNotNull(o);
+			assertTrue(o instanceof JSONObject);
+			
+			JSONObject ja = (JSONObject) o;
+			
+			assertFalse(ja.isEmpty());			
+		}
 		
 		scanner.interrupt();
 		connector.interrupt();
@@ -140,6 +189,7 @@ public class BUGSwarmConnectorTests extends TestCase {
 
 		private final InputStream istream;
 		private int inputLineCount = 0;
+		private List<String> responses = new CopyOnWriteArrayList<String>();
 
 		public StreamScanner(InputStream istream) {
 			this.istream = istream;
@@ -155,8 +205,10 @@ public class BUGSwarmConnectorTests extends TestCase {
 				while (!Thread.interrupted() && (line = br.readLine()) != null) {
 					System.out.println("OUTPUT: " + line);
 
-					if (line.trim().length() > 0)
+					if (line.trim().length() > 0) {
 						inputLineCount++;
+						responses.add(line.trim());
+					}
 				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -175,6 +227,17 @@ public class BUGSwarmConnectorTests extends TestCase {
 
 		public int getInputLineCount() {
 			return inputLineCount;
+		}
+		
+		public Iterable<String> getResponses() {
+			return new Iterable<String>() {
+				
+				@Override
+				public Iterator<String> iterator() {
+					// TODO Auto-generated method stub
+					return responses.iterator();
+				}
+			};
 		}
 	}
 }

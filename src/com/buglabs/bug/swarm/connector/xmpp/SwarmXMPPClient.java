@@ -28,6 +28,7 @@
 package com.buglabs.bug.swarm.connector.xmpp;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +40,7 @@ import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smackx.muc.Affiliate;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.json.simple.JSONArray;
 
@@ -148,16 +150,24 @@ public class SwarmXMPPClient  {
 	 * @param swarmId id of swarm
 	 * @param userId id of user
 	 * @return true if presence is set 
+	 * @throws XMPPException  on xmpp error
 	 */
-	public boolean isPresent(final String swarmId, final String userId) {
+	public boolean isPresent(final String swarmId, final String userId) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
+		try {
+			Jid userJid = new Jid(userId);
+			
+			for (Affiliate aff : muc.getMembers()) {		
+					Jid j = new Jid(aff.getJid());
+					if (j.getResource() == userJid.getResource())
+						return true;
+				
+			}
+		} catch (ParseException e) {
+			throw new XMPPException("Invalid JID");
+		}
 		
-		Presence presence = muc.getOccupantPresence(userId);
-		
-		if (presence == null)
-			return false;
-		
-		return presence.isAvailable();
+		return false;		
 	}
 
 	/**
@@ -279,5 +289,9 @@ public class SwarmXMPPClient  {
 		
 		System.out.println("Sending " + document.toJSONString());
 		pchat.sendMessage(document.toJSONString());
+	}
+
+	public Jid getJid() {		
+		return jid;
 	}
 }

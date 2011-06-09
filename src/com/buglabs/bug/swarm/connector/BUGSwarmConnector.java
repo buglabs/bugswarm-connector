@@ -246,6 +246,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	public void feedRequest(Jid jid, String swarmId, String feedRequestName) {
 		Feed f = osgiHelper.getBUGFeed(feedRequestName);
 		if (f == null) {
+			f = osgiHelper.getBUGFeed(feedRequestName);
 			Activator.getLog().log(LogService.LOG_ERROR, 
 					"Request for non-existant feed " + feedRequestName + " from client " + jid);
 			return;

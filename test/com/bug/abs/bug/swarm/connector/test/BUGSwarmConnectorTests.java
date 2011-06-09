@@ -40,18 +40,20 @@ public class BUGSwarmConnectorTests extends TestCase {
 		SwarmWSClient c = new SwarmWSClient(AccountConfig.getConfiguration());
 
 		assertTrue(c.isValid() == null);
-		
-		//Delete all pre-existing swarms owned by test user.
+
+		// Delete all pre-existing swarms owned by test user.
 		try {
 			List<SwarmModel> swarms = c.list();
-			
+
 			for (SwarmModel sm : swarms) {
 				if (sm.getUserId().equals(AccountConfig.getConfiguration().getUsername())) {
 					c.destroy(sm.getId());
 				}
 			}
 		} catch (HTTPException e) {
-			//Ignore 404s.  They are not errors.  But unfortunately they have to be handled as errors since this is the REST way according to Camilo.
+			// Ignore 404s. They are not errors. But unfortunately they have to
+			// be handled as errors since this is the REST way according to
+			// Camilo.
 			if (e.getErrorCode() != 404)
 				throw e;
 		}
@@ -72,7 +74,7 @@ public class BUGSwarmConnectorTests extends TestCase {
 		SwarmWSClient c = new SwarmWSClient(AccountConfig.getConfiguration());
 
 		assertTrue(c.isValid() == null);
-		
+
 		SwarmWSResponse response = c.destroy(AccountConfig.testSwarmId);
 		assertFalse(response.isError());
 	}
@@ -120,24 +122,24 @@ public class BUGSwarmConnectorTests extends TestCase {
 		Thread.sleep(2000);
 
 		assertTrue(scanner.hasInputBeenRecieved());
-		
+
 		for (String r : scanner.getResponses()) {
 			System.out.println("Testing r is a JSON object: " + r);
 			Object o = JSONValue.parse(r);
-			
+
 			assertNotNull(o);
 			assertTrue(o instanceof JSONObject);
-			
+
 			JSONObject ja = (JSONObject) o;
-			
-			assertFalse(ja.isEmpty());			
+
+			assertFalse(ja.isEmpty());
 		}
-		
+
 		scanner.interrupt();
 		connector.interrupt();
 		connector.shutdown();
 	}
-	
+
 	/**
 	 * https://github.com/buglabs/bugswarm/wiki/Swarm-Feeds-API
 	 * 
@@ -159,7 +161,8 @@ public class BUGSwarmConnectorTests extends TestCase {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getAPIKey());
 
-		HTTPResponse response = request.get("http://api.bugswarm.net/swarms/" + AccountConfig.testSwarmId + "/resources/" + AccountConfig.getConfiguration().getResource() + "/feeds?stream=true", headers);
+		HTTPResponse response = request.get("http://api.bugswarm.net/swarms/" + AccountConfig.testSwarmId + "/resources/"
+				+ AccountConfig.getConfiguration().getResource() + "/feeds?stream=true", headers);
 
 		StreamScanner scanner = new StreamScanner(response.getStream());
 		scanner.start();
@@ -167,24 +170,24 @@ public class BUGSwarmConnectorTests extends TestCase {
 		Thread.sleep(2000);
 
 		assertTrue(scanner.hasInputBeenRecieved());
-		
+
 		for (String r : scanner.getResponses()) {
 			System.out.println("Testing r is a JSON object: " + r);
 			Object o = JSONValue.parse(r);
-			
+
 			assertNotNull(o);
 			assertTrue(o instanceof JSONObject);
-			
+
 			JSONObject ja = (JSONObject) o;
-			
-			assertFalse(ja.isEmpty());			
+
+			assertFalse(ja.isEmpty());
 		}
-		
+
 		scanner.interrupt();
 		connector.interrupt();
 		connector.shutdown();
 	}
-	
+
 	/**
 	 * https://github.com/buglabs/bugswarm/wiki/Swarm-Feeds-API
 	 * 
@@ -206,7 +209,8 @@ public class BUGSwarmConnectorTests extends TestCase {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getAPIKey());
 
-		HTTPResponse response = request.get("http://api.bugswarm.net/swarms/" + AccountConfig.testSwarmId + "/resources/" + AccountConfig.getConfiguration().getResource() + "/feeds?stream=true", headers);
+		HTTPResponse response = request.get("http://api.bugswarm.net/swarms/" + AccountConfig.testSwarmId + "/resources/"
+				+ AccountConfig.getConfiguration().getResource() + "/feeds?stream=true", headers);
 
 		StreamScanner scanner = new StreamScanner(response.getStream());
 		scanner.start();
@@ -214,50 +218,46 @@ public class BUGSwarmConnectorTests extends TestCase {
 		Thread.sleep(2000);
 
 		assertTrue(scanner.hasInputBeenRecieved());
-		
+
 		for (String r : scanner.getResponses()) {
 			System.out.println("Testing r is a JSON object: " + r);
 			Object o = JSONValue.parse(r);
-			
+
 			assertNotNull(o);
 			assertTrue(o instanceof JSONObject);
-			
+
 			JSONObject ja = (JSONObject) o;
-			
-			assertFalse(ja.isEmpty());		
+
+			assertFalse(ja.isEmpty());
 			assertTrue(ja.containsKey("payload"));
-			
+
 			Object payloadObject = ja.get("payload");
-			
+
 			assertTrue(payloadObject instanceof JSONArray);
-			
+
 			JSONArray payloadArray = (JSONArray) payloadObject;
-			
-			//For each key, which is a feed, query the actual feed.
+
+			// For each key, which is a feed, query the actual feed.
 			for (Object key : payloadArray) {
 				assertTrue(key instanceof JSONObject);
-				JSONObject jo = (JSONObject) key;				
-				
+				JSONObject jo = (JSONObject) key;
+
 				for (Object rk : jo.keySet()) {
 					System.out.println("Get data for feed " + rk);
-					try {
-					HTTPResponse response2 = 
-						request.get("http://api.bugswarm.net/swarms/"
-								+ AccountConfig.testSwarmId + "/feeds/" + rk, headers);
-	
+
+					HTTPResponse response2 = request.get("http://api.bugswarm.net/swarms/" + AccountConfig.testSwarmId + "/feeds/" + rk,
+							headers);
+
 					StreamScanner scanner2 = new StreamScanner(response2.getStream());
 					scanner.start();
-					
+
 					Thread.sleep(2000);
-	
+
 					assertTrue(scanner.hasInputBeenRecieved());
-					} catch (Exception e) {
-						System.out.println("boo");
-					}
-			}
+				}
 			}
 		}
-		
+
 		scanner.interrupt();
 		connector.interrupt();
 		connector.shutdown();
@@ -306,10 +306,10 @@ public class BUGSwarmConnectorTests extends TestCase {
 		public int getInputLineCount() {
 			return inputLineCount;
 		}
-		
+
 		public Iterable<String> getResponses() {
 			return new Iterable<String>() {
-				
+
 				@Override
 				public Iterator<String> iterator() {
 					// TODO Auto-generated method stub

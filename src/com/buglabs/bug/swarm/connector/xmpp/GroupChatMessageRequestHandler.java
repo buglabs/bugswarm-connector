@@ -166,7 +166,8 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 
 	@Override
 	public void processMessage(Chat chat, Message message) {
-		if (isFeedListRequest(message.getBody())) {
+		String messageBody = message.getBody();
+		if (isFeedListRequest(messageBody)) {
 			for (ISwarmServerRequestListener listener : requestListeners) {
 				try {
 					listener.feedListRequest(chat, swarmId);
@@ -175,7 +176,7 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 				}					
 			}
 		} else {
-			Activator.getLog().log(LogService.LOG_WARNING, "Unhandled client message: " + message);
+			Activator.getLog().log(LogService.LOG_WARNING, "Unhandled client message: " + messageBody);
 		}
 			
 	}

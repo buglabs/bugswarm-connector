@@ -124,7 +124,6 @@ public class BUGSwarmConnectorTests extends TestCase {
 		assertTrue(scanner.hasInputBeenRecieved());
 
 		for (String r : scanner.getResponses()) {
-			System.out.println("Testing r is a JSON object: " + r);
 			Object o = JSONValue.parse(r);
 
 			assertNotNull(o);
@@ -172,7 +171,6 @@ public class BUGSwarmConnectorTests extends TestCase {
 		assertTrue(scanner.hasInputBeenRecieved());
 
 		for (String r : scanner.getResponses()) {
-			System.out.println("Testing r is a JSON object: " + r);
 			Object o = JSONValue.parse(r);
 
 			assertNotNull(o);
@@ -220,7 +218,6 @@ public class BUGSwarmConnectorTests extends TestCase {
 		assertTrue(scanner.hasInputBeenRecieved());
 
 		for (String r : scanner.getResponses()) {
-			System.out.println("Testing r is a JSON object: " + r);
 			Object o = JSONValue.parse(r);
 
 			assertNotNull(o);
@@ -243,17 +240,18 @@ public class BUGSwarmConnectorTests extends TestCase {
 				JSONObject jo = (JSONObject) key;
 
 				for (Object rk : jo.keySet()) {
-					System.out.println("Get data for feed " + rk);
+					String url = "http://api.bugswarm.net/swarms/" + AccountConfig.testSwarmId + "/feeds/" + rk;
+					System.out.println("Get data for feed " + rk + " to " + url);
 
-					HTTPResponse response2 = request.get("http://api.bugswarm.net/swarms/" + AccountConfig.testSwarmId + "/feeds/" + rk,
+					HTTPResponse response2 = request.get(url,
 							headers);
 
 					StreamScanner scanner2 = new StreamScanner(response2.getStream());
-					scanner.start();
+					scanner2.start();
 
 					Thread.sleep(2000);
 
-					assertTrue(scanner.hasInputBeenRecieved());
+					assertTrue(scanner2.hasInputBeenRecieved());
 				}
 			}
 		}
@@ -295,7 +293,6 @@ public class BUGSwarmConnectorTests extends TestCase {
 		assertTrue(scanner.hasInputBeenRecieved());
 
 		for (String r : scanner.getResponses()) {
-			System.out.println("Testing r is a JSON object: " + r);
 			Object o = JSONValue.parse(r);
 
 			assertNotNull(o);
@@ -318,9 +315,12 @@ public class BUGSwarmConnectorTests extends TestCase {
 				JSONObject jo = (JSONObject) key;
 
 				for (Object rk : jo.keySet()) {
-					System.out.println("Get data for feed " + rk);
+					String url = "http://api.bugswarm.net/swarms/"+ AccountConfig.testSwarmId + "/resources/" 
+						+ AccountConfig.getConfiguration().getResource() +  "/feeds/" + rk;
+					
+					System.out.println("Get data for feed " + rk + " sending to " + url);
 
-					HTTPResponse response2 = request.get("http://api.bugswarm.net/swarms/" + AccountConfig.testSwarmId + "/resources/" + AccountConfig.getConfiguration().getResource() +  "/feeds/" + rk,
+					HTTPResponse response2 = request.get(url,
 							headers);
 
 					StreamScanner scanner2 = new StreamScanner(response2.getStream());

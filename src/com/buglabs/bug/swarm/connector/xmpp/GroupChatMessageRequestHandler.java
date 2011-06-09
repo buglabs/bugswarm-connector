@@ -5,11 +5,14 @@ import java.util.List;
 
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManagerListener;
+import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.osgi.Activator;
@@ -21,7 +24,7 @@ import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
  * @author kgilmer
  *
  */
-public class GroupChatMessageRequestHandler implements PacketListener, ChatManagerListener {
+public class GroupChatMessageRequestHandler implements PacketListener, ChatManagerListener, MessageListener {
 	
 	private final Jid jid;
 	private final String swarmId;
@@ -79,20 +82,22 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 	 * @return true if message is a feed list request
 	 */
 	private boolean isFeedListRequest(final Message m) {
-		//TODO: implement
-		Activator.getLog().log(LogService.LOG_DEBUG, "Checking if " + m.getBody() + " is a Feed List Request");
-		return true;
+		//What we are looking for here is a JSON object that contains a key of "feed" and a value of "feeds".  This specific
+		//combo means that the client is requesting the list of all client feeds.
+		String message = m.getBody();
+		
+		Object o = JSONValue.parse(message);
+		
+		if (o != null && o instanceof JSONObject) {
+			JSONObject jo = (JSONObject) o;
+			
+			if (jo.containsKey("feed"))
+				return jo.get("feed").equals("feeds");
+		}
+
+		return false;
 	}
 	
-	/**
-	 * @param chat
-	 * @return
-	 */
-	private boolean isDirectFeedListRequest(Chat chat) {
-		//TODO: implement
-		return true;
-	}
-
 	/**
 	 * @param packet XMPP packet
 	 * @return true if XMPP packet came from self.
@@ -106,7 +111,14 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 	public void chatCreated(final Chat chat, final boolean createdLocally) {
 		Activator.getLog().log(LogService.LOG_DEBUG, "Private chat created with " + chat.getParticipant());
 		
-		if (isDirectFeedListRequest(chat)) {
+		chat.addMessageListener(this);
+		
+		//TODO: figure out how to handle when clients close chat connections for proper cleanup.
+	}
+
+	@Override
+	public void processMessage(Chat chat, Message message) {
+		if (isFeedListRequest(message)) {
 			for (ISwarmServerRequestListener listener : requestListeners) {
 				try {
 					listener.feedListRequest(chat, swarmId);
@@ -114,6 +126,9 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 					Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
 				}					
 			}
+		} else {
+			Activator.getLog().log(LogService.LOG_WARNING, "Unhandled client message: " + message);
 		}
+			
 	}
 }

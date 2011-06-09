@@ -29,9 +29,6 @@ public class SwarmMemberWSAPITests extends TestCase {
 	protected void setUp() throws Exception {
 		ISwarmClient client = new SwarmWSClient(AccountConfig.getConfiguration());
 		
-		String id = client.create(AccountConfig.generateRandomSwarmName(), true, AccountConfig.getTestSwarmDescription());
-		AccountConfig.testSwarmId = id;
-		
 		//Delete all pre-existing swarms owned by test user.
 		try {
 			List<SwarmModel> swarms = client.list();
@@ -46,6 +43,9 @@ public class SwarmMemberWSAPITests extends TestCase {
 			if (e.getErrorCode() != 404)
 				throw e;
 		}
+		
+		String id = client.create(AccountConfig.generateRandomSwarmName(), true, AccountConfig.getTestSwarmDescription());
+		AccountConfig.testSwarmId = id;
 	}
 	
 	@Override

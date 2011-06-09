@@ -228,7 +228,9 @@ public class BUGSwarmConnectorTests extends TestCase {
 			
 			//For each key, which is a feed, query the actual feed.
 			for (Object key : ja.keySet()) {
-				HTTPResponse response2 = request.get("http://api.bugswarm.net/swarms/" + AccountConfig.testSwarmId + "/feeds/" + key, headers);
+				HTTPResponse response2 = 
+					request.get("http://api.bugswarm.net/swarms/"
+							+ AccountConfig.testSwarmId + "/feeds/" + key, headers);
 
 				StreamScanner scanner2 = new StreamScanner(response2.getStream());
 				scanner.start();

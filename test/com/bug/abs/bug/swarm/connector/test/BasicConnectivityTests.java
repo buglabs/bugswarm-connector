@@ -127,6 +127,12 @@ public class BasicConnectivityTests extends TestCase {
 					public void feedListRequest(Chat chat, String swarmId) {
 						System.out.println("feedListRequest() " + chat.getParticipant() + " " + swarmId);
 					}
+
+					@Override
+					public void feedRequest(Jid jid, String swarmId, String feedRequestName) {
+						// TODO Auto-generated method stub
+						
+					}
 				});
 				connectedSwarms.add(swarm);
 				System.out.println("Joined swarm: " + swarm.getId());
@@ -215,6 +221,12 @@ public class BasicConnectivityTests extends TestCase {
 			@Override
 			public void feedListRequest(Chat chat, String swarmId) {
 				System.out.println("feedListRequest() " + chat.getParticipant() + " " + swarmId);
+			}
+
+			@Override
+			public void feedRequest(Jid jid, String swarmId, String feedRequestName) {
+				// TODO Auto-generated method stub
+				
 			}
 		});
 		//Xmpp server is changing the JID from what I use to login, so cannot use presense method on XMPP API.

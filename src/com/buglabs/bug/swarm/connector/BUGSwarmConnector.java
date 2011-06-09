@@ -10,6 +10,7 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smackx.muc.InvitationListener;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
@@ -238,5 +239,17 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	 */
 	public boolean isInitialized() {
 		return initialized;
+	}
+
+	@Override
+	public void feedRequest(Jid jid, String swarmId, String feedRequestName) {
+		JSONObject document = JSONElementCreator.createFeedElement(osgiHelper.getBUGFeed(feedRequestName));
+		
+		try {
+			xmppClient.sendFeedToUser(jid, swarmId, document);
+		} catch (XMPPException e) {
+			Activator.getLog().log(LogService.LOG_ERROR, 
+					"Error occurred while sending feeds to " + jid, e);
+		}
 	}
 }

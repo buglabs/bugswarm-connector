@@ -105,6 +105,11 @@ public final class OSGiHelper implements ServiceListener {
 	public List<Feed> getBUGFeeds() {
 		return new ArrayList<Feed>(feeds.values());
 	}
+	
+	public Feed getBUGFeed(String feedRequestName) {
+		
+		return feeds.get(feedRequestName);
+	}
 
 	/**
 	 * @throws Exception should not be thrown

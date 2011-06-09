@@ -16,11 +16,19 @@ public interface ISwarmServerRequestListener {
 	 * @param requestJid JID of requester 
 	 * @param swarmId Swarm ID that binds self and requester
 	 */
-	void feedListRequest(Jid requestJid, String swarmId);
+	void feedListRequest(final Jid requestJid, final String swarmId);
 
 	/**A swarm-server based client is directly requesting a list of all available feeds.
 	 * @param chat Smack XMPP object that can be used to respond to the client directly.
 	 * @param swarmId ID of swarm that binds self and requester
 	 */
 	void feedListRequest(final Chat chat, final String swarmId);
+
+	/**A swarm-server based client is requesting data from a specific feed.
+	 * 
+	 * @param jid JID of requester
+	 * @param swarmId swarmID that binds 
+	 * @param feedRequestName name of feed being requested
+	 */
+	void feedRequest(final Jid jid, final String swarmId, final String feedRequestName);
 }

@@ -43,6 +43,7 @@ import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.muc.Affiliate;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import com.buglabs.bug.swarm.connector.Configuration;
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
@@ -293,5 +294,18 @@ public class SwarmXMPPClient  {
 
 	public Jid getJid() {		
 		return jid;
+	}
+
+	public void sendFeedToUser(Jid requestJid, String swarmId, JSONObject document) throws XMPPException {
+		MultiUserChat muc = getMUC(swarmId);
+		
+		if (muc == null) 
+			throw new XMPPException("Connector is not attached to room " + swarmId);
+		
+		System.out.println("Creating private chat with " + requestJid.toString());
+		Chat pchat = muc.createPrivateChat(requestJid.toString(), null);
+		
+		System.out.println("Sending " + document.toJSONString());
+		pchat.sendMessage(document.toJSONString());
 	}
 }

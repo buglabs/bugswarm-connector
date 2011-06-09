@@ -19,7 +19,7 @@ import com.buglabs.bug.swarm.connector.osgi.Activator;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
 
 /**
- * Centralized class for handing unsolicited messages from XMPP server.
+ * Centralized class for handing unsolicited and async messages from XMPP server.
  * 
  * @author kgilmer
  *
@@ -62,8 +62,9 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 		
 		if (packet instanceof Message) {
 			Message m = (Message) packet;
+			String ms = m.getBody();
 			
-			if (isFeedListRequest(m)) {
+			if (isFeedListRequest(ms)) {
 				for (ISwarmServerRequestListener listener : requestListeners) {
 					try {
 						listener.feedListRequest(new Jid(packet.getFrom()), swarmId);
@@ -71,6 +72,16 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 						Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
 					}					
 				}
+			} else if (isFeedRequest(ms)) {
+				for (ISwarmServerRequestListener listener : requestListeners) {
+					try {
+						listener.feedRequest(new Jid(packet.getFrom()), swarmId, getFeedRequestName(ms));
+					} catch (ParseException e) {
+						Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
+					}					
+				}
+			} else {
+				Activator.getLog().log(LogService.LOG_WARNING, "Unhandled message received from swarm " + swarmId + " message: " + ms);
 			}
 		} else {
 			Activator.getLog().log(LogService.LOG_WARNING, "Unhandled packet received from swarm " + swarmId);
@@ -81,21 +92,58 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 	 * @param m message
 	 * @return true if message is a feed list request
 	 */
-	private boolean isFeedListRequest(final Message m) {
+	private boolean isFeedListRequest(final String message) {
 		//What we are looking for here is a JSON object that contains a key of "feed" and a value of "feeds".  This specific
-		//combo means that the client is requesting the list of all client feeds.
-		String message = m.getBody();
-		
+		//combo means that the client is requesting the list of all client feeds.	
 		Object o = JSONValue.parse(message);
 		
 		if (o != null && o instanceof JSONObject) {
 			JSONObject jo = (JSONObject) o;
 			
-			if (jo.containsKey("feed"))
-				return jo.get("feed").equals("feeds");
+			if (jo.containsKey("feed") && jo.containsKey("type"))
+				return jo.get("feed").equals("feeds") && jo.get("type").equals("get");
 		}
 
 		return false;
+	}
+	
+	/**
+	 * @param m message
+	 * @return true if message is a feed list request
+	 */
+	private boolean isFeedRequest(final String message) {
+		//What we are looking for here is a JSON object that contains a key of "feed" and a value of "feeds".  This specific
+		//combo means that the client is requesting the list of all client feeds.	
+		Object o = JSONValue.parse(message);
+		
+		if (o != null && o instanceof JSONObject) {
+			JSONObject jo = (JSONObject) o;
+			
+			if (jo.containsKey("feed") && jo.containsKey("type"))
+				return jo.get("type").equals("get");
+		}
+
+		return false;
+	}
+	
+	/**
+	 * @param m message
+	 * @return true if message is a feed list request
+	 * @throws ParseException 
+	 */
+	private String getFeedRequestName(final String message) throws ParseException {
+		//What we are looking for here is a JSON object that contains a key of "feed" and a value of "feeds".  This specific
+		//combo means that the client is requesting the list of all client feeds.	
+		Object o = JSONValue.parse(message);
+		
+		if (o != null && o instanceof JSONObject) {
+			JSONObject jo = (JSONObject) o;
+			
+			if (jo.containsKey("feed") && jo.containsKey("type") && jo.get("type").equals("get"))
+				jo.get("feed") ;
+		}
+
+		throw new ParseException("Unable to determine feed name from message", 0);
 	}
 	
 	/**
@@ -118,7 +166,7 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 
 	@Override
 	public void processMessage(Chat chat, Message message) {
-		if (isFeedListRequest(message)) {
+		if (isFeedListRequest(message.getBody())) {
 			for (ISwarmServerRequestListener listener : requestListeners) {
 				try {
 					listener.feedListRequest(chat, swarmId);

@@ -224,20 +224,33 @@ public class BUGSwarmConnectorTests extends TestCase {
 			
 			JSONObject ja = (JSONObject) o;
 			
-			assertFalse(ja.isEmpty());			
+			assertFalse(ja.isEmpty());		
+			assertTrue(ja.containsKey("payload"));
+			
+			Object payloadObject = ja.get("payload");
+			
+			assertTrue(payloadObject instanceof JSONArray);
+			
+			JSONArray payloadArray = (JSONArray) payloadObject;
 			
 			//For each key, which is a feed, query the actual feed.
-			for (Object key : ja.keySet()) {
-				HTTPResponse response2 = 
-					request.get("http://api.bugswarm.net/swarms/"
-							+ AccountConfig.testSwarmId + "/feeds/" + key, headers);
-
-				StreamScanner scanner2 = new StreamScanner(response2.getStream());
-				scanner.start();
+			for (Object key : payloadArray) {
+				assertTrue(key instanceof JSONObject);
+				JSONObject jo = (JSONObject) key;				
 				
-				Thread.sleep(2000);
-
-				assertTrue(scanner.hasInputBeenRecieved());
+				for (Object rk : jo.keySet()) {
+					System.out.println("Get data for feed " + rk);
+					HTTPResponse response2 = 
+						request.get("http://api.bugswarm.net/swarms/"
+								+ AccountConfig.testSwarmId + "/feeds/" + rk, headers);
+	
+					StreamScanner scanner2 = new StreamScanner(response2.getStream());
+					scanner.start();
+					
+					Thread.sleep(2000);
+	
+					assertTrue(scanner.hasInputBeenRecieved());
+			}
 			}
 		}
 		

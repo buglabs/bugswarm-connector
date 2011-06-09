@@ -263,6 +263,81 @@ public class BUGSwarmConnectorTests extends TestCase {
 		connector.shutdown();
 	}
 
+	/**
+	 * https://github.com/buglabs/bugswarm/wiki/Swarm-Feeds-API
+	 * 
+	 * Test 'Querying available Feeds in a Swarm Resource'
+	 * 
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
+	public void testGetSpecificFeedFromResource() throws IOException, InterruptedException {
+		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
+
+		// Start the connector
+		connector.start();
+
+		// Wait for the feeds to initialize
+		Thread.sleep(15000);
+
+		HTTPRequest request = new HTTPRequest();
+		Map<String, String> headers = new HashMap<String, String>();
+		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getAPIKey());
+
+		HTTPResponse response = request.get("http://api.bugswarm.net/swarms/" + AccountConfig.testSwarmId + "/resources/"
+				+ AccountConfig.getConfiguration().getResource() + "/feeds?stream=true", headers);
+
+		StreamScanner scanner = new StreamScanner(response.getStream());
+		scanner.start();
+
+		Thread.sleep(2000);
+
+		assertTrue(scanner.hasInputBeenRecieved());
+
+		for (String r : scanner.getResponses()) {
+			System.out.println("Testing r is a JSON object: " + r);
+			Object o = JSONValue.parse(r);
+
+			assertNotNull(o);
+			assertTrue(o instanceof JSONObject);
+
+			JSONObject ja = (JSONObject) o;
+
+			assertFalse(ja.isEmpty());
+			assertTrue(ja.containsKey("payload"));
+
+			Object payloadObject = ja.get("payload");
+
+			assertTrue(payloadObject instanceof JSONArray);
+
+			JSONArray payloadArray = (JSONArray) payloadObject;
+
+			// For each key, which is a feed, query the actual feed.
+			for (Object key : payloadArray) {
+				assertTrue(key instanceof JSONObject);
+				JSONObject jo = (JSONObject) key;
+
+				for (Object rk : jo.keySet()) {
+					System.out.println("Get data for feed " + rk);
+
+					HTTPResponse response2 = request.get("http://api.bugswarm.net/swarms/" + AccountConfig.testSwarmId + "/resources/" + AccountConfig.getConfiguration().getResource() +  "/feeds/" + rk,
+							headers);
+
+					StreamScanner scanner2 = new StreamScanner(response2.getStream());
+					scanner.start();
+
+					Thread.sleep(2000);
+
+					assertTrue(scanner.hasInputBeenRecieved());
+				}
+			}
+		}
+
+		scanner.interrupt();
+		connector.interrupt();
+		connector.shutdown();
+	}
+	
 	private class StreamScanner extends Thread {
 
 		private final InputStream istream;

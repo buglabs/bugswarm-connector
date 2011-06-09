@@ -191,7 +191,7 @@ public class BUGSwarmConnectorTests extends TestCase {
 	/**
 	 * https://github.com/buglabs/bugswarm/wiki/Swarm-Feeds-API
 	 * 
-	 * Test 'Querying available Feeds in a Swarm Resource'
+	 * Test 'Querying a Swarm Feed'
 	 * 
 	 * @throws IOException
 	 * @throws InterruptedException
@@ -266,7 +266,7 @@ public class BUGSwarmConnectorTests extends TestCase {
 	/**
 	 * https://github.com/buglabs/bugswarm/wiki/Swarm-Feeds-API
 	 * 
-	 * Test 'Querying available Feeds in a Swarm Resource'
+	 * Test 'Querying a feed from a specific Swarm Resource of type producer'
 	 * 
 	 * @throws IOException
 	 * @throws InterruptedException

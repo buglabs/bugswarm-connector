@@ -240,6 +240,7 @@ public class BUGSwarmConnectorTests extends TestCase {
 				
 				for (Object rk : jo.keySet()) {
 					System.out.println("Get data for feed " + rk);
+					try {
 					HTTPResponse response2 = 
 						request.get("http://api.bugswarm.net/swarms/"
 								+ AccountConfig.testSwarmId + "/feeds/" + rk, headers);
@@ -250,6 +251,9 @@ public class BUGSwarmConnectorTests extends TestCase {
 					Thread.sleep(2000);
 	
 					assertTrue(scanner.hasInputBeenRecieved());
+					} catch (Exception e) {
+						System.out.println("boo");
+					}
 			}
 			}
 		}

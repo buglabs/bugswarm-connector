@@ -17,13 +17,19 @@ import com.buglabs.services.ws.PublicWSProvider;
 public class OSGiHelperTester {
 
 	
-	public static void loadMockFeedProviders(Map<Object, Feed> feeds) {
+	public static void loadMockFeedProviders(Map<Object, Feed> feeds, Map<String, Feed> feeds2) {
 		Map<String, String> f1 = new HashMap<String, String>();
-		feeds.put(f1, new Feed("feed1", f1));
+		Feed f = new Feed("feed1", f1);
+		feeds.put(f1, f);
+		feeds2.put(f.getName(), f);
 		f1 = new HashMap<String, String>();
-		feeds.put(f1, new Feed("feed2", new HashMap<String, String>()));
+		f = new Feed("feed2", new HashMap<String, String>());
+		feeds.put(f1, f);
+		feeds2.put(f.getName(), f);
 		f1 = new HashMap<String, String>();
-		feeds.put(f1, new Feed("feed3", new HashMap<String, String>()));
+		f = new Feed("feed3", new HashMap<String, String>());
+		feeds.put(f1, f);
+		feeds2.put(f.getName(), f);
 	}
 
 	public static void loadMockIModuleControls(Map<Object, Feed> feeds) {
@@ -68,11 +74,15 @@ public class OSGiHelperTester {
 		return l;
 	}
 
-	public static void loadMockPublicWSProviders(Map<Object, Feed> feeds) {
+	public static void loadMockPublicWSProviders(Map<Object, Feed> feeds, Map<String, Feed> feeds2) {
 		PublicWSProvider wsp = new MockPublicWSProvider("Picture", "Take a picture using the camera module.");
-		feeds.put(wsp, Feed.createForType(wsp));
+		Feed feed = Feed.createForType(wsp);
+		feeds.put(wsp, feed);
+		feeds2.put(feed.getName(), feed);
 		
 		wsp = new MockPublicWSProvider("Location", "Determine your location using GPS services.");
-		feeds.put(wsp, Feed.createForType(wsp));
+		feed = Feed.createForType(wsp);
+		feeds.put(wsp, feed);
+		feeds2.put(feed.getName(), feed);
 	}
 }

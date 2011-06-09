@@ -140,7 +140,7 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 			JSONObject jo = (JSONObject) o;
 			
 			if (jo.containsKey("feed") && jo.containsKey("type") && jo.get("type").equals("get"))
-				jo.get("feed") ;
+				return jo.get("feed").toString();			
 		}
 
 		throw new ParseException("Unable to determine feed name from message", 0);

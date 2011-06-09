@@ -15,6 +15,7 @@ import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.connector.osgi.Activator;
+import com.buglabs.bug.swarm.connector.osgi.Feed;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper.EntityChangeListener;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
@@ -243,7 +244,14 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 
 	@Override
 	public void feedRequest(Jid jid, String swarmId, String feedRequestName) {
-		JSONObject document = JSONElementCreator.createFeedElement(osgiHelper.getBUGFeed(feedRequestName));
+		Feed f = osgiHelper.getBUGFeed(feedRequestName);
+		if (f == null) {
+			Activator.getLog().log(LogService.LOG_ERROR, 
+					"Request for non-existant feed " + feedRequestName + " from client " + jid);
+			return;
+		}
+			
+		JSONObject document = JSONElementCreator.createFeedElement(f);
 		
 		try {
 			xmppClient.sendFeedToUser(jid, swarmId, document);

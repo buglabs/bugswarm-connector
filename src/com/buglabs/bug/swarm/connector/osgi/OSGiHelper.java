@@ -43,7 +43,8 @@ public final class OSGiHelper implements ServiceListener {
 
 	private static BundleContext context;
 	private static OSGiHelper ref;
-	private Map<Object, Feed> feeds;
+	private Map<Object, Feed> feedServiceMap;
+	private Map<String, Feed> feedNameMap;
 
 	private List<EntityChangeListener> listeners;
 
@@ -52,7 +53,8 @@ public final class OSGiHelper implements ServiceListener {
 	 */
 	private OSGiHelper() throws Exception {
 		context = Activator.getContext();
-		feeds = new HashMap<Object, Feed>();
+		feedServiceMap = new HashMap<Object, Feed>();
+		feedNameMap = new HashMap<String, Feed>();
 		
 		initializeModuleProviders();
 		initializeWSProviders();
@@ -103,12 +105,12 @@ public final class OSGiHelper implements ServiceListener {
 	 * @return List of Feed services available at time of call from OSGi service registry.
 	 */
 	public List<Feed> getBUGFeeds() {
-		return new ArrayList<Feed>(feeds.values());
+		return new ArrayList<Feed>(feedServiceMap.values());
 	}
 	
 	public Feed getBUGFeed(String feedRequestName) {
 		
-		return feeds.get(feedRequestName);
+		return feedNameMap.get(feedRequestName);
 	}
 
 	/**
@@ -116,18 +118,29 @@ public final class OSGiHelper implements ServiceListener {
 	 */
 	private void initializeModuleProviders() throws Exception {	
 		if (context != null) {
-			synchronized (feeds) {
+			synchronized (feedServiceMap) {
 				OSGiServiceLoader.loadServices(
 						context, IModuleControl.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
 					public void load(final Object service) throws Exception {					
-						if (!feeds.containsKey(service)) {
-							feeds.put(service, Feed.createForType(service));
+						if (!feedServiceMap.containsKey(service)) {
+							feedServiceMap.put(service, Feed.createForType(service));
+						}
+					}
+				});
+			}
+			synchronized (feedNameMap) {
+				OSGiServiceLoader.loadServices(
+						context, IModuleControl.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
+					public void load(final Object service) throws Exception {	
+						Feed f = Feed.createForType(service);
+						if (!feedNameMap.containsKey(f.getName())) {
+							feedNameMap.put(f.getName(), f);
 						}
 					}
 				});
 			}
 		} else {
-			OSGiHelperTester.loadMockIModuleControls(feeds);
+			OSGiHelperTester.loadMockIModuleControls(feedServiceMap);
 		}
 	}
 
@@ -139,18 +152,30 @@ public final class OSGiHelper implements ServiceListener {
 	 */
 	private void initializeWSProviders() throws Exception {		
 		if (context != null) {
-			synchronized (feeds) {
+			synchronized (feedServiceMap) {
 				OSGiServiceLoader.loadServices(
 						context, PublicWSProvider.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
 					public void load(final Object service) throws Exception {					
-						if (!feeds.containsKey(service)) {
-							feeds.put(service, Feed.createForType(service));
+						if (!feedServiceMap.containsKey(service)) {
+							feedServiceMap.put(service, Feed.createForType(service));
 						}
 					}
 				});
 			}
+			synchronized (feedNameMap) {
+				OSGiServiceLoader.loadServices(
+						context, PublicWSProvider.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
+					public void load(final Object service) throws Exception {	
+						Feed f = Feed.createForType(service);
+						
+						if (f != null && !feedNameMap.containsKey(f.getName()))						
+							feedNameMap.put(f.getName(), f);
+						
+					}
+				});
+			}
 		} else {
-			OSGiHelperTester.loadMockPublicWSProviders(feeds);
+			OSGiHelperTester.loadMockPublicWSProviders(feedServiceMap, feedNameMap);
 		}
 	}
 
@@ -162,15 +187,30 @@ public final class OSGiHelper implements ServiceListener {
 	 */
 	private void initializeFeedProviders() throws Exception {		
 		if (context != null) {
-			synchronized (feeds) {
+			synchronized (feedServiceMap) {
 				// TODO: Optimize by specifying a proper filter rather than filter in code.
 				ServiceReference[] srs = context.getAllServiceReferences(Map.class.getName(), null);
 				if (srs != null)
 					for (ServiceReference sr : Arrays.asList(srs)) {
 						Feed feed = Feed.createForType(sr);
 						
-						if (feed != null && !feeds.entrySet().contains(feed)) {
-							feeds.put(context.getService(sr), feed);	
+						if (feed != null && !feedServiceMap.entrySet().contains(feed)) {
+							feedServiceMap.put(context.getService(sr), feed);	
+						} else {
+							Activator.getLog().log(LogService.LOG_WARNING, Map.class.getName() 
+								+ " ignored: " + Feed.FEED_SERVICE_NAME_PROPERTY + " is not a property.");
+						}
+					}
+			}
+			synchronized (feedNameMap) {
+				// TODO: Optimize by specifying a proper filter rather than filter in code.
+				ServiceReference[] srs = context.getAllServiceReferences(Map.class.getName(), null);
+				if (srs != null)
+					for (ServiceReference sr : Arrays.asList(srs)) {
+						Feed feed = Feed.createForType(sr);
+						
+						if (feed != null && !feedNameMap.entrySet().contains(feed)) {
+							feedNameMap.put(feed.getName(), feed);	
 						} else {
 							Activator.getLog().log(LogService.LOG_WARNING, Map.class.getName() 
 								+ " ignored: " + Feed.FEED_SERVICE_NAME_PROPERTY + " is not a property.");
@@ -178,7 +218,7 @@ public final class OSGiHelper implements ServiceListener {
 					}
 			}
 		} else {
-			OSGiHelperTester.loadMockFeedProviders(feeds);
+			OSGiHelperTester.loadMockFeedProviders(feedServiceMap, feedNameMap);
 		}
 	}
 
@@ -190,8 +230,12 @@ public final class OSGiHelper implements ServiceListener {
 			context.removeServiceListener(this);
 		}
 
-		if (feeds != null) {
-			feeds.clear();
+		if (feedServiceMap != null) {
+			feedServiceMap.clear();
+		}
+		
+		if (feedNameMap != null) {
+			feedNameMap.clear();
 		}
 	}
 
@@ -207,7 +251,8 @@ public final class OSGiHelper implements ServiceListener {
 					else if (isModuleEvent(event))
 						initializeModuleProviders();
 				} else if (event.getType() == ServiceEvent.UNREGISTERING) {
-					feeds.remove(event.getSource());
+					feedServiceMap.remove(event.getSource());
+					feedNameMap.remove(((Feed) event.getSource()).getName());
 				}
 			} catch (Exception e) {
 				Activator.getLog().log(LogService.LOG_ERROR, "Failed to update state from OSGi service event.", e);

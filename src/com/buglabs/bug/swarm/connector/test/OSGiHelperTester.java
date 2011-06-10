@@ -32,13 +32,21 @@ public class OSGiHelperTester {
 		feeds2.put(f.getName(), f);
 	}
 
-	public static void loadMockIModuleControls(Map<Object, Feed> feeds) {
+	public static void loadMockIModuleControls(Map<Object, Feed> feeds, Map<String, Feed> feeds2) {
 		IModuleControl mc = new MockIModuleControl("GPS", 1, createMockProperties());
-		feeds.put(mc, Feed.createForType(mc));
+		Feed f = Feed.createForType(mc);
+		feeds.put(mc, f);
+		feeds2.put(f.getName(), f);
+		
 		mc = new MockIModuleControl("LCD", 2, createMockProperties());
-		feeds.put(mc, Feed.createForType(mc));
+		f = Feed.createForType(mc);
+		feeds.put(mc, f);
+		feeds2.put(f.getName(), f);
+		
 		mc = new MockIModuleControl("CAMERA", 3, createMockProperties());
-		feeds.put(mc, Feed.createForType(mc));
+		f = Feed.createForType(mc);
+		feeds.put(mc, f);
+		feeds2.put(f.getName(), f);
 	}
 
 	private static List createMockProperties() {

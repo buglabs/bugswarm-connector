@@ -140,7 +140,7 @@ public final class OSGiHelper implements ServiceListener {
 				});
 			}
 		} else {
-			OSGiHelperTester.loadMockIModuleControls(feedServiceMap);
+			OSGiHelperTester.loadMockIModuleControls(feedServiceMap, feedNameMap);
 		}
 	}
 

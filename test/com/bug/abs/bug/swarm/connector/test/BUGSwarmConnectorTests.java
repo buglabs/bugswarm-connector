@@ -243,15 +243,15 @@ public class BUGSwarmConnectorTests extends TestCase {
 					String url = "http://api.bugswarm.net/swarms/" + AccountConfig.testSwarmId + "/feeds/" + rk;
 					System.out.println("Get data for feed " + rk + " to " + url);
 
-					HTTPResponse response2 = request.get(url,
-							headers);
-
+					HTTPResponse response2 = request.get(url, headers);
+					
 					StreamScanner scanner2 = new StreamScanner(response2.getStream());
 					scanner2.start();
 
 					Thread.sleep(2000);
 
-					assertTrue(scanner2.hasInputBeenRecieved());
+					assertTrue(scanner2.hasInputBeenRecieved());		
+					scanner2.interrupt();
 				}
 			}
 		}
@@ -324,11 +324,12 @@ public class BUGSwarmConnectorTests extends TestCase {
 							headers);
 
 					StreamScanner scanner2 = new StreamScanner(response2.getStream());
-					scanner.start();
+					scanner2.start();
 
 					Thread.sleep(2000);
 
-					assertTrue(scanner.hasInputBeenRecieved());
+					assertTrue(scanner2.hasInputBeenRecieved());
+					scanner2.interrupt();
 				}
 			}
 		}

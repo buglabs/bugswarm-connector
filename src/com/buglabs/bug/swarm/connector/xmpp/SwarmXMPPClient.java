@@ -288,7 +288,7 @@ public class SwarmXMPPClient  {
 		System.out.println("Creating private chat with " + requestJid.toString());
 		Chat pchat = muc.createPrivateChat(requestJid.toString(), null);
 		
-		System.out.println("Sending " + document.toJSONString());
+		System.out.println("Sending " + document.toJSONString() + " to " + requestJid.toString());
 		pchat.sendMessage(document.toJSONString());
 	}
 
@@ -305,7 +305,7 @@ public class SwarmXMPPClient  {
 		System.out.println("Creating private chat with " + requestJid.toString());
 		Chat pchat = muc.createPrivateChat(requestJid.toString(), null);
 		
-		System.out.println("Sending " + document.toJSONString());
+		System.out.println("Sending " + document.toJSONString()  + " to " + requestJid.toString());
 		pchat.sendMessage(document.toJSONString());
 	}
 }

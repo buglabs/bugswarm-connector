@@ -203,11 +203,13 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		if (osgiHelper != null)
 			osgiHelper.removeListener(this);
 		
-		//Stop listening for new invitations from server
-		MultiUserChat.removeInvitationListener(xmppClient.getConnection(), this);
-		
-		//Send unpresence and disconnect from server
-		xmppClient.disconnect();
+		if (xmppClient != null) {
+			//Stop listening for new invitations from server
+			MultiUserChat.removeInvitationListener(xmppClient.getConnection(), this);
+			
+			//Send unpresence and disconnect from server
+			xmppClient.disconnect();
+		}
 	}
 
 	@Override

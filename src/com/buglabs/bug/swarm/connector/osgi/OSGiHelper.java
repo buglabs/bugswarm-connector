@@ -242,17 +242,18 @@ public final class OSGiHelper implements ServiceListener {
 	@Override
 	public void serviceChanged(final ServiceEvent event) {
 		if (isValidEvent(event)) {
+			Object svc = context.getService(event.getServiceReference());
 			try {
 				if (event.getType() == ServiceEvent.REGISTERED) {
-					if (isFeedEvent(event))
+					if (isFeedEvent(svc))
 						initializeFeedProviders();
-					else if (isServiceEvent(event))
+					else if (isServiceEvent(svc))
 						initializeWSProviders();
-					else if (isModuleEvent(event))
+					else if (isModuleEvent(svc))
 						initializeModuleProviders();
 				} else if (event.getType() == ServiceEvent.UNREGISTERING) {
-					feedServiceMap.remove(event.getSource());
-					feedNameMap.remove(((Feed) event.getSource()).getName());
+					feedServiceMap.remove(svc);					
+					feedNameMap.remove(event.getServiceReference().getProperty("SWARM.FEED.NAME"));
 				}
 			} catch (Exception e) {
 				Activator.getLog().log(LogService.LOG_ERROR, "Failed to update state from OSGi service event.", e);
@@ -274,7 +275,8 @@ public final class OSGiHelper implements ServiceListener {
 	 */
 	private boolean isValidEvent(final ServiceEvent event) {
 		boolean typeValid = event.getType() == ServiceEvent.REGISTERED || event.getType() == ServiceEvent.UNREGISTERING;
-		boolean classValid = isModuleEvent(event) || isServiceEvent(event) || isFeedEvent(event);
+		Object service = context.getService(event.getServiceReference());
+		boolean classValid = isModuleEvent(service) || isServiceEvent(service) || isFeedEvent(service);
 		
 		return typeValid && classValid;
 	}
@@ -283,23 +285,23 @@ public final class OSGiHelper implements ServiceListener {
 	 * @param event service event
 	 * @return true if event is from a feed.
 	 */
-	private boolean isFeedEvent(final ServiceEvent event) {
-		return event.getSource() instanceof Map;
+	private boolean isFeedEvent(final Object service) {
+		return service instanceof Map;
 	}
 
 	/**
 	 * @param event service event
 	 * @return true if event is from a BUG service.
 	 */
-	private boolean isServiceEvent(final ServiceEvent event) {
-		return event.getSource() instanceof PublicWSProvider;
+	private boolean isServiceEvent(final Object service) {
+		return service instanceof PublicWSProvider;
 	}
 
 	/**
 	 * @param event service event
 	 * @return true if event is from a BUG module.
 	 */
-	private boolean isModuleEvent(final ServiceEvent event) {	
-		return event.getSource() instanceof IModuleControl;
+	private boolean isModuleEvent(final Object service) {	
+		return service instanceof IModuleControl;
 	}
 }

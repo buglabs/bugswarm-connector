@@ -25,16 +25,8 @@ if [ ! -f $DEPS_DIR/junit-dep-4.9b2.jar ]; then
 	wget --no-check-certificate -P $DEPS_DIR https://github.com/downloads/KentBeck/junit/junit-dep-4.9b2.jar
 fi 
 
-if [ ! -f $DEPS_DIR/json_simple-1.1.jar ]; then
-	wget --no-check-certificate -P $DEPS_DIR http://json-simple.googlecode.com/files/json_simple-1.1.jar
-fi
-
 if [ ! -f $DEPS_DIR/hamcrest-core-1.3.0RC2.jar ]; then
 	wget --no-check-certificate -P $DEPS_DIR http://hamcrest.googlecode.com/files/hamcrest-core-1.3.0RC2.jar
-fi
-
-if [ ! -f $DEPS_DIR/xpp3-1.1.4c.jar ]; then
-	wget --no-check-certificate -P $DEPS_DIR http://www.extreme.indiana.edu/dist/java-repository/xpp3/jars/xpp3-1.1.4c.jar
 fi
 
 if [ ! -f $DEPS_DIR/javax.servlet_2.3.0.v200806031603.jar ]; then
@@ -70,10 +62,7 @@ ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE
 # smack-smackx-osgi
 ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f smack-smackx-osgi/build.xml build.jars
 
-
 ###### Build bugswarm-connector
-# echo "Cleaning bugswarm-connector"
-# ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/bugswarm-connector/build.xml clean
 echo "Style checking bugswarm-connector"
 ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/bugswarm-connector/build.xml checkstyle
 echo "Building bugswarm-connector"

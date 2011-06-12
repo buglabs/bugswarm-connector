@@ -28,6 +28,7 @@
 package com.buglabs.bug.swarm.connector.ui;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
@@ -92,6 +93,10 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 		@Override
 		public TemplateModelRoot post(final RequestParameters params, 
 				final HttpServletRequest req, final HttpServletResponse resp) {
+			//Validate input
+			String missingKey = getMissingParameter(params, "api-key", "user-name");
+			if (missingKey != null)
+				throw new RuntimeException("Missing expected key: " + missingKey);
 
 			String action = params.get("action");
 			String msg = null;
@@ -125,6 +130,23 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 				root.put("message", msg);
 			}
 			return root;
+		}
+		
+		/**
+		 * Verify that all expected keys are present.
+		 * 
+		 * TODO: replace this with super-class method getMissingParameter() when available.
+		 * 
+		 * @param params parameters to check
+		 * @param requiredKeys array of key names
+		 * @return null if all keys are present, name of first missing key otherwise
+		 */
+		protected final String missingParameter(RequestParameters params, String ... requiredKeys) {
+			for (String key: Arrays.asList(requiredKeys))
+				if (params.get(key) == null)
+					return key;
+			
+			return null;
 		}
 
 		/**

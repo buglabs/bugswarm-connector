@@ -210,6 +210,9 @@ public class BasicConnectivityTests extends TestCase {
 		SwarmModel swarmInfo = wsClient.get(id);
 		assertTrue(swarmInfo.getMembers().size() == 2);
 		
+		// Sleep before join swarm to let the previous WS call hit.
+		Thread.sleep(2000);
+		
 		// Join the swarm w/ the xmpp client
 		xmppClient.joinSwarm(id, new ISwarmServerRequestListener() {
 			

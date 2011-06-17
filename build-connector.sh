@@ -5,6 +5,11 @@ if [ -z $WORKSPACE ]; then
 	WORKSPACE=`pwd`
 fi
 
+if [ -z $BUILD_BRANCH ]; then
+	echo "Setting BUILD_BRANCH to 'master'"
+	BUILD_BRANCH="master"
+fi
+
 DIST_DIR=$WORKSPACE/dist
 DEPS_DIR=$WORKSPACE/deps
 
@@ -40,13 +45,13 @@ rm -Rf com.buglabs.osgi.build
 rm -Rf smack-smackx-osgi
 
 ###### Get source dependencies that will be compiled
-git clone git@github.com:buglabs/bug-osgi.git
+git clone git@github.com:buglabs/bug-osgi.git -b $BUILD_BRANCH
 mv bug-osgi/com.buglabs.common $WORKSPACE
 mv bug-osgi/com.buglabs.osgi.sewing $WORKSPACE
 mv bug-osgi/com.buglabs.osgi.build $WORKSPACE
 rm -Rf bug-osgi
 
-git clone git://github.com/buglabs/smack-smackx-osgi.git
+git clone git://github.com/buglabs/smack-smackx-osgi.git -b $BUILD_BRANCH
 # Do not compile/run tests
 rm -Rf smack-smackx-osgi/test
 

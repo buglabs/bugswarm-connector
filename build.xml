@@ -6,6 +6,8 @@
 	<import file="${common.ant.file}" />
 	
 	<!-- JUnit tests -->
+	<property environment="env"/>
+	<property name="bugswarm_test_host" value="env.bugswarm_test_host" />
 	<property name="report.dir" location="junit-reports" />
 	<property name="report.src" location="test/" />
 	

@@ -16,9 +16,10 @@ public final class AccountConfig {
 	
 	protected static final String API_KEY = "7339d4a60c729308086341600d44c6424a4079cb"; 
 	
-	protected static final String SWARM_HOST = "bugswarm.net";
+	//protected static final String SWARM_HOST = "bugswarm.net";
 	
 	protected static final String XMPP_USERNAME = "connector_test";
+	private static final String SWARM_TEST_HOSTNAME_KEY = "bugswarm_test_host";
 	
 	protected static String testSwarmId;
 	
@@ -27,7 +28,7 @@ public final class AccountConfig {
 	
 	protected static Configuration getConfiguration() {
 		if (config == null) {
-			config = new Configuration(SWARM_HOST, API_KEY, XMPP_USERNAME);
+			config = new Configuration(getHostSystemProperty(), API_KEY, XMPP_USERNAME);
 		}
 		
 		return config;
@@ -35,7 +36,7 @@ public final class AccountConfig {
 	
 	protected static Configuration getXmppConfiguration() {
 		if (xmppconfig == null) {
-			xmppconfig = new Configuration(SWARM_HOST, API_KEY, XMPP_USERNAME);
+			xmppconfig = new Configuration(getHostSystemProperty(), API_KEY, XMPP_USERNAME);
 		}
 		
 		return xmppconfig;
@@ -43,12 +44,19 @@ public final class AccountConfig {
 	
 	protected static Configuration getConfiguration2() {
 		if (config == null) {
-			config = new Configuration(SWARM_HOST, API_KEY2, XMPP_USERNAME2);
+			config = new Configuration(getHostSystemProperty(), API_KEY2, XMPP_USERNAME2);
 		}
 		
 		return config;
 	}
 	
+	private static String getHostSystemProperty() {
+		if (System.getProperty(SWARM_TEST_HOSTNAME_KEY) == null)
+			throw new RuntimeException("Test host must be defined to execute tests: " + SWARM_TEST_HOSTNAME_KEY);
+		
+		return System.getProperty(SWARM_TEST_HOSTNAME_KEY);
+	}
+
 	/**
 	 * @return
 	 */

@@ -10,6 +10,10 @@ if [ -z $BUILD_BRANCH ]; then
 	BUILD_BRANCH="master"
 fi
 
+if [ -Z $TEST_HOST ]; then
+	echo "Must set a hostname for tests to execute.  Tests will not be run."
+fi
+
 DIST_DIR=$WORKSPACE/dist
 DEPS_DIR=$WORKSPACE/deps
 
@@ -72,5 +76,9 @@ echo "Style checking bugswarm-connector"
 ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/bugswarm-connector/build.xml checkstyle
 echo "Building bugswarm-connector"
 ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/bugswarm-connector/build.xml build.jars
-echo "Testing bugswarm-connector"
-ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/bugswarm-connector/build.xml test
+if [ ! -Z $TEST_HOST ]; then
+	echo "Testing bugswarm-connector"
+	ant -Dbugswarm_test_host=$TEST_HOST -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/bugswarm-connector/build.xml test
+else
+	echo "Skipping tests of bugswarm-connector"
+fi

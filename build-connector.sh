@@ -49,14 +49,20 @@ rm -Rf com.buglabs.osgi.build
 rm -Rf smack-smackx-osgi
 
 ###### Get source dependencies that will be compiled
-git clone git@github.com:buglabs/bug-osgi.git -b $BUILD_BRANCH
+git clone git@github.com:buglabs/bug-osgi.git 
+cd bug-osgi
+git checkout $BUILD_BRANCH
+cd ..
 mv bug-osgi/com.buglabs.common $WORKSPACE
 mv bug-osgi/com.buglabs.osgi.sewing $WORKSPACE
 mv bug-osgi/com.buglabs.osgi.build $WORKSPACE
 rm -Rf bug-osgi
 
-git clone git://github.com/buglabs/smack-smackx-osgi.git -b $BUILD_BRANCH
-# Do not compile/run tests
+git clone git://github.com/buglabs/smack-smackx-osgi.git
+cd smack-smackx-osgi
+git checkout $BUILD_BRANCH
+cd ..
+# Do not smack and smackx compile/run tests
 rm -Rf smack-smackx-osgi/test
 
 ###### Build dependencies

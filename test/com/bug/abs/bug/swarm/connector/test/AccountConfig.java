@@ -11,9 +11,7 @@ import com.buglabs.bug.swarm.connector.Configuration;
  *
  */
 public final class AccountConfig {
-	protected static final String XMPP_USERNAME2 = "test";
-	protected static final String API_KEY2 = "df6fc25c0edcb2d76a7930754f37c33c5d009705";
-	
+	protected static final String XMPP_USERNAME2 = "connector_test2";
 	protected static final String XMPP_USERNAME = "connector_test";
 	private static final String SWARM_TEST_HOSTNAME_KEY = "report.misc";
 	
@@ -40,7 +38,7 @@ public final class AccountConfig {
 	
 	protected static Configuration getConfiguration2() {
 		if (config == null) {
-			config = new Configuration(getHostSystemProperty(), API_KEY2, XMPP_USERNAME2);
+			config = new Configuration(getHostSystemProperty(), getAPIKey2SystemProperty(), XMPP_USERNAME2);
 		}
 		
 		return config;
@@ -58,6 +56,13 @@ public final class AccountConfig {
 			throw new RuntimeException("Test API Key must be defined to execute tests: " + SWARM_TEST_HOSTNAME_KEY);
 		
 		return System.getProperty(SWARM_TEST_HOSTNAME_KEY).split(",")[1];
+	}
+
+	private static String getAPIKey2SystemProperty() {
+		if (System.getProperty(SWARM_TEST_HOSTNAME_KEY) == null)
+			throw new RuntimeException("Test API Key must be defined to execute tests: " + SWARM_TEST_HOSTNAME_KEY);
+		
+		return System.getProperty(SWARM_TEST_HOSTNAME_KEY).split(",")[2];
 	}
 
 	/**

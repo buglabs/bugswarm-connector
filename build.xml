@@ -7,7 +7,7 @@
 	
 	<!-- JUnit tests -->
 	<property environment="env"/>
-	<property name="report.misc" value="${env.bugswarm_test_host}" />
+	<property name="report.misc" value="${env.TEST_HOST}" />
 	<echo message="report.misc is ${report.misc}"></echo>
 	<property name="report.dir" location="junit-reports" />
 	<property name="report.src" location="test/" />

@@ -16,6 +16,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
+import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.connector.ws.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
@@ -114,8 +115,8 @@ public class BUGSwarmConnectorTests extends TestCase {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getAPIKey());
 
-		HTTPResponse response = request.get("http://api.bugswarm.net/swarms/" + AccountConfig.testSwarmId + "/feeds?stream=true", headers);
-
+		HTTPResponse response = request.get(AccountConfig.getConfiguration().getHostname(Protocol.HTTP) + "/swarms/" + AccountConfig.testSwarmId + "/feeds?stream=true", headers);
+		
 		StreamScanner scanner = new StreamScanner(response.getStream());
 		scanner.start();
 
@@ -160,7 +161,7 @@ public class BUGSwarmConnectorTests extends TestCase {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getAPIKey());
 
-		HTTPResponse response = request.get("http://api.bugswarm.net/swarms/" + AccountConfig.testSwarmId + "/resources/"
+		HTTPResponse response = request.get(AccountConfig.getConfiguration().getHostname(Protocol.HTTP) + "/swarms/" + AccountConfig.testSwarmId + "/resources/"
 				+ AccountConfig.getConfiguration().getResource() + "/feeds?stream=true", headers);
 
 		StreamScanner scanner = new StreamScanner(response.getStream());
@@ -207,7 +208,7 @@ public class BUGSwarmConnectorTests extends TestCase {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getAPIKey());
 
-		HTTPResponse response = request.get("http://api.bugswarm.net/swarms/" + AccountConfig.testSwarmId + "/resources/"
+		HTTPResponse response = request.get(AccountConfig.getConfiguration().getHostname(Protocol.HTTP) + "/swarms/" + AccountConfig.testSwarmId + "/resources/"
 				+ AccountConfig.getConfiguration().getResource() + "/feeds?stream=true", headers);
 
 		StreamScanner scanner = new StreamScanner(response.getStream());
@@ -240,7 +241,7 @@ public class BUGSwarmConnectorTests extends TestCase {
 				JSONObject jo = (JSONObject) key;
 
 				for (Object rk : jo.keySet()) {
-					String url = "http://api.bugswarm.net/swarms/" + AccountConfig.testSwarmId + "/feeds/" + rk;
+					String url = AccountConfig.getConfiguration().getHostname(Protocol.HTTP) + "/swarms/" + AccountConfig.testSwarmId + "/feeds/" + rk;
 					System.out.println("Get data for feed " + rk + " to " + url);
 
 					HTTPResponse response2 = request.get(url, headers);
@@ -282,7 +283,7 @@ public class BUGSwarmConnectorTests extends TestCase {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getAPIKey());
 
-		HTTPResponse response = request.get("http://api.bugswarm.net/swarms/" + AccountConfig.testSwarmId + "/resources/"
+		HTTPResponse response = request.get(AccountConfig.getConfiguration().getHostname(Protocol.HTTP) + "/swarms/" + AccountConfig.testSwarmId + "/resources/"
 				+ AccountConfig.getConfiguration().getResource() + "/feeds?stream=true", headers);
 
 		StreamScanner scanner = new StreamScanner(response.getStream());
@@ -315,7 +316,7 @@ public class BUGSwarmConnectorTests extends TestCase {
 				JSONObject jo = (JSONObject) key;
 
 				for (Object rk : jo.keySet()) {
-					String url = "http://api.bugswarm.net/swarms/"+ AccountConfig.testSwarmId + "/resources/" 
+					String url = AccountConfig.getConfiguration().getHostname(Protocol.HTTP) + "/swarms/"+ AccountConfig.testSwarmId + "/resources/" 
 						+ AccountConfig.getConfiguration().getResource() +  "/feeds/" + rk;
 					
 					System.out.println("Get data for feed " + rk + " sending to " + url);

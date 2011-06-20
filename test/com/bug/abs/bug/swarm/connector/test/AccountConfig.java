@@ -19,7 +19,7 @@ public final class AccountConfig {
 	//protected static final String SWARM_HOST = "bugswarm.net";
 	
 	protected static final String XMPP_USERNAME = "connector_test";
-	private static final String SWARM_TEST_HOSTNAME_KEY = "bugswarm_test_host";
+	private static final String SWARM_TEST_HOSTNAME_KEY = "report.misc";
 	
 	protected static String testSwarmId;
 	

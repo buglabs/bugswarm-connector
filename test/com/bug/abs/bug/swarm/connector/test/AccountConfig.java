@@ -20,6 +20,9 @@ public final class AccountConfig {
 	private static Configuration config;
 	private static Configuration xmppconfig;
 	
+	protected static final int CONNECTOR_INIT_SLEEP_MILLIS = 10000;
+	public static final long CONNECTOR_FEED_CHANGE_SLEEP_MILLIS = 1000;
+	
 	protected static Configuration getConfiguration() {
 		if (config == null) {
 			config = new Configuration(getHostSystemProperty(), getAPIKeySystemProperty(), XMPP_USERNAME);

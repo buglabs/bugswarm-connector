@@ -1,6 +1,8 @@
 package com.buglabs.bug.swarm.connector;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.jivesoftware.smack.Chat;
@@ -50,12 +52,14 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	private boolean initialized = false;
 	private SwarmXMPPClient xmppClient;
 	private OSGiHelper osgiHelper;
+	private List<SwarmModel> memberSwarms;
 
 	/**
 	 * @param config Predefined configuration
 	 */
 	public BUGSwarmConnector(final Configuration config) {
 		this.config = config;
+		this.memberSwarms = new ArrayList<SwarmModel>();
 		if (!config.isValid())
 			throw new IllegalArgumentException("Invalid configuration");
 	}
@@ -81,6 +85,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 				for (SwarmModel swarm : allSwarms) {
 					Activator.getLog().log(LogService.LOG_DEBUG, "Joining swarm " + swarm.getId());
 					xmppClient.joinSwarm(swarm.getId(), this);
+					memberSwarms.add(swarm);
 				}
 			} catch (HTTPException e) {
 				if (e.getErrorCode() == 404)
@@ -122,20 +127,6 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	}
 	
 	/**
-	 * @param allSwarms list of swarms to announce state to
-	 * @throws XMPPException on XMPP error
-	 */
-	private void announceState(final List<SwarmModel> allSwarms) throws XMPPException {
-		JSONArray document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
-		
-		//Notify all consumer-members of swarms of services, feeds, and modules.
-		for (SwarmModel swarm : allSwarms) {
-			Activator.getLog().log(LogService.LOG_DEBUG, "Announcing state " + document + " to swarm " + swarm.getId());
-			xmppClient.announce(swarm.getId(), document);
-		}
-	}
-
-	/**
 	 * Initialize the connection to the swarm server.
 	 * @return true if initialization successful
 	 * @throws Exception 
@@ -176,6 +167,13 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			Activator.getLog().log(LogService.LOG_ERROR, 
 					"Error occurred while responding to invite from swarm server.", e);
 		}
+	}
+	
+	/**
+	 * @return Immutable list of swarms that client is a member of, for read-only purposes.
+	 */
+	public List<SwarmModel> getMemberSwarms() {
+		return Collections.unmodifiableList(memberSwarms);
 	}
 
 	@Override

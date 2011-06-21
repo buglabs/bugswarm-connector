@@ -1,15 +1,10 @@
 package com.bug.abs.bug.swarm.connector.test;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -28,12 +23,12 @@ import com.buglabs.util.simplerestclient.HTTPResponse;
 import junit.framework.TestCase;
 
 /**
- * Tests the high-level BUGSwarmConnector class
+ * Tests the high-level BUGSwarmConnector class in regards to feeds.
  * 
  * @author kgilmer
  * 
  */
-public class BUGSwarmConnectorTests extends TestCase {
+public class BUGSwarmConnectorFeedTests extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
@@ -84,14 +79,14 @@ public class BUGSwarmConnectorTests extends TestCase {
 		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
 
 		connector.start();
-		Thread.sleep(15000);
+		Thread.sleep(AccountConfig.CONNECTOR_INIT_SLEEP_MILLIS);
 
 		assertTrue(connector.isInitialized());
 
 		connector.interrupt();
 		connector.shutdown();
 
-		Thread.sleep(5000);
+		Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
 	}
 
 	/**
@@ -109,7 +104,7 @@ public class BUGSwarmConnectorTests extends TestCase {
 		connector.start();
 
 		// Wait for the feeds to initialize
-		Thread.sleep(15000);
+		Thread.sleep(AccountConfig.CONNECTOR_INIT_SLEEP_MILLIS);
 
 		HTTPRequest request = new HTTPRequest();
 		Map<String, String> headers = new HashMap<String, String>();
@@ -120,7 +115,7 @@ public class BUGSwarmConnectorTests extends TestCase {
 		StreamScanner scanner = new StreamScanner(response.getStream());
 		scanner.start();
 
-		Thread.sleep(2000);
+		Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
 
 		assertTrue(scanner.hasInputBeenRecieved());
 
@@ -155,7 +150,7 @@ public class BUGSwarmConnectorTests extends TestCase {
 		connector.start();
 
 		// Wait for the feeds to initialize
-		Thread.sleep(15000);
+		Thread.sleep(AccountConfig.CONNECTOR_INIT_SLEEP_MILLIS);
 
 		HTTPRequest request = new HTTPRequest();
 		Map<String, String> headers = new HashMap<String, String>();
@@ -167,7 +162,7 @@ public class BUGSwarmConnectorTests extends TestCase {
 		StreamScanner scanner = new StreamScanner(response.getStream());
 		scanner.start();
 
-		Thread.sleep(2000);
+		Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
 
 		assertTrue(scanner.hasInputBeenRecieved());
 
@@ -202,7 +197,7 @@ public class BUGSwarmConnectorTests extends TestCase {
 		connector.start();
 
 		// Wait for the feeds to initialize
-		Thread.sleep(15000);
+		Thread.sleep(AccountConfig.CONNECTOR_INIT_SLEEP_MILLIS);
 
 		HTTPRequest request = new HTTPRequest();
 		Map<String, String> headers = new HashMap<String, String>();
@@ -214,7 +209,7 @@ public class BUGSwarmConnectorTests extends TestCase {
 		StreamScanner scanner = new StreamScanner(response.getStream());
 		scanner.start();
 
-		Thread.sleep(2000);
+		Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
 
 		assertTrue(scanner.hasInputBeenRecieved());
 
@@ -249,7 +244,7 @@ public class BUGSwarmConnectorTests extends TestCase {
 					StreamScanner scanner2 = new StreamScanner(response2.getStream());
 					scanner2.start();
 
-					Thread.sleep(2000);
+					Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
 
 					assertTrue(scanner2.hasInputBeenRecieved());		
 					scanner2.interrupt();
@@ -277,7 +272,7 @@ public class BUGSwarmConnectorTests extends TestCase {
 		connector.start();
 
 		// Wait for the feeds to initialize
-		Thread.sleep(15000);
+		Thread.sleep(AccountConfig.CONNECTOR_INIT_SLEEP_MILLIS);
 
 		HTTPRequest request = new HTTPRequest();
 		Map<String, String> headers = new HashMap<String, String>();
@@ -289,7 +284,7 @@ public class BUGSwarmConnectorTests extends TestCase {
 		StreamScanner scanner = new StreamScanner(response.getStream());
 		scanner.start();
 
-		Thread.sleep(2000);
+		Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
 
 		assertTrue(scanner.hasInputBeenRecieved());
 
@@ -316,7 +311,9 @@ public class BUGSwarmConnectorTests extends TestCase {
 				JSONObject jo = (JSONObject) key;
 
 				for (Object rk : jo.keySet()) {
-					String url = AccountConfig.getConfiguration().getHostname(Protocol.HTTP) + "/swarms/"+ AccountConfig.testSwarmId + "/resources/" 
+					String url = 
+						AccountConfig.getConfiguration().getHostname(Protocol.HTTP)
+						+ "/swarms/" + AccountConfig.testSwarmId + "/resources/" 
 						+ AccountConfig.getConfiguration().getResource() +  "/feeds/" + rk;
 					
 					System.out.println("Get data for feed " + rk + " sending to " + url);
@@ -327,7 +324,7 @@ public class BUGSwarmConnectorTests extends TestCase {
 					StreamScanner scanner2 = new StreamScanner(response2.getStream());
 					scanner2.start();
 
-					Thread.sleep(2000);
+					Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
 
 					assertTrue(scanner2.hasInputBeenRecieved());
 					scanner2.interrupt();
@@ -338,61 +335,5 @@ public class BUGSwarmConnectorTests extends TestCase {
 		scanner.interrupt();
 		connector.interrupt();
 		connector.shutdown();
-	}
-	
-	private class StreamScanner extends Thread {
-
-		private final InputStream istream;
-		private int inputLineCount = 0;
-		private List<String> responses = new CopyOnWriteArrayList<String>();
-
-		public StreamScanner(InputStream istream) {
-			this.istream = istream;
-		}
-
-		@Override
-		public void run() {
-			BufferedReader br = new BufferedReader(new InputStreamReader(istream));
-
-			String line = null;
-
-			try {
-				while (!Thread.interrupted() && (line = br.readLine()) != null) {
-					System.out.println("OUTPUT: " + line);
-
-					if (line.trim().length() > 0) {
-						inputLineCount++;
-						responses.add(line.trim());
-					}
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} finally {
-				try {
-					br.close();
-				} catch (IOException e) {
-				}
-			}
-		}
-
-		public boolean hasInputBeenRecieved() {
-			return inputLineCount > 0;
-		}
-
-		public int getInputLineCount() {
-			return inputLineCount;
-		}
-
-		public Iterable<String> getResponses() {
-			return new Iterable<String>() {
-
-				@Override
-				public Iterator<String> iterator() {
-					// TODO Auto-generated method stub
-					return responses.iterator();
-				}
-			};
-		}
 	}
 }

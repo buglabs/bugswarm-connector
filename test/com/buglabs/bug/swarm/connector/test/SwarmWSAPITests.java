@@ -1,4 +1,4 @@
-package com.bug.abs.bug.swarm.connector.test;
+package com.buglabs.bug.swarm.connector.test;
 
 import java.io.IOException;
 import java.util.Arrays;

@@ -10,6 +10,11 @@ if [ -z $BUILD_BRANCH ]; then
 	BUILD_BRANCH="master"
 fi
 
+if [ -z $REPORT_DIR ]; then
+	echo "Setting REPORT_DIR to 'junit-reports'"
+	REPORT_DIR=$WORKSPACE/bugswarm-connector/junit-reports
+fi
+
 if [ -z $TEST_HOST ]; then
 	echo "TEST_HOST is not set, but must be a hostname for tests to execute.  Tests will not be run."
 fi
@@ -80,7 +85,7 @@ ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE
 ###### Build bugswarm-connector
 if [ ! -z $TEST_HOST ]; then
 	echo "Building and testing bugswarm-connector"
-	ant -Dgenerate.docs=true -Dbugswarm_test_host=$TEST_HOST -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/bugswarm-connector/build.xml clean create_dirs test
+	ant -Dreport.dir=$REPORT_DIR -Dgenerate.docs=true -Dbugswarm_test_host=$TEST_HOST -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/bugswarm-connector/build.xml clean create_dirs test
 else
 	echo "Building bugswarm-connector.  To also run tests, TEST_HOST variable must be defined."
 	ant -Dgenerate.docs=true -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/bugswarm-connector/build.xml clean create_dirs build.jars

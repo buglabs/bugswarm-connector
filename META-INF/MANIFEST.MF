@@ -12,6 +12,7 @@ Import-Package:
  com.buglabs.osgi.sewing.pub,
  com.buglabs.osgi.sewing.pub.util,
  com.buglabs.services.ws,
+ com.buglabs.util.osgi,
  com.buglabs.util,
  com.buglabs.util.simplerestclient,
  freemarker.template,

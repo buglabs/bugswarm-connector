@@ -20,7 +20,7 @@ import com.buglabs.bug.swarm.connector.Configuration;
 import com.buglabs.bug.swarm.connector.ui.ConfigInitRunnable;
 import com.buglabs.bug.swarm.connector.ui.SwarmConfigKeys;
 import com.buglabs.osgi.sewing.pub.ISewingService;
-import com.buglabs.util.LogServiceUtil;
+import com.buglabs.util.osgi.LogServiceUtil;
 
 /**
  * Activator for bugswarm-connector.  Entry point for OSGi.

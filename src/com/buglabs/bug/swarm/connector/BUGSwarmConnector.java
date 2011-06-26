@@ -53,12 +53,14 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	private SwarmXMPPClient xmppClient;
 	private OSGiHelper osgiHelper;
 	private List<SwarmModel> memberSwarms;
+	private LogService log;
 
 	/**
 	 * @param config Predefined configuration
 	 */
 	public BUGSwarmConnector(final Configuration config) {
 		this.config = config;
+		this.log = Activator.getLog();
 		this.memberSwarms = new ArrayList<SwarmModel>();
 		if (!config.isValid())
 			throw new IllegalArgumentException("Invalid configuration");
@@ -72,38 +74,38 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 				initialize();
 			
 			//Listen for invites from swarms
-			Activator.getLog().log(LogService.LOG_DEBUG, "Registering to receive invites.");
+			log.log(LogService.LOG_DEBUG, "Registering to receive invites.");
 			MultiUserChat.addInvitationListener(xmppClient.getConnection(), this);
 			
 			//Load data about server configuration and local configuration.
-			Activator.getLog().log(LogService.LOG_DEBUG, "Getting member swarms.");
+			log.log(LogService.LOG_DEBUG, "Getting member swarms.");
 			
 			try {
 				List<SwarmModel> allSwarms = wsClient.getSwarmResourceClient().getSwarmsByMember(config.getResource());
 				
 				//Notify all swarms of presence.
 				for (SwarmModel swarm : allSwarms) {
-					Activator.getLog().log(LogService.LOG_DEBUG, "Joining swarm " + swarm.getId());
+					log.log(LogService.LOG_DEBUG, "Joining swarm " + swarm.getId());
 					xmppClient.joinSwarm(swarm.getId(), this);
 					memberSwarms.add(swarm);
 				}
 			} catch (HTTPException e) {
 				if (e.getErrorCode() == 404)
-					Activator.getLog().log(LogService.LOG_WARNING, "Not a member of any swarms, not publishing feeds.");
+					log.log(LogService.LOG_WARNING, "Not a member of any swarms, not publishing feeds.");
 				else 
 					throw e;
 			}
 			
 			//Send feed state to other swarm peers
 			//This is disabled as it's only used by the Web UI which is not currently available.
-			/*Activator.getLog().log(LogService.LOG_DEBUG, "Announcing local state to member swarms.");
+			/*log.log(LogService.LOG_DEBUG, "Announcing local state to member swarms.");
 			announceState(allSwarms);*/
 			
 			//Listen for local changes
 			osgiHelper.addListener(this);
 			
 		} catch (Exception e) {
-			Activator.getLog().log(LogService.LOG_ERROR, "Error occurred while initializing swarm client.", e);
+			log.log(LogService.LOG_ERROR, "Error occurred while initializing swarm client.", e);
 		}
 	}
 
@@ -132,7 +134,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	 * @throws Exception 
 	 */
 	private boolean initialize() throws Exception {
-		Activator.getLog().log(LogService.LOG_DEBUG, "Initializing " + BUGSwarmConnector.class.getSimpleName());
+		log.log(LogService.LOG_DEBUG, "Initializing " + BUGSwarmConnector.class.getSimpleName());
 		wsClient = new SwarmWSClient(config.getHostname(Protocol.HTTP), config.getAPIKey());
 		Throwable error = wsClient.isValid();
 		if (error == null) {
@@ -156,7 +158,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			final String room, final String inviter, final String reason, 
 			final String password, final Message message) {
 		
-		Activator.getLog().log(LogService.LOG_INFO, "Recieved invitation for room " + room
+		log.log(LogService.LOG_INFO, "Recieved invitation for room " + room
 				+ " from " + inviter + " for reason " + reason + " w message " + message);
 		
 		// TODO Implement this case
@@ -164,7 +166,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		try {
 			xmppClient.joinSwarm(message.getBody(), BUGSwarmConnector.this);
 		} catch (Exception e) {
-			Activator.getLog().log(LogService.LOG_ERROR, 
+			log.log(LogService.LOG_ERROR, 
 					"Error occurred while responding to invite from swarm server.", e);
 		}
 	}
@@ -181,14 +183,14 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		//For now, every time a service, module, or feed changes locally, send the entire state to each interested party.
 		//In the future it may be better to cache and determine delta and send only that.
 		
-		Activator.getLog().log(LogService.LOG_DEBUG, "Local feed notification.");
+		log.log(LogService.LOG_DEBUG, "Local feed notification.");
 		try {
 			//Load data about server configuration and local configuration.
 			List<SwarmModel> allSwarms = wsClient.getSwarmResourceClient().getSwarmsByMember(config.getResource());
 			
 			broadcastState(allSwarms);
 		} catch (Exception e) {
-			Activator.getLog().log(LogService.LOG_ERROR, 
+			log.log(LogService.LOG_ERROR, 
 					"Error occurred while sending updated device state to swarm server.", e);
 		}
 	}
@@ -217,7 +219,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		try {
 			xmppClient.sendAllFeedsToUser(requestJid, swarmId, document);
 		} catch (XMPPException e) {
-			Activator.getLog().log(LogService.LOG_ERROR, 
+			log.log(LogService.LOG_ERROR, 
 					"Error occurred while sending feeds to " + requestJid, e);
 		}
 	}
@@ -229,10 +231,10 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		try {
 			chat.sendMessage(document.toJSONString());
 		} catch (XMPPException e) {
-			Activator.getLog().log(LogService.LOG_ERROR, "Failed to send private message to " + chat.getParticipant(), e);
+			log.log(LogService.LOG_ERROR, "Failed to send private message to " + chat.getParticipant(), e);
 		}
 		
-		Activator.getLog().log(LogService.LOG_DEBUG, "Sent " + document.toJSONString() + " to " + chat.getParticipant());
+		log.log(LogService.LOG_DEBUG, "Sent " + document.toJSONString() + " to " + chat.getParticipant());
 	}
 
 	/**
@@ -247,7 +249,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		Feed f = osgiHelper.getBUGFeed(feedRequestName);
 		if (f == null) {
 			f = osgiHelper.getBUGFeed(feedRequestName);
-			Activator.getLog().log(LogService.LOG_ERROR, 
+			log.log(LogService.LOG_ERROR, 
 					"Request for non-existant feed " + feedRequestName + " from client " + jid);
 			return;
 		}
@@ -257,7 +259,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		try {
 			xmppClient.sendFeedToUser(jid, swarmId, document);
 		} catch (XMPPException e) {
-			Activator.getLog().log(LogService.LOG_ERROR, 
+			log.log(LogService.LOG_ERROR, 
 					"Error occurred while sending feeds to " + jid, e);
 		}
 	}

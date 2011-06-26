@@ -24,6 +24,7 @@ import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.connector.ws.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
+import com.buglabs.bug.swarm.connector.xmpp.GroupChatMessageRequestHandler;
 import com.buglabs.bug.swarm.connector.xmpp.ISwarmServerRequestListener;
 import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 import com.buglabs.bug.swarm.connector.xmpp.Jid;
@@ -36,7 +37,7 @@ import com.buglabs.util.simplerestclient.HTTPException;
  * @author kgilmer
  * 
  */
-public class BUGSwarmConnector extends Thread implements EntityChangeListener, ISwarmServerRequestListener, InvitationListener {
+public class BUGSwarmConnector extends Thread implements EntityChangeListener, ISwarmServerRequestListener {
 
 	/**
 	 * Configuration info for swarm server.
@@ -71,11 +72,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		try {
 			// Initialize the clients used to communicate with swarm server
 			if (!initialized)
-				initialize();
-			
-			//Listen for invites from swarms
-			log.log(LogService.LOG_DEBUG, "Registering to receive invites.");
-			MultiUserChat.addInvitationListener(xmppClient.getConnection(), this);
+				initialize();		
 			
 			//Load data about server configuration and local configuration.
 			log.log(LogService.LOG_DEBUG, "Getting member swarms.");
@@ -139,7 +136,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		Throwable error = wsClient.isValid();
 		if (error == null) {
 			xmppClient = new SwarmXMPPClient(config);
-			xmppClient.connect();
+			xmppClient.connect(this);
 			
 			osgiHelper = OSGiHelper.getRef();
 			if (osgiHelper != null) {
@@ -151,24 +148,6 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		}
 		
 		return false;
-	}
-	
-	@Override
-	public void invitationReceived(final Connection conn, 
-			final String room, final String inviter, final String reason, 
-			final String password, final Message message) {
-		
-		log.log(LogService.LOG_INFO, "Recieved invitation for room " + room
-				+ " from " + inviter + " for reason " + reason + " w message " + message);
-		
-		// TODO Implement this case
-		// FIXME: Assuming the message content is the swarm to be joined.
-		try {
-			xmppClient.joinSwarm(message.getBody(), BUGSwarmConnector.this);
-		} catch (Exception e) {
-			log.log(LogService.LOG_ERROR, 
-					"Error occurred while responding to invite from swarm server.", e);
-		}
 	}
 	
 	/**
@@ -203,10 +182,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		if (osgiHelper != null)
 			osgiHelper.removeListener(this);
 		
-		if (xmppClient != null) {
-			//Stop listening for new invitations from server
-			MultiUserChat.removeInvitationListener(xmppClient.getConnection(), this);
-			
+		if (xmppClient != null) {		
 			//Send unpresence and disconnect from server
 			xmppClient.disconnect();
 		}
@@ -261,6 +237,21 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		} catch (XMPPException e) {
 			log.log(LogService.LOG_ERROR, 
 					"Error occurred while sending feeds to " + jid, e);
+		}
+	}
+
+	@Override
+	public void swarmInviteRequest(Jid sender, String roomId) {
+		log.log(LogService.LOG_INFO, "Recieved invitation for room " + roomId
+				+ " from " + sender.toString());
+		
+		// TODO Implement this case
+		// FIXME: Assuming the message content is the swarm to be joined.
+		try {
+			xmppClient.joinSwarm(roomId, BUGSwarmConnector.this);
+		} catch (Exception e) {
+			log.log(LogService.LOG_ERROR, 
+					"Error occurred while responding to invite from swarm server.", e);
 		}
 	}
 }

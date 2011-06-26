@@ -2,9 +2,11 @@ package com.buglabs.bug.swarm.connector.test;
 
 import junit.framework.TestCase;
 
+import org.jivesoftware.smack.Chat;
 import org.json.simple.JSONArray;
 
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
+import com.buglabs.bug.swarm.connector.xmpp.ISwarmServerRequestListener;
 import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 import com.buglabs.bug.swarm.connector.xmpp.Jid;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
@@ -38,7 +40,7 @@ public class SwarmXMPPClientTests extends TestCase {
 	 */
 	public void testCreateXMPPClient() throws Exception {
 		SwarmXMPPClient xmppClient = new SwarmXMPPClient(AccountConfig.getConfiguration());
-		xmppClient.connect();
+		xmppClient.connect(new SwarmRequestListener());
 		
 		Thread.sleep(5000);
 		

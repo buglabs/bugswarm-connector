@@ -1,31 +1,16 @@
 package com.buglabs.bug.swarm.connector.test;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
+import junit.framework.TestCase;
 
 import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
-import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.connector.ws.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
 import com.buglabs.util.simplerestclient.HTTPException;
-import com.buglabs.util.simplerestclient.HTTPRequest;
-import com.buglabs.util.simplerestclient.HTTPResponse;
-
-import junit.framework.TestCase;
 
 /**
  * Tests the high-level BUGSwarmConnector notification functionality, or, any logic in which unplanned events come from the

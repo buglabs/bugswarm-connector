@@ -7,16 +7,16 @@ import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManagerListener;
 import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.PacketListener;
-import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.osgi.Activator;
-import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
+import com.buglabs.bug.swarm.connector.xmpp.parse.InviteMessageImpl;
+import com.buglabs.bug.swarm.connector.xmpp.parse.XMPPPlainTextMessageParser;
+import com.buglabs.bug.swarm.connector.xmpp.parse.XMPPPlainTextMessageParser.XMPPMessage;
 
 /**
  * Centralized class for handing unsolicited and async messages from XMPP
@@ -30,7 +30,6 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 	private final Jid jid;
 	private final String swarmId;
 	private final List<ISwarmServerRequestListener> requestListeners;
-	private OSGiHelper osgiHelper;
 
 	/**
 	 * Construct the handler with a jid, swarmid, and list of local listeners.
@@ -52,7 +51,27 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 		this.jid = jid;
 		this.swarmId = swarmId;
 		this.requestListeners = requestListeners;
-		this.osgiHelper = OSGiHelper.getRef();
+	}
+
+	/**
+	 * Construct the handler with a jid, swarmid, and list of local listeners.
+	 * 
+	 * @param jid
+	 *            local jid
+	 * @param swarmId
+	 *            swarm associated with handler
+	 * @param requestListeners
+	 *            list of ISwarmServerRequestListeners
+	 * @throws Exception
+	 *             thrown if OSGi service binding fails
+	 */
+	protected GroupChatMessageRequestHandler(final Jid jid, final List<ISwarmServerRequestListener> requestListeners) throws Exception {
+		if (jid == null || requestListeners == null)
+			throw new IllegalArgumentException("Input parameter to constructor is null.");
+
+		this.jid = jid;
+		this.swarmId = null;
+		this.requestListeners = requestListeners;
 	}
 
 	@Override
@@ -88,7 +107,7 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 					}
 				}
 			} else {
-				Activator.getLog().log(LogService.LOG_WARNING, "Unhandled message received from swarm " + swarmId + " message: " + ms);
+				Activator.getLog().log(LogService.LOG_ERROR, "Unhandled message received from swarm " + swarmId + " message: " + ms);
 			}
 		} else {
 			Activator.getLog().log(LogService.LOG_WARNING, "Unhandled packet received from swarm " + swarmId);
@@ -183,7 +202,7 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 	}
 
 	@Override
-	public void processMessage(Chat chat, Message message) {
+	public void processMessage(final Chat chat, final Message message) {
 		String messageBody = message.getBody();
 		if (isFeedListRequest(messageBody)) {
 			for (ISwarmServerRequestListener listener : requestListeners) {
@@ -193,6 +212,7 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 					Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
 				}
 			}
+			return;
 		} else if (isFeedRequest(messageBody)) {
 			for (ISwarmServerRequestListener listener : requestListeners) {
 				try {
@@ -201,8 +221,39 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 					Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
 				}
 			}
+			return;
+		}
+
+		XMPPMessage im = XMPPPlainTextMessageParser.parseServerMessage(messageBody);
+
+		if (im != null) {
+			for (ISwarmServerRequestListener listener : requestListeners) {
+				try {
+					handlePlainTextMessage(im, listener);
+				} catch (ParseException e) {
+					Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
+				}
+			}
+
 		} else {
-			Activator.getLog().log(LogService.LOG_WARNING, "Unhandled client message: " + messageBody);
+			Activator.getLog().log(LogService.LOG_ERROR, "Unhandled client message: " + messageBody);
+		}
+
+	}
+
+	/**
+	 * @param im message
+	 * @param listener listener to send event to
+	 * @throws ParseException 
+	 */
+	private void handlePlainTextMessage(final XMPPMessage im, final ISwarmServerRequestListener listener) throws ParseException {
+		switch (im.getType()) {
+		case SWARM_INVITE:
+			InviteMessageImpl imi = (InviteMessageImpl) im;
+			listener.swarmInviteRequest(new Jid(imi.getSenderJID()), imi.getRoomID());
+			break;
+		default:
+			throw new RuntimeException("Unhandled XMPPMessage in handlePlainTextMessage()");
 		}
 
 	}

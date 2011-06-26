@@ -1,6 +1,7 @@
 package com.buglabs.bug.swarm.connector.xmpp;
 
 import org.jivesoftware.smack.Chat;
+import org.jivesoftware.smack.Connection;
 
 /**
  * Listener for all non-solicited messages that can be received from Swarm XMPP server.
@@ -31,4 +32,11 @@ public interface ISwarmServerRequestListener {
 	 * @param feedRequestName name of feed being requested
 	 */
 	void feedRequest(final Jid jid, final String swarmId, final String feedRequestName);
+	
+	/**
+	 * @param sender
+	 * @param connection
+	 * @param roomId
+	 */
+	void swarmInviteRequest(final Jid sender, String roomId);
 }

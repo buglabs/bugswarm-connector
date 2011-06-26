@@ -66,6 +66,7 @@ public class SwarmXMPPClient  {
 	private final Configuration config;
 	private final Jid jid;
 	private List<ISwarmServerRequestListener> requestListeners;
+	private GroupChatMessageRequestHandler rootRequestHandler;
 	
 	/**
 	 * @param config Configuration to be used to create connection.
@@ -82,7 +83,7 @@ public class SwarmXMPPClient  {
 	 * @throws IOException on connection failure
 	 * @throws XMPPException on XMPP protocol failure
 	 */
-	public void connect() throws IOException, XMPPException {				
+	public void connect(ISwarmServerRequestListener listener) throws IOException, XMPPException {				
 		// Get a unique ID for the device software is running on.
 		//String clientId = ClientIdentity.getRef().getId();
 		if (connection == null) {				
@@ -90,6 +91,16 @@ public class SwarmXMPPClient  {
 			login(connection, config.getUsername(), config.getAPIKey(), config.getResource());
 			disposed = false;
 		}		
+		
+		if (!requestListeners.contains(listener))
+			requestListeners.add(listener);
+		
+		try {
+			rootRequestHandler = new GroupChatMessageRequestHandler(jid, requestListeners);
+			connection.getChatManager().addChatListener(rootRequestHandler);
+		} catch (Exception e) {
+			throw new IOException(e);
+		}
 	}
 	
 	/**
@@ -137,7 +148,9 @@ public class SwarmXMPPClient  {
 		MultiUserChat muc = getMUC(swarmId);
 		
 		if (!muc.isJoined()) {
-			requestListeners.add(listener);
+			if (!requestListeners.contains(listener))
+				requestListeners.add(listener);
+			
 			muc.join(getResource());
 			GroupChatMessageRequestHandler requestHandler = new GroupChatMessageRequestHandler(jid, swarmId, requestListeners);
 			connection.getChatManager().addChatListener(requestHandler);

@@ -73,7 +73,7 @@ public class BasicConnectivityTests extends TestCase {
 		AccountConfig.testSwarmId = id;
 		
 		xmppClient = new SwarmXMPPClient(AccountConfig.getXmppConfiguration());
-		xmppClient.connect();
+		xmppClient.connect(new SwarmRequestListener());
 		
 		Thread.sleep(5000);
 
@@ -116,24 +116,7 @@ public class BasicConnectivityTests extends TestCase {
 		List<SwarmModel> connectedSwarms = new ArrayList<SwarmModel>();
 		for (SwarmModel swarm : allSwarms) {
 			try {
-				xmppClient.joinSwarm(swarm.getId(), new ISwarmServerRequestListener() {
-					
-					@Override
-					public void feedListRequest(Jid jid, String swarmId) {
-						System.out.println("feedListRequest() " + jid + " " + swarmId);
-					}
-
-					@Override
-					public void feedListRequest(Chat chat, String swarmId) {
-						System.out.println("feedListRequest() " + chat.getParticipant() + " " + swarmId);
-					}
-
-					@Override
-					public void feedRequest(Jid jid, String swarmId, String feedRequestName) {
-						// TODO Auto-generated method stub
-						
-					}
-				});
+				xmppClient.joinSwarm(swarm.getId(), new SwarmRequestListener());
 				connectedSwarms.add(swarm);
 				System.out.println("Joined swarm: " + swarm.getId());
 			} catch (XMPPException e) {
@@ -225,6 +208,12 @@ public class BasicConnectivityTests extends TestCase {
 
 			@Override
 			public void feedRequest(Jid jid, String swarmId, String feedRequestName) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void swarmInviteRequest(Jid sender, String roomId) {
 				// TODO Auto-generated method stub
 				
 			}

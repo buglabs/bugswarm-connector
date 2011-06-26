@@ -140,4 +140,16 @@ public class SwarmModel {
 				jsonObject.get("name").toString(), 
 				jsonObject.get("user_id").toString());
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof SwarmModel))
+			return super.equals(obj);
+		
+		//The swarmID should be globally unique.
+		
+		SwarmModel tsm = (SwarmModel) obj;
+		
+		return tsm.getId().equals(this.getId());
+	}
 }

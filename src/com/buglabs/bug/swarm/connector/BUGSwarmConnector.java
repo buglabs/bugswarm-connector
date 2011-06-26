@@ -6,11 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jivesoftware.smack.Chat;
-import org.jivesoftware.smack.Connection;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.packet.Message;
-import org.jivesoftware.smackx.muc.InvitationListener;
-import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.osgi.service.log.LogService;
@@ -24,7 +20,6 @@ import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.connector.ws.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
-import com.buglabs.bug.swarm.connector.xmpp.GroupChatMessageRequestHandler;
 import com.buglabs.bug.swarm.connector.xmpp.ISwarmServerRequestListener;
 import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 import com.buglabs.bug.swarm.connector.xmpp.Jid;
@@ -183,6 +178,8 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			osgiHelper.removeListener(this);
 		
 		if (xmppClient != null) {		
+			for (SwarmModel sm : memberSwarms)
+				xmppClient.leaveSwarm(sm.getId());
 			//Send unpresence and disconnect from server
 			xmppClient.disconnect();
 		}
@@ -221,7 +218,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	}
 
 	@Override
-	public void feedRequest(Jid jid, String swarmId, String feedRequestName) {
+	public void feedRequest(final Jid jid, final String swarmId, final String feedRequestName) {
 		Feed f = osgiHelper.getBUGFeed(feedRequestName);
 		if (f == null) {
 			f = osgiHelper.getBUGFeed(feedRequestName);
@@ -241,17 +238,37 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	}
 
 	@Override
-	public void swarmInviteRequest(Jid sender, String roomId) {
-		log.log(LogService.LOG_INFO, "Recieved invitation for room " + roomId
+	public void swarmInviteRequest(final Jid sender, final String swarmId) {
+		if (memberOfSwarm(swarmId)) {
+			log.log(LogService.LOG_DEBUG, "Recieved invitation for room " + swarmId
+					+ " from " + sender.toString());
+			return;
+		}
+			
+		log.log(LogService.LOG_DEBUG, "Recieved invitation for room " + swarmId
 				+ " from " + sender.toString());
 		
-		// TODO Implement this case
-		// FIXME: Assuming the message content is the swarm to be joined.
 		try {
-			xmppClient.joinSwarm(roomId, BUGSwarmConnector.this);
+			xmppClient.joinSwarm(swarmId, BUGSwarmConnector.this);
+			SwarmModel swarmModel = wsClient.get(swarmId);
+			memberSwarms.add(swarmModel);	
+			log.log(LogService.LOG_DEBUG, "Joined swarm " + swarmId);
 		} catch (Exception e) {
 			log.log(LogService.LOG_ERROR, 
 					"Error occurred while responding to invite from swarm server.", e);
 		}
+	}
+
+	/**
+	 * @param swarmId id of swarm
+	 * @return true if swarm is in set of memberSwarms, false otherwise.
+	 */
+	private boolean memberOfSwarm(final String swarmId) {
+		//Linear search through active member swarms.
+		for (SwarmModel sm : memberSwarms)
+			if (sm.getId().equals(swarmId))
+				return true;
+		
+		return false;
 	}
 }

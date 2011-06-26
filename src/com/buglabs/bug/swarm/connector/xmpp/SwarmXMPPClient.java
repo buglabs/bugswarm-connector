@@ -142,13 +142,14 @@ public class SwarmXMPPClient  {
 	/**
 	 * Send presence to the swarm to notify that client is online.
 	 * @param swarmId swarm id
-	 * @throws XMPPException 
+	 * @param listener listener for server-based messages, null is ok if no listener required.
+	 * @throws Exception On connection error
 	 */
-	public void joinSwarm(final String swarmId, ISwarmServerRequestListener listener) throws Exception {
+	public void joinSwarm(final String swarmId, final ISwarmServerRequestListener listener) throws Exception {
 		MultiUserChat muc = getMUC(swarmId);
 		
 		if (!muc.isJoined()) {
-			if (!requestListeners.contains(listener))
+			if (listener != null && !requestListeners.contains(listener))
 				requestListeners.add(listener);
 			
 			muc.join(getResource());
@@ -156,6 +157,18 @@ public class SwarmXMPPClient  {
 			connection.getChatManager().addChatListener(requestHandler);
 			muc.addMessageListener(requestHandler);
 		}
+	}
+	
+	/**
+	 * Send unpresense to the swarm to notify that the client is offline.
+	 * 
+	 * @param swarmId swarm id to leave
+	 */
+	public void leaveSwarm(final String swarmId) {
+		MultiUserChat muc = swarmMap.get(swarmId);
+		
+		if (muc != null && muc.isJoined())
+			muc.leave();
 	}
 
 	/**

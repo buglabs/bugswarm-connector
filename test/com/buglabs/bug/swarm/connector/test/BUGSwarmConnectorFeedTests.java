@@ -212,8 +212,9 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 		Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
 
 		assertTrue(scanner.hasInputBeenRecieved());
-
+		int responseCount = 0;
 		for (String r : scanner.getResponses()) {
+			responseCount++;
 			Object o = JSONValue.parse(r);
 
 			assertNotNull(o);
@@ -252,6 +253,7 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 			}
 		}
 
+		assertTrue(responseCount > 0);
 		scanner.interrupt();
 		connector.interrupt();
 		connector.shutdown();

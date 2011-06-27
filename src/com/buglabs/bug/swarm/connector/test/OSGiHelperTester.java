@@ -18,18 +18,29 @@ public class OSGiHelperTester {
 
 	
 	public static void loadMockFeedProviders(Map<Object, Feed> feeds, Map<String, Feed> feeds2) {
-		Map<String, String> f1 = new HashMap<String, String>();
+		Map<String, String> f1 = generateRandomMap();
 		Feed f = new Feed("feed1", f1);
 		feeds.put(f1, f);
 		feeds2.put(f.getName(), f);
-		f1 = new HashMap<String, String>();
-		f = new Feed("feed2", new HashMap<String, String>());
+		f1 = generateRandomMap();
+		f = new Feed("feed2", f1);
 		feeds.put(f1, f);
 		feeds2.put(f.getName(), f);
-		f1 = new HashMap<String, String>();
-		f = new Feed("feed3", new HashMap<String, String>());
+		f1 = generateRandomMap();
+		f = new Feed("feed3", f1);
 		feeds.put(f1, f);
 		feeds2.put(f.getName(), f);
+	}
+
+	private static Map<String, String> generateRandomMap() {
+		Random r = new Random();
+		Map<String, String> map = new HashMap<String, String>();
+		
+		for (int i = 0; i < (5 + r.nextInt(10)); ++i) {
+			map.put("key-" + r.nextFloat(), "val:" + r.nextDouble());
+		}
+		
+		return map;
 	}
 
 	public static void loadMockIModuleControls(Map<Object, Feed> feeds, Map<String, Feed> feeds2) {

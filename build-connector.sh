@@ -50,6 +50,7 @@ fi
 ###### Clean old checkouts
 rm -Rf com.buglabs.common
 rm -Rf com.buglabs.osgi.sewing
+rm -Rf com.buglabs.osgi.tester
 rm -Rf com.buglabs.osgi.build
 rm -Rf smack-smackx-osgi
 
@@ -60,6 +61,7 @@ git checkout $BUILD_BRANCH
 cd ..
 mv bug-osgi/com.buglabs.common $WORKSPACE
 mv bug-osgi/com.buglabs.osgi.sewing $WORKSPACE
+mv bug-osgi/com.buglabs.osgi.tester $WORKSPACE
 mv bug-osgi/com.buglabs.osgi.build $WORKSPACE
 rm -Rf bug-osgi
 
@@ -67,7 +69,7 @@ git clone git://github.com/buglabs/smack-smackx-osgi.git
 cd smack-smackx-osgi
 git checkout $BUILD_BRANCH
 cd ..
-# Do not smack and smackx compile/run tests
+# Do not compile and run smack and smackx tests
 rm -Rf smack-smackx-osgi/test
 
 ###### Build dependencies
@@ -78,6 +80,9 @@ ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE
 
 # com.buglabs.osgi.sewing
 ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f com.buglabs.osgi.sewing/build.xml clean create_dirs build.jars
+
+# com.buglabs.osgi.tester
+ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f com.buglabs.osgi.tester/build.xml clean create_dirs build.jars
 
 # smack-smackx-osgi
 ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f smack-smackx-osgi/build.xml clean create_dirs build.jars

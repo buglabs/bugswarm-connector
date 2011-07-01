@@ -60,12 +60,35 @@ done
 set -x
 set +e
 
+#restore original files from backup
+rm -Rf /usr/share/java/*
+cp -rv /home/root/java-original/* /usr/share/java/
+
+# Get an API key based on the user id and password we were given
+export MYAPIKEY=$(curl -s -X POST --user "$BUGNETUSER:$BUGNETPSWD" http://bugswarm-test/keys | cut -d\" -f4)
+
+if [ "$MYAPIKEY" == "Authorization Required" ]; then
+	echo
+	echo
+	echo Failed to get the API KEY. You probably type the userid or password wrong
+	echo If you did then Pastebin this info to us:
+	echo ==============================================================================
+	curl -vvv -X POST --user "$BUGNETUSER:$BUGNETPSWD" http://bugswarm-test/keys 
+	echo
+	echo ==============================================================================
+	exit -1
+else
+	echo API Key is $MYAPIKEY
+fi
+
 # Set up the hosts file entries (this is for the test servers)
 echo 192.168.20.121 bugswarm-test xmpp.bugswarm-test api.bugswarm-test db.bugswarm-test >> /etc/hosts
 echo "192.168.20.16 darner" >> /etc/hosts
 echo 'com.buglabs.bugswarm.hostname=bugswarm-test' >> /usr/share/java/conf/config.properties
 mkdir /home/root/test-results
 echo 'com.buglabs.osgi.tester.report.dir=/home/root/test-results' >> /usr/share/java/conf/config.properties
+echo "com.buglabs.bugswarm.apikey=$MYAPIKEY" >> /usr/share/java/conf/config.properties
+echo "com.buglabs.bugswarm.username=$BUGNETUSER" >> /usr/share/java/conf/config.properties
 
 # oh dear, like this won't break regularly
  cd /usr/share/java/bundle
@@ -84,22 +107,6 @@ echo 'com.buglabs.osgi.tester.report.dir=/home/root/test-results' >> /usr/share/
 rm -Rf /var/volatile/felix-cache 
 /etc/init.d/felix restart 
 
-# Get an API key based on the user id and password we were given
-export MYAPIKEY=$(curl -s -X POST --user "$BUGNETUSER:$BUGNETPSWD" http://bugswarm-test/keys | cut -d\" -f4)
-
-if [ "$MYAPIKEY" == "Authorization Required" ]; then
-	echo
-	echo
-	echo Failed to get the API KEY. You probably type the userid or password wrong
-	echo If you did then Pastebin this info to us:
-	echo ==============================================================================
-	curl -vvv -X POST --user "$BUGNETUSER:$BUGNETPSWD" http://bugswarm-test/keys 
-	echo
-	echo ==============================================================================
-	exit -1
-else
-	echo API Key is $MYAPIKEY
-fi
 # Get this devices IP address
 IPADDR=$(ifconfig eth0 | grep "inet addr" | sed 's/.*inet addr:\(.*\)  Bcas.*/\1/')
 

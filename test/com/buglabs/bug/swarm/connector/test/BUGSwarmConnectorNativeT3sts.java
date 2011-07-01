@@ -16,6 +16,11 @@ import org.osgi.framework.BundleContext;
 public class BUGSwarmConnectorNativeT3sts extends TestCase {
 
 	
+	/**
+	 * Test that the bugswarm-connector bundle is installed and running in the OSGi framework instance.
+	 * 
+	 * @throws InterruptedException
+	 */
 	public void testConnectorAvailable() throws InterruptedException {
 		
 		assertNotNull(Activator.getDefault());
@@ -32,5 +37,13 @@ public class BUGSwarmConnectorNativeT3sts extends TestCase {
 		assertNotNull(swarmBundle);
 				
 		assertTrue(swarmBundle.getState() == Bundle.ACTIVE);
+	}
+	
+	/**
+	 * Determine if system properties have enough information to run tests.
+	 */
+	public void testSystemBUGSwarmPropertiesAvailable() {
+		assertNotNull(System.getProperty("com.buglabs.bugswarm.apikey"));
+		assertNotNull(System.getProperty("com.buglabs.bugswarm.username"));
 	}
 }

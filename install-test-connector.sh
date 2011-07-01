@@ -57,6 +57,8 @@ while [ -z $BUGNETPSWD ]; do
 	read BUGNETPSWD
 done
 
+set -x
+
 # Set up the hosts file entries (this is for the test servers)
 echo 192.168.20.121 bugswarm-test xmpp.bugswarm-test api.bugswarm-test db.bugswarm-test >> /etc/hosts
 echo "192.168.20.16 darner" >> /etc/hosts

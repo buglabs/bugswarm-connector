@@ -66,13 +66,13 @@ echo "192.168.20.16 darner" >> /etc/hosts
 echo 'com.buglabs.bugswarm.hostname=bugswarm-test' >> /usr/share/java/conf/config.properties
 
 # oh dear, like this won't break regularly
- wget -p /usr/share/java/bundle http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/smack-smackx-osgi.jar
- wget -p /usr/share/java/bundle http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/bugswarm-connector.jar
- wget -p /usr/share/java/bundle http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/com.buglabs.common.jar
- wge  -p /usr/share/java/bundle http://www.meisei-u.ac.jp/mirror/apache/dist//felix/org.apache.felix.log-1.0.1.jar
+ wget -P /usr/share/java/bundle http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/smack-smackx-osgi.jar
+ wget -P /usr/share/java/bundle http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/bugswarm-connector.jar
+ wget -P /usr/share/java/bundle http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/com.buglabs.common.jar
+ wget -P /usr/share/java/bundle http://www.meisei-u.ac.jp/mirror/apache/dist//felix/org.apache.felix.log-1.0.1.jar
  
- wget -p /usr/share/java/bundle http://bugcommunity.com/downloads/files/junit-osgi-4.9b2.jar
- wget -p /usr/share/java/bundle http://darner:8085/job/bugswarm-connector-master/lastSuccessfulBuild/artifact/dist/bugswarm-connector-tests.jar
+ wget -P /usr/share/java/bundle http://bugcommunity.com/downloads/files/junit-osgi-4.9b2.jar
+ wget -P /usr/share/java/bundle http://darner:8085/job/bugswarm-connector-master/lastSuccessfulBuild/artifact/dist/bugswarm-connector-tests.jar
 rm -Rf /var/volatile/felix-cache 
 /etc/init.d/felix restart 
 

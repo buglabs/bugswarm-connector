@@ -64,15 +64,17 @@ set +e
 echo 192.168.20.121 bugswarm-test xmpp.bugswarm-test api.bugswarm-test db.bugswarm-test >> /etc/hosts
 echo "192.168.20.16 darner" >> /etc/hosts
 echo 'com.buglabs.bugswarm.hostname=bugswarm-test' >> /usr/share/java/conf/config.properties
+mkdir /home/root/test-results
+echo 'com.buglabs.osgi.tester.report.dir=/home/root/test-results' >> /usr/share/java/conf/config.properties
 
 # oh dear, like this won't break regularly
  cd /usr/share/java/bundle
  rm smack-smackx-osgi.jar
- wget http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/smack-smackx-osgi.jar
+ wget http://darner:8085/job/bugswarm-connector-master/lastSuccessfulBuild/artifact/dist/smack-smackx-osgi.jar
  rm bugswarm-connector.jar
- wget http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/bugswarm-connector.jar
+ wget http://darner:8085/job/bugswarm-connector-master/lastSuccessfulBuild/artifact/dist/bugswarm-connector.jar
  rm com.buglabs.common.jar
- wget http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/com.buglabs.common.jar
+ wget http://darner:8085/job/bugswarm-connector-master/lastSuccessfulBuild/artifact/dist/com.buglabs.common.jar
  rm org.apache.felix.log-1.0.1.jar
  wget http://www.meisei-u.ac.jp/mirror/apache/dist//felix/org.apache.felix.log-1.0.1.jar
  rm junit-osgi-4.9b2.jar
@@ -112,7 +114,6 @@ cd /usr/share/java/bundle
 rm -Rf /var/volatile/felix-cache 
 /etc/init.d/felix restart 
 
-sleep 20
+sleep 120
 
 cat /var/log/felix.log
-

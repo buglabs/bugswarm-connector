@@ -58,6 +58,7 @@ while [ -z $BUGNETPSWD ]; do
 done
 
 set -x
+set +e
 
 # Set up the hosts file entries (this is for the test servers)
 echo 192.168.20.121 bugswarm-test xmpp.bugswarm-test api.bugswarm-test db.bugswarm-test >> /etc/hosts
@@ -65,13 +66,13 @@ echo "192.168.20.16 darner" >> /etc/hosts
 echo 'com.buglabs.bugswarm.hostname=bugswarm-test' >> /usr/share/java/conf/config.properties
 
 # oh dear, like this won't break regularly
- wget -q -p /usr/share/java/bundle http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/smack-smackx-osgi.jar
- wget -q -p /usr/share/java/bundle http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/bugswarm-connector.jar
- wget -q -p /usr/share/java/bundle http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/com.buglabs.common.jar
- wget -q -p /usr/share/java/bundle http://www.meisei-u.ac.jp/mirror/apache/dist//felix/org.apache.felix.log-1.0.1.jar
+ wget -p /usr/share/java/bundle http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/smack-smackx-osgi.jar
+ wget -p /usr/share/java/bundle http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/bugswarm-connector.jar
+ wget -p /usr/share/java/bundle http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/com.buglabs.common.jar
+ wge  -p /usr/share/java/bundle http://www.meisei-u.ac.jp/mirror/apache/dist//felix/org.apache.felix.log-1.0.1.jar
  
- wget -q --no-check-certificate -p /usr/share/java/bundle https://github.com/downloads/buglabs/bug-osgi/junit-osgi-4.9b2.jar
- wget -q -p /usr/share/java/bundle http://darner:8085/job/bugswarm-connector-master/lastSuccessfulBuild/artifact/dist/bugswarm-connector-tests.jar
+ wget -p /usr/share/java/bundle --no-check-certificate https://github.com/downloads/buglabs/bug-osgi/junit-osgi-4.9b2.jar
+ wget -p /usr/share/java/bundle http://darner:8085/job/bugswarm-connector-master/lastSuccessfulBuild/artifact/dist/bugswarm-connector-tests.jar
 rm -Rf /var/volatile/felix-cache 
 /etc/init.d/felix restart 
 

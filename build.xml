@@ -6,9 +6,6 @@
 		<echo message="Deleting existing class files in ${basedir}/build."></echo>
 		<delete dir="${basedir}/build" />
 
-		<echo message="Deleting non-test Java source files in ${basedir}/src."></echo>
-		<delete dir="${basedir}/src" />
-
 		<property name="dist.jar.name" value="${ant.project.name}-tests" />
 		<property name="manifest.location" location="${basedir}/test/MANIFEST.MF"/>
 		<antcall target="build.jars"></antcall>

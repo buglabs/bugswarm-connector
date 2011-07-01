@@ -106,7 +106,9 @@ sleep 2
 curl -s -X POST -d "action=activate&user-name=$BUGNETUSER&api-key=$MYAPIKEY" http://$IPADDR/bugswarm > /dev/null
 
 # Install the test runner, then bounce the framework.  The connector should be activated, and the test runner will execute any TestSuites it finds in the registry.
- wget -q -p /usr/share/java/bundle http://darner:8085/job/bugswarm-connector-master/lastSuccessfulBuild/artifact/dist/com.buglabs.osgi.tester.jar
+cd /usr/share/java/bundle
+ rm com.buglabs.osgi.tester.jar
+ wget http://darner:8085/job/bugswarm-connector-master/lastSuccessfulBuild/artifact/dist/com.buglabs.osgi.tester.jar
 rm -Rf /var/volatile/felix-cache 
 /etc/init.d/felix restart 
 

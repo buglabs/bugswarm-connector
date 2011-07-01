@@ -7,6 +7,7 @@ Bundle-Activator: com.buglabs.bug.swarm.connector.test.Activator
 Bundle-Vendor: Bug Labs, Inc.
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: 
+ junit.framework,
  com.buglabs.application,
  com.buglabs.module,
  com.buglabs.osgi.sewing.pub,

@@ -29,8 +29,7 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 		this.context = context;
 		regs = new ArrayList<ServiceRegistration>();
-		regs.add(context.registerService(TestSuite.class.getName(), new TestSuite(BUGSwarmConnectorFeedTests.class), null));
-		regs.add(context.registerService(TestSuite.class.getName(), new TestSuite(BUGSwarmConnectorNotificationTests.class), null));
+		regs.add(context.registerService(TestSuite.class.getName(), new TestSuite(BUGSwarmConnectorNativeT3sts.class), null));
 		
 		System.out.println(this.getClass().getName() + " added " + regs.size() + " suites for OSGi testing.");
 	}

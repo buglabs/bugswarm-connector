@@ -92,3 +92,6 @@ else
 fi
 echo "Analysing bugswarm-connector source"
 ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/bugswarm-connector/build.xml checkstyle cpd
+
+echo "Building OSGi test bundle"
+ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/bugswarm-connector/build.xml osgi-test-jar

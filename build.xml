@@ -1,17 +1,32 @@
 <project name="bugswarm-connector" basedir=".">
 	<property name="package.version" value="2.0" />
 	
+	<!-- This task must be called after bugswarm-connector is built and dist'ed -->
+	<target name="osgi-test-jar">
+		<echo message="Deleting existing class files in ${basedir}/build."></echo>
+		<delete dir="${basedir}/build" />
+
+		<echo message="Deleting non-test Java source files in ${basedir}/src."></echo>
+		<delete dir="${basedir}/src" />
+
+		<property name="dist.jar.name" value="${ant.project.name}-tests" />
+		<property name="manifest.location" location="${basedir}/test/MANIFEST.MF"/>
+		<echo message="jar.name: ${jar.name}"></echo>
+		<antcall target="build.jars"></antcall>
+	</target>
+
 	<!-- PROJECT IMPORTS -->
 	<property name="common.ant.file" location="${base.build.dir}/toolbox/common-osgi.xml" />
 	<import file="${common.ant.file}" />
-	
+
 	<!-- JUnit tests -->
-	<property environment="env"/>
+	<property environment="env" />
 	<property name="report.misc" value="${env.TEST_HOST}" />
-	<echo message="report.misc is ${report.misc}"></echo>
+	<echo message="report.misc is ${report.misc}">
+	</echo>
 	<property name="report.dir" location="junit-reports" />
 	<property name="report.src" location="test/" />
-	
+
 	<!-- Checkstyle -->
 	<property name="checkstyle.config" location="${base.build.dir}/toolbox/checkstyle/buglabs_checks.xml" />
 	<property name="checkstyle.dir" location="checkstyle-reports" />

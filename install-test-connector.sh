@@ -63,15 +63,14 @@ echo "192.168.20.16 darner" >> /etc/hosts
 echo 'com.buglabs.bugswarm.hostname=bugswarm-test' >> /usr/share/java/conf/config.properties
 
 # oh dear, like this won't break regularly
-cd /usr/share/java/bundle
- wget -q http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/smack-smackx-osgi.jar
- wget -q http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/bugswarm-connector.jar
+ wget -q -p /usr/share/java/bundle http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/smack-smackx-osgi.jar
+ wget -q -p /usr/share/java/bundle http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/bugswarm-connector.jar
 rm com.buglabs.common.jar
- wget -q -N http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/com.buglabs.common.jar
- wget -q -N http://www.meisei-u.ac.jp/mirror/apache/dist//felix/org.apache.felix.log-1.0.1.jar
+ wget -q -p /usr/share/java/bundle http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/com.buglabs.common.jar
+ wget -q -p /usr/share/java/bundle http://www.meisei-u.ac.jp/mirror/apache/dist//felix/org.apache.felix.log-1.0.1.jar
  
- wget -q -N http://darner:8085/job/bugswarm-connector-master/lastSuccessfulBuild/artifact/deps/junit-dep-4.9b2.jar
- wget -q -N http://darner:8085/job/bugswarm-connector-master/lastSuccessfulBuild/artifact/dist/bugswarm-connector-tests.jar
+ wget -q -p /usr/share/java/bundlehttp://darner:8085/job/bugswarm-connector-master/lastSuccessfulBuild/artifact/deps/junit-dep-4.9b2.jar
+ wget -q -p /usr/share/java/bundlehttp://darner:8085/job/bugswarm-connector-master/lastSuccessfulBuild/artifact/dist/bugswarm-connector-tests.jar
 rm -Rf /var/volatile/felix-cache 
 /etc/init.d/felix restart 
 
@@ -99,8 +98,11 @@ sleep 2
 curl -s -X POST -d "action=activate&user-name=$BUGNETUSER&api-key=$MYAPIKEY" http://$IPADDR/bugswarm > /dev/null
 
 # Install the test runner, then bounce the framework.  The connector should be activated, and the test runner will execute any TestSuites it finds in the registry.
-cd /usr/share/java/bundle
- wget -q -N http://darner:8085/job/bugswarm-connector-master/lastSuccessfulBuild/artifact/dist/com.buglabs.osgi.tester.jar
+ wget -q -p /usr/share/java/bundle http://darner:8085/job/bugswarm-connector-master/lastSuccessfulBuild/artifact/dist/com.buglabs.osgi.tester.jar
 rm -Rf /var/volatile/felix-cache 
 /etc/init.d/felix restart 
+
+sleep 20
+
+cat /var/log/felix.log
 

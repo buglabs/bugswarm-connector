@@ -56,9 +56,9 @@ while [ -z $BUGNETPSWD ]; do
 done
 
 # Set up the hosts file entries (this is for the test servers)
-echo 192.168.20.121 bugswarm-test xmpp.bugswarm-test api.bugswarm-test db.bugswarm-test >> /etc/hosts
-echo "192.168.20.16 darner" >> /etc/hosts
-echo 'com.buglabs.bugswarm.hostname=bugswarm-test' >> /usr/share/java/conf/config.properties
+grep '192.168.20.121' /etc/hosts > /dev/null || echo "192.168.20.121 bugswarm-test xmpp.bugswarm-test api.bugswarm-test db.bugswarm-test" | sudo tee -a /etc/hosts
+grep '192.168.20.16' /etc/hosts > /dev/null || echo "192.168.20.16 darner" | sudo tee -a /etc/hosts
+grep 'hostname=bugswarm-test' /usr/share/java/conf/config.properties > /dev/null || echo 'com.buglabs.bugswarm.hostname=bugswarm-test' | sudo tee -a /usr/share/java/conf/config.properties
 
 # oh dear, like this won't break regularly
 cd /usr/share/java/bundle

@@ -1,0 +1,164 @@
+#!/bin/bash
+# Copyright (c) 2010, Bug Labs, Inc.
+# All rights reserved.
+#
+# Filename: swarmconsetup
+#
+# Description: Swarm Connector setup script.
+#
+#              Note that this is for internal testing, uses internal ip
+#              addresses, hot mess, etc.
+#
+# Version:  1.0
+# Created: June 30, 2011
+# Author:  Mike Grundy <michael.grundy@buglabs.net>
+# License: All Rights Reserved, it's SWARM, Bitches!
+
+help () {
+
+	echo
+	echo This is the Swarm Connector setup script.
+	echo
+	echo Either give it your username and password from buglabs.net:
+	echo
+	echo $0 "-u [your bugnet userid] -p [your bugnet passwd]"
+	echo
+	echo or just run it and it will prompt you for that stuff
+}
+
+# Check for passed params
+while [ $# -gt 0 ]; do
+	# -u user name
+	if [ "$1" == "-u" ]; then
+		shift
+		BUGNETUSER=$1
+		shift
+		# -p password
+	elif [ "$1" == "-p" ]; then
+		shift
+		BUGNETPSWD=$1
+		shift
+	else
+		help
+		exit -1
+	fi
+done
+
+# If they didn't pass us params, prompt for them
+while [ -z $BUGNETUSER ]; do
+	echo Enter your buglabs.net userid
+	read BUGNETUSER
+done
+
+while [ -z $BUGNETPSWD ]; do
+	echo Enter the password for $BUGNETUSER
+	read BUGNETPSWD
+done
+
+# Set up the hosts file entries (this is for the test servers)
+echo 192.168.20.121 bugswarm-test xmpp.bugswarm-test api.bugswarm-test db.bugswarm-test >> /etc/hosts
+echo "192.168.20.16 darner" >> /etc/hosts
+echo 'com.buglabs.bugswarm.hostname=bugswarm-test' >> /usr/share/java/conf/config.properties
+
+# oh dear, like this won't break regularly
+cd /usr/share/java/bundle
+ wget -q http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/smack-smackx-osgi.jar
+ wget -q http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/bugswarm-connector.jar
+rm com.buglabs.common.jar
+ wget -q -N http://darner:8085/job/bugswarm-connector-0.1/lastSuccessfulBuild/artifact/dist/com.buglabs.common.jar
+ wget -q -N http://www.meisei-u.ac.jp/mirror/apache/dist//felix/org.apache.felix.log-1.0.1.jar
+rm -Rf /var/volatile/felix-cache 
+/etc/init.d/felix restart 
+
+# Get an API key based on the user id and password we were given
+export MYAPIKEY=$(curl -s -X POST --user "$BUGNETUSER:$BUGNETPSWD" http://bugswarm-test/keys | cut -d\" -f4)
+
+if [ "$MYAPIKEY" == "Authorization Required" ]; then
+	echo
+	echo
+	echo Failed to get the API KEY. You probably type the userid or password wrong
+	echo If you did then Pastebin this info to us:
+	echo ==============================================================================
+	curl -vvv -X POST --user "$BUGNETUSER:$BUGNETPSWD" http://bugswarm-test/keys 
+	echo
+	echo ==============================================================================
+	exit -1
+else
+	echo API Key is $MYAPIKEY
+fi
+# Get this devices IP address
+IPADDR=$(ifconfig eth0 | grep "inet addr" | sed 's/.*inet addr:\(.*\)  Bcas.*/\1/')
+
+sleep 2
+# Activate Swarm Connector (yeah, I'll put error checking in for this one later)
+curl -s -X POST -d "action=activate&user-name=$BUGNETUSER&api-key=$MYAPIKEY" http://$IPADDR/bugswarm > /dev/null
+
+# Create the swarm
+echo '{ "name": "My Example Swarm", "public": true, "description": "BUGswarm connector tutorial Swarm" }' > swarm.json
+export MYSWARM=$(curl -s -d@swarm.json --header "X-BugSwarmApiKey:$MYAPIKEY" --header "Content-Type:application/json" http://bugswarm-test/swarms | cut -d\" -f4)
+
+if [ -z $MYSWARM ]; then
+	echo
+	echo
+	echo Failed to create the test swarm. Pastebin this info to us:
+	echo ==============================================================================
+	echo API Key is $MYAPIKEY
+	echo swarm.json:
+	cat swarm.json
+	echo curl output
+	curl -vvv -d@swarm.json --header "X-BugSwarmApiKey:$MYAPIKEY" --header "Content-Type:application/json" http://bugswarm-test/swarms
+	echo
+	echo ==============================================================================
+	exit -1
+else
+	echo Swarm ID is $MYSWARM
+fi
+#eth0
+export MYMAC=$(cat /sys/devices/platform/ehci-omap.0/usb1/1-2/1-2.4/1-2.4:1.0/net/eth0/address)
+#wlan0 DOESN'T WORK YET!!!!
+#export MYMAC=$(ifconfig | grep wlan0 | sed -e 's/.*HWaddr //' -e 's/ //g')
+
+# ENGAGE! Or associate our device with the Swarm we created before
+echo '{ "type": "producer","user_id":' \"$BUGNETUSER\", '"resource":' \"$MYMAC\" '}' > resource.json
+# Umm, check we get Created back from this
+ASSOCIATED=$(curl -s -d@resource.json --header "X-BugSwarmApiKey:$MYAPIKEY" --header "Content-Type:application/json" http://bugswarm-test/swarms/$MYSWARM/resources)
+if [ "$ASSOCIATED" != "Created" ]; then
+	echo
+	echo
+	echo Failed to associate this device with the swarm we just created
+	echo ==============================================================================
+	echo API Key is $MYAPIKEY
+	echo Swarm ID is $MYSWARM
+	echo swarm.json:
+	cat swarm.json
+	echo resource.json
+	cat resource.json
+	echo curl output
+	curl -vvv -d@resource.json --header "X-BugSwarmApiKey:$MYAPIKEY" --header "Content-Type:application/json" http://bugswarm-test/swarms/$MYSWARM/resources
+	echo
+	echo ==============================================================================
+	exit -1
+else
+	echo Associated this device with the swarm
+fi
+
+# Associate the web resource with swarm as a consumer
+echo '{ "type": "consumer","user_id": ' \"$BUGNETUSER\", '"resource": "web"}' > web.json
+# Have to think about what we can check for an error here, hmmm
+echo
+echo Associate the web resource with swarm as a consumer
+curl -s -d@web.json --header "X-BugSwarmApiKey:$MYAPIKEY" --header "Content-Type:application/json" http://bugswarm-test/swarms/$MYSWARM/resources
+
+#Stop the connector, then restart it
+echo Deactivating the Swarm connector
+sleep 5
+ping -c5 $IPADDR
+curl -X POST -d "action=deactivate&user-name=$BUGNETUSER&api-key=$MYAPIKEY" http://$IPADDR/bugswarm > /dev/null
+sleep 10
+# Activate Swarm Connector (yeah, I'll put error checking in for this one later)
+echo Activating the Swarm connector
+curl -X POST -d "action=activate&user-name=$BUGNETUSER&api-key=$MYAPIKEY" http://$IPADDR/bugswarm > /dev/null
+
+tail -n 200 /var/log/felix.log
+
+echo Well, that should do it, check out http://$IPADDR/bugswarm

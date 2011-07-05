@@ -14,6 +14,9 @@
 # Author:  Mike Grundy <michael.grundy@buglabs.net>
 # License: All Rights Reserved, it's SWARM, Bitches!
 
+# Check what operating system is running
+[[ `uname -s` == "Darwin" ]] && OSX=true || OSX=false
+
 help () {
 
 	echo
@@ -86,9 +89,13 @@ if [ "$MYAPIKEY" == "Authorization Required" ]; then
 else
 	echo API Key is $MYAPIKEY
 fi
-# Get this devices IP address
-IPADDR=$(ifconfig eth0 | grep "inet addr" | sed 's/.*inet addr:\(.*\)  Bcas.*/\1/')
 
+# Get this devices IP address
+if $OSX; then
+	IPADDR=$(ifconfig en0 | grep "inet " | sed 's/.*inet \(.*\) netmask.*/\1/')
+else
+	IPADDR=$(ifconfig eth0 | grep "inet addr" | sed 's/.*inet addr:\(.*\)  Bcas.*/\1/')
+fi
 sleep 2
 # Activate Swarm Connector (yeah, I'll put error checking in for this one later)
 curl -s -X POST -d "action=activate&user-name=$BUGNETUSER&api-key=$MYAPIKEY" http://$IPADDR/bugswarm > /dev/null

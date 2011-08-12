@@ -14,13 +14,13 @@ import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
 import org.osgi.util.tracker.ServiceTracker;
 
-import com.buglabs.application.ServiceTrackerHelper;
 import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
 import com.buglabs.bug.swarm.connector.Configuration;
 import com.buglabs.bug.swarm.connector.ui.ConfigInitRunnable;
 import com.buglabs.bug.swarm.connector.ui.SwarmConfigKeys;
 import com.buglabs.osgi.sewing.pub.ISewingService;
 import com.buglabs.util.osgi.LogServiceUtil;
+import com.buglabs.util.osgi.ServiceTrackerUtil;
 
 /**
  * Activator for bugswarm-connector.  Entry point for OSGi.
@@ -71,7 +71,8 @@ public class Activator implements BundleActivator, ManagedService {
 		Activator.context = bundleContext;
 		log = LogServiceUtil.getLogService(context);
 		cmSr = context.registerService(ManagedService.class.getName(), this, getCMDictionary());
-		sewingST = ServiceTrackerHelper.openServiceTracker(context, configurationServices , new ConfigInitRunnable(context, log));
+		sewingST = ServiceTrackerUtil.openServiceTracker(
+				context, new ConfigInitRunnable(context, log), configurationServices);
 	}
 
 	/*

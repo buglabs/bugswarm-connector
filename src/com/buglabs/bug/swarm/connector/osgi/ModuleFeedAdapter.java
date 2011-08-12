@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.buglabs.module.IModuleControl;
-import com.buglabs.module.IModuleProperty;
+import com.buglabs.bug.dragonfly.module.IModuleControl;
+import com.buglabs.bug.dragonfly.module.IModuleProperty;
 
 /**
  * Adapts IModule control to Feed.

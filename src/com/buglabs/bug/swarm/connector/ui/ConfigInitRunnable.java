@@ -34,8 +34,9 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.log.LogService;
 
-import com.buglabs.application.ServiceTrackerHelper.ManagedRunnable;
+
 import com.buglabs.osgi.sewing.pub.ISewingService;
+import com.buglabs.util.osgi.ServiceTrackerUtil.ManagedRunnable;
 
 /**
  * Startup/tear down configuration servlet.
@@ -59,7 +60,7 @@ public class ConfigInitRunnable implements ManagedRunnable {
 	}
 
 	@Override
-	public void run(final Map<Object, Object> services) {
+	public void run(final Map<String, Object> services) {
 		ConfigurationAdmin ca = (ConfigurationAdmin) services.get(ConfigurationAdmin.class.getName());
 
 		try {

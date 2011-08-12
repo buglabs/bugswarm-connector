@@ -3,8 +3,8 @@ package com.buglabs.bug.swarm.connector.test;
 import java.io.IOException;
 import java.util.List;
 
-import com.buglabs.module.IModuleControl;
-import com.buglabs.module.IModuleProperty;
+import com.buglabs.bug.dragonfly.module.IModuleControl;
+import com.buglabs.bug.dragonfly.module.IModuleProperty;
 
 public class MockIModuleControl implements IModuleControl {
 

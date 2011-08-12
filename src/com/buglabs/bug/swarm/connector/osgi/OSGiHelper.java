@@ -13,8 +13,8 @@ import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogService;
 
+import com.buglabs.bug.dragonfly.module.IModuleControl;
 import com.buglabs.bug.swarm.connector.test.OSGiHelperTester;
-import com.buglabs.module.IModuleControl;
 import com.buglabs.services.ws.PublicWSProvider;
 import com.buglabs.util.OSGiServiceLoader;
 

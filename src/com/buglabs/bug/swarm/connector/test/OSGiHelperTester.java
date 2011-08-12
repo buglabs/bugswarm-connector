@@ -1,17 +1,14 @@
 package com.buglabs.bug.swarm.connector.test;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import com.buglabs.bug.dragonfly.module.IModuleControl;
+import com.buglabs.bug.dragonfly.module.IModuleProperty;
 import com.buglabs.bug.swarm.connector.osgi.Feed;
-import com.buglabs.module.IModuleControl;
-import com.buglabs.module.IModuleProperty;
-import com.buglabs.services.ws.IWSResponse;
-import com.buglabs.services.ws.PublicWSDefinition;
 import com.buglabs.services.ws.PublicWSProvider;
 
 public class OSGiHelperTester {

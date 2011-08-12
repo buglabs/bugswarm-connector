@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.osgi.framework.ServiceReference;
 
-import com.buglabs.module.IModuleControl;
+import com.buglabs.bug.dragonfly.module.IModuleControl;
 import com.buglabs.services.ws.PublicWSProvider;
 
 /**

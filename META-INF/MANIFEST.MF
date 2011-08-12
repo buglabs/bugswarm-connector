@@ -7,21 +7,17 @@ Bundle-Activator: com.buglabs.bug.swarm.connector.osgi.Activator
 Bundle-Vendor: Bug Labs, Inc.
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: 
- com.buglabs.application,
- com.buglabs.module,
  com.buglabs.osgi.sewing.pub,
  com.buglabs.osgi.sewing.pub.util,
  com.buglabs.services.ws,
- com.buglabs.util.osgi,
  com.buglabs.util,
+ com.buglabs.util.osgi,
  com.buglabs.util.simplerestclient,
  freemarker.template,
  javax.servlet.http,
- javax.net,
- javax.net.ssl,
  org.jivesoftware.smack,
  org.jivesoftware.smack.packet,
- org.jivesoftware.smackx.muc, 
+ org.jivesoftware.smackx.muc,
  org.osgi.framework;version="1.3.0",
  org.osgi.service.cm,
  org.osgi.service.log,

@@ -44,7 +44,7 @@ import com.buglabs.osgi.sewing.pub.SewingController;
 import com.buglabs.osgi.sewing.pub.SewingHttpServlet;
 import com.buglabs.osgi.sewing.pub.util.ControllerMap;
 import com.buglabs.osgi.sewing.pub.util.RequestParameters;
-import com.buglabs.util.ConfigAdminUtil;
+import com.buglabs.util.osgi.ConfigAdminUtil;
 
 import freemarker.template.SimpleHash;
 import freemarker.template.SimpleScalar;

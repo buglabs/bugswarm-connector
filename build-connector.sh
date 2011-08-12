@@ -49,6 +49,7 @@ fi
 
 ###### Clean old checkouts
 rm -Rf com.buglabs.common
+rm -Rf com.buglabs.bug.dragonfly
 rm -Rf com.buglabs.osgi.sewing
 rm -Rf com.buglabs.osgi.tester
 rm -Rf com.buglabs.osgi.build
@@ -60,6 +61,7 @@ cd bug-osgi
 git checkout $BUILD_BRANCH
 cd ..
 mv bug-osgi/com.buglabs.common $WORKSPACE
+mv bug-osgi/com.buglabs.bug.dragonfly $WORKSPACE
 mv bug-osgi/com.buglabs.osgi.sewing $WORKSPACE
 mv bug-osgi/com.buglabs.osgi.tester $WORKSPACE
 mv bug-osgi/com.buglabs.osgi.build $WORKSPACE
@@ -77,6 +79,9 @@ set -e
 
 # com.buglabs.common
 ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f com.buglabs.common/build.xml clean create_dirs build.jars
+
+# com.buglabs.common
+ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f com.buglabs.bug.dragonfly/build.xml clean create_dirs build.jars
 
 # com.buglabs.osgi.sewing
 ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f com.buglabs.osgi.sewing/build.xml clean create_dirs build.jars

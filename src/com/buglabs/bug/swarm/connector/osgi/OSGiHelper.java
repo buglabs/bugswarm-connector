@@ -16,7 +16,7 @@ import org.osgi.service.log.LogService;
 import com.buglabs.bug.dragonfly.module.IModuleControl;
 import com.buglabs.bug.swarm.connector.test.OSGiHelperTester;
 import com.buglabs.services.ws.PublicWSProvider;
-import com.buglabs.util.OSGiServiceLoader;
+import com.buglabs.util.osgi.OSGiServiceLoader;
 
 /**
  * Class to encapsulate OSGi service access for bugswarm-connector.

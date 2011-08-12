@@ -39,7 +39,6 @@ import org.jivesoftware.smack.Connection;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.muc.Affiliate;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.json.simple.JSONArray;

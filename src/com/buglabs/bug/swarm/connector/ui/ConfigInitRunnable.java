@@ -34,7 +34,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.log.LogService;
 
-
 import com.buglabs.osgi.sewing.pub.ISewingService;
 import com.buglabs.util.osgi.ServiceTrackerUtil.ManagedRunnable;
 

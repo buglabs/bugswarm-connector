@@ -75,6 +75,10 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 		assertFalse(response.isError());
 	}
 
+	/**
+	 * Test initializing the connector.  
+	 * @throws InterruptedException
+	 */
 	public void testInitializeConnector() throws InterruptedException {
 		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
 
@@ -203,7 +207,8 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getAPIKey());
 
-		HTTPResponse response = request.get(AccountConfig.getConfiguration().getHostname(Protocol.HTTP) + "/swarms/" + AccountConfig.testSwarmId + "/resources/"
+		HTTPResponse response = request.get(AccountConfig.getConfiguration().getHostname(Protocol.HTTP) + 
+				"/swarms/" + AccountConfig.testSwarmId + "/resources/"
 				+ AccountConfig.getConfiguration().getResource() + "/feeds?stream=true", headers);
 
 		StreamScanner scanner = new StreamScanner(response.getStream());
@@ -237,7 +242,9 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 				JSONObject jo = (JSONObject) key;
 
 				for (Object rk : jo.keySet()) {
-					String url = AccountConfig.getConfiguration().getHostname(Protocol.HTTP) + "/swarms/" + AccountConfig.testSwarmId + "/feeds/" + rk;
+					String url = AccountConfig.getConfiguration().getHostname(Protocol.HTTP) 
+					+ "/swarms/" + AccountConfig.testSwarmId + "/feeds/" + rk;
+					
 					System.out.println("Get data for feed " + rk + " to " + url);
 
 					HTTPResponse response2 = request.get(url, headers);

@@ -299,10 +299,10 @@ public class SwarmXMPPClient  {
 	}
 
 	/**
-	 * @param requestJid
-	 * @param swarmId
-	 * @param document
-	 * @throws XMPPException
+	 * @param requestJid JID of requester
+	 * @param swarmId Swarm ID
+	 * @param document Feed as JSON document
+	 * @throws XMPPException on XMPP error
 	 */
 	public void sendAllFeedsToUser(Jid requestJid, String swarmId, JSONArray document) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
@@ -317,10 +317,19 @@ public class SwarmXMPPClient  {
 		pchat.sendMessage(document.toJSONString());
 	}
 
+	/**
+	 * @return JID of connected client
+	 */
 	public Jid getJid() {		
 		return jid;
 	}
 
+	/**
+	 * @param requestJid JID of requester
+	 * @param swarmId Swarm ID
+	 * @param document Feed as JSON document
+	 * @throws XMPPException on XMPP error
+	 */
 	public void sendFeedToUser(Jid requestJid, String swarmId, JSONObject document) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
 		

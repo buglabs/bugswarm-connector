@@ -33,9 +33,8 @@ public interface ISwarmServerRequestListener {
 	void feedRequest(final Jid jid, final String swarmId, final String feedRequestName);
 	
 	/**
-	 * @param sender
-	 * @param connection
-	 * @param roomId
+	 * @param jid JID of requester
+	 * @param roomId room to be invited to.
 	 */
-	void swarmInviteRequest(final Jid sender, String roomId);
+	void swarmInviteRequest(final Jid jid, String roomId);
 }

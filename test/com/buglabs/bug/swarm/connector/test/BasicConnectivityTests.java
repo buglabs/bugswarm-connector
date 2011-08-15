@@ -1,6 +1,5 @@
 package com.buglabs.bug.swarm.connector.test;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,9 +24,10 @@ import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 import com.buglabs.bug.swarm.connector.xmpp.Jid;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
 import com.buglabs.util.simplerestclient.HTTPException;
+import com.buglabs.util.simplerestclient.HTTPResponse;
 
 /**
- * See RMI http://redmine/issues/2312
+ * See RMI http://redmine/issues/2312.
  * 
  * @author kgilmer
  * 
@@ -57,8 +57,11 @@ public class BasicConnectivityTests extends TestCase {
 				}
 			}
 		} catch (HTTPException e) {
-			//Ignore 404s.  They are not errors.  But unfortunately they have to be handled as errors since this is the REST way according to Camilo.
-			if (e.getErrorCode() != 404)
+			/*
+			 * Ignore 404s.  
+			 * They are not errors, they have to be handled as errors since this is the REST way.
+			 */
+			if (e.getErrorCode() != HTTPResponse.HTTP_CODE_NOT_FOUND)
 				throw e;
 		}
 				

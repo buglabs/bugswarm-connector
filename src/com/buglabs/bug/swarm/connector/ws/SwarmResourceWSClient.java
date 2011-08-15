@@ -97,13 +97,4 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 		return SwarmWSResponse.fromCode(
 				httpClient.post(swarmHostUrl + "swarms/" + swarmId + "/resources", props).getResponseCode());
 	}
-	
-	/**
-	 * @throws IOException thrown on error
-	 */
-	private void validate() throws IOException {
-		Throwable err = checkAndValidate(false);
-		if (err != null)			
-			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE, err);
-	}
 }

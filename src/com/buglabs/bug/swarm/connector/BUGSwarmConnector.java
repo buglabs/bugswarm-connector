@@ -13,6 +13,7 @@ import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.connector.osgi.Activator;
+import com.buglabs.bug.swarm.connector.osgi.BinaryFeed;
 import com.buglabs.bug.swarm.connector.osgi.Feed;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper.EntityChangeListener;
@@ -226,14 +227,24 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 					"Request for non-existant feed " + feedRequestName + " from client " + jid);
 			return;
 		}
-			
-		JSONObject document = JSONElementCreator.createFeedElement(f);
 		
-		try {
-			xmppClient.sendFeedToUser(jid, swarmId, document);
-		} catch (XMPPException e) {
-			log.log(LogService.LOG_ERROR, 
-					"Error occurred while sending feeds to " + jid, e);
+		if (f instanceof BinaryFeed) {
+			try {
+				wsClient.getSwarmBinaryUploadClient().upload(
+						swarmId, f.getName(), ((BinaryFeed) f).getPayload());				
+			} catch (IOException e) {
+				log.log(LogService.LOG_ERROR, 
+						"Error occurred while sending binary feed to " + jid, e);
+			}
+		} else {			
+			JSONObject document = JSONElementCreator.createFeedElement(f);
+			
+			try {
+				xmppClient.sendFeedToUser(jid, swarmId, document);
+			} catch (XMPPException e) {
+				log.log(LogService.LOG_ERROR, 
+						"Error occurred while sending feeds to " + jid, e);
+			}
 		}
 	}
 

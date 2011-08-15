@@ -1,6 +1,5 @@
 package com.buglabs.bug.swarm.connector.osgi;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -9,6 +8,13 @@ import org.apache.commons.io.IOUtils;
 
 /**
  * A type of feed that represents a single binary resource.
+ * 
+ * This feed works just as a normal feed at the OSGi service level, except
+ * that only defined keys are expected and read.  
+ * Namely, one key: <code>BinaryFeed.FEED_PAYLOAD_KEY</code>
+ * 
+ * The value of this key is expected to be an input stream representing a binary
+ * resource that will be uploaded to the swarm server upon request.
  * 
  * @author kgilmer
  *

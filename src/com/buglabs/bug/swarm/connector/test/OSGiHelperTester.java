@@ -46,7 +46,7 @@ public final class OSGiHelperTester {
 		feeds.put(f1, f);
 		feeds2.put(f.getName(), f);
 		
-		BinaryFeed bf = new BinaryFeed("picture", createPictureMap());
+		BinaryFeed bf = new BinaryFeed("picture.jpg", createPictureMap());
 		feeds.put(f1, bf);
 		feeds2.put(bf.getName(), bf);
 	}

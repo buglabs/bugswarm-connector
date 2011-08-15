@@ -22,6 +22,7 @@ import com.buglabs.util.simplerestclient.HTTPResponse;
  */
 public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient {
 	private SwarmResourceWSClient membersClient;
+	private SwarmBinaryUploadWSClient uploadClient;
 
 	/**
 	 * Create a client from a url and apikey.
@@ -50,6 +51,16 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 			membersClient = new SwarmResourceWSClient(swarmHostUrl, apiKey, httpClient);
 		
 		return membersClient;
+	}
+	
+	/**
+	 * @return Swarm Members API
+	 */
+	public ISwarmBinaryUploadClient getSwarmBinaryUploadClient() {
+		if (uploadClient == null)
+			uploadClient = new SwarmBinaryUploadWSClient(swarmHostUrl, apiKey, httpClient);
+		
+		return uploadClient;
 	}
 	
 	@Override
@@ -137,14 +148,5 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 	@Override
 	public Throwable isValid() {
 		return super.checkAndValidate(false);
-	}
-	
-	/**
-	 * @throws IOException thrown when connection error occurs
-	 */
-	private void validate() throws IOException {
-		Throwable err = checkAndValidate(false);
-		if (err != null)			
-			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE, err);
 	}
 }

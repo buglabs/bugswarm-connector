@@ -8,12 +8,30 @@ import java.util.Random;
 
 import com.buglabs.bug.dragonfly.module.IModuleControl;
 import com.buglabs.bug.dragonfly.module.IModuleProperty;
+import com.buglabs.bug.swarm.connector.osgi.BinaryFeed;
 import com.buglabs.bug.swarm.connector.osgi.Feed;
 import com.buglabs.services.ws.PublicWSProvider;
 
-public class OSGiHelperTester {
+/**
+ * A class to setup a test environment outside of an OSGi context.
+ * 
+ * @author kgilmer
+ *
+ */
+public final class OSGiHelperTester {
 
+	/**
+	 * 
+	 */
+	private OSGiHelperTester() {
+		
+	}
 	
+	/**
+	 * Create mock feeds for testing.
+	 * @param feeds
+	 * @param feeds2
+	 */
 	public static void loadMockFeedProviders(Map<Object, Feed> feeds, Map<String, Feed> feeds2) {
 		Map<String, String> f1 = generateRandomMap();
 		Feed f = new Feed("feed1", f1);
@@ -27,8 +45,28 @@ public class OSGiHelperTester {
 		f = new Feed("feed3", f1);
 		feeds.put(f1, f);
 		feeds2.put(f.getName(), f);
+		
+		BinaryFeed bf = new BinaryFeed("picture", createPictureMap());
+		feeds.put(f1, bf);
+		feeds2.put(bf.getName(), bf);
 	}
 
+	/**
+	 * Create a map with an input stream of an image.
+	 * @return a map with an input stream of an image.
+	 */
+	private static Map<?, ?> createPictureMap() {
+		Map<String, Object> m = new HashMap<String, Object>();
+		
+		m.put(BinaryFeed.FEED_PAYLOAD_KEY, 
+				OSGiHelperTester.class.getResourceAsStream("/com/buglabs/bug/swarm/connector/test/buck.JPG"));
+		
+		return m;
+	}
+
+	/**
+	 * @return a map with random name value pairs.
+	 */
 	private static Map<String, String> generateRandomMap() {
 		Random r = new Random();
 		Map<String, String> map = new HashMap<String, String>();

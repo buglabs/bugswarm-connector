@@ -4,10 +4,11 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Contract for the API defined at https://github.com/buglabs/bugswarm/wiki/Swarm-Members-API.
+ * Contract for the API defined at
+ * https://github.com/buglabs/bugswarm/wiki/Swarm-Members-API.
  * 
  * @author kgilmer
- *
+ * 
  */
 public interface ISwarmResourcesClient {
 
@@ -19,57 +20,70 @@ public interface ISwarmResourcesClient {
 		 * There are two types of members, 'consumer' and 'producer'.
 		 */
 		CONSUMER("consumer"), PRODUCER("producer");
-		
+
 		/**
 		 * Name of member.
 		 */
 		private final String name;
-		
+
 		/**
-		 * @param name of member
+		 * @param name
+		 *            of member
 		 */
 		private MemberType(final String name) {
 			this.name = name;
 		}
-		
+
 		@Override
 		public String toString() {
 			return name;
 		}
 	}
-	
+
 	/**
-	 * @param swarmId id of swarm
-	 * @param type consumer or producer
+	 * @param swarmId
+	 *            id of swarm
+	 * @param type
+	 *            consumer or producer
 	 * @return List of SwarmMemberModel
-	 * @throws IOException on connection error
+	 * @throws IOException
+	 *             on connection error
 	 */
 	List<SwarmResourceModel> list(String swarmId, ISwarmResourcesClient.MemberType type) throws IOException;
-	
+
 	/**
-	 * @param swarmId id of swarm
-	 * @param type consumer or producer
-	 * @param userId user id
-	 * @param resource XMPP resource
+	 * @param swarmId
+	 *            id of swarm
+	 * @param type
+	 *            consumer or producer
+	 * @param userId
+	 *            user id
+	 * @param resource
+	 *            XMPP resource
 	 * @return HTTP response of operation
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	SwarmWSResponse add(String swarmId, ISwarmResourcesClient.MemberType type, String userId, String resource) throws IOException;
-	
+
 	/**
-	 * @param swarmId id of swarm
-	 * @param type consumer or producer
-	 * @param userId user id
-	 * @param resource XMPP resource
+	 * @param swarmId
+	 *            id of swarm
+	 * @param type
+	 *            consumer or producer
+	 * @param userId
+	 *            user id
+	 * @param resource
+	 *            XMPP resource
 	 * @return HTTP response of operation
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	SwarmWSResponse remove(String swarmId, ISwarmResourcesClient.MemberType type, String userId, String resource) throws IOException;
-	
+
 	/**
-	 * @param resource XMPP resource
+	 * @param resource
+	 *            XMPP resource
 	 * @return list of SwarmModel or emtpy list
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	List<SwarmModel> getSwarmsByMember(String resource) throws IOException;
 }

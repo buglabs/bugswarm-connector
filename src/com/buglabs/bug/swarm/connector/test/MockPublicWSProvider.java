@@ -38,4 +38,3 @@ public class MockPublicWSProvider implements PublicWSProvider {
 	}
 
 }
-

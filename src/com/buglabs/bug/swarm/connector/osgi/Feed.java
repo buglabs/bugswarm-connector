@@ -18,9 +18,19 @@ public class Feed {
 	 * OSGi service property key for the feed name.
 	 */
 	public static final String FEED_SERVICE_NAME_PROPERTY = "SWARM.FEED.NAME";
+	/**
+	 * OSGi service property key to denote a Binary Feed.
+	 */
 	public static final String FEED_SERVICE_BINARY_PROPERTY = "SWARM.FEED.BINARY";
 
+	/**
+	 * Name of feed.
+	 */
 	private String feedName;
+
+	/**
+	 * Name/value pairs of Feed.
+	 */
 	private Map<?, ?> feed;
 
 	/**

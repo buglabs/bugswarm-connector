@@ -39,7 +39,7 @@ import java.util.StringTokenizer;
 
 /**
  * Encapsulates unique device id, aka XMPP resource.
- *
+ * 
  */
 public final class ClientIdentity {
 	private static final int MAC_ADDRESS_POSITION = 6;
@@ -51,9 +51,9 @@ public final class ClientIdentity {
 	 * Singleton that cannot be externally constructed.
 	 */
 	private ClientIdentity() {
-		
+
 	}
-	
+
 	/**
 	 * @return A reference to ClientIdentity singleton.
 	 */
@@ -61,41 +61,44 @@ public final class ClientIdentity {
 		if (ref == null) {
 			ref = new ClientIdentity();
 		}
-		
+
 		return ref;
 	}
-	
+
 	/**
 	 * @return GUID for device.
-	 * @throws IOException on file I/O errors
+	 * @throws IOException
+	 *             on file I/O errors
 	 */
 	public String getId() throws IOException {
 		if (id == null) {
-			//For debugging, if userid passed as a system property use it.
+			// For debugging, if userid passed as a system property use it.
 			if (System.getProperty("SwarmUserId") != null) {
 				return System.getProperty("SwarmUserId");
 			}
-			
-			//Look to see if mac address is provided by sysfs.
+
+			// Look to see if mac address is provided by sysfs.
 			File f = new File("/sys/devices/platform/ehci-omap.0/usb2/2-2/2-2.5/2-2.5:1.0/net/eth0/address");
-			
+
 			if (f.exists()) {
 				BufferedReader fr = new BufferedReader(new FileReader(f));
 				id = fr.readLine();
 				fr.close();
 			} else {
-				//Run ifconfig to get mac address.
+				// Run ifconfig to get mac address.
 				id = getMacAddress();
 			}
 		}
-		
+
 		return id;
 	}
-	
+
 	/**
 	 * Parse mac address from 'ifconfig' commmand.
+	 * 
 	 * @return String of mac address
-	 * @throws IOException on IO error
+	 * @throws IOException
+	 *             on IO error
 	 */
 	private static String getMacAddress() throws IOException {
 		try {
@@ -105,10 +108,11 @@ public final class ClientIdentity {
 			throw new IOException(ex.getMessage());
 		}
 	}
-	
+
 	/**
 	 * @return contents of 'ifconfig' command
-	 * @throws IOException on io error
+	 * @throws IOException
+	 *             on io error
 	 */
 	private static String linuxRunIfConfigCommand() throws IOException {
 		Process p = Runtime.getRuntime().exec("ifconfig");
@@ -123,12 +127,14 @@ public final class ClientIdentity {
 		String outputText = buffer.toString();
 		stdoutStream.close();
 		return outputText;
-	}	
-	
+	}
+
 	/**
-	 * @param ipConfigResponse contents of 'ifconfig' command
+	 * @param ipConfigResponse
+	 *            contents of 'ifconfig' command
 	 * @return mac address
-	 * @throws ParseException on parse failure
+	 * @throws ParseException
+	 *             on parse failure
 	 */
 	private static String linuxParseMacAddress(final String ipConfigResponse) throws ParseException {
 		String localHost = null;
@@ -158,20 +164,22 @@ public final class ClientIdentity {
 				continue;
 			}
 		}
-		
-		//We didn't get the hw address of InetAddress.getLocalHost().getHostAddress() but let's return the last good hw address.
+
+		// We didn't get the hw address of
+		// InetAddress.getLocalHost().getHostAddress() but let's return the last
+		// good hw address.
 		if (lastMacAddress != null) {
 			return lastMacAddress;
 		}
 
-		ParseException ex = new ParseException("cannot read MAC address for "
-				+ localHost + " from [" + ipConfigResponse + "]", 0);
+		ParseException ex = new ParseException("cannot read MAC address for " + localHost + " from [" + ipConfigResponse + "]", 0);
 		ex.printStackTrace();
 		throw ex;
 	}
 
 	/**
-	 * @param macAddressCandidate mac address as string
+	 * @param macAddressCandidate
+	 *            mac address as string
 	 * @return true if looks like a valid mac address, false otherwise
 	 */
 	private static boolean linuxIsMacAddress(final String macAddressCandidate) {

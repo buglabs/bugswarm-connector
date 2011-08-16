@@ -22,9 +22,9 @@ import com.buglabs.util.osgi.OSGiServiceLoader;
  * Class to encapsulate OSGi service access for bugswarm-connector.
  * 
  * @author kgilmer
- *
+ * 
  */
-public final class OSGiHelper implements ServiceListener {	
+public final class OSGiHelper implements ServiceListener {
 
 	/**
 	 * A listener for events that occur in the OSGi context for any
@@ -35,8 +35,10 @@ public final class OSGiHelper implements ServiceListener {
 	 */
 	public interface EntityChangeListener {
 		/**
-		 * @param eventType event type
-		 * @param source object source
+		 * @param eventType
+		 *            event type
+		 * @param source
+		 *            object source
 		 */
 		void change(int eventType, Object source);
 	}
@@ -49,13 +51,14 @@ public final class OSGiHelper implements ServiceListener {
 	private List<EntityChangeListener> listeners;
 
 	/**
-	 * @throws Exception should not be thrown
+	 * @throws Exception
+	 *             should not be thrown
 	 */
 	private OSGiHelper() throws Exception {
 		context = Activator.getContext();
 		feedServiceMap = new HashMap<Object, Feed>();
 		feedNameMap = new HashMap<String, Feed>();
-		
+
 		initializeModuleProviders();
 		initializeWSProviders();
 		initializeFeedProviders();
@@ -68,7 +71,8 @@ public final class OSGiHelper implements ServiceListener {
 
 	/**
 	 * @return reference to OSGiHelper singleton
-	 * @throws Exception should not be thrown unless defect in code
+	 * @throws Exception
+	 *             should not be thrown unless defect in code
 	 */
 	public static OSGiHelper getRef() throws Exception {
 		if (ref == null)
@@ -84,8 +88,11 @@ public final class OSGiHelper implements ServiceListener {
 	}
 
 	/**
-	 * Add listener for OSGi service change events that relate to bugswarm events.
-	 * @param listener listener
+	 * Add listener for OSGi service change events that relate to bugswarm
+	 * events.
+	 * 
+	 * @param listener
+	 *            listener
 	 */
 	public void addListener(final EntityChangeListener listener) {
 		if (!listeners.contains(listener))
@@ -93,8 +100,11 @@ public final class OSGiHelper implements ServiceListener {
 	}
 
 	/**
-	 * Remove listener for OSGi service change events that relate to bugswarm events.
-	 * @param listener listener
+	 * Remove listener for OSGi service change events that relate to bugswarm
+	 * events.
+	 * 
+	 * @param listener
+	 *            listener
 	 */
 	public void removeListener(final EntityChangeListener listener) {
 		if (listeners != null)
@@ -102,26 +112,27 @@ public final class OSGiHelper implements ServiceListener {
 	}
 
 	/**
-	 * @return List of Feed services available at time of call from OSGi service registry.
+	 * @return List of Feed services available at time of call from OSGi service
+	 *         registry.
 	 */
 	public List<Feed> getBUGFeeds() {
 		return new ArrayList<Feed>(feedServiceMap.values());
 	}
-	
+
 	public Feed getBUGFeed(String feedRequestName) {
-		
+
 		return feedNameMap.get(feedRequestName);
 	}
 
 	/**
-	 * @throws Exception should not be thrown
+	 * @throws Exception
+	 *             should not be thrown
 	 */
-	private void initializeModuleProviders() throws Exception {	
+	private void initializeModuleProviders() throws Exception {
 		if (context != null) {
 			synchronized (feedServiceMap) {
-				OSGiServiceLoader.loadServices(
-						context, IModuleControl.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
-					public void load(final Object service) throws Exception {					
+				OSGiServiceLoader.loadServices(context, IModuleControl.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
+					public void load(final Object service) throws Exception {
 						if (!feedServiceMap.containsKey(service)) {
 							feedServiceMap.put(service, Feed.createForType(service));
 						}
@@ -129,9 +140,8 @@ public final class OSGiHelper implements ServiceListener {
 				});
 			}
 			synchronized (feedNameMap) {
-				OSGiServiceLoader.loadServices(
-						context, IModuleControl.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
-					public void load(final Object service) throws Exception {	
+				OSGiServiceLoader.loadServices(context, IModuleControl.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
+					public void load(final Object service) throws Exception {
 						Feed f = Feed.createForType(service);
 						if (!feedNameMap.containsKey(f.getName())) {
 							feedNameMap.put(f.getName(), f);
@@ -148,14 +158,14 @@ public final class OSGiHelper implements ServiceListener {
 	 * Scan OSGi service registry and return a list of all available
 	 * PublicWSProvider instances.
 	 * 
-	 * @throws Exception should not be thrown
+	 * @throws Exception
+	 *             should not be thrown
 	 */
-	private void initializeWSProviders() throws Exception {		
+	private void initializeWSProviders() throws Exception {
 		if (context != null) {
 			synchronized (feedServiceMap) {
-				OSGiServiceLoader.loadServices(
-						context, PublicWSProvider.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
-					public void load(final Object service) throws Exception {					
+				OSGiServiceLoader.loadServices(context, PublicWSProvider.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
+					public void load(final Object service) throws Exception {
 						if (!feedServiceMap.containsKey(service)) {
 							feedServiceMap.put(service, Feed.createForType(service));
 						}
@@ -163,14 +173,13 @@ public final class OSGiHelper implements ServiceListener {
 				});
 			}
 			synchronized (feedNameMap) {
-				OSGiServiceLoader.loadServices(
-						context, PublicWSProvider.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
-					public void load(final Object service) throws Exception {	
+				OSGiServiceLoader.loadServices(context, PublicWSProvider.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
+					public void load(final Object service) throws Exception {
 						Feed f = Feed.createForType(service);
-						
-						if (f != null && !feedNameMap.containsKey(f.getName()))						
+
+						if (f != null && !feedNameMap.containsKey(f.getName()))
 							feedNameMap.put(f.getName(), f);
-						
+
 					}
 				});
 			}
@@ -183,37 +192,40 @@ public final class OSGiHelper implements ServiceListener {
 	 * Scan OSGi service registry and return a list of all available
 	 * java.util.Map instances with swarm properties.
 	 * 
-	 * @throws Exception should not be thrown
+	 * @throws Exception
+	 *             should not be thrown
 	 */
-	private void initializeFeedProviders() throws Exception {		
+	private void initializeFeedProviders() throws Exception {
 		if (context != null) {
 			synchronized (feedServiceMap) {
-				// TODO: Optimize by specifying a proper filter rather than filter in code.
+				// TODO: Optimize by specifying a proper filter rather than
+				// filter in code.
 				ServiceReference[] srs = context.getAllServiceReferences(Map.class.getName(), null);
 				if (srs != null)
 					for (ServiceReference sr : Arrays.asList(srs)) {
 						Feed feed = Feed.createForType(sr);
-						
+
 						if (feed != null && !feedServiceMap.entrySet().contains(feed)) {
-							feedServiceMap.put(context.getService(sr), feed);	
+							feedServiceMap.put(context.getService(sr), feed);
 						} else {
-							Activator.getLog().log(LogService.LOG_WARNING, Map.class.getName() 
-								+ " ignored: " + Feed.FEED_SERVICE_NAME_PROPERTY + " is not a property.");
+							Activator.getLog().log(LogService.LOG_WARNING,
+									Map.class.getName() + " ignored: " + Feed.FEED_SERVICE_NAME_PROPERTY + " is not a property.");
 						}
 					}
 			}
 			synchronized (feedNameMap) {
-				// TODO: Optimize by specifying a proper filter rather than filter in code.
+				// TODO: Optimize by specifying a proper filter rather than
+				// filter in code.
 				ServiceReference[] srs = context.getAllServiceReferences(Map.class.getName(), null);
 				if (srs != null)
 					for (ServiceReference sr : Arrays.asList(srs)) {
 						Feed feed = Feed.createForType(sr);
-						
+
 						if (feed != null && !feedNameMap.entrySet().contains(feed)) {
-							feedNameMap.put(feed.getName(), feed);	
+							feedNameMap.put(feed.getName(), feed);
 						} else {
-							Activator.getLog().log(LogService.LOG_WARNING, Map.class.getName() 
-								+ " ignored: " + Feed.FEED_SERVICE_NAME_PROPERTY + " is not a property.");
+							Activator.getLog().log(LogService.LOG_WARNING,
+									Map.class.getName() + " ignored: " + Feed.FEED_SERVICE_NAME_PROPERTY + " is not a property.");
 						}
 					}
 			}
@@ -233,7 +245,7 @@ public final class OSGiHelper implements ServiceListener {
 		if (feedServiceMap != null) {
 			feedServiceMap.clear();
 		}
-		
+
 		if (feedNameMap != null) {
 			feedNameMap.clear();
 		}
@@ -252,16 +264,16 @@ public final class OSGiHelper implements ServiceListener {
 					else if (isModuleEvent(svc))
 						initializeModuleProviders();
 				} else if (event.getType() == ServiceEvent.UNREGISTERING) {
-					feedServiceMap.remove(svc);					
+					feedServiceMap.remove(svc);
 					feedNameMap.remove(event.getServiceReference().getProperty("SWARM.FEED.NAME"));
 				}
 			} catch (Exception e) {
 				Activator.getLog().log(LogService.LOG_ERROR, "Failed to update state from OSGi service event.", e);
 			}
 
-			//If we have event listeners, send notifications of the change.
-			if (listeners != null && listeners.size() > 0) {				
-				for (EntityChangeListener listener : listeners) 
+			// If we have event listeners, send notifications of the change.
+			if (listeners != null && listeners.size() > 0) {
+				for (EntityChangeListener listener : listeners)
 					listener.change(event.getType(), event.getSource());
 			}
 		}
@@ -270,21 +282,22 @@ public final class OSGiHelper implements ServiceListener {
 	/**
 	 * Is ServiceEvent relevant for swarm?
 	 * 
-	 * @param event service event
+	 * @param event
+	 *            service event
 	 * @return true if the event pertains to bugswarm-connector
 	 */
 	private boolean isValidEvent(final ServiceEvent event) {
-		boolean typeValid = event.getType() == ServiceEvent.REGISTERED 
-			|| event.getType() == ServiceEvent.UNREGISTERING
-			|| event.getType() == ServiceEvent.MODIFIED;
+		boolean typeValid = event.getType() == ServiceEvent.REGISTERED || event.getType() == ServiceEvent.UNREGISTERING
+				|| event.getType() == ServiceEvent.MODIFIED;
 		Object service = context.getService(event.getServiceReference());
 		boolean classValid = isModuleEvent(service) || isServiceEvent(service) || isFeedEvent(service);
-		
+
 		return typeValid && classValid;
 	}
 
 	/**
-	 * @param event service event
+	 * @param service
+	 *            service event
 	 * @return true if event is from a feed.
 	 */
 	private boolean isFeedEvent(final Object service) {
@@ -292,7 +305,8 @@ public final class OSGiHelper implements ServiceListener {
 	}
 
 	/**
-	 * @param event service event
+	 * @param event
+	 *            service event
 	 * @return true if event is from a BUG service.
 	 */
 	private boolean isServiceEvent(final Object service) {
@@ -300,10 +314,11 @@ public final class OSGiHelper implements ServiceListener {
 	}
 
 	/**
-	 * @param event service event
+	 * @param event
+	 *            service event
 	 * @return true if event is from a BUG module.
 	 */
-	private boolean isModuleEvent(final Object service) {	
+	private boolean isModuleEvent(final Object service) {
 		return service instanceof IModuleControl;
 	}
 }

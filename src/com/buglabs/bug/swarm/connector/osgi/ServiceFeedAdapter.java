@@ -10,19 +10,21 @@ import com.buglabs.services.ws.PublicWSProvider;
  * Adapts PublicWSProvider to Feed.
  * 
  * @author kgilmer
- *
+ * 
  */
 public class ServiceFeedAdapter extends Feed {
 
 	/**
-	 * @param service ws provider to adapt to a feed
+	 * @param service
+	 *            ws provider to adapt to a feed
 	 */
 	public ServiceFeedAdapter(final PublicWSProvider service) {
 		super(service.getPublicName(), adaptServiceToFeedMap(service));
 	}
 
 	/**
-	 * @param service ws provider to create feed from
+	 * @param service
+	 *            ws provider to create feed from
 	 * @return feed as Map of service
 	 */
 	public static Map<?, ?> adaptServiceToFeedMap(final PublicWSProvider service) {
@@ -48,7 +50,8 @@ public class ServiceFeedAdapter extends Feed {
 	}
 
 	/**
-	 * @param def ws definition
+	 * @param def
+	 *            ws definition
 	 * @return map to adapt feed
 	 */
 	private static Map<String, Object> adaptServiceDefinition(final PublicWSDefinition def) {

@@ -15,10 +15,10 @@ import com.buglabs.util.simplerestclient.HTTPResponse;
  * Base WSClient class with general common functionality.
  * 
  * @author kgilmer
- *
+ * 
  */
 public abstract class AbstractSwarmWSClient {
-	
+
 	private static final String CONTENT_TYPE_HEADER_KEY = "Content-Type";
 
 	private static final String SWARM_APIKEY_HEADER_KEY = "X-BugSwarmApiKey";
@@ -31,25 +31,27 @@ public abstract class AbstractSwarmWSClient {
 	protected final String apiKey;
 	protected HTTPRequest httpClient;
 	protected boolean isValidated = false;
-	
+
 	private Map<String, String> staticHeaders;
 
 	/**
-	 * @param swarmHostUrl url of swarm host, with scheme. 
-	 * @param apiKey api key as provided by server
+	 * @param swarmHostUrl
+	 *            url of swarm host, with scheme.
+	 * @param apiKey
+	 *            api key as provided by server
 	 */
 	public AbstractSwarmWSClient(String swarmHostUrl, final String apiKey) {
 		if (swarmHostUrl == null || apiKey == null)
 			throw new IllegalArgumentException("An input parameter is null.");
-		
+
 		if (!swarmHostUrl.endsWith("/"))
 			swarmHostUrl = swarmHostUrl + "/";
-		
+
 		this.swarmHostUrl = swarmHostUrl;
 		this.apiKey = apiKey;
 		this.httpClient = new HTTPRequest(DEBUG_MODE);
 		httpClient.addConfigurator(new com.buglabs.util.simplerestclient.HTTPRequest.HTTPConnectionInitializer() {
-			
+
 			@Override
 			public void initialize(final HttpURLConnection connection) {
 				for (Map.Entry<String, String> e : getSwarmHeaders().entrySet())
@@ -59,17 +61,20 @@ public abstract class AbstractSwarmWSClient {
 	}
 
 	/**
-	 * @param swarmHostUrl url of swarm host, with scheme. 
-	 * @param apiKey api key as provided by server
-	 * @param httpClient client-provided client
+	 * @param swarmHostUrl
+	 *            url of swarm host, with scheme.
+	 * @param apiKey
+	 *            api key as provided by server
+	 * @param httpClient
+	 *            client-provided client
 	 */
 	protected AbstractSwarmWSClient(String swarmHostUrl, final String apiKey, final HTTPRequest httpClient) {
 		if (swarmHostUrl == null || apiKey == null || httpClient == null)
 			throw new IllegalArgumentException("An input parameter is null.");
-		
+
 		if (!swarmHostUrl.endsWith("/"))
 			swarmHostUrl = swarmHostUrl + "/";
-		
+
 		this.swarmHostUrl = swarmHostUrl;
 		this.apiKey = apiKey;
 		this.httpClient = httpClient;
@@ -78,29 +83,30 @@ public abstract class AbstractSwarmWSClient {
 	/**
 	 * Validate connection to server.
 	 * 
-	 * @param force ignores any previous successful validation.
+	 * @param force
+	 *            ignores any previous successful validation.
 	 * @return true if response is 200, false if otherwise
 	 * @throws IOException
 	 */
 	public Throwable checkAndValidate(final boolean force) {
 		if (isValidated && !force)
 			return null;
-		
+
 		try {
 			HTTPResponse response = httpClient.get(swarmHostUrl + "keys/" + apiKey + "/verify");
 			SwarmWSResponse wsr = SwarmWSResponse.fromCode(response.getResponseCode());
-			
+
 			if (!wsr.isError()) {
 				isValidated = true;
 				return null;
-			}			
-			
+			}
+
 			return new HTTPException(wsr.getCode(), "Validation failed: " + wsr.toString());
 		} catch (IOException e) {
-			return e;					
+			return e;
 		}
 	}
-	
+
 	/**
 	 * @return required swarm headers
 	 */
@@ -108,54 +114,60 @@ public abstract class AbstractSwarmWSClient {
 		if (staticHeaders == null) {
 			staticHeaders = toMap(SWARM_APIKEY_HEADER_KEY, apiKey, CONTENT_TYPE_HEADER_KEY, "application/json");
 		}
-		
+
 		return staticHeaders;
 	}
-	
+
 	/**
-	 * Create a map of strings, each even element being a key, each successive odd element being the value.
-	 * @param elems input array
+	 * Create a map of strings, each even element being a key, each successive
+	 * odd element being the value.
+	 * 
+	 * @param elems
+	 *            input array
 	 * @return A map representing nvp of input array
 	 */
 	protected Map<String, String> toMap(final String... elems) {
 		if (elems == null || elems.length % 2 != 0)
 			throw new RuntimeException("Must specify name/value pair for each entry in map.");
-		
+
 		Map<String, String> map = new HashMap<String, String>();
 		for (int i = 0; i < elems.length / 2; i = i + 2) {
 			map.put(elems[i], elems[i + 1]);
 		}
-		
+
 		return map;
 	}
-	
+
 	/**
-	 * @throws IOException thrown when connection error occurs
+	 * @throws IOException
+	 *             thrown when connection error occurs
 	 */
 	protected void validate() throws IOException {
 		Throwable err = checkAndValidate(false);
-		if (err != null)			
+		if (err != null)
 			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE, err);
 	}
-	
+
 	/**
-	 * Given a variable number of <String, Object> pairs, construct a Map and return it with values loaded.
+	 * Given a variable number of <String, Object> pairs, construct a Map and
+	 * return it with values loaded.
 	 * 
-	 * @param elements name1, value1, name2, value2...
+	 * @param elements
+	 *            name1, value1, name2, value2...
 	 * @return a Map and return it with values loaded.
 	 */
-	public static Map<String, Object> toMap(Object ... elements ) {
+	public static Map<String, Object> toMap(Object... elements) {
 		if (elements.length % 2 != 0) {
 			throw new IllegalStateException("Input parameters must be even.");
 		}
-		
+
 		Iterator<Object> i = Arrays.asList(elements).iterator();
 		Map<String, Object> m = new HashMap<String, Object>();
-		
+
 		while (i.hasNext()) {
 			m.put(i.next().toString(), i.next());
-		}		
-		
+		}
+
 		return m;
 	}
 }

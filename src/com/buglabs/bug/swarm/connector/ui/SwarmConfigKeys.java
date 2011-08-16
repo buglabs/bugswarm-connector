@@ -29,35 +29,35 @@ package com.buglabs.bug.swarm.connector.ui;
 
 /**
  * Configuration keys used for configuration of BUGswarm.
- *
+ * 
  */
 public final class SwarmConfigKeys {
-	
+
 	/**
 	 * Cannot create class.
 	 */
 	private SwarmConfigKeys() {
 	};
-	
+
 	/**
 	 * ConfigAdmin ID for swarm configuration dictionary.
 	 */
-	public static final String CONFIG_PID_BUGSWARM 				= "com.buglabs.bugswarm"; 
-	
+	public static final String CONFIG_PID_BUGSWARM = "com.buglabs.bugswarm";
+
 	/**
 	 * A local-only value to determine if bugswarm is enabled.
 	 */
-	public static final String CONFIG_KEY_BUGSWARM_ENABLED 		= "com.buglabs.bugswarm.enabled";
-	
+	public static final String CONFIG_KEY_BUGSWARM_ENABLED = "com.buglabs.bugswarm.enabled";
+
 	/**
 	 * The root hostname which is used to access WS APIs and XMPP server.
 	 */
-	public static final String CONFIG_KEY_BUGSWARM_SERVER 		= "com.buglabs.bugswarm.hostname";
-	
+	public static final String CONFIG_KEY_BUGSWARM_SERVER = "com.buglabs.bugswarm.hostname";
+
 	/**
 	 * The API key is the password for the web service layer.
 	 */
-	public static final String CONFIG_KEY_BUGSWARM_APIKEY		= "com.buglabs.bugswarm.apikey";
+	public static final String CONFIG_KEY_BUGSWARM_APIKEY = "com.buglabs.bugswarm.apikey";
 
 	/**
 	 * The username used in the XMPP server.

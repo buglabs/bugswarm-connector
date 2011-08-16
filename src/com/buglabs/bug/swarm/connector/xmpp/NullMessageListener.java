@@ -5,14 +5,15 @@ import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.packet.Message;
 
 /**
- * A MessageListener that does nothing.  Used for "fire and forget" messages to other peers.
+ * A MessageListener that does nothing. Used for "fire and forget" messages to
+ * other peers.
  * 
  * @author kgilmer
- *
+ * 
  */
 public class NullMessageListener implements MessageListener {
 
 	@Override
-	public void processMessage(final Chat chat, final Message message) {		
+	public void processMessage(final Chat chat, final Message message) {
 	}
 }

@@ -7,19 +7,21 @@ import java.io.IOException;
  * https://github.com/buglabs/bugswarm/wiki/Binary-Uploads-API.
  * 
  * @author kgilmer
- *
+ * 
  */
 public interface ISwarmBinaryUploadClient {
 
-	
 	/**
 	 * Upload binary data to swarm.
 	 * 
-	 * @param swarmId ID of swarm
-	 * @param filename Abstract name of file 
-	 * @param payload byte array of binary data
+	 * @param swarmId
+	 *            ID of swarm
+	 * @param filename
+	 *            Abstract name of file
+	 * @param payload
+	 *            byte array of binary data
 	 * @return WS response
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	SwarmWSResponse upload(String swarmId, String filename, byte[] payload) throws IOException;
 }

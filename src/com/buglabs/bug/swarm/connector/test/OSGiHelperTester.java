@@ -16,7 +16,7 @@ import com.buglabs.services.ws.PublicWSProvider;
  * A class to setup a test environment outside of an OSGi context.
  * 
  * @author kgilmer
- *
+ * 
  */
 public final class OSGiHelperTester {
 
@@ -24,11 +24,12 @@ public final class OSGiHelperTester {
 	 * 
 	 */
 	private OSGiHelperTester() {
-		
+
 	}
-	
+
 	/**
 	 * Create mock feeds for testing.
+	 * 
 	 * @param feeds
 	 * @param feeds2
 	 */
@@ -45,7 +46,7 @@ public final class OSGiHelperTester {
 		f = new Feed("feed3", f1);
 		feeds.put(f1, f);
 		feeds2.put(f.getName(), f);
-		
+
 		BinaryFeed bf = new BinaryFeed("picture.jpg", createPictureMap());
 		feeds.put(f1, bf);
 		feeds2.put(bf.getName(), bf);
@@ -53,14 +54,14 @@ public final class OSGiHelperTester {
 
 	/**
 	 * Create a map with an input stream of an image.
+	 * 
 	 * @return a map with an input stream of an image.
 	 */
 	private static Map<?, ?> createPictureMap() {
 		Map<String, Object> m = new HashMap<String, Object>();
-		
-		m.put(BinaryFeed.FEED_PAYLOAD_KEY, 
-				OSGiHelperTester.class.getResourceAsStream("/com/buglabs/bug/swarm/connector/test/buck.JPG"));
-		
+
+		m.put(BinaryFeed.FEED_PAYLOAD_KEY, OSGiHelperTester.class.getResourceAsStream("/com/buglabs/bug/swarm/connector/test/buck.JPG"));
+
 		return m;
 	}
 
@@ -70,11 +71,11 @@ public final class OSGiHelperTester {
 	private static Map<String, String> generateRandomMap() {
 		Random r = new Random();
 		Map<String, String> map = new HashMap<String, String>();
-		
+
 		for (int i = 0; i < (5 + r.nextInt(10)); ++i) {
 			map.put("key-" + r.nextFloat(), "val:" + r.nextDouble());
 		}
-		
+
 		return map;
 	}
 
@@ -83,12 +84,12 @@ public final class OSGiHelperTester {
 		Feed f = Feed.createForType(mc);
 		feeds.put(mc, f);
 		feeds2.put(f.getName(), f);
-		
+
 		mc = new MockIModuleControl("LCD", 2, createMockProperties());
 		f = Feed.createForType(mc);
 		feeds.put(mc, f);
 		feeds2.put(f.getName(), f);
-		
+
 		mc = new MockIModuleControl("CAMERA", 3, createMockProperties());
 		f = Feed.createForType(mc);
 		feeds.put(mc, f);
@@ -133,7 +134,7 @@ public final class OSGiHelperTester {
 		Feed feed = Feed.createForType(wsp);
 		feeds.put(wsp, feed);
 		feeds2.put(feed.getName(), feed);
-		
+
 		wsp = new MockPublicWSProvider("Location", "Determine your location using GPS services.");
 		feed = Feed.createForType(wsp);
 		feeds.put(wsp, feed);

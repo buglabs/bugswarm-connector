@@ -22,6 +22,7 @@ public class Configuration {
 	 * Default hostname for swarm server if none specified as a system property.
 	 */
 	public static final String DEFAULT_HOSTNAME = "bugswarm.net";
+
 	/**
 	 * Defines which protocol is requested when getting server URL.
 	 * 
@@ -35,8 +36,7 @@ public class Configuration {
 	private static final String HTTP_SCHEME = "HTTP://";
 	private static final String XMPP_PREFIX = "xmpp.";
 	private static final String HTTP_PREFIX = "api.";
-	private static final String BUG20_SYSFS_MACADDR_FILE = 
-		"/sys/devices/platform/ehci-omap.0/usb1/1-2/1-2.4/1-2.4:1.0/net/eth0/address";
+	private static final String BUG20_SYSFS_MACADDR_FILE = "/sys/devices/platform/ehci-omap.0/usb1/1-2/1-2.4/1-2.4:1.0/net/eth0/address";
 	/**
 	 * Stores the configuration.
 	 */
@@ -73,14 +73,13 @@ public class Configuration {
 	public Configuration(final Dictionary<String, String> config) {
 		this.config = config;
 		resource = getMachineResource();
-		
+
 		String hostname = Activator.getHostnameProperty();
 		if (hostname != null)
 			config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, hostname);
 		else
 			config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, DEFAULT_HOSTNAME);
 	}
-
 
 	/**
 	 * Determine some string that can be used to identify the client, Preferably
@@ -149,8 +148,8 @@ public class Configuration {
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName() + " (" + config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER) 
-			+ ", " + getUsername() + ", " + getAPIKey() + ", " + getResource() + ")";
+		return this.getClass().getSimpleName() + " (" + config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER) + ", " + getUsername()
+				+ ", " + getAPIKey() + ", " + getResource() + ")";
 	}
 
 	/**
@@ -163,7 +162,8 @@ public class Configuration {
 	/**
 	 * A local-only check to see if a configuration appears to be valid.
 	 * 
-	 * @param config Dictionary of configuration
+	 * @param config
+	 *            Dictionary of configuration
 	 * @return true if the dictionary has values for the necessary keys to
 	 *         create a swarm connection.
 	 */
@@ -190,8 +190,10 @@ public class Configuration {
 	}
 
 	/**
-	 * @param dictionary Dictionary to check key
-	 * @param key to check in dictionary
+	 * @param dictionary
+	 *            Dictionary to check key
+	 * @param key
+	 *            to check in dictionary
 	 * @return true if the passed dictionary contains a key and a value that
 	 *         does not evaluate to empty string or null.
 	 */

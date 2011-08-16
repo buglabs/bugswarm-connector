@@ -1,10 +1,6 @@
 package com.buglabs.bug.swarm.connector.ws;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import com.buglabs.util.simplerestclient.HTTPRequest;
@@ -36,33 +32,33 @@ public class SwarmBinaryUploadWSClient extends AbstractSwarmWSClient implements 
 	public SwarmWSResponse upload(String swarmId, String filename, final byte[] payload) throws IOException {
 		validate();
 
-		final String [] elems = filename.split(".");
-		
+		final String[] elems = filename.split(".");
+
 		if (elems.length != 2) {
-			//TODO: support better filenames than "name.ext".
-			throw new IOException("Invalid filename specified: " + filename);			
+			// TODO: support better filenames than "name.ext".
+			throw new IOException("Invalid filename specified: " + filename);
 		}
-	
+
 		IFormFile ffile = new IFormFile() {
-			
+
 			@Override
-			public String getFilename() {				
+			public String getFilename() {
 				return elems[0];
 			}
-			
+
 			@Override
-			public String getContentType() {				
+			public String getContentType() {
 				return elems[1];
 			}
-			
+
 			@Override
 			public byte[] getBytes() {
 				return payload;
 			}
 		};
-		
+
 		Map<String, Object> params = toMap("file", ffile);
-		
+
 		HTTPResponse response = httpClient.postMultipart(swarmHostUrl + "upload", params);
 
 		return SwarmWSResponse.fromCode(response.getResponseCode());

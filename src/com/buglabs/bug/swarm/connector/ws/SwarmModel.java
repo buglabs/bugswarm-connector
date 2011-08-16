@@ -23,17 +23,25 @@ public class SwarmModel {
 	private final String userId;
 
 	/**
-	 * @param isPublic swarm public?
-	 * @param members list of existing members
-	 * @param createdAt String datetime of creation
-	 * @param id swarmId as defined by server
-	 * @param description Textual description of swarm
-	 * @param modifiedAt last modified
-	 * @param name name of swarm
-	 * @param userId userId of owner
+	 * @param isPublic
+	 *            swarm public?
+	 * @param members
+	 *            list of existing members
+	 * @param createdAt
+	 *            String datetime of creation
+	 * @param id
+	 *            swarmId as defined by server
+	 * @param description
+	 *            Textual description of swarm
+	 * @param modifiedAt
+	 *            last modified
+	 * @param name
+	 *            name of swarm
+	 * @param userId
+	 *            userId of owner
 	 */
-	public SwarmModel(final boolean isPublic, final List<SwarmResourceModel> members, final String createdAt, 
-			final String id, final String description, final String modifiedAt, final String name, final String userId) {
+	public SwarmModel(final boolean isPublic, final List<SwarmResourceModel> members, final String createdAt, final String id,
+			final String description, final String modifiedAt, final String name, final String userId) {
 		this.isPublic = isPublic;
 		this.members = members;
 		this.createdAt = createdAt;
@@ -110,7 +118,8 @@ public class SwarmModel {
 	/**
 	 * From a json array, create a List of SwarmModel.
 	 * 
-	 * @param json input object
+	 * @param json
+	 *            input object
 	 * @return List of SwarmModel
 	 */
 	public static List<SwarmModel> createListFromJson(final JSONArray json) {
@@ -125,31 +134,27 @@ public class SwarmModel {
 	/**
 	 * Create a SwarmModel from a JSON object.
 	 * 
-	 * @param jsonObject input object
+	 * @param jsonObject
+	 *            input object
 	 * @return SwarmModel instance of SwarmModel
 	 */
 	public static SwarmModel createFromJson(final JSONObject jsonObject) {
 		// server is currently not returning modified_at
-		return new SwarmModel(
-				Boolean.parseBoolean(jsonObject.get("public").toString()), 
-				SwarmResourceModel.createListFromJson((JSONArray) jsonObject.get("resources")), 
-				jsonObject.get("created_at").toString(), 
-				jsonObject.get("id").toString(), 
-				jsonObject.get("description").toString(), 
-				null, 
-				jsonObject.get("name").toString(), 
+		return new SwarmModel(Boolean.parseBoolean(jsonObject.get("public").toString()),
+				SwarmResourceModel.createListFromJson((JSONArray) jsonObject.get("resources")), jsonObject.get("created_at").toString(),
+				jsonObject.get("id").toString(), jsonObject.get("description").toString(), null, jsonObject.get("name").toString(),
 				jsonObject.get("user_id").toString());
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof SwarmModel))
 			return super.equals(obj);
-		
-		//The swarmID should be globally unique.
-		
+
+		// The swarmID should be globally unique.
+
 		SwarmModel tsm = (SwarmModel) obj;
-		
+
 		return tsm.getId().equals(this.getId());
 	}
 }

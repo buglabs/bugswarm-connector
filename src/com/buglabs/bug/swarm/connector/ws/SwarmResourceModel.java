@@ -24,14 +24,19 @@ public class SwarmResourceModel {
 	private final String swarmId;
 
 	/**
-	 * @param createdAt date created at
-	 * @param type consumer or producer
-	 * @param userId user id
-	 * @param resource resource (XMPP)
-	 * @param swarmId id of swarm
+	 * @param createdAt
+	 *            date created at
+	 * @param type
+	 *            consumer or producer
+	 * @param userId
+	 *            user id
+	 * @param resource
+	 *            resource (XMPP)
+	 * @param swarmId
+	 *            id of swarm
 	 */
-	public SwarmResourceModel(final String createdAt, final ISwarmResourcesClient.MemberType type, 
-			final String userId, final String resource,	final String swarmId) {
+	public SwarmResourceModel(final String createdAt, final ISwarmResourcesClient.MemberType type, final String userId,
+			final String resource, final String swarmId) {
 		this.createdAt = createdAt;
 		this.type = type;
 		this.userId = userId;
@@ -83,7 +88,8 @@ public class SwarmResourceModel {
 	/**
 	 * From a json array, create a List of SwarmMemberModel.
 	 * 
-	 * @param json input object
+	 * @param json
+	 *            input object
 	 * @return a List of SwarmMemberModel
 	 */
 	public static List<SwarmResourceModel> createListFromJson(final JSONArray json) {
@@ -92,9 +98,8 @@ public class SwarmResourceModel {
 		for (Object o : json) {
 			JSONObject jo = (JSONObject) o;
 
-			l.add(new SwarmResourceModel(jo.get("created_at").toString(), 
-					MemberType.valueOf(jo.get("type").toString().toUpperCase()), 
-					jo.get("user_id").toString(), jo.get("id").toString(), jo.get("swarm_id").toString()));
+			l.add(new SwarmResourceModel(jo.get("created_at").toString(), MemberType.valueOf(jo.get("type").toString().toUpperCase()), jo
+					.get("user_id").toString(), jo.get("id").toString(), jo.get("swarm_id").toString()));
 		}
 
 		return l;

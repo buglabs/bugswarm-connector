@@ -50,8 +50,10 @@ public class ConfigInitRunnable implements ManagedRunnable {
 	private final BundleContext context;
 
 	/**
-	 * @param context BundleContext
-	 * @param log LogService
+	 * @param context
+	 *            BundleContext
+	 * @param log
+	 *            LogService
 	 */
 	public ConfigInitRunnable(final BundleContext context, final LogService log) {
 		this.context = context;
@@ -72,7 +74,7 @@ public class ConfigInitRunnable implements ManagedRunnable {
 	}
 
 	@Override
-	public void shutdown() {		
+	public void shutdown() {
 		if (sewingService != null && servlet != null) {
 			sewingService.unregister(servlet);
 		}

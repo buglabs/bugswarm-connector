@@ -242,9 +242,11 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 	}
 
 	/**
-	 * @param im message
-	 * @param listener listener to send event to
-	 * @throws ParseException 
+	 * @param im
+	 *            message
+	 * @param listener
+	 *            listener to send event to
+	 * @throws ParseException
 	 */
 	private void handlePlainTextMessage(final XMPPMessage im, final ISwarmServerRequestListener listener) throws ParseException {
 		switch (im.getType()) {

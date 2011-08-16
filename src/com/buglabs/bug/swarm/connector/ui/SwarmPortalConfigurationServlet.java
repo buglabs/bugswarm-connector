@@ -61,8 +61,10 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 	private Dictionary confDictionary;
 
 	/**
-	 * @param ca ConfigAdmin
-	 * @throws IOException thrown if ConfigAdmin fails
+	 * @param ca
+	 *            ConfigAdmin
+	 * @throws IOException
+	 *             thrown if ConfigAdmin fails
 	 */
 	public SwarmPortalConfigurationServlet(final ConfigurationAdmin ca) throws IOException {
 		this.config = ca.getConfiguration(SwarmConfigKeys.CONFIG_PID_BUGSWARM, null);
@@ -91,9 +93,8 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 		}
 
 		@Override
-		public TemplateModelRoot post(final RequestParameters params, 
-				final HttpServletRequest req, final HttpServletResponse resp) {
-			//Validate input
+		public TemplateModelRoot post(final RequestParameters params, final HttpServletRequest req, final HttpServletResponse resp) {
+			// Validate input
 			String missingKey = missingParameter(params, "api-key", "user-name");
 			if (missingKey != null)
 				throw new RuntimeException("Missing expected key: " + missingKey);
@@ -124,28 +125,32 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 
 				msg = "BugSwarm has been deactivated";
 			}
-			
+
 			SimpleHash root = (SimpleHash) loadSwarmInfo();
 			if (msg != null) {
 				root.put("message", msg);
 			}
 			return root;
 		}
-		
+
 		/**
 		 * Verify that all expected keys are present.
 		 * 
-		 * TODO: replace this with super-class method getMissingParameter() when available.
+		 * TODO: replace this with super-class method getMissingParameter() when
+		 * available.
 		 * 
-		 * @param params parameters to check
-		 * @param requiredKeys array of key names
-		 * @return null if all keys are present, name of first missing key otherwise
+		 * @param params
+		 *            parameters to check
+		 * @param requiredKeys
+		 *            array of key names
+		 * @return null if all keys are present, name of first missing key
+		 *         otherwise
 		 */
-		protected final String missingParameter(RequestParameters params, String ... requiredKeys) {
-			for (String key: Arrays.asList(requiredKeys))
+		protected final String missingParameter(RequestParameters params, String... requiredKeys) {
+			for (String key : Arrays.asList(requiredKeys))
 				if (params.get(key) == null)
 					return key;
-			
+
 			return null;
 		}
 
@@ -180,9 +185,12 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 	/**
 	 * Save the configuration as set by the webui user.
 	 * 
-	 * @param username username
-	 * @param apiKey API_KEY
-	 * @throws IOException on file I/O error
+	 * @param username
+	 *            username
+	 * @param apiKey
+	 *            API_KEY
+	 * @throws IOException
+	 *             on file I/O error
 	 */
 	private void saveConfiguration(final String username, final String apiKey) throws IOException {
 		Dictionary d = config.getProperties();
@@ -193,7 +201,7 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME, username);
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY, apiKey);
-		
+
 		config.update(d);
 	}
 
@@ -201,7 +209,8 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 	 * Try to set bugswarm to enabled. This does not make a server call but does
 	 * validate connection information.
 	 * 
-	 * @param enabled true for enabled, false otherwise
+	 * @param enabled
+	 *            true for enabled, false otherwise
 	 * @return true if enable successful.
 	 */
 	public boolean setEnabled(final boolean enabled) {
@@ -217,7 +226,8 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 
 	/**
 	 * @return true if bugswarm is enabled, false otherwise
-	 * @throws IOException on connection or file error
+	 * @throws IOException
+	 *             on connection or file error
 	 */
 	public boolean isEnabled() throws IOException {
 		Dictionary dict = ConfigAdminUtil.getPropertiesSafely(config);
@@ -230,31 +240,36 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 
 		return Boolean.parseBoolean(o.toString());
 	}
-	
+
 	/**
-	 * Get a value from the configuration, or return empty string if no value exists.
+	 * Get a value from the configuration, or return empty string if no value
+	 * exists.
 	 * 
-	 * @param key of dictionary
+	 * @param key
+	 *            of dictionary
 	 * @return value or empty string if not present
-	 * @throws IOException on file I/O error
+	 * @throws IOException
+	 *             on file I/O error
 	 */
 	private String getValue(final String key) throws IOException {
 		if (confDictionary == null)
-			confDictionary =  ConfigAdminUtil.getPropertiesSafely(config);
-		
+			confDictionary = ConfigAdminUtil.getPropertiesSafely(config);
+
 		Object val = confDictionary.get(key);
-		
+
 		if (val == null)
 			return "";
-		
+
 		return val.toString();
 	}
 
-
 	/**
-	 * @param key of dictionary
-	 * @param val of dictionary
-	 * @throws IOException on file i/o error
+	 * @param key
+	 *            of dictionary
+	 * @param val
+	 *            of dictionary
+	 * @throws IOException
+	 *             on file i/o error
 	 */
 	private void updateConfig(final String key, final String val) throws IOException {
 		Dictionary d = config.getProperties();

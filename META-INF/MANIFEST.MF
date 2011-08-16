@@ -13,6 +13,7 @@ Import-Package:
  com.buglabs.util,
  com.buglabs.util.osgi,
  com.buglabs.util.simplerestclient,
+ com.buglabs.bug.dragonfly.module,
  freemarker.template,
  javax.servlet.http,
  org.jivesoftware.smack,

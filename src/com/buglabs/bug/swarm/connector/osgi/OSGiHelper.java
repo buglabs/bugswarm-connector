@@ -274,7 +274,9 @@ public final class OSGiHelper implements ServiceListener {
 	 * @return true if the event pertains to bugswarm-connector
 	 */
 	private boolean isValidEvent(final ServiceEvent event) {
-		boolean typeValid = event.getType() == ServiceEvent.REGISTERED || event.getType() == ServiceEvent.UNREGISTERING;
+		boolean typeValid = event.getType() == ServiceEvent.REGISTERED 
+			|| event.getType() == ServiceEvent.UNREGISTERING
+			|| event.getType() == ServiceEvent.MODIFIED;
 		Object service = context.getService(event.getServiceReference());
 		boolean classValid = isModuleEvent(service) || isServiceEvent(service) || isFeedEvent(service);
 		

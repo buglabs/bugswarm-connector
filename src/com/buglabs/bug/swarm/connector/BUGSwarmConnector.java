@@ -236,7 +236,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 
 		if (f instanceof BinaryFeed) {
 			try {
-				wsClient.getSwarmBinaryUploadClient().upload(swarmId, f.getName(), ((BinaryFeed) f).getPayload());
+				wsClient.getSwarmBinaryUploadClient().upload(jid.getUsername(), jid.getResource(), swarmId, f.getName(), ((BinaryFeed) f).getPayload());
 			} catch (IOException e) {
 				log.log(LogService.LOG_ERROR, "Error occurred while sending binary feed to " + jid, e);
 			}

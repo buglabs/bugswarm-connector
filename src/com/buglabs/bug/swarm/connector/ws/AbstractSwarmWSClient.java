@@ -32,7 +32,7 @@ public abstract class AbstractSwarmWSClient {
 	protected HTTPRequest httpClient;
 	protected boolean isValidated = false;
 
-	private Map<String, String> staticHeaders;
+	private Map<String, Object> staticHeaders;
 
 	/**
 	 * @param swarmHostUrl
@@ -54,8 +54,8 @@ public abstract class AbstractSwarmWSClient {
 
 			@Override
 			public void initialize(final HttpURLConnection connection) {
-				for (Map.Entry<String, String> e : getSwarmHeaders().entrySet())
-					connection.setRequestProperty(e.getKey(), e.getValue());
+				for (Map.Entry<String, Object> e : getSwarmHeaders().entrySet())
+					connection.setRequestProperty(e.getKey(), e.getValue().toString());
 			}
 		});
 	}
@@ -110,32 +110,13 @@ public abstract class AbstractSwarmWSClient {
 	/**
 	 * @return required swarm headers
 	 */
-	protected Map<String, String> getSwarmHeaders() {
+	protected Map<String, Object> getSwarmHeaders() {
 		if (staticHeaders == null) {
-			staticHeaders = toMap(SWARM_APIKEY_HEADER_KEY, apiKey, CONTENT_TYPE_HEADER_KEY, "application/json");
+			staticHeaders = toMap(SWARM_APIKEY_HEADER_KEY, apiKey, 
+									CONTENT_TYPE_HEADER_KEY, "application/json");
 		}
 
 		return staticHeaders;
-	}
-
-	/**
-	 * Create a map of strings, each even element being a key, each successive
-	 * odd element being the value.
-	 * 
-	 * @param elems
-	 *            input array
-	 * @return A map representing nvp of input array
-	 */
-	protected Map<String, String> toMap(final String... elems) {
-		if (elems == null || elems.length % 2 != 0)
-			throw new RuntimeException("Must specify name/value pair for each entry in map.");
-
-		Map<String, String> map = new HashMap<String, String>();
-		for (int i = 0; i < elems.length / 2; i = i + 2) {
-			map.put(elems[i], elems[i + 1]);
-		}
-
-		return map;
 	}
 
 	/**

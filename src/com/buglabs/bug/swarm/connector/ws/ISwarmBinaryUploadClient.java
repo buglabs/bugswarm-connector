@@ -23,5 +23,5 @@ public interface ISwarmBinaryUploadClient {
 	 * @return WS response
 	 * @throws IOException
 	 */
-	SwarmWSResponse upload(String swarmId, String filename, byte[] payload) throws IOException;
+	SwarmWSResponse upload(String userId, String resourceId, String swarmId, String filename, byte[] payload) throws IOException;
 }

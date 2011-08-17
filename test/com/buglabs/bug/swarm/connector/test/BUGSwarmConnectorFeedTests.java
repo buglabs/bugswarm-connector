@@ -1,10 +1,11 @@
 package com.buglabs.bug.swarm.connector.test;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import junit.framework.TestCase;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -19,8 +20,6 @@ import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
 import com.buglabs.util.simplerestclient.HTTPException;
 import com.buglabs.util.simplerestclient.HTTPRequest;
 import com.buglabs.util.simplerestclient.HTTPResponse;
-
-import junit.framework.TestCase;
 
 /**
  * Tests the high-level BUGSwarmConnector class in regards to feeds.

@@ -21,6 +21,11 @@ import com.buglabs.services.ws.PublicWSProvider;
 public final class OSGiHelperTester {
 
 	/**
+	 * Name of binary feed to be published.
+	 */
+	public static final String TEST_BINARY_FEED_NAME = "picture.jpg";
+
+	/**
 	 * 
 	 */
 	private OSGiHelperTester() {
@@ -47,7 +52,7 @@ public final class OSGiHelperTester {
 		feeds.put(f1, f);
 		feeds2.put(f.getName(), f);
 
-		BinaryFeed bf = new BinaryFeed("picture.jpg", createPictureMap());
+		BinaryFeed bf = new BinaryFeed(TEST_BINARY_FEED_NAME, createPictureMap());
 		feeds.put(f1, bf);
 		feeds2.put(bf.getName(), bf);
 	}

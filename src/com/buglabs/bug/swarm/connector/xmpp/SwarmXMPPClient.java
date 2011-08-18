@@ -158,7 +158,7 @@ public class SwarmXMPPClient  {
 		try {
 		    System.out.println("TEST PRINT: Creating JID");
 			Jid userJid = new Jid(userId);
-			System.out..println("TEST PRINT: JID is " + userJid.toString());
+			System.out.println("TEST PRINT: JID is " + userJid.toString());
 	    
 			for (Affiliate aff : muc.getMembers()) {		
 					Jid j = new Jid(aff.getJid());

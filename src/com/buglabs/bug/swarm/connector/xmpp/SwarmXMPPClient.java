@@ -156,8 +156,10 @@ public class SwarmXMPPClient  {
 	public boolean isPresent(final String swarmId, final String userId) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
 		try {
+		    System.out.println("TEST PRINT: Creating JID");
 			Jid userJid = new Jid(userId);
-			
+			System.out..println("TEST PRINT: JID is " + userJid.toString());
+	    
 			for (Affiliate aff : muc.getMembers()) {		
 					Jid j = new Jid(aff.getJid());
 					if (j.getResource() == userJid.getResource())

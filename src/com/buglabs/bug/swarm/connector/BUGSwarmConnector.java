@@ -21,6 +21,7 @@ import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.connector.ws.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
+import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
 import com.buglabs.bug.swarm.connector.xmpp.ISwarmServerRequestListener;
 import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 import com.buglabs.bug.swarm.connector.xmpp.Jid;
@@ -130,7 +131,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	 * Initialize the connection to the swarm server.
 	 * 
 	 * @return true if initialization successful
-	 * @throws Exception
+	 * @throws Exception on any connection or authentication error.
 	 */
 	private boolean initialize() throws Exception {
 		log.log(LogService.LOG_DEBUG, "Initializing " + BUGSwarmConnector.class.getSimpleName());
@@ -141,15 +142,23 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			xmppClient.connect(this);
 
 			osgiHelper = OSGiHelper.getRef();
-			if (osgiHelper != null) {
-				initialized = true;
-				return true;
+			if (osgiHelper == null) {
+				throw new IOException("Unable to get an OSGi context.");				
 			}
+			
+			SwarmWSResponse response = wsClient.getResourceClient().add(
+					xmppClient.getResource(), xmppClient.getUsername(), 
+					"BUG-Connector-Device", "A connector-enabled BUG device", 
+					MemberType.PRODUCER, "BUG");
+			
+			if (!response.isError())
+				throw new IOException(response.getMessage());
+				
+			initialized = true;
+			return true;
 		} else {
 			throw new IOException(error);
 		}
-
-		return false;
 	}
 
 	/**

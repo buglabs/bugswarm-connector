@@ -24,7 +24,7 @@ public interface ISwarmClient {
 	 * @param description
 	 *            textual description of swarm
 	 * @return the id of the newly created swarm
-	 * @throws IOException
+	 * @throws IOException on I/O error
 	 */
 	String create(String name, boolean isPublic, String description) throws IOException;
 
@@ -38,7 +38,7 @@ public interface ISwarmClient {
 	 * @param description
 	 *            description
 	 * @return HTTP response of operation.
-	 * @throws IOException
+	 * @throws IOException on I/O error
 	 */
 	SwarmWSResponse update(String swarmId, boolean isPublic, String description) throws IOException;
 
@@ -48,7 +48,7 @@ public interface ISwarmClient {
 	 * @param swarmId
 	 *            TODO
 	 * @return HTTP response of operation.
-	 * @throws IOException
+	 * @throws IOException on I/O error
 	 */
 	SwarmWSResponse destroy(String swarmId) throws IOException;
 
@@ -56,7 +56,7 @@ public interface ISwarmClient {
 	 * Get all available swarms.
 	 * 
 	 * @return A list of SwarmModel for all available swarms.
-	 * @throws IOException
+	 * @throws IOException on I/O error
 	 */
 	List<SwarmModel> list() throws IOException;
 
@@ -67,7 +67,7 @@ public interface ISwarmClient {
 	 *            swarmId
 	 * @return a SwarmModel instance for the given id, or throws HTTP 404 if
 	 *         swarm does not exist.
-	 * @throws IOException
+	 * @throws IOException on I/O error
 	 */
 	SwarmModel get(String swarmId) throws IOException;
 
@@ -88,4 +88,14 @@ public interface ISwarmClient {
 	 * @return the WS API client for members
 	 */
 	ISwarmResourcesClient getSwarmResourceClient();
+	
+	/**
+	 * @return an instance of an IResourceClient associated with the ISwarmClient's user and api key.
+	 */
+	IResourceClient getResourceClient();
+	
+	/**
+	 * @return an instance of a ISwarmBinaryUploadClient.
+	 */
+	ISwarmBinaryUploadClient getSwarmBinaryUploadClient();
 }

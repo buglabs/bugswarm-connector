@@ -34,10 +34,9 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 
 	@Override
 	public List<SwarmResourceModel> list(final String swarmId, final MemberType type) throws IOException {
-		if (swarmId == null || type == null)
-			throw new IllegalArgumentException("An input parameter is null.");
+		validateParams(swarmId, type);
 
-		validate();
+		validateAPIKey();
 
 		HTTPResponse response = httpClient.get(swarmHostUrl + "swarms/" + swarmId + "/resources?type=" + type);
 
@@ -47,12 +46,11 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 	}
 
 	@Override
-	public SwarmWSResponse add(final String swarmId, final MemberType type, final String userId, final String resource) throws IOException {
+	public SwarmWSResponse add(final String swarmId, final MemberType type
+			, final String userId, final String resource) throws IOException {
+		validateParams(swarmId, type, userId, resource);
 
-		if (swarmId == null || type == null || userId == null || resource == null)
-			throw new IllegalArgumentException("An input parameter is null.");
-
-		validate();
+		validateAPIKey();
 
 		Map<String, String> props = new HashMap<String, String>();
 
@@ -67,10 +65,9 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 
 	@Override
 	public List<SwarmModel> getSwarmsByMember(final String resource) throws IOException {
-		if (resource == null)
-			throw new IllegalArgumentException("An input parameter is null.");
+		validateParams(resource);
 
-		validate();
+		validateAPIKey();
 
 		HTTPResponse response = httpClient.get(swarmHostUrl + "resources/" + resource + "/swarms");
 
@@ -83,10 +80,8 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 	public SwarmWSResponse remove(final String swarmId, final MemberType type, final String userId, final String resource)
 			throws IOException {
 
-		if (swarmId == null || type == null || userId == null || resource == null)
-			throw new IllegalArgumentException("An input parameter is null.");
-
-		validate();
+		validateParams(swarmId, type, userId, resource);
+		validateAPIKey();
 
 		Map<String, String> props = new HashMap<String, String>();
 

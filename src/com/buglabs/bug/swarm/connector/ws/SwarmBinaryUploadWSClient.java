@@ -30,7 +30,9 @@ public class SwarmBinaryUploadWSClient extends AbstractSwarmWSClient implements 
 
 	@Override
 	public SwarmWSResponse upload(String userId, String resourceId, String swarmId, String filename, final byte[] payload) throws IOException {
-		validate();
+		validateParams(userId, resourceId, swarmId, filename, payload);
+	
+		validateAPIKey();
 
 		final String[] elems = filename.split("\\.");
 
@@ -57,7 +59,7 @@ public class SwarmBinaryUploadWSClient extends AbstractSwarmWSClient implements 
 			}
 		};
 
-		Map<String, Object> params = toMap(	"user_id", userId,
+		Map<String, Object> params = toMap(	(Object) "user_id", userId,
 											"resource_id", resourceId);		
 		params.put("file", ffile);
 

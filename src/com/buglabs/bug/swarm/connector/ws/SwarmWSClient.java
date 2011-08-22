@@ -77,10 +77,9 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 
 	@Override
 	public String create(final String name, final boolean isPublic, final String description) throws IOException {
-		if (name == null || description == null)
-			throw new IllegalArgumentException("An input parameter is null.");
-
-		validate();
+		validateParams(name, description);
+		
+		validateAPIKey();
 
 		Map<String, String> props = new HashMap<String, String>();
 		props.put("name", name);
@@ -96,10 +95,9 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 
 	@Override
 	public SwarmWSResponse update(final String swarmId, final boolean isPublic, final String description) throws IOException {
-		if (swarmId == null || description == null)
-			throw new IllegalArgumentException("An input parameter is null.");
-
-		validate();
+		validateParams(swarmId, description);
+		
+		validateAPIKey();
 
 		Map<String, String> props = new HashMap<String, String>();
 
@@ -113,10 +111,9 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 
 	@Override
 	public SwarmWSResponse destroy(final String swarmId) throws IOException {
-		if (swarmId == null)
-			throw new IllegalArgumentException("An input parameter is null.");
+		validateParams(swarmId);
 
-		validate();
+		validateAPIKey();
 
 		HTTPResponse response = httpClient.delete(swarmHostUrl + "swarms/" + swarmId);
 
@@ -125,7 +122,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 
 	@Override
 	public List<SwarmModel> list() throws IOException {
-		validate();
+		validateAPIKey();
 
 		HTTPResponse response = httpClient.get(swarmHostUrl + "swarms");
 
@@ -136,10 +133,9 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 
 	@Override
 	public SwarmModel get(final String swarmId) throws IOException {
-		if (swarmId == null)
-			throw new IllegalArgumentException("An input parameter is null.");
+		validateParams(swarmId);
 
-		validate();
+		validateAPIKey();
 
 		HTTPResponse response = httpClient.get(swarmHostUrl + "swarms/" + swarmId);
 

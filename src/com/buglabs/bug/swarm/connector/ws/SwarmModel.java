@@ -1,6 +1,7 @@
 package com.buglabs.bug.swarm.connector.ws;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.json.simple.JSONArray;
@@ -40,7 +41,8 @@ public class SwarmModel {
 	 * @param userId
 	 *            userId of owner
 	 */
-	public SwarmModel(final boolean isPublic, final List<SwarmResourceModel> members, final String createdAt, final String id,
+	public SwarmModel(final boolean isPublic, final List<SwarmResourceModel> members, 
+			final String createdAt, final String id,
 			final String description, final String modifiedAt, final String name, final String userId) {
 		this.isPublic = isPublic;
 		this.members = members;
@@ -123,6 +125,9 @@ public class SwarmModel {
 	 * @return List of SwarmModel
 	 */
 	public static List<SwarmModel> createListFromJson(final JSONArray json) {
+		if (json == null || json.size() == 0)
+			return Collections.emptyList();
+		
 		List<SwarmModel> l = new ArrayList<SwarmModel>();
 
 		for (Object o : json)
@@ -140,9 +145,14 @@ public class SwarmModel {
 	 */
 	public static SwarmModel createFromJson(final JSONObject jsonObject) {
 		// server is currently not returning modified_at
-		return new SwarmModel(Boolean.parseBoolean(jsonObject.get("public").toString()),
-				SwarmResourceModel.createListFromJson((JSONArray) jsonObject.get("resources")), jsonObject.get("created_at").toString(),
-				jsonObject.get("id").toString(), jsonObject.get("description").toString(), null, jsonObject.get("name").toString(),
+		return new SwarmModel(
+				Boolean.parseBoolean(jsonObject.get("public").toString()),
+				SwarmResourceModel.createListFromJson((JSONArray) jsonObject.get("resources")), 
+				jsonObject.get("created_at").toString(),
+				jsonObject.get("id").toString(), 
+				jsonObject.get("description").toString(), 
+				null, 
+				jsonObject.get("name").toString(),
 				jsonObject.get("user_id").toString());
 	}
 

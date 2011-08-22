@@ -32,7 +32,7 @@ public abstract class AbstractSwarmWSClient {
 	protected HTTPRequest httpClient;
 	protected boolean isValidated = false;
 
-	private Map<String, Object> staticHeaders;
+	private Map<String, String> staticHeaders;
 
 	/**
 	 * @param swarmHostUrl
@@ -54,7 +54,7 @@ public abstract class AbstractSwarmWSClient {
 
 			@Override
 			public void initialize(final HttpURLConnection connection) {
-				for (Map.Entry<String, Object> e : getSwarmHeaders().entrySet())
+				for (Map.Entry<String, String> e : getSwarmHeaders().entrySet())
 					connection.setRequestProperty(e.getKey(), e.getValue().toString());
 			}
 		});
@@ -110,7 +110,7 @@ public abstract class AbstractSwarmWSClient {
 	/**
 	 * @return required swarm headers
 	 */
-	protected Map<String, Object> getSwarmHeaders() {
+	protected Map<String, String> getSwarmHeaders() {
 		if (staticHeaders == null) {
 			staticHeaders = toMap(SWARM_APIKEY_HEADER_KEY, apiKey, 
 									CONTENT_TYPE_HEADER_KEY, "application/json");
@@ -123,7 +123,7 @@ public abstract class AbstractSwarmWSClient {
 	 * @throws IOException
 	 *             thrown when connection error occurs
 	 */
-	protected void validate() throws IOException {
+	protected void validateAPIKey() throws IOException {
 		Throwable err = checkAndValidate(false);
 		if (err != null)
 			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE, err);
@@ -150,5 +150,38 @@ public abstract class AbstractSwarmWSClient {
 		}
 
 		return m;
+	}
+	
+	/**
+	 * Given a variable number of <String, String> pairs, construct a Map and
+	 * return it with values loaded.
+	 * 
+	 * @param elements
+	 *            name1, value1, name2, value2...
+	 * @return a Map and return it with values loaded.
+	 */
+	public static Map<String, String> toMap(String... elements) {
+		if (elements.length % 2 != 0) {
+			throw new IllegalStateException("Input parameters must be even.");
+		}
+
+		Iterator<String> i = Arrays.asList(elements).iterator();
+		Map<String, String> m = new HashMap<String, String>();
+
+		while (i.hasNext()) {
+			m.put(i.next().toString(), i.next());
+		}
+
+		return m;
+	}
+	
+	/**
+	 * Throws IllegalArgumentException if any of the input parameters are null.
+	 * @param params Object array of parameters that should not be null.
+	 */
+	protected static void validateParams(Object ... params) {
+		for (int i = 0; i < params.length; ++i)
+			if (params[i] == null)
+				throw new IllegalArgumentException("An input parameter is null.");		
 	}
 }

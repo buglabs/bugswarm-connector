@@ -1,5 +1,14 @@
 package com.buglabs.bug.swarm.connector.ws;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
+
 /**
  * Represents the device-centric aspects of a Resource.
  * 
@@ -29,6 +38,7 @@ public class ResourceModel {
 	private String machineType;
 	private String resourceId;
 	private String description;
+	private final MemberType type;
 	
 	/**
 	 * @param position ResourcePosition
@@ -40,10 +50,10 @@ public class ResourceModel {
 	 * @param resourceId id of resource
 	 * @param description description of resource
 	 */
-	public ResourceModel(ResourcePosition position, String createDate, String userId, String name
+	public ResourceModel(ResourcePosition position, MemberType type, String createDate, String userId, String name
 			, String modifyDate, String machineType, String resourceId, String description) {
-		super();
 		this.position = position;
+		this.type = type;
 		this.createDate = createDate;
 		this.userId = userId;
 		this.name = name;
@@ -51,6 +61,13 @@ public class ResourceModel {
 		this.machineType = machineType;
 		this.resourceId = resourceId;
 		this.description = description;
+	}
+	
+	/**
+	 * @return MemberType
+	 */
+	public MemberType getType() {
+		return type;
 	}
 	
 	/**
@@ -107,6 +124,42 @@ public class ResourceModel {
 	 */
 	public String getDescription() {
 		return description;
+	}
+
+	/**
+	 * See https://github.com/buglabs/bugswarm/wiki/Resources.
+	 * 
+	 * @param json Array of json objects
+	 * @return List of Resource Model
+	 */
+	public static List<ResourceModel> createListFromJson(JSONArray json) {
+		if (json == null || json.size() == 0)
+			return Collections.emptyList();
+		
+		List<ResourceModel> l = new ArrayList<ResourceModel>();
+
+		for (Object o : json)
+			l.add(createFromJson((JSONObject) o));
+
+		return l;
+	}
+
+	/**
+	 * See https://github.com/buglabs/bugswarm/wiki/Resources.
+	 * 
+	 * @param jsonObject ResourceModel Json object
+	 * @return a ResourceModel from the json stanza.
+	 */
+	public static ResourceModel createFromJson(JSONObject jsonObject) {
+		return new ResourceModel(null,
+				MemberType.valueOf(jsonObject.get("type").toString()),
+				jsonObject.get("created_at").toString(),
+				jsonObject.get("user_id").toString(),
+				jsonObject.get("name").toString(),
+				jsonObject.get("modified_at").toString(),
+				jsonObject.get("machine_type").toString(),
+				jsonObject.get("id").toString(),
+				jsonObject.get("description").toString());
 	}
 
 	

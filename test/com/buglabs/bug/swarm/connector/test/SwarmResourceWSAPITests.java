@@ -21,7 +21,7 @@ import com.buglabs.util.simplerestclient.HTTPException;
  * @author kgilmer
  *
  */
-public class SwarmMemberWSAPITests extends TestCase {
+public class SwarmResourceWSAPITests extends TestCase {
 	
 	private static final MemberType DEFAULT_MEMBER_TYPE = MemberType.CONSUMER;
 	

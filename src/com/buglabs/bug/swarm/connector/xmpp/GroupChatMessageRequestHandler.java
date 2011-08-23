@@ -77,7 +77,10 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 	@Override
 	public void processPacket(final Packet packet) {
 		if (isFromSelf(packet)) {
-			System.out.println("Ignoring message from self: " + packet.getPacketID() + "  " + jid);
+			
+			Activator.getLog().log(
+					LogService.LOG_DEBUG,"Ignoring message from self: " + packet.getPacketID() + "  " + jid);
+			
 			return;
 		}
 

@@ -51,7 +51,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	private SwarmXMPPClient xmppClient;
 	private OSGiHelper osgiHelper;
 	private List<SwarmModel> memberSwarms;
-	private LogService log;
+	private static LogService log;	
 
 	/**
 	 * @param config

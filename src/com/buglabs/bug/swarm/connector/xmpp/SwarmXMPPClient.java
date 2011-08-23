@@ -43,9 +43,11 @@ import org.jivesoftware.smackx.muc.Affiliate;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.Configuration;
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
+import com.buglabs.bug.swarm.connector.osgi.Activator;
 
 /**
  * Default implementation of the bugswarm-specific XMPP client.
@@ -346,10 +348,13 @@ public class SwarmXMPPClient {
 		if (muc == null)
 			throw new XMPPException("Connector is not attached to room " + swarmId);
 
-		System.out.println("Creating private chat with " + requestJid.toString());
+		Activator.getLog().log(
+				LogService.LOG_DEBUG, "Creating private chat with " + requestJid.toString());
 		Chat pchat = muc.createPrivateChat(requestJid.toString(), null);
 
-		System.out.println("Sending " + document.toJSONString() + " to " + requestJid.toString());
+		Activator.getLog().log(
+				LogService.LOG_DEBUG, "Sending " + document.toJSONString() + " to " + requestJid.toString());
+		
 		pchat.sendMessage(document.toJSONString());
 	}
 
@@ -376,10 +381,12 @@ public class SwarmXMPPClient {
 		if (muc == null)
 			throw new XMPPException("Connector is not attached to room " + swarmId);
 
-		System.out.println("Creating private chat with " + requestJid.toString());
+		Activator.getLog().log(
+				LogService.LOG_DEBUG, "Creating private chat with " + requestJid.toString());
 		Chat pchat = muc.createPrivateChat(requestJid.toString(), null);
 
-		System.out.println("Sending " + document.toJSONString() + " to " + requestJid.toString());
+		Activator.getLog().log(
+				LogService.LOG_DEBUG, "Sending " + document.toJSONString() + " to " + requestJid.toString());
 		pchat.sendMessage(document.toJSONString());
 	}
 }

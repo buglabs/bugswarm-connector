@@ -1,4 +1,4 @@
-package com.buglabs.bug.swarm.connector.ws;
+package com.buglabs.bug.swarm.connector.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.List;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
 
 /**

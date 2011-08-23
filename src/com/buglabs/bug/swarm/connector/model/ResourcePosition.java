@@ -1,4 +1,4 @@
-package com.buglabs.bug.swarm.connector.ws;
+package com.buglabs.bug.swarm.connector.model;
 
 /**
  * Represents the position of a Resource-Device.

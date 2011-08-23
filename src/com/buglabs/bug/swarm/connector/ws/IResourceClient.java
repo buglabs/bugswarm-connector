@@ -3,6 +3,8 @@ package com.buglabs.bug.swarm.connector.ws;
 import java.io.IOException;
 import java.util.List;
 
+import com.buglabs.bug.swarm.connector.model.ResourceModel;
+import com.buglabs.bug.swarm.connector.model.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
 
 /**

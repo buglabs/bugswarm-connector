@@ -10,6 +10,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
+import com.buglabs.bug.swarm.connector.model.ResourceModel;
+import com.buglabs.bug.swarm.connector.model.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
 import com.buglabs.util.simplerestclient.HTTPRequest;
 import com.buglabs.util.simplerestclient.HTTPResponse;

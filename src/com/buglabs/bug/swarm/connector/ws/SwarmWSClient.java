@@ -12,6 +12,7 @@ import org.json.simple.JSONValue;
 
 import com.buglabs.bug.swarm.connector.Configuration;
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
+import com.buglabs.bug.swarm.connector.model.SwarmModel;
 import com.buglabs.util.simplerestclient.HTTPResponse;
 
 /**

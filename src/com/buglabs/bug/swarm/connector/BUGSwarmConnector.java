@@ -12,19 +12,19 @@ import org.json.simple.JSONObject;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
+import com.buglabs.bug.swarm.connector.model.Jid;
+import com.buglabs.bug.swarm.connector.model.SwarmModel;
+import com.buglabs.bug.swarm.connector.model.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.osgi.Activator;
 import com.buglabs.bug.swarm.connector.osgi.BinaryFeed;
 import com.buglabs.bug.swarm.connector.osgi.Feed;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper.EntityChangeListener;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
-import com.buglabs.bug.swarm.connector.ws.SwarmModel;
-import com.buglabs.bug.swarm.connector.ws.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
 import com.buglabs.bug.swarm.connector.xmpp.ISwarmServerRequestListener;
 import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
-import com.buglabs.bug.swarm.connector.xmpp.Jid;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
 import com.buglabs.util.simplerestclient.HTTPException;
 
@@ -260,7 +260,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		Feed f = osgiHelper.getBUGFeed(feedRequestName);
 		if (f == null) {
 			f = osgiHelper.getBUGFeed(feedRequestName);
-			log.log(LogService.LOG_ERROR, "Request for non-existant feed " + feedRequestName + " from client " + jid);
+			log.log(LogService.LOG_WARNING, "Request for non-existant feed " + feedRequestName + " from client " + jid);
 			return;
 		}
 

@@ -5,11 +5,11 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import com.buglabs.bug.swarm.connector.model.ResourceModel;
+import com.buglabs.bug.swarm.connector.model.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.IResourceClient;
 import com.buglabs.bug.swarm.connector.ws.ISwarmClient;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
-import com.buglabs.bug.swarm.connector.ws.ResourceModel;
-import com.buglabs.bug.swarm.connector.ws.SwarmModel;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
 import com.buglabs.util.simplerestclient.HTTPException;

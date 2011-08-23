@@ -13,6 +13,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.osgi.service.log.LogService;
 
+import com.buglabs.bug.swarm.connector.model.Jid;
 import com.buglabs.bug.swarm.connector.osgi.Activator;
 import com.buglabs.bug.swarm.connector.xmpp.parse.InviteMessageImpl;
 import com.buglabs.bug.swarm.connector.xmpp.parse.XMPPPlainTextMessageParser;
@@ -162,16 +163,12 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 	}
 
 	/**
-	 * @param m
-	 *            message
+	 * @param message
+	 *            message input message as string
 	 * @return true if message is a feed list request
-	 * @throws ParseException
+	 * @throws ParseException if the input message is not a parsable json message.
 	 */
-	private String getFeedRequestName(final String message) throws ParseException {
-		// What we are looking for here is a JSON object that contains a key of
-		// "feed" and a value of "feeds". This specific
-		// combo means that the client is requesting the list of all client
-		// feeds.
+	private String getFeedRequestName(final String message) throws ParseException {		
 		Object o = JSONValue.parse(message);
 
 		if (o != null && o instanceof JSONObject) {

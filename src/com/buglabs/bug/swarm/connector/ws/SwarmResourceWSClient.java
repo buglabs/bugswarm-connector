@@ -9,6 +9,8 @@ import java.util.Map;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 
+import com.buglabs.bug.swarm.connector.model.SwarmModel;
+import com.buglabs.bug.swarm.connector.model.SwarmResourceModel;
 import com.buglabs.util.simplerestclient.HTTPRequest;
 import com.buglabs.util.simplerestclient.HTTPResponse;
 

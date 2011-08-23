@@ -3,6 +3,9 @@ package com.buglabs.bug.swarm.connector.ws;
 import java.io.IOException;
 import java.util.List;
 
+import com.buglabs.bug.swarm.connector.model.SwarmModel;
+import com.buglabs.bug.swarm.connector.model.SwarmResourceModel;
+
 /**
  * Contract for the API defined at
  * https://github.com/buglabs/bugswarm/wiki/Swarm-Members-API.

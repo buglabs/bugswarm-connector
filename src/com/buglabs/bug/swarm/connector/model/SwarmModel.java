@@ -1,4 +1,4 @@
-package com.buglabs.bug.swarm.connector.ws;
+package com.buglabs.bug.swarm.connector.model;
 
 import java.util.ArrayList;
 import java.util.Collections;

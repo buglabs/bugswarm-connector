@@ -2,6 +2,8 @@ package com.buglabs.bug.swarm.connector.xmpp;
 
 import org.jivesoftware.smack.Chat;
 
+import com.buglabs.bug.swarm.connector.model.Jid;
+
 /**
  * Listener for all non-solicited messages that can be received from Swarm XMPP
  * server.

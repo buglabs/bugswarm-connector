@@ -3,6 +3,8 @@ package com.buglabs.bug.swarm.connector.ws;
 import java.io.IOException;
 import java.util.List;
 
+import com.buglabs.bug.swarm.connector.model.SwarmModel;
+
 /**
  * A contract for the BUGSwarm WS API. See
  * https://github.com/buglabs/bugswarm/wiki/Swarms-API

@@ -4,9 +4,9 @@ import junit.framework.TestCase;
 
 import org.json.simple.JSONArray;
 
+import com.buglabs.bug.swarm.connector.model.Jid;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
 import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
-import com.buglabs.bug.swarm.connector.xmpp.Jid;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
 
 /**

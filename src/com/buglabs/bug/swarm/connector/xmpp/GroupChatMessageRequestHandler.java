@@ -13,6 +13,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.osgi.service.log.LogService;
 
+import com.buglabs.bug.swarm.connector.model.FeedRequest;
 import com.buglabs.bug.swarm.connector.model.Jid;
 import com.buglabs.bug.swarm.connector.osgi.Activator;
 import com.buglabs.bug.swarm.connector.xmpp.parse.InviteMessageImpl;
@@ -105,7 +106,7 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 			} else if (isFeedRequest(ms)) {
 				for (ISwarmServerRequestListener listener : requestListeners) {
 					try {
-						listener.feedRequest(new Jid(packet.getFrom()), swarmId, getFeedRequestName(ms));
+						listener.feedRequest(new Jid(packet.getFrom()), swarmId, FeedRequest.parseJSON(ms));
 					} catch (ParseException e) {
 						Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
 					}
@@ -123,21 +124,8 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 	 *            message
 	 * @return true if message is a feed list request
 	 */
-	private boolean isFeedListRequest(final String message) {
-		// What we are looking for here is a JSON object that contains a key of
-		// "feed" and a value of "feeds". This specific
-		// combo means that the client is requesting the list of all client
-		// feeds.
-		Object o = JSONValue.parse(message);
-
-		if (o != null && o instanceof JSONObject) {
-			JSONObject jo = (JSONObject) o;
-
-			if (jo.containsKey("feed") && jo.containsKey("type"))
-				return jo.get("feed").equals("feeds") && jo.get("type").equals("get");
-		}
-
-		return false;
+	private boolean isFeedListRequest(final String message) {		
+		return FeedRequest.parseJSON(message) != null;
 	}
 
 	/**
@@ -160,25 +148,6 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 		}
 
 		return false;
-	}
-
-	/**
-	 * @param message
-	 *            message input message as string
-	 * @return true if message is a feed list request
-	 * @throws ParseException if the input message is not a parsable json message.
-	 */
-	private String getFeedRequestName(final String message) throws ParseException {		
-		Object o = JSONValue.parse(message);
-
-		if (o != null && o instanceof JSONObject) {
-			JSONObject jo = (JSONObject) o;
-
-			if (jo.containsKey("feed") && jo.containsKey("type") && jo.get("type").equals("get"))
-				return jo.get("feed").toString();
-		}
-
-		throw new ParseException("Unable to determine feed name from message", 0);
 	}
 
 	/**
@@ -216,7 +185,7 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 		} else if (isFeedRequest(messageBody)) {
 			for (ISwarmServerRequestListener listener : requestListeners) {
 				try {
-					listener.feedRequest(new Jid(chat.getParticipant()), swarmId, getFeedRequestName(messageBody));
+					listener.feedRequest(new Jid(chat.getParticipant()), swarmId, FeedRequest.parseJSON(messageBody));
 				} catch (ParseException e) {
 					Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
 				}

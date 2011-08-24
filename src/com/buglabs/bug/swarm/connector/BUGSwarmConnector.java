@@ -12,6 +12,7 @@ import org.json.simple.JSONObject;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
+import com.buglabs.bug.swarm.connector.model.FeedRequest;
 import com.buglabs.bug.swarm.connector.model.Jid;
 import com.buglabs.bug.swarm.connector.model.SwarmModel;
 import com.buglabs.bug.swarm.connector.model.SwarmResourceModel;
@@ -256,11 +257,11 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	}
 
 	@Override
-	public void feedRequest(final Jid jid, final String swarmId, final String feedRequestName) {
-		Feed f = osgiHelper.getBUGFeed(feedRequestName);
+	public void feedRequest(final Jid jid, final String swarmId, final FeedRequest feedRequest) {
+		Feed f = osgiHelper.getBUGFeed(feedRequest.getName());
 		if (f == null) {
-			f = osgiHelper.getBUGFeed(feedRequestName);
-			log.log(LogService.LOG_WARNING, "Request for non-existant feed " + feedRequestName + " from client " + jid);
+			f = osgiHelper.getBUGFeed(feedRequest.getName());
+			log.log(LogService.LOG_WARNING, "Request for non-existant feed " + feedRequest.getName() + " from client " + jid);
 			return;
 		}
 

@@ -2,6 +2,7 @@ package com.buglabs.bug.swarm.connector.xmpp;
 
 import org.jivesoftware.smack.Chat;
 
+import com.buglabs.bug.swarm.connector.model.FeedRequest;
 import com.buglabs.bug.swarm.connector.model.Jid;
 
 /**
@@ -42,10 +43,10 @@ public interface ISwarmServerRequestListener {
 	 *            JID of requester
 	 * @param swarmId
 	 *            swarmID that binds
-	 * @param feedRequestName
+	 * @param feedRequest
 	 *            name of feed being requested
 	 */
-	void feedRequest(final Jid jid, final String swarmId, final String feedRequestName);
+	void feedRequest(final Jid jid, final String swarmId, final FeedRequest feedRequest);
 
 	/**
 	 * @param jid

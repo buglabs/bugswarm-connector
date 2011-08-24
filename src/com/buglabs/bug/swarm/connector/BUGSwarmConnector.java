@@ -234,6 +234,10 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	 */
 	public void shutdown() {
 		String resourceId = null;
+		if (timer != null) {
+			timer.cancel();
+		}
+		
 		if (xmppClient != null)
 			resourceId = xmppClient.getResource();
 		// Stop listening to local events

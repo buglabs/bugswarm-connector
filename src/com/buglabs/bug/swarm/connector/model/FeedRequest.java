@@ -92,4 +92,32 @@ public class FeedRequest {
 		
 		return null;
 	}
+
+	/**
+	 * @return true if a stream request is made, false otherwise.
+	 */
+	public boolean hasFrequency() {
+		if (params == null || !params.containsKey("frequency"))
+			return false;
+		
+		try {
+			int f = Integer.parseInt(params.get("frequency").toString());
+			
+			if (f > 0)
+				return true;
+		} catch (NumberFormatException e) {			
+		}
+		
+		return false;
+	}
+
+	/**
+	 * @return the requested frequency, or 0 if unspecified.
+	 */
+	public long getFrequency() {
+		if (!hasFrequency())
+			return 0;
+		
+		return Integer.parseInt(params.get("frequency").toString());
+	}
 }

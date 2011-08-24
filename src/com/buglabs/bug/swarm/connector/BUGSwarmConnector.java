@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.XMPPException;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
@@ -30,13 +31,25 @@ import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
 import com.buglabs.util.simplerestclient.HTTPException;
 
 /**
- * The swarm connector client for BUGswarm system.
+ * The swarm connector client for BUGswarm system. 
+ * 
+ * This class is the "center" of bugswarm-client and is responsible 
+ * for the core of message handling and state management.
  * 
  * @author kgilmer
  * 
  */
 public class BUGSwarmConnector extends Thread implements EntityChangeListener, ISwarmServerRequestListener {
 
+	/**
+	 * Used to convert seconds to milliseconds.
+	 */
+	private static final long MILLIS_IN_SECONDS = 1000;
+	
+	/**
+	 * HTTP 404 response.
+	 */
+	private static final int HTTP_404 = 404;
 	/**
 	 * Configuration info for swarm server.
 	 */
@@ -49,9 +62,27 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	 * True if the initalize() method has been called, false otherwise.
 	 */
 	private boolean initialized = false;
+	/**
+	 * Instance of XMPP client.
+	 */
 	private SwarmXMPPClient xmppClient;
+	/**
+	 * Instance of OSGiHelper.
+	 */
 	private OSGiHelper osgiHelper;
+	/**
+	 * List of all member swarms.
+	 */
 	private List<SwarmModel> memberSwarms;
+	/**
+	 * Timer that manages all the active streaming feeds.
+	 */
+	private Timer timer;
+	/**
+	 * A list of active "streaming" feeds.  These feeds are running as TimerTasks in a Timer 
+	 * and sending response messages to the swarm server at regular intervals.
+	 */
+	private List<String> activeTasks;
 	private static LogService log;	
 
 	/**
@@ -60,7 +91,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	 */
 	public BUGSwarmConnector(final Configuration config) {
 		this.config = config;
-		this.log = Activator.getLog();
+		BUGSwarmConnector.log = Activator.getLog();
 		this.memberSwarms = new ArrayList<SwarmModel>();
 		if (!config.isValid())
 			throw new IllegalArgumentException("Invalid configuration");
@@ -96,7 +127,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 					memberSwarms.add(swarm);
 				}
 			} catch (HTTPException e) {
-				if (e.getErrorCode() == 404)
+				if (e.getErrorCode() == HTTP_404)
 					log.log(LogService.LOG_WARNING, "Not a member of any swarms, not publishing feeds.");
 				else
 					throw e;
@@ -258,28 +289,52 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 
 	@Override
 	public void feedRequest(final Jid jid, final String swarmId, final FeedRequest feedRequest) {
-		Feed f = osgiHelper.getBUGFeed(feedRequest.getName());
-		if (f == null) {
-			f = osgiHelper.getBUGFeed(feedRequest.getName());
+		Feed feed = osgiHelper.getBUGFeed(feedRequest.getName());
+		if (feed == null) {
+			feed = osgiHelper.getBUGFeed(feedRequest.getName());
 			log.log(LogService.LOG_WARNING, "Request for non-existant feed " + feedRequest.getName() + " from client " + jid);
 			return;
 		}
-
-		if (f instanceof BinaryFeed) {
-			try {
-				wsClient.getSwarmBinaryUploadClient().upload(jid.getUsername(), jid.getResource(), swarmId, f.getName(), ((BinaryFeed) f).getPayload());
-			} catch (IOException e) {
-				log.log(LogService.LOG_ERROR, "Error occurred while sending binary feed to " + jid, e);
-			}
-		} else {
-			JSONObject document = JSONElementCreator.createFeedElement(f);
-
-			try {
-				xmppClient.sendFeedToUser(jid, swarmId, document);
-			} catch (XMPPException e) {
-				log.log(LogService.LOG_ERROR, "Error occurred while sending feeds to " + jid, e);
-			}
+		
+		if (timer == null) {
+			timer = new Timer();
 		}
+
+		//TODO: there needs to be a way for the swarm server to notify of when 
+		//a feed that is in streaming mode should be shutdown.
+		//When this happens the TimerTask needs to be canceled and the entry in activeTasks removed.
+		TimerTask task = null;
+		
+		if (feed instanceof BinaryFeed) {
+			task = new BinaryFeedResponseTask(wsClient, jid, swarmId, (BinaryFeed) feed, log);
+		} else {
+			task = new FeedResponseTask(xmppClient, jid, swarmId, feed, log);
+		}
+		
+		if (feedRequest.hasFrequency() && !containsActiveTask(jid, swarmId, feed)) {
+			if (activeTasks == null) {
+				activeTasks = new ArrayList<String>();
+			}
+			
+			activeTasks.add(jid.toString() + swarmId + feed.getName());
+			
+			timer.schedule(task, 0, feedRequest.getFrequency() * MILLIS_IN_SECONDS);
+		} else {		
+			timer.schedule(task, 0);
+		}
+	}
+
+	/**
+	 * @param jid jid of recipient
+	 * @param swarmId id of swarm
+	 * @param feed feed instance
+	 * @return true if there is an active task corresponding to jid, swarm, and feed, false otherwise.
+	 */
+	private boolean containsActiveTask(Jid jid, String swarmId, Feed feed) {
+		if (activeTasks == null)
+			return false;
+		
+		return activeTasks.contains(jid.toString() + swarmId + feed.getName());
 	}
 
 	@Override

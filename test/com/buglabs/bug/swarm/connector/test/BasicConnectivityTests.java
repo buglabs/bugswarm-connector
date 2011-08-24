@@ -12,6 +12,7 @@ import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.json.simple.JSONArray;
 
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
+import com.buglabs.bug.swarm.connector.model.FeedRequest;
 import com.buglabs.bug.swarm.connector.model.Jid;
 import com.buglabs.bug.swarm.connector.model.SwarmModel;
 import com.buglabs.bug.swarm.connector.model.SwarmResourceModel;
@@ -210,7 +211,7 @@ public class BasicConnectivityTests extends TestCase {
 			}
 
 			@Override
-			public void feedRequest(Jid jid, String swarmId, String feedRequestName) {
+			public void feedRequest(Jid jid, String swarmId, FeedRequest feedRequest) {
 				// TODO Auto-generated method stub
 				
 			}

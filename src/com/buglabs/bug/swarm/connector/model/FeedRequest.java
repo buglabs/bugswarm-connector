@@ -15,16 +15,37 @@ import org.json.simple.JSONValue;
  */
 public class FeedRequest {
 
-	private final String type;
+	/**
+	 * Type of feed.  Based on HTTP operations.
+	 *
+	 */
+	public enum FeedType { 
+		get, put, post, delete;		
+	}
+	private final FeedType type;
 	private final String name;
 	private final Map<String, Object> params;
+	
+	/**
+	 * @param type type of request as String
+	 * @param name name of feed
+	 * @param params parameters associated with feed request
+	 */
+	public FeedRequest(String type, String name, Map<String, Object> params) {
+		this.type = FeedType.valueOf(type);
+		this.name = name;
+		if (params == null)
+			this.params = Collections.EMPTY_MAP;
+		else
+			this.params = params;
+	}
 	
 	/**
 	 * @param type type of request
 	 * @param name name of feed
 	 * @param params parameters associated with feed request
 	 */
-	public FeedRequest(String type, String name, Map<String, Object> params) {
+	public FeedRequest(FeedType type, String name, Map<String, Object> params) {
 		this.type = type;
 		this.name = name;
 		if (params == null)
@@ -44,7 +65,7 @@ public class FeedRequest {
 	/**
 	 * @return type (ex 'get')
 	 */
-	public String getType() {
+	public FeedType getType() {
 		return type;
 	}
 
@@ -61,6 +82,33 @@ public class FeedRequest {
 	public Map<String, Object> getParams() {
 		return params;
 	}
+	
+	/**
+	 * @return true if feed request is for all feeds.
+	 */
+	public boolean isFeedListRequest() {
+		return name.equalsIgnoreCase("feeds");
+	}
+	
+	/**
+	 * @return true if the feed request is for a specific feed.
+	 */
+	public boolean isFeedRequest() {	
+		return !isFeedListRequest() && name != null && type == FeedType.get;
+	}
+	
+	/**
+	 * See https://www.pivotaltracker.com/story/show/14457689.
+	 * @return true if feed request is a meta request.
+	 */
+	public boolean isFeedMetaRequest() {
+		/*{    'type': 'put', 
+		      'feed': 'location', 
+		      'body': { 'status': 'off'} 
+		 }*/
+		
+		return !isFeedListRequest() && !isFeedRequest() && type == FeedType.put && params.containsKey("body");
+	}	
 
 	/**
 	 * @param jsonString json document from server as a String

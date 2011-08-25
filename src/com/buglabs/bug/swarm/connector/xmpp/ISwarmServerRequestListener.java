@@ -55,4 +55,11 @@ public interface ISwarmServerRequestListener {
 	 *            room to be invited to.
 	 */
 	void swarmInviteRequest(final Jid jid, String roomId);
+
+	/**
+	 * The server has sent a message to turn on/off a feed or other unspecified behavior.
+	 * @param request FeedRequest
+	 * @param swarmId swarm associated with request
+	 */
+	void feedMetaRequest(FeedRequest request, String swarmId);
 }

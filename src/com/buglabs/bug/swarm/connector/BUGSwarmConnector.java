@@ -3,7 +3,9 @@ package com.buglabs.bug.swarm.connector;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -79,10 +81,15 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	 */
 	private Timer timer;
 	/**
-	 * A list of active "streaming" feeds.  These feeds are running as TimerTasks in a Timer 
+	 * A Map of active "streaming" feeds.  These feeds are running as TimerTasks in a Timer 
 	 * and sending response messages to the swarm server at regular intervals.
 	 */
-	private List<String> activeTasks;
+	private Map<String, TimerTask> activeTasks;
+
+	/**
+	 * List of feed names that should not be exported from device.
+	 */
+	private List<String> blacklist;
 	private static LogService log;	
 
 	/**
@@ -103,17 +110,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			// Initialize the clients used to communicate with swarm server
 			if (!initialized)
 				initialize();
-			
-			// Register device resource with swarm
-			log.log(LogService.LOG_DEBUG, "Adding device resource.");
-			wsClient.getResourceClient().add(
-					xmppClient.getResource(), 
-					xmppClient.getUsername(), 
-					"My BUG", 
-					"BUG device", 
-					MemberType.PRODUCER, 
-					"BUG20");
-
+					
 			// Load data about server configuration and local configuration.
 			log.log(LogService.LOG_DEBUG, "Getting member swarms.");
 
@@ -188,13 +185,20 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 				throw new IOException("Unable to get an OSGi context.");				
 			}
 			
-			SwarmWSResponse response = wsClient.getResourceClient().add(
-					xmppClient.getResource(), xmppClient.getUsername(), 
-					"BUG-Connector-Device", "A connector-enabled BUG device", 
-					MemberType.PRODUCER, "BUG");
-			
-			if (!response.isError())
-				throw new IOException(response.getMessage());
+			try {
+				SwarmWSResponse response = wsClient.getResourceClient().add(
+						xmppClient.getResource(), xmppClient.getUsername(), 
+						"BUG-Connector-Device", "A connector-enabled BUG device", 
+						MemberType.PRODUCER, "BUG");
+				
+				if (response.isError())
+					throw new IOException(response.getMessage());
+			} catch (Exception e) {
+				//It seems this is either not yet implemented in the server
+				//or I'm doing something wrong.  Until Camilo can verify,
+				//not preventing an error from continuing.
+				//TODO: readress with Camilo
+			}
 				
 			initialized = true;
 			return true;
@@ -317,10 +321,10 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		
 		if (feedRequest.hasFrequency() && !containsActiveTask(jid, swarmId, feed)) {
 			if (activeTasks == null) {
-				activeTasks = new ArrayList<String>();
+				activeTasks = new HashMap<String, TimerTask>();
 			}
 			
-			activeTasks.add(jid.toString() + swarmId + feed.getName());
+			activeTasks.put(jid.toString() + swarmId + feed.getName(), task);
 			
 			timer.schedule(task, 0, feedRequest.getFrequency() * MILLIS_IN_SECONDS);
 		} else {		
@@ -338,7 +342,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		if (activeTasks == null)
 			return false;
 		
-		return activeTasks.contains(jid.toString() + swarmId + feed.getName());
+		return activeTasks.containsKey(jid.toString() + swarmId + feed.getName());
 	}
 
 	@Override
@@ -372,5 +376,39 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 				return true;
 
 		return false;
+	}
+
+	@Override
+	public void feedMetaRequest(FeedRequest request, String swarmId) {
+		if (request.getParams().containsKey("status")) {
+			//This is to turn a feed off/on.
+			boolean feedEnabled = !request.getParams().get("status").toString().equalsIgnoreCase("off");
+			
+			if (feedEnabled) {
+				if (blacklist != null) {
+					blacklist.remove(request.getName());
+					log.log(LogService.LOG_INFO, "Removed " + request.getName() 
+							+ " from blacklist on swarm: " + swarmId);
+				}
+			} else {
+				if (blacklist == null)
+					blacklist = new ArrayList<String>();
+				
+				blacklist.add(request.getName());
+				log.log(LogService.LOG_INFO, "Added " + request.getName() + " from blacklist on swarm: " + swarmId);
+				
+				if (activeTasks.containsKey(request.getName())) {
+					TimerTask task = activeTasks.get(request.getName());
+					task.cancel();
+					log.log(LogService.LOG_INFO, "Cancelled streaming feed " 
+							+ request.getName() + " from due to server request on swarm: " + swarmId);
+				}
+			}
+			
+			return;
+		}
+		
+		log.log(LogService.LOG_ERROR, "Unhandled Meta Request: " + request.toString());
+		
 	}
 }

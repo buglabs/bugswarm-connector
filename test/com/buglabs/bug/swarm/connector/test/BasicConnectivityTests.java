@@ -221,6 +221,12 @@ public class BasicConnectivityTests extends TestCase {
 				// TODO Auto-generated method stub
 				
 			}
+
+			@Override
+			public void feedMetaRequest(FeedRequest request, String swarmId) {
+				// TODO Auto-generated method stub
+				
+			}
 		});
 		//Xmpp server is changing the JID from what I use to login, so cannot use presense method on XMPP API.
 		//Smack throws a class-cast when I try to retrieve members manually for partial comparsion.

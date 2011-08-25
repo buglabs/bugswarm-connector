@@ -40,7 +40,11 @@ public class Feed {
 	 *            feed contents
 	 */
 	public Feed(final String feedName, final Map<?, ?> feed) {
-
+		//The server specifies the feed name as "feeds" if it wants
+		//a list of all available feeds.
+		if (feedName.equalsIgnoreCase("feeds")) 
+			throw new IllegalArgumentException("'feeds' is special and cannot be used as a feed name.");
+		
 		this.feedName = feedName;
 		this.feed = feed;
 	}

@@ -16,7 +16,7 @@ public class FeedRequestTests extends TestCase {
 
 		FeedRequest fr = FeedRequest.parseJSON(input);
 		
-		assertTrue(fr.getType().equals("get"));
+		assertTrue(fr.getType().toString().equals("get"));
 		assertTrue(fr.getName().equals("location"));
 		assertTrue(fr.getParams() != null);
 		assertTrue(fr.getParams().size() == 3);

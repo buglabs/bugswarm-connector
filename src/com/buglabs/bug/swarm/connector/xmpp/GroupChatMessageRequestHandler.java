@@ -78,24 +78,27 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 
 	@Override
 	public void processPacket(final Packet packet) {
-		if (isFromSelf(packet)) {
-			
-			Activator.getLog().log(
-					LogService.LOG_DEBUG,"Ignoring message from self: " + packet.getPacketID() + "  " + jid);
-			
+		if (isFromSelf(packet)) {			
 			return;
 		}
 
 		Activator.getLog().log(
 				LogService.LOG_INFO,
-				"Swarm " + swarmId + " received new public message " + packet.getPacketID() + " from " + packet.getFrom() + " to: "
-						+ packet.getTo());
+				"Swarm " + swarmId + " received new public message " + packet.getPacketID() 
+				+ " from " + packet.getFrom() + " to: "	+ packet.getTo());
 
 		if (packet instanceof Message) {
 			Message m = (Message) packet;
 			String ms = m.getBody();
+			
+			FeedRequest freq = FeedRequest.parseJSON(ms);
+			
+			if (freq == null) {
+				Activator.getLog().log(LogService.LOG_ERROR, "Unhandled message received from swarm " + swarmId + " message: " + ms);
+				return;
+			}
 
-			if (isFeedListRequest(ms)) {
+			if (freq.isFeedListRequest()) {
 				for (ISwarmServerRequestListener listener : requestListeners) {
 					try {
 						listener.feedListRequest(new Jid(packet.getFrom()), swarmId);
@@ -103,16 +106,20 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 						Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
 					}
 				}
-			} else if (isFeedRequest(ms)) {
+			} else if (freq.isFeedRequest()) {
 				for (ISwarmServerRequestListener listener : requestListeners) {
 					try {
-						listener.feedRequest(new Jid(packet.getFrom()), swarmId, FeedRequest.parseJSON(ms));
+						listener.feedRequest(new Jid(packet.getFrom()), swarmId, freq);
 					} catch (ParseException e) {
 						Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
 					}
 				}
+			} else if (freq.isFeedMetaRequest()) {
+				for (ISwarmServerRequestListener listener : requestListeners) {
+					listener.feedMetaRequest(freq, swarmId);					
+				}
 			} else {
-				Activator.getLog().log(LogService.LOG_ERROR, "Unhandled message received from swarm " + swarmId + " message: " + ms);
+				Activator.getLog().log(LogService.LOG_ERROR, "Unhandled feed request from swarm " + swarmId + " message: " + ms);
 			}
 		} else {
 			Activator.getLog().log(LogService.LOG_WARNING, "Unhandled packet received from swarm " + swarmId);
@@ -120,34 +127,27 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 	}
 
 	/**
-	 * @param m
-	 *            message
+	 * @param message message
 	 * @return true if message is a feed list request
 	 */
-	private boolean isFeedListRequest(final String message) {		
-		return FeedRequest.parseJSON(message) != null;
+	private boolean isFeedListRequest(final String message) {
+		FeedRequest feed = FeedRequest.parseJSON(message);
+		if (feed == null)
+			return false;
+		
+		return feed.isFeedListRequest();
 	}
 
 	/**
-	 * @param m
-	 *            message
+	 * @param message  message
 	 * @return true if message is a feed list request
 	 */
 	private boolean isFeedRequest(final String message) {
-		// What we are looking for here is a JSON object that contains a key of
-		// "feed" and a value of "feeds". This specific
-		// combo means that the client is requesting the list of all client
-		// feeds.
-		Object o = JSONValue.parse(message);
-
-		if (o != null && o instanceof JSONObject) {
-			JSONObject jo = (JSONObject) o;
-
-			if (jo.containsKey("feed") && jo.containsKey("type"))
-				return jo.get("type").equals("get");
-		}
-
-		return false;
+		FeedRequest feed = FeedRequest.parseJSON(message);
+		if (feed == null)
+			return false;
+		
+		return feed.isFeedRequest();
 	}
 
 	/**

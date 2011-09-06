@@ -42,7 +42,7 @@ public class BinaryFeedResponseTask extends TimerTask {
 	public void run() {
 		try {
 			wsClient.getSwarmBinaryUploadClient()
-				.upload(jid.getUsername(), jid.getResource(), swarmId, feed.getName(), feed.getPayload());
+				.upload(jid.getUsername(), jid.getResource(), feed.getName(), feed.getPayload());
 		} catch (IOException e) {
 			log.log(LogService.LOG_ERROR, "Error occurred while sending binary feed to " + jid, e);
 		}

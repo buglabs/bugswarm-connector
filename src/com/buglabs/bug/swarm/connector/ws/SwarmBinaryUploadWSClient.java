@@ -29,8 +29,8 @@ public class SwarmBinaryUploadWSClient extends AbstractSwarmWSClient implements 
 	}
 
 	@Override
-	public SwarmWSResponse upload(String userId, String resourceId, String swarmId, String filename, final byte[] payload) throws IOException {
-		validateParams(userId, resourceId, swarmId, filename, payload);
+	public SwarmWSResponse upload(String userId, String resourceId, String filename, final byte[] payload) throws IOException {
+		validateParams(userId, resourceId, filename, payload);
 	
 		validateAPIKey();
 

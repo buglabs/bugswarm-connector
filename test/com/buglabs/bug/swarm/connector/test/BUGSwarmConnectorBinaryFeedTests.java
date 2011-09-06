@@ -117,28 +117,29 @@ public class BUGSwarmConnectorBinaryFeedTests extends TestCase {
 			HTTPResponse response = request.get(url,
 					headers);
 			System.out.println(response.getString());
+		
+		
+			System.out.println("boo");
+			
+			StreamScanner scanner = new StreamScanner(response.getStream());
+			scanner.start();
+	
+			Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
+	
+			assertTrue(scanner.hasInputBeenRecieved());
+	
+			for (String r : scanner.getResponses()) {
+				Object o = JSONValue.parse(r);
+	
+				assertNotNull(o);
+				System.out.println(o);
+			}
+	
+			scanner.interrupt();
+			connector.interrupt();
+			connector.shutdown();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		System.out.println("boo");
-		
-		/*StreamScanner scanner = new StreamScanner(response.getStream());
-		scanner.start();
-
-		Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
-
-		assertTrue(scanner.hasInputBeenRecieved());
-
-		for (String r : scanner.getResponses()) {
-			Object o = JSONValue.parse(r);
-
-			assertNotNull(o);
-			System.out.println(o);
-		}
-
-		scanner.interrupt();*/
-		connector.interrupt();
-		connector.shutdown();
 	}
 }

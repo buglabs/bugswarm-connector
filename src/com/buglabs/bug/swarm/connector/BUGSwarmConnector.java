@@ -113,12 +113,14 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		
 		//Notify all consumer-members of swarms of services, feeds, and modules.
 		for (SwarmModel swarm : allSwarms) 
-			for (SwarmResourceModel member : swarm.getMembers())
-				if (member.getType() == MemberType.CONSUMER &&  xmppClient.isPresent(swarm.getId(), member.getUserId()))
+			for (SwarmResourceModel member : swarm.getMembers()) {
+				String memberJID = member.getUserId() + "@" + member.getResource();
+				if (member.getType() == MemberType.CONSUMER &&  xmppClient.isPresent(swarm.getId(), memberJID))
 					xmppClient.advertise(
 							swarm.getId(), 
-							member.getUserId(), 
+							memberJID, 
 							document);
+			}
 	}
 	
 	/**

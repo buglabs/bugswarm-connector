@@ -149,14 +149,14 @@ public class SwarmXMPPClient  {
 	 * Determines if a given user in the given swarm is currently online.
 	 * 
 	 * @param swarmId id of swarm
-	 * @param userId id of user
+	 * @param jid id of user
 	 * @return true if presence is set 
 	 * @throws XMPPException  on xmpp error
 	 */
-	public boolean isPresent(final String swarmId, final String userId) throws XMPPException {
+	public boolean isPresent(final String swarmId, final String jid) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
 		try {
-			Jid userJid = new Jid(userId);
+			Jid userJid = new Jid(jid);
 			
 			for (Affiliate aff : muc.getMembers()) {		
 					Jid j = new Jid(aff.getJid());
@@ -165,7 +165,7 @@ public class SwarmXMPPClient  {
 				
 			}
 		} catch (ParseException e) {
-			throw new XMPPException("Invalid JID");
+			throw new XMPPException("Invalid JID: " + jid, e);
 		}
 		
 		return false;		

@@ -106,8 +106,9 @@ public class FeedRequest {
 		      'feed': 'location', 
 		      'body': { 'status': 'off'} 
 		 }*/
+		//{ "type": "put", "feed": "feed1", "params": { "status": "off"}}
 		
-		return !isFeedListRequest() && !isFeedRequest() && type == FeedType.put && params.containsKey("body");
+		return !isFeedListRequest() && !isFeedRequest() && type == FeedType.put && params.containsKey("status");
 	}	
 
 	/**

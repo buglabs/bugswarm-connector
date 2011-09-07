@@ -71,6 +71,7 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 
 		validateAPIKey();
 
+		//TODO, handle case when swarmHostUrl has slash or not has slash.
 		HTTPResponse response = httpClient.get(swarmHostUrl + "resources/" + resource + "/swarms");
 
 		JSONArray json = (JSONArray) JSONValue.parse(new InputStreamReader(response.getStream()));

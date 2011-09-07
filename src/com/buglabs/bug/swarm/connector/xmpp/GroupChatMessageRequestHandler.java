@@ -191,7 +191,15 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 				}
 			}
 			return;
-		}
+		} /*else if (isFeedShutdownRequest(messageBody)) {
+			
+			 * else if (freq.isFeedMetaRequest()) {
+				for (ISwarmServerRequestListener listener : requestListeners) {
+					listener.feedMetaRequest(freq, swarmId);					
+				}
+			
+			 
+		}*/
 
 		XMPPMessage im = XMPPPlainTextMessageParser.parseServerMessage(messageBody);
 

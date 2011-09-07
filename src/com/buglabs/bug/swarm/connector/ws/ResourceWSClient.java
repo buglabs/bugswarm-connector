@@ -53,7 +53,7 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 				"machine_type", machineType, 
 				"position", "{\"Longitude\": 0, \"latitude\": 0}");
 
-		HTTPResponse response = httpClient.post(swarmHostUrl + "/resources", props);
+		HTTPResponse response = httpClient.post(swarmHostUrl + "resources", props);
 
 		return SwarmWSResponse.fromCode(response.getResponseCode());
 	}
@@ -72,7 +72,7 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 				"type", type.toString(),	
 				"machine_type", machineType);
 
-		HTTPResponse response = httpClient.put(swarmHostUrl + "/resources/" + resourceId, props);
+		HTTPResponse response = httpClient.put(swarmHostUrl + "resources/" + resourceId, props);
 
 		return SwarmWSResponse.fromCode(response.getResponseCode());
 	}
@@ -88,7 +88,7 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 		else
 			params = toMap("type", type.toString());
 		
-		HTTPResponse response = httpClient.get(swarmHostUrl + "/resources", params);
+		HTTPResponse response = httpClient.get(swarmHostUrl + "resources", params);
 
 		JSONArray json = (JSONArray) JSONValue.parse(new InputStreamReader(response.getStream()));
 
@@ -100,7 +100,7 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 		validateParams(resourceId);
 		validateAPIKey();
 		
-		HTTPResponse response = httpClient.get(swarmHostUrl + "/resources/" + resourceId);
+		HTTPResponse response = httpClient.get(swarmHostUrl + "resources/" + resourceId);
 		
 		if (response.getResponseCode() == HTTPResponse.HTTP_CODE_NOT_FOUND)
 			return null;
@@ -118,7 +118,7 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 		
 		validateAPIKey();
 		
-		HTTPResponse response = httpClient.delete(swarmHostUrl + "/resources/" + resourceId);
+		HTTPResponse response = httpClient.delete(swarmHostUrl + "resources/" + resourceId);
 		
 		return SwarmWSResponse.fromCode(response.getResponseCode());
 	}
@@ -129,7 +129,7 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 		
 		validateAPIKey();
 		
-		HTTPResponse response = httpClient.get(swarmHostUrl + "/resources/" + resourceId + "/swarms");
+		HTTPResponse response = httpClient.get(swarmHostUrl + "resources/" + resourceId + "/swarms");
 		
 		if (response.getResponseCode() == HTTPResponse.HTTP_CODE_NOT_FOUND)
 			return Collections.emptyList();

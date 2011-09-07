@@ -183,23 +183,21 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			osgiHelper = OSGiHelper.getRef();
 			if (osgiHelper == null) {
 				throw new IOException("Unable to get an OSGi context.");				
-			}
+			}			
 			
+			SwarmWSResponse response = null;
 			try {
-				SwarmWSResponse response = wsClient.getResourceClient().add(
+				response = wsClient.getResourceClient().add(
 						xmppClient.getResource(), xmppClient.getUsername(), 
 						"BUG-Connector-Device", "A connector-enabled BUG device", 
 						MemberType.PRODUCER, "BUG");
-				
-				if (response.isError())
-					throw new IOException(response.getMessage());
-			} catch (Exception e) {
-				//It seems this is either not yet implemented in the server
-				//or I'm doing something wrong.  Until Camilo can verify,
-				//not preventing an error from continuing.
-				//TODO: readress with Camilo
+			} catch (HTTPException e) {
+				//TODO Fix this once the http client behaves nicely with 404s, etc.
 			}
-				
+			
+			/*if (response.isError() && response.getCode() != 409)
+				throw new IOException(response.getMessage());*/
+							
 			initialized = true;
 			return true;
 		} else {
@@ -324,6 +322,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 				activeTasks = new HashMap<String, TimerTask>();
 			}
 			
+			//TODO: this is not matching up with the blacklist
 			activeTasks.put(jid.toString() + swarmId + feed.getName(), task);
 			
 			timer.schedule(task, 0, feedRequest.getFrequency() * MILLIS_IN_SECONDS);
@@ -397,6 +396,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 				blacklist.add(request.getName());
 				log.log(LogService.LOG_INFO, "Added " + request.getName() + " from blacklist on swarm: " + swarmId);
 				
+				//TODO: fix this, they do not match
 				if (activeTasks.containsKey(request.getName())) {
 					TimerTask task = activeTasks.get(request.getName());
 					task.cancel();

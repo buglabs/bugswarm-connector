@@ -10,6 +10,24 @@
 		<property name="manifest.location" location="${basedir}/test/MANIFEST.MF"/>
 		<antcall target="build.jars"></antcall>
 	</target>
+	
+	<target name="build.jars" depends="build, document" description="Package the java class files into a jar.">
+		<echo message="## PROJECT: ${ant.project.name} ## TARGET: build.jars" />
+			
+		<property name="dist.jar.name" value="${ant.project.name}" />
+		<property name="manifest.location" location="${basedir}/META-INF/MANIFEST.MF"/>
+			
+		<fail unless="distDirectory" message="distDirectory must be defined." />
+		<fail unless="buildDirectory" message="buildDirectory must be defined." />
+
+		<jar destfile="${distDirectory}/${dist.jar.name}.jar" 
+			basedir="${buildDirectory}" 
+			manifest="${manifest.location}">
+			<fileset dir="${buildDirectory}" excludes="**/*.java,build/**,**/.settings/**,**/build.xml/**,**/build.properties/**,**/.classpath,**/.project,src/**,test/**,junit-reports/**,.git/**,**.gitignore,**/.checkstyle,**/README.*,**/build*.sh,checkstyle-reports/**" />
+			<fileset dir="${buildDirectory}" includes="images/**,includes/**,javascripts/**,stylesheets/**,templates/**" />
+		</jar>
+			
+	</target>
 
 	<!-- PROJECT IMPORTS -->
 	<property name="common.ant.file" location="${base.build.dir}/toolbox/common-osgi.xml" />

@@ -196,6 +196,7 @@ public final class OSGiHelper implements ServiceListener {
 						
 						if (feed != null && !feedServiceMap.entrySet().contains(feed)) {
 							feedServiceMap.put(context.getService(sr), feed);	
+							Activator.getLog().log(LogService.LOG_INFO, "Feed " + feed.getName() + " has been registered with connector.");
 						} else {
 							Activator.getLog().log(LogService.LOG_WARNING, Map.class.getName() 
 								+ " ignored: " + Feed.FEED_SERVICE_NAME_PROPERTY + " is not a property.");
@@ -260,10 +261,15 @@ public final class OSGiHelper implements ServiceListener {
 			}
 
 			//If we have event listeners, send notifications of the change.
-			if (listeners != null && listeners.size() > 0) {				
+			
+			//TODO: commenting this out as I'm not sure it is necessary.
+			//I seem to recall that this functionality (broadcasting feeds to every member) was deprecated...need
+			//to confirm with Camilo
+			
+			/*if (listeners != null && listeners.size() > 0) {				
 				for (EntityChangeListener listener : listeners) 
 					listener.change(event.getType(), event.getSource());
-			}
+			}*/
 		}
 	}
 

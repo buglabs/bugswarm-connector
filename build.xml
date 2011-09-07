@@ -24,7 +24,7 @@
 			basedir="${buildDirectory}" 
 			manifest="${manifest.location}">
 			<fileset dir="${buildDirectory}" excludes="**/*.java,build/**,**/.settings/**,**/build.xml/**,**/build.properties/**,**/.classpath,**/.project,src/**,test/**,junit-reports/**,.git/**,**.gitignore,**/.checkstyle,**/README.*,**/build*.sh,checkstyle-reports/**" />
-			<fileset dir="${buildDirectory}" includes="images/**,includes/**,javascripts/**,stylesheets/**,templates/**" />
+			<fileset dir="${basedir}" includes="images/**,includes/**,javascripts/**,stylesheets/**,templates/**" />
 		</jar>
 			
 	</target>

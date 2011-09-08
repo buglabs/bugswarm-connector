@@ -186,17 +186,19 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			}			
 			
 			SwarmWSResponse response = null;
-			try {
-				response = wsClient.getResourceClient().add(
-						xmppClient.getResource(), xmppClient.getUsername(), 
-						"BUG-Connector-Device", "A connector-enabled BUG device", 
-						MemberType.PRODUCER, "BUG");
-			} catch (HTTPException e) {
-				//TODO Fix this once the http client behaves nicely with 404s, etc.
+			
+			response = wsClient.getResourceClient().add(
+					xmppClient.getResource(), xmppClient.getUsername(), 
+					"BUG-Connector-Device", "A connector-enabled BUG device", 
+					MemberType.PRODUCER, "BUG");
+			
+			if (response.isError()) {
+				log.log(LogService.LOG_WARNING, "Server returned an error when adding device resource: " + response.getMessage());
 			}
 			
-			/*if (response.isError() && response.getCode() != 409)
-				throw new IOException(response.getMessage());*/
+			
+			if (response.isError() && response.getCode() != 409)
+				throw new IOException(response.getMessage());
 							
 			initialized = true;
 			return true;

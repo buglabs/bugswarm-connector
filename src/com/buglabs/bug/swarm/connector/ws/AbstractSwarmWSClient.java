@@ -29,7 +29,7 @@ public abstract class AbstractSwarmWSClient {
 
 	protected final String swarmHostUrl;
 	protected final String apiKey;
-	protected HTTPRequest httpClient;
+	protected final HTTPRequest httpClient;
 	protected boolean isValidated = false;
 
 	private Map<String, String> staticHeaders;
@@ -50,6 +50,7 @@ public abstract class AbstractSwarmWSClient {
 		this.swarmHostUrl = swarmHostUrl;
 		this.apiKey = apiKey;
 		this.httpClient = new HTTPRequest(DEBUG_MODE);
+		httpClient.setThrowsHTTPErrorsAsExceptions(false);
 		httpClient.addConfigurator(new com.buglabs.util.simplerestclient.HTTPRequest.HTTPConnectionInitializer() {
 
 			@Override

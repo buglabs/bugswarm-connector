@@ -5,10 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-
 import junit.framework.TestCase;
+
+import org.json.simple.JSONValue;
 
 import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
@@ -28,6 +27,17 @@ import com.buglabs.util.simplerestclient.HTTPResponse;
  */
 public class BUGSwarmConnectorBinaryFeedTests extends TestCase {
 
+	/**
+	 * Test input parameters:
+	 * 
+	 * -Dreport.misc=bugswarm-test,3077514aa9aa5a5826cfd9d04ee059db1a18057d,ddef1fa815d8549fa184e2716405f2cc553b5316
+	 * 
+	 */
+	
+	/*
+	 * (non-Javadoc)
+	 * @see junit.framework.TestCase#setUp()
+	 */
 	@Override
 	protected void setUp() throws Exception {
 		System.out.println("setUp()");

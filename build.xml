@@ -10,7 +10,7 @@
 		<property name="manifest.location" location="${basedir}/test/MANIFEST.MF"/>
 		<antcall target="build.jars"></antcall>
 	</target>
-	
+	<!--
 	<target name="build.jars" depends="build, document" description="Package the java class files into a jar.">
 		<echo message="## PROJECT: ${ant.project.name} ## TARGET: build.jars" />
 			
@@ -28,7 +28,7 @@
 		</jar>
 			
 	</target>
-
+	-->
 	<!-- PROJECT IMPORTS -->
 	<property name="common.ant.file" location="${base.build.dir}/toolbox/common-osgi.xml" />
 	<import file="${common.ant.file}" />

@@ -192,9 +192,10 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 					"BUG-Connector-Device", "A connector-enabled BUG device", 
 					MemberType.PRODUCER, "BUG");
 			
-			if (response.isError()) {
-				log.log(LogService.LOG_WARNING, "Server returned an error when adding device resource: " + response.getMessage());
-			}
+			if (response.isError()) 
+				log.log(LogService.LOG_WARNING, 
+						"Server returned an error when adding device resource: " + response.getMessage());
+			
 			
 			
 			if (response.isError() && response.getCode() != 409)

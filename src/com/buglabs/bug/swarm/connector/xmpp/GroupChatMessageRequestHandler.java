@@ -9,8 +9,6 @@ import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.model.FeedRequest;
@@ -45,8 +43,8 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 	 * @throws Exception
 	 *             thrown if OSGi service binding fails
 	 */
-	protected GroupChatMessageRequestHandler(final Jid jid, final String swarmId, final List<ISwarmServerRequestListener> requestListeners)
-			throws Exception {
+	protected GroupChatMessageRequestHandler(final Jid jid, final String swarmId, 
+			final List<ISwarmServerRequestListener> requestListeners) throws Exception {
 		if (jid == null || swarmId == null || requestListeners == null)
 			throw new IllegalArgumentException("Input parameter to constructor is null.");
 
@@ -59,9 +57,7 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 	 * Construct the handler with a jid, swarmid, and list of local listeners.
 	 * 
 	 * @param jid
-	 *            local jid
-	 * @param swarmId
-	 *            swarm associated with handler
+	 *            local jid	
 	 * @param requestListeners
 	 *            list of ISwarmServerRequestListeners
 	 * @throws Exception
@@ -74,6 +70,61 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 		this.jid = jid;
 		this.swarmId = null;
 		this.requestListeners = requestListeners;
+	}
+	
+	/**
+	 * Process a message from the XMPP server.
+	 * 
+	 * @param rawMessage message as a string
+	 * @param sender JID of originator of message
+	 */
+	private void processServerMessage(String rawMessage, String sender) {
+		FeedRequest freq = FeedRequest.parseJSON(rawMessage);
+		
+		if (freq == null) {
+			Activator.getLog().log(LogService.LOG_ERROR, 
+					"Unhandled message received from swarm " + swarmId + " message: " + rawMessage);
+			return;
+		}
+
+		if (freq.isFeedListRequest()) {
+			for (ISwarmServerRequestListener listener : requestListeners) {
+				try {
+					listener.feedListRequest(new Jid(sender), swarmId);
+				} catch (ParseException e) {
+					Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
+				}
+			}
+		} else if (freq.isFeedRequest()) {
+			for (ISwarmServerRequestListener listener : requestListeners) {
+				try {
+					listener.feedRequest(new Jid(sender), swarmId, freq);
+				} catch (ParseException e) {
+					Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
+				}
+			}
+		} else if (freq.isFeedMetaRequest()) {
+			for (ISwarmServerRequestListener listener : requestListeners) {
+				listener.feedMetaRequest(freq, swarmId);					
+			}
+		} else {
+			XMPPMessage im = XMPPPlainTextMessageParser.parseServerMessage(rawMessage);
+
+			if (im != null) {
+				for (ISwarmServerRequestListener listener : requestListeners) {
+					try {
+						handlePlainTextMessage(im, listener);
+						return;
+					} catch (ParseException e) {
+						Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
+					}
+				}
+
+			} 
+			
+			Activator.getLog().log(LogService.LOG_ERROR, 
+					"Unhandled feed request from swarm " + swarmId + " message: " + rawMessage);
+		}
 	}
 
 	@Override
@@ -89,65 +140,11 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 
 		if (packet instanceof Message) {
 			Message m = (Message) packet;
-			String ms = m.getBody();
 			
-			FeedRequest freq = FeedRequest.parseJSON(ms);
-			
-			if (freq == null) {
-				Activator.getLog().log(LogService.LOG_ERROR, "Unhandled message received from swarm " + swarmId + " message: " + ms);
-				return;
-			}
-
-			if (freq.isFeedListRequest()) {
-				for (ISwarmServerRequestListener listener : requestListeners) {
-					try {
-						listener.feedListRequest(new Jid(packet.getFrom()), swarmId);
-					} catch (ParseException e) {
-						Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
-					}
-				}
-			} else if (freq.isFeedRequest()) {
-				for (ISwarmServerRequestListener listener : requestListeners) {
-					try {
-						listener.feedRequest(new Jid(packet.getFrom()), swarmId, freq);
-					} catch (ParseException e) {
-						Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
-					}
-				}
-			} else if (freq.isFeedMetaRequest()) {
-				for (ISwarmServerRequestListener listener : requestListeners) {
-					listener.feedMetaRequest(freq, swarmId);					
-				}
-			} else {
-				Activator.getLog().log(LogService.LOG_ERROR, "Unhandled feed request from swarm " + swarmId + " message: " + ms);
-			}
+			processServerMessage(m.getBody(), m.getFrom());
 		} else {
 			Activator.getLog().log(LogService.LOG_WARNING, "Unhandled packet received from swarm " + swarmId);
 		}
-	}
-
-	/**
-	 * @param message message
-	 * @return true if message is a feed list request
-	 */
-	private boolean isFeedListRequest(final String message) {
-		FeedRequest feed = FeedRequest.parseJSON(message);
-		if (feed == null)
-			return false;
-		
-		return feed.isFeedListRequest();
-	}
-
-	/**
-	 * @param message  message
-	 * @return true if message is a feed list request
-	 */
-	private boolean isFeedRequest(final String message) {
-		FeedRequest feed = FeedRequest.parseJSON(message);
-		if (feed == null)
-			return false;
-		
-		return feed.isFeedRequest();
 	}
 
 	/**
@@ -171,51 +168,8 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 	}
 
 	@Override
-	public void processMessage(final Chat chat, final Message message) {
-		String messageBody = message.getBody();
-		if (isFeedListRequest(messageBody)) {
-			for (ISwarmServerRequestListener listener : requestListeners) {
-				try {
-					listener.feedListRequest(chat, swarmId);
-				} catch (Exception e) {
-					Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
-				}
-			}
-			return;
-		} else if (isFeedRequest(messageBody)) {
-			for (ISwarmServerRequestListener listener : requestListeners) {
-				try {
-					listener.feedRequest(new Jid(chat.getParticipant()), swarmId, FeedRequest.parseJSON(messageBody));
-				} catch (ParseException e) {
-					Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
-				}
-			}
-			return;
-		} /*else if (isFeedShutdownRequest(messageBody)) {
-			
-			 * else if (freq.isFeedMetaRequest()) {
-				for (ISwarmServerRequestListener listener : requestListeners) {
-					listener.feedMetaRequest(freq, swarmId);					
-				}
-			
-			 
-		}*/
-
-		XMPPMessage im = XMPPPlainTextMessageParser.parseServerMessage(messageBody);
-
-		if (im != null) {
-			for (ISwarmServerRequestListener listener : requestListeners) {
-				try {
-					handlePlainTextMessage(im, listener);
-				} catch (ParseException e) {
-					Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
-				}
-			}
-
-		} else {
-			Activator.getLog().log(LogService.LOG_ERROR, "Unhandled client message: " + messageBody);
-		}
-
+	public void processMessage(final Chat chat, final Message message) {	
+		processServerMessage(message.getBody(), chat.getParticipant());
 	}
 
 	/**
@@ -223,7 +177,7 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 	 *            message
 	 * @param listener
 	 *            listener to send event to
-	 * @throws ParseException
+	 * @throws ParseException if message cannot be parsed.
 	 */
 	private void handlePlainTextMessage(final XMPPMessage im, final ISwarmServerRequestListener listener) throws ParseException {
 		switch (im.getType()) {

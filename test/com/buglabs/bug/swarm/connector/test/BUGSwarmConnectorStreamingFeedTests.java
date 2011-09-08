@@ -5,10 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-
 import junit.framework.TestCase;
+
+import org.json.simple.JSONValue;
 
 import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
@@ -112,11 +111,9 @@ public class BUGSwarmConnectorStreamingFeedTests extends TestCase {
 		
 		String url = 
 			AccountConfig.getConfiguration().getHostname(Protocol.HTTP)
-			+ "/swarms/" + AccountConfig.testSwarmId + "/resources/" 
-			+ AccountConfig.getConfiguration().getResource() +  "/feeds/" 
-			+ OSGiHelperTester.TEST_BINARY_FEED_NAME;
+			+ "/swarms/" + AccountConfig.testSwarmId + "/feeds/feed1?frequency=5&stream=true" ;
 		
-		System.out.println("Getting binary data for feed " + OSGiHelperTester.TEST_BINARY_FEED_NAME + " sending to " + url);
+		System.out.println("Getting streaming data for feed " + OSGiHelperTester.TEST_BINARY_FEED_NAME + " sending to " + url);
 
 		try {
 			HTTPResponse response = request.get(url,

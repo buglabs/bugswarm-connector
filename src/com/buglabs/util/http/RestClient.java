@@ -107,6 +107,34 @@ public class RestClient<T> {
 	};
 	
 	/**
+	 *
+	 */
+	public static final ErrorHandler THROW_ALL_ERRORS = new ErrorHandler() {
+
+		@Override
+		public void handleError(int code) throws IOException {
+			if (code > 0)
+				throw new IOException("HTTP Error " + code + " was returned from the server.");
+			else 
+				throw new IOException("A non-HTTP error was returned from the server.");
+		}
+		
+	};
+	
+	/**
+	 *
+	 */
+	public static final ErrorHandler THROW_5XX_ERRORS = new ErrorHandler() {
+
+		@Override
+		public void handleError(int code) throws IOException {
+			if (code > 499 && code < 600)
+				throw new IOException("HTTP Error " + code + " was returned from the server.");			
+		}
+		
+	};
+	
+	/**
 	 * The response from the server for a given request.
 	 *
 	 * @param <T>
@@ -137,12 +165,11 @@ public class RestClient<T> {
 		/**
 		 * @return true if error code or an exception is raised, false otherwise.
 		 */
-		boolean isError();
-		
-		/**
-		 * @throws IOException if the response is an error
-		 */
-		void throwOnError() throws IOException;
+		boolean isError();				
+	}
+	
+	public interface ErrorHandler {
+		void handleError(int code) throws IOException;
 	}
 
 	private ConnectionProvider connectionProvider;
@@ -151,6 +178,8 @@ public class RestClient<T> {
 
 	private ResponseDeserializer<T> responseDeserializers;
 	
+	private ErrorHandler errorHandler;
+	
 	/**
 	 * Default constructor.
 	 */
@@ -158,6 +187,7 @@ public class RestClient<T> {
 		this.connectionProvider = new DefaultConnectionProvider();
 		this.connectionInitializers = new ArrayList<ConnectionInitializer>();
 		this.responseDeserializers = null;
+		this.errorHandler = null;
 	}
 	
 	/**
@@ -167,6 +197,7 @@ public class RestClient<T> {
 		this.connectionProvider = connectionProvider;
 		this.connectionInitializers = new ArrayList<ConnectionInitializer>();
 		this.responseDeserializers = null;
+		this.errorHandler = null;
 	}
 	
 	/**
@@ -213,7 +244,29 @@ public class RestClient<T> {
 		this.responseDeserializers = deserializer;
 	}
 	
+	/**
+	 * @param connectionProvider
+	 * @param initializer
+	 * @param deserializer
+	 * @param errorHandler
+	 */
+	public RestClient(ConnectionProvider connectionProvider, ConnectionInitializer initializer, ResponseDeserializer<T> deserializer, ErrorHandler errorHandler) {
+		this.connectionProvider = connectionProvider;
+		this.connectionInitializers = new ArrayList<ConnectionInitializer>();
+		this.responseDeserializers = deserializer;
+		this.errorHandler = errorHandler;
+		connectionInitializers.add(initializer);		
+	}
+	
 	// Public methods
+	
+	public ErrorHandler getErrorHandler() {
+		return errorHandler;
+	}
+	
+	public void setErrorHandler(ErrorHandler handler) {
+		this.errorHandler = handler;
+	}
 	
 	/**
 	 * @param provider
@@ -297,7 +350,7 @@ public class RestClient<T> {
 			throw new RuntimeException("Unhandled HTTP method.");
 		}	
 		
-		return new ResponseImpl(method, url, connection, deserializer);
+		return new ResponseImpl(method, url, connection, deserializer, errorHandler);
 	}
 	
 	/**
@@ -490,12 +543,20 @@ public class RestClient<T> {
 		 * @param url
 		 * @param connection
 		 * @param deserializer
+		 * @param errorHandler 
+		 * @throws IOException 
 		 */
-		public ResponseImpl(HttpMethod method, String url, HttpURLConnection connection, ResponseDeserializer<T> deserializer) {
+		public ResponseImpl(HttpMethod method, String url, HttpURLConnection connection, ResponseDeserializer<T> deserializer, ErrorHandler errorHandler) throws IOException {
 			this.method = method;
 			this.url = url;
 			this.connection = connection;
 			this.deserializer = deserializer;
+			
+			
+			if (errorHandler != null) {
+				if (isError())
+					errorHandler.handleError(getCode());
+			}
 		}
 
 		@Override
@@ -537,13 +598,15 @@ public class RestClient<T> {
 				
 			return deserializer.deserialize(connection.getInputStream());
 		}
-
+		
+/*
 		@Override
 		public void throwOnError() throws IOException {
 			int code = getCode();
 				
 			if (code >= 400 && code < 500)
 				throw new IOException("Server returned HTTP error code " + code);
-		}		
+		}		*/
 	}
+	
 }

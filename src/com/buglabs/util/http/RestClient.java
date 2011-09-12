@@ -18,9 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import com.buglabs.util.http.RestClient.FormFile;
-import com.buglabs.util.simplerestclient.IFormFile;
-
 /**
  * @author kgilmer
  *
@@ -375,6 +372,7 @@ public class RestClient<T> {
 			httpUrl = "http://" + url;
 				
 		HttpURLConnection connection = connectionProvider.getConnection(httpUrl);
+		connection.setRequestMethod(method.toString());
 		
 		if (headers != null && headers.size() > 0)
 			for (Map.Entry<String, String> entry : headers.entrySet())
@@ -384,19 +382,18 @@ public class RestClient<T> {
 			initializer.initialize(connection);
 
 		switch(method) {
-		case GET:
+		case GET:			
 			connection.setDoInput(true);
 			connection.setDoOutput(false);
 			break;
 		case POST:
-			connection.setDoOutput(true);
-			OutputStream outputStream = connection.getOutputStream();
-			long length = copy(content, outputStream);
-			outputStream.close();
-			connection.setRequestProperty("Content-Length", Long.toString(length));
+			connection.setDoOutput(true);						
+			writeRequestBody(connection, content);			
 			break;
 		case PUT:
-			throw new RuntimeException("Unimplemented");
+			connection.setDoOutput(true);
+			writeRequestBody(connection, content);
+			break;
 		case DELETE:
 			throw new RuntimeException("Unimplemented");
 		case HEAD:
@@ -407,7 +404,7 @@ public class RestClient<T> {
 		
 		return new ResponseImpl(method, url, connection, deserializer, errorHandler);
 	}
-	
+
 	/**
 	 * @param method
 	 * @param url
@@ -484,6 +481,18 @@ public class RestClient<T> {
 	 */
 	public Response<T> postMultipart(String url, Map<String, Object> content) throws IOException {
 		return post(url, createMultipartPostBody(content));
+	}
+	
+	/**
+	 * Call PUT method on a server.
+	 * 
+	 * @param url url of server
+	 * @param content See createMultipartPostBody() for details on this parameter.
+	 * @return a response from the POST
+	 * @throws IOException on I/O error
+	 */
+	public Response<T> put(String url, InputStream content) throws IOException {
+		return call(HttpMethod.PUT, url, null, content, null);
 	}
 	
 	// Public static methods
@@ -723,6 +732,17 @@ public class RestClient<T> {
 			return (HttpURLConnection) url.openConnection();
 		}
 
+	}
+	
+	private void writeRequestBody(HttpURLConnection connection, InputStream content) throws IOException {
+		if (content != null) {
+			OutputStream outputStream = connection.getOutputStream();
+			long length = copy(content, outputStream);
+			outputStream.close();
+			connection.setRequestProperty("Content-Length", Long.toString(length));
+		} else {
+			connection.setRequestProperty("Content-Length", Long.toString(0));
+		}
 	}
 	
 	/**

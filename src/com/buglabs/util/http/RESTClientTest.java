@@ -74,6 +74,10 @@ public class RESTClientTest {
 			
 			rc3.postMultipart("localhost", body);
 			
+			//PUT, short form, throw exception on error
+			rc3.setErrorHandler(RestClient.THROW_ALL_ERRORS);
+			rc3.put("localhost", new ByteArrayInputStream("boo".getBytes()));
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

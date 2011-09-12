@@ -2,10 +2,11 @@ package com.buglabs.util.http;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -15,6 +16,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+
+import com.buglabs.util.http.RestClient.FormFile;
+import com.buglabs.util.simplerestclient.IFormFile;
 
 /**
  * @author kgilmer
@@ -27,6 +32,15 @@ public class RestClient<T> {
 	private static final String APPLICATION_X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
 	
 	private static final int COPY_BUFFER_SIZE = 1024 * 4;
+	private static final int RANDOM_CHAR_COUNT = 15;
+	private static final String HEADER_TYPE = HEADER_CONTENT_TYPE;
+	private static final String HEADER_PARA = "Content-Disposition: form-data";
+	private static final String CONTENT_TYPE = "multipart/form-data";
+	private static final String FILE_NAME = "filename";
+	private static final String LINE_ENDING = "\r\n";
+	private static final String BOUNDARY = "boundary=";
+	private static final String PARA_NAME = "name";
+
 	
 	/**
 	 * HTTP methods supported by REST client.
@@ -168,9 +182,43 @@ public class RestClient<T> {
 		boolean isError();				
 	}
 	
+	/**
+	 * The ErrorHander does something based on an HTTP or I/O error.
+	 *
+	 */
 	public interface ErrorHandler {
+		/**
+		 * @param code the HTTP code of the error
+		 * @throws IOException on I/O error
+		 */
 		void handleError(int code) throws IOException;
 	}
+	
+	/**
+	 * Used to specify a file to upload in a multipart POST.
+	 *
+	 */
+	public static class FormFile extends File {
+		private static final long serialVersionUID = 2957338960806476533L;
+		private final String mimeType;
+
+		/**
+		 * @param pathname
+		 */
+		public FormFile(String pathname, String mimeType) {
+			super(pathname);
+			this.mimeType = mimeType;					
+		}
+		
+		/**
+		 * @return Mime type of file.
+		 */
+		public String getMimeType() {
+			return mimeType;
+		}
+	}
+
+	private static Random RNG;
 
 	private ConnectionProvider connectionProvider;
 
@@ -191,7 +239,7 @@ public class RestClient<T> {
 	}
 	
 	/**
-	 * @param connectionProvider
+	 * @param connectionProvider ConnectionProvider
 	 */
 	public RestClient(ConnectionProvider connectionProvider) {
 		this.connectionProvider = connectionProvider;
@@ -201,7 +249,7 @@ public class RestClient<T> {
 	}
 	
 	/**
-	 * @param initializer
+	 * @param initializer ConnectionInitializer
 	 */
 	public RestClient(ConnectionInitializer initializer) {
 		this();
@@ -209,8 +257,8 @@ public class RestClient<T> {
 	}
 	
 	/**
-	 * @param connectionProvider
-	 * @param initializer
+	 * @param connectionProvider ConnectionProvider
+	 * @param initializer ConnectionInitializer
 	 */
 	public RestClient(ConnectionProvider connectionProvider, ConnectionInitializer initializer) {
 		this(connectionProvider);
@@ -218,7 +266,7 @@ public class RestClient<T> {
 	}
 	
 	/**
-	 * @param deserializer
+	 * @param deserializer ResponseDeserializer<T>
 	 */
 	public RestClient(ResponseDeserializer<T> deserializer) {
 		this();
@@ -226,8 +274,8 @@ public class RestClient<T> {
 	}
 	
 	/**
-	 * @param initializer
-	 * @param deserializer
+	 * @param initializer ConnectionInitializer
+	 * @param deserializer ResponseDeserializer<T>
 	 */
 	public RestClient(ConnectionInitializer initializer, ResponseDeserializer<T> deserializer) {
 		this(initializer);
@@ -235,9 +283,9 @@ public class RestClient<T> {
 	}
 	
 	/**
-	 * @param connectionProvider
-	 * @param initializer
-	 * @param deserializer
+	 * @param connectionProvider ConnectionProvider
+	 * @param initializer ConnectionInitializer
+	 * @param deserializer ResponseDeserializer<T>
 	 */
 	public RestClient(ConnectionProvider connectionProvider, ConnectionInitializer initializer, ResponseDeserializer<T> deserializer) {
 		this(connectionProvider, initializer);
@@ -245,12 +293,13 @@ public class RestClient<T> {
 	}
 	
 	/**
-	 * @param connectionProvider
-	 * @param initializer
-	 * @param deserializer
-	 * @param errorHandler
+	 * @param connectionProvider ConnectionProvider
+	 * @param initializer ConnectionInitializer
+	 * @param deserializer ResponseDeserializer<T>
+	 * @param errorHandler ErrorHandler
 	 */
-	public RestClient(ConnectionProvider connectionProvider, ConnectionInitializer initializer, ResponseDeserializer<T> deserializer, ErrorHandler errorHandler) {
+	public RestClient(ConnectionProvider connectionProvider, ConnectionInitializer initializer, 
+			ResponseDeserializer<T> deserializer, ErrorHandler errorHandler) {
 		this.connectionProvider = connectionProvider;
 		this.connectionInitializers = new ArrayList<ConnectionInitializer>();
 		this.responseDeserializers = deserializer;
@@ -260,23 +309,29 @@ public class RestClient<T> {
 	
 	// Public methods
 	
+	/**
+	 * @return ErrorHandler
+	 */
 	public ErrorHandler getErrorHandler() {
 		return errorHandler;
 	}
 	
+	/**
+	 * @param handler ErrorHandler
+	 */
 	public void setErrorHandler(ErrorHandler handler) {
 		this.errorHandler = handler;
 	}
 	
 	/**
-	 * @param provider
+	 * @param provider ConnectionProvider
 	 */
 	public void setConnectionProvider(ConnectionProvider provider) {
 		this.connectionProvider = provider;
 	}
 	
 	/**
-	 * @return
+	 * @return ConnectionProvider
 	 */
 	public ConnectionProvider getConnectionProvider() {
 		return connectionProvider;
@@ -291,15 +346,15 @@ public class RestClient<T> {
 	}
 	
 	/**
-	 * @param initializer
-	 * @return
+	 * @param initializer ConnectionInitializer
+	 * @return ConnectionInitializer
 	 */
 	public boolean removeConnectionInitializer(ConnectionInitializer initializer) {
 		return connectionInitializers.remove(initializer);
 	}
 	
 	/**
-	 * @param deserializer
+	 * @param deserializer ResponseDeserializer
 	 */
 	public void setResponseDeserializer(ResponseDeserializer<T> deserializer) {	
 		responseDeserializers = deserializer;
@@ -394,20 +449,24 @@ public class RestClient<T> {
 	}
 	
 	/**
-	 * @param url
-	 * @param content
-	 * @return
-	 * @throws IOException
+	 * Send a POST to the server.
+	 * 
+	 * @param url url of server
+	 * @param body body of post as an input stream
+	 * @return a response to the request
+	 * @throws IOException on I/O error
 	 */
-	public Response<T> post(String url, InputStream content) throws IOException {
-		return call(HttpMethod.POST, url, content);
+	public Response<T> post(String url, InputStream body) throws IOException {
+		return call(HttpMethod.POST, url, body);
 	}
 	
 	/**
-	 * @param url
-	 * @param formData
-	 * @return
-	 * @throws IOException
+	 * Send a POST to the server.
+	 * 
+	 * @param url url of server
+	 * @param formData Form data as strings.  
+	 * @return a response from the POST
+	 * @throws IOException on I/O error
 	 */
 	public Response<T> post(String url, Map<String, String> formData) throws IOException {
 		return call(HttpMethod.POST, url, null, 
@@ -415,55 +474,122 @@ public class RestClient<T> {
 				toMap(HEADER_CONTENT_TYPE, APPLICATION_X_WWW_FORM_URLENCODED));
 	}
 	
-	// Private methods
+	/**
+	 * Send a multipart POST to the server.  Convenience method for post(url, createMultipartPostBody(content)).
+	 * 
+	 * @param url url of server
+	 * @param content See createMultipartPostBody() for details on this parameter.
+	 * @return a response from the POST
+	 * @throws IOException on I/O error
+	 */
+	public Response<T> postMultipart(String url, Map<String, Object> content) throws IOException {
+		return post(url, createMultipartPostBody(content));
+	}
+	
+	// Public static methods
 	
 	/**
-	 * Create a byte array from the contents of an input stream.
+	 * Create a buffer for a multi-part POST body, and return an input stream to the buffer.
 	 * 
-	 * @param in
-	 *            InputStream to turn into a byte array
-	 * @return byte array (byte[]) w/ contents of input stream
-	 * @throws IOException
-	 *             on I/O error
+	 * @param content A map of <String, Object>  The values can either be of type String or 
+	 * type RestClient.FormFile.  Other types will cause an IllegalArgumentException.
+	 * @return an input stream of buffer of POST body.
+	 * @throws IOException on I/O error.
 	 */
-	private static byte[] streamToByteArray(InputStream in) throws IOException {
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		int read = 0;
-		byte[] buff = new byte[COPY_BUFFER_SIZE];
-
-		while ((read = in.read(buff)) > 0) {
-			os.write(buff, 0, read);
+	public static InputStream createMultipartPostBody(Map<String, Object> content) throws IOException {
+		String boundary = createMultipartBoundary();
+		
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();	
+		byte[] header = getPartHeader(boundary);
+		
+		for (Map.Entry<String, Object> entry : content.entrySet()) {
+			baos.write(header);
+			baos.write(entry.getKey().getBytes());
+			baos.write('"');
+			
+			if (entry.getValue() instanceof String) {
+				baos.write(LINE_ENDING.getBytes());
+				baos.write(LINE_ENDING.getBytes());
+				baos.write(((String) entry.getValue()).getBytes());
+			} else if (entry.getValue() instanceof FormFile) {
+				FormFile ffile = (FormFile) entry.getValue();
+				baos.write("; ".getBytes());
+				baos.write(FILE_NAME.getBytes());
+				baos.write("=\"".getBytes());
+				baos.write(ffile.getName().getBytes());
+				baos.write('"');
+				baos.write(LINE_ENDING.getBytes());				
+				baos.write(HEADER_TYPE.getBytes());
+				baos.write(": ".getBytes());
+				baos.write(ffile.getMimeType().getBytes());
+				baos.write(';');
+				baos.write(LINE_ENDING.getBytes());
+				baos.write(LINE_ENDING.getBytes());
+				baos.write(streamToByteArray(new FileInputStream(ffile)));
+			} else if (entry.getValue() == null) {
+				throw new IllegalArgumentException("Content value is null.");
+			} else {
+				throw new IllegalArgumentException("Unhandled type: " + entry.getValue().getClass().getName());
+			}
+			
+			baos.write(LINE_ENDING.getBytes());
 		}
-		os.close();
+		
+		return new ByteArrayInputStream(baos.toByteArray());
+		/*
+		// add parameters
+		Object[] elems = parameters.keySet().toArray();
+		StringBuffer buf; // lil helper
+		IFormFile file;
+		for (int i = 0; i < elems.length; i++) {
+			String key = (String) elems[i];
+			Object obj = parameters.get(key);
+			// System.out.println("--" + key);
 
-		return os.toByteArray();
+			buf = new StringBuffer();
+			if (obj instanceof IFormFile) {
+				file = (IFormFile) obj;
+				buf.append("--" + boundary + LINE_ENDING);
+				buf.append(HEADER_PARA);
+				buf.append("; " + PARA_NAME + "=\"" + key + "\"");
+				buf.append("; " + FILE_NAME + "=\"" + file.getFilename() + "\"" + LINE_ENDING);
+				buf.append(HEADER_TYPE + ": " + file.getContentType() + ";");
+				buf.append(LINE_ENDING);
+				buf.append(LINE_ENDING);
+				os.write(buf.toString().getBytes());
+				os.write(file.getBytes());
+			} else if (obj != null) {
+				buf.append("--" + boundary + LINE_ENDING);
+				buf.append(HEADER_PARA);
+				buf.append("; " + PARA_NAME + "=\"" + key + "\"");
+				buf.append(LINE_ENDING);
+				buf.append(LINE_ENDING);
+				buf.append(obj.toString());
+				os.write(buf.toString().getBytes());
+			}
+			os.write(LINE_ENDING.getBytes());
+		}
+		os.write(("--" + boundary + "--" + LINE_ENDING).getBytes());*/
 	}
 	
 	/**
-	 * Create a byte array from the contents of an input stream.
-	 * 
-	 * @param in
-	 *            InputStream to turn into a byte array
-	 * @return byte array (byte[]) w/ contents of input stream
-	 * @throws IOException
-	 *             on I/O error
+	 * @param boundary
+	 * @return
 	 */
-	private static long copy(InputStream inputStream, OutputStream outputStream) throws IOException {
+	private static byte[] getPartHeader(String boundary) {
+		StringBuilder sb = new StringBuilder();
 		
-		int read = 0;
-		long size = 0;
-		byte[] buff = new byte[COPY_BUFFER_SIZE];
-
-		while ((read = inputStream.read(buff)) > 0) {
-			outputStream.write(buff, 0, read);
-			size += read;
-		}
+		sb.append("--");
+		sb.append(boundary);
+		sb.append(LINE_ENDING);
+		sb.append(HEADER_PARA);
+		sb.append("; ");
+		sb.append(PARA_NAME);
+		sb.append("=\"");
 		
-		outputStream.flush();
-		
-		return size;
+		return sb.toString().getBytes();
 	}
-	
+
 	/**
 	 * Turns a map into a key=value property string.
 	 * 
@@ -510,6 +636,78 @@ public class RestClient<T> {
 		}
 
 		return m;
+	}
+	
+// Private methods
+	
+	/**
+	 * Create a byte array from the contents of an input stream.
+	 * 
+	 * @param in
+	 *            InputStream to turn into a byte array
+	 * @return byte array (byte[]) w/ contents of input stream
+	 * @throws IOException
+	 *             on I/O error
+	 */
+	private static byte[] streamToByteArray(InputStream in) throws IOException {
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		int read = 0;
+		byte[] buff = new byte[COPY_BUFFER_SIZE];
+
+		while ((read = in.read(buff)) > 0) {
+			os.write(buff, 0, read);
+		}
+		os.close();
+
+		return os.toByteArray();
+	}
+	
+	/**
+	 * Create multipart form boundary.
+	 * 
+	 * @return boiundry as a String
+	 */
+	private static String createMultipartBoundary() {
+		if (RNG == null)
+			RNG = new Random();
+		
+		StringBuilder buf = new StringBuilder(42);
+		buf.append("---------------------------");
+
+		for (int i = 0; i < RANDOM_CHAR_COUNT; i++) {
+			if (RNG.nextBoolean())
+				buf.append((char) (RNG.nextInt(25) + 65));
+			else
+				buf.append((char) (RNG.nextInt(25) + 98));
+		}
+		
+		return buf.toString();
+	}
+
+	
+	/**
+	 * Create a byte array from the contents of an input stream.
+	 * 
+	 * @param in
+	 *            InputStream to turn into a byte array
+	 * @return byte array (byte[]) w/ contents of input stream
+	 * @throws IOException
+	 *             on I/O error
+	 */
+	private static long copy(InputStream inputStream, OutputStream outputStream) throws IOException {
+		
+		int read = 0;
+		long size = 0;
+		byte[] buff = new byte[COPY_BUFFER_SIZE];
+
+		while ((read = inputStream.read(buff)) > 0) {
+			outputStream.write(buff, 0, read);
+			size += read;
+		}
+		
+		outputStream.flush();
+		
+		return size;
 	}
 	
 	private static void validateArguments(Object ... args) {

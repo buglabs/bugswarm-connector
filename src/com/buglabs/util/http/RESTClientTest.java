@@ -3,9 +3,12 @@ package com.buglabs.util.http;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.buglabs.util.http.RestClient.HttpMethod;
 import com.buglabs.util.http.RestClient.Response;
+import com.buglabs.util.simplerestclient.FormFile;
 
 public class RESTClientTest {
 
@@ -63,6 +66,13 @@ public class RESTClientTest {
 			if (!rs.isError())
 				System.out.println(rs.getBody());
 			
+			//Multipart POST with a file upload.
+			Map<String, Object> body = new HashMap<String, Object>();
+			
+			body.put("tkey", "tval");
+			body.put("myfile", new RestClient.FormFile("/tmp/boo.txt", "text/plain"));
+			
+			rc3.postMultipart("localhost", body);
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

@@ -173,6 +173,17 @@ public class RestClient<T> {
 		 * @throws IOException on I/O error.
 		 */
 		int getCode() throws IOException;
+		
+		/**
+		 * @return the amount of time in millis that occured while waiting for the server.
+		 */
+		long getCallTime();
+		
+		/**
+		 * @return the total amount of time the client experiences from the call() method.
+		 */
+		long getTotalTime();
+		
 		/**
 		 * @return true if error code or an exception is raised, false otherwise.
 		 */
@@ -367,6 +378,8 @@ public class RestClient<T> {
 	public Response<T> call(HttpMethod method, String url, ResponseDeserializer<T> deserializer, InputStream content, Map<String, String> headers) throws IOException {
 		validateArguments(method, url);
 		
+		long timeStart = System.currentTimeMillis();
+		
 		String httpUrl = url;
 		if (!url.toLowerCase().startsWith("http://"))
 			httpUrl = "http://" + url;
@@ -395,14 +408,17 @@ public class RestClient<T> {
 			writeRequestBody(connection, content);
 			break;
 		case DELETE:
-			throw new RuntimeException("Unimplemented");
+			connection.setDoInput(true);
+			break;
 		case HEAD:
-			throw new RuntimeException("Unimplemented");
+			connection.setDoInput(true);
+			connection.setDoOutput(false);
+			break;
 		default:
 			throw new RuntimeException("Unhandled HTTP method.");
 		}	
 		
-		return new ResponseImpl(method, url, connection, deserializer, errorHandler);
+		return new ResponseImpl(method, url, connection, deserializer, errorHandler, timeStart);
 	}
 
 	/**
@@ -755,26 +771,33 @@ public class RestClient<T> {
 		private final String url;
 		private final HttpURLConnection connection;
 		private final ResponseDeserializer<T> deserializer;
+		private final long timeStart;
+		private final long callStart;
+		private final long callEnd;
 
 		/**
+		 * Constructs a Response.  This constructor will block until the response has been recievied.
 		 * @param method
 		 * @param url
 		 * @param connection
 		 * @param deserializer
 		 * @param errorHandler 
+		 * @param timeStart
 		 * @throws IOException 
 		 */
-		public ResponseImpl(HttpMethod method, String url, HttpURLConnection connection, ResponseDeserializer<T> deserializer, ErrorHandler errorHandler) throws IOException {
+		public ResponseImpl(HttpMethod method, String url, HttpURLConnection connection, ResponseDeserializer<T> deserializer, ErrorHandler errorHandler, long timeStart) throws IOException {
 			this.method = method;
 			this.url = url;
 			this.connection = connection;
 			this.deserializer = deserializer;
+			this.timeStart = timeStart;
 			
-			
-			if (errorHandler != null) {
-				if (isError())
-					errorHandler.handleError(getCode());
+			this.callStart = System.currentTimeMillis();
+			//Read the response header.
+			if (isError() && errorHandler != null) {
+				errorHandler.handleError(getCode());
 			}
+			this.callEnd = System.currentTimeMillis();
 		}
 
 		@Override
@@ -816,15 +839,16 @@ public class RestClient<T> {
 				
 			return deserializer.deserialize(connection.getInputStream());
 		}
-		
-/*
+
 		@Override
-		public void throwOnError() throws IOException {
-			int code = getCode();
-				
-			if (code >= 400 && code < 500)
-				throw new IOException("Server returned HTTP error code " + code);
-		}		*/
+		public long getCallTime() {			
+			return callEnd - callStart;
+		}
+
+		@Override
+		public long getTotalTime() {		
+			return callEnd - timeStart;
+		}		
 	}
 	
 }

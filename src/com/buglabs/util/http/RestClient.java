@@ -17,6 +17,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author kgilmer
@@ -150,12 +154,8 @@ public class RestClient<T> {
 	 *
 	 * @param <T>
 	 */
-	public interface Response<T> {
-		/**
-		 * @return The deserialized content of the request.
-		 * @throws IOException on I/O error
-		 */
-		T getBody() throws IOException;
+	public interface Response<T> extends Future<T> {
+		
 		/**
 		 * @return The HttpURLConnection associated with the request.
 		 */
@@ -449,6 +449,17 @@ public class RestClient<T> {
 	 */
 	public Response<T> get(String url) throws IOException {
 		return call(HttpMethod.GET, url, null);
+	}
+	
+	/**
+	 * @param url
+	 * @return
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
+	 * @throws IOException
+	 */
+	public T getContent(String url) throws InterruptedException, ExecutionException, IOException {
+		return call(HttpMethod.GET, url, null).get();
 	}
 	
 	/**
@@ -773,7 +784,9 @@ public class RestClient<T> {
 		private final ResponseDeserializer<T> deserializer;
 		private final long timeStart;
 		private final long callStart;
-		private final long callEnd;
+		private long callEnd;
+		private boolean done;
+		private boolean cancelled;
 
 		/**
 		 * Constructs a Response.  This constructor will block until the response has been recievied.
@@ -792,12 +805,7 @@ public class RestClient<T> {
 			this.deserializer = deserializer;
 			this.timeStart = timeStart;
 			
-			this.callStart = System.currentTimeMillis();
-			//Read the response header.
-			if (isError() && errorHandler != null) {
-				errorHandler.handleError(getCode());
-			}
-			this.callEnd = System.currentTimeMillis();
+			this.callStart = System.currentTimeMillis();			
 		}
 
 		@Override
@@ -832,15 +840,6 @@ public class RestClient<T> {
 		}
 
 		@Override
-		public T getBody() throws IOException {		
-			if (deserializer == null) {
-				return (T) RestClient.STRING_DESERIALIZER.deserialize(connection.getInputStream());
-			}
-				
-			return deserializer.deserialize(connection.getInputStream());
-		}
-
-		@Override
 		public long getCallTime() {			
 			return callEnd - callStart;
 		}
@@ -848,6 +847,47 @@ public class RestClient<T> {
 		@Override
 		public long getTotalTime() {		
 			return callEnd - timeStart;
+		}
+
+		@Override
+		public boolean cancel(boolean flag) {
+			connection.disconnect();
+			cancelled = true;
+			return cancelled;
+		}
+
+		@Override
+		public boolean isCancelled() {			
+			return cancelled;
+		}
+
+		@Override
+		public boolean isDone() {
+			return done;
+		}
+
+		@Override
+		public T get() throws InterruptedException, ExecutionException {
+			try {				
+				if (deserializer == null) {
+					T response = (T) RestClient.STRING_DESERIALIZER.deserialize(connection.getInputStream());
+					callEnd = System.currentTimeMillis();
+					done = true;
+					return (T) response;
+				}
+				
+				T response = (T) deserializer.deserialize(connection.getInputStream());
+				callEnd = System.currentTimeMillis();
+				done = true;
+				return response;
+			} catch (IOException e) {
+				throw new ExecutionException(e);
+			}
+		}
+
+		@Override
+		public T get(long l, TimeUnit timeunit) throws InterruptedException, ExecutionException, TimeoutException {
+			throw new ExecutionException("Unimplemented", null);
 		}		
 	}
 	

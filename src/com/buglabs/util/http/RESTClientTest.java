@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import com.buglabs.util.http.RestClient.HttpMethod;
 import com.buglabs.util.http.RestClient.Response;
@@ -29,11 +30,11 @@ public class RESTClientTest {
 			
 			//API allows for code that specifically checks for errors, or relies on exception handling.
 			if (!resp.isError())
-				System.out.println(resp.getBody());
+				System.out.println(resp.get());
 			
 			//do  GET with the short-form method
 			System.out.println(
-					restClient.get("localhost").getBody());
+					restClient.get("localhost").get());
 			
 			// do a POST with the short-form method
 			resp = restClient.post("localhost", new ByteArrayInputStream("My POST content".getBytes()));
@@ -46,7 +47,7 @@ public class RESTClientTest {
 			
 			System.out.println(
 					restClient2.get("localhost")
-						.getBody().available());
+						.get().available());
 			
 			// Create a rest client that will throw exceptions on all HTTP and I/O errors.
 			RestClient<String> rc3 = new RestClient<String>();
@@ -55,7 +56,7 @@ public class RESTClientTest {
 			//following line will throw IOException on any error
 			Response<String> rs = rc3.get("localhost");
 			
-			System.out.println(rs.getBody());
+			System.out.println(rs.get());
 			
 			// Subsequent calls to this rest client will not throw exceptions on HTTP errors.
 			rc3.setErrorHandler(null);
@@ -64,7 +65,7 @@ public class RESTClientTest {
 			rs = rc3.get("localhost");
 			
 			if (!rs.isError())
-				System.out.println(rs.getBody());
+				System.out.println(rs.get());
 			
 			//Multipart POST with a file upload.
 			Map<String, Object> body = new HashMap<String, Object>();
@@ -79,6 +80,12 @@ public class RESTClientTest {
 			rc3.put("localhost", new ByteArrayInputStream("boo".getBytes()));
 			
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

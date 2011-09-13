@@ -1,6 +1,7 @@
 package com.buglabs.bug.swarm.connector.ws;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +14,8 @@ import org.json.simple.JSONValue;
 import com.buglabs.bug.swarm.connector.model.ResourceModel;
 import com.buglabs.bug.swarm.connector.model.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
+import com.buglabs.util.http.RestClient;
+import com.buglabs.util.http.RestClient.Response;
 import com.buglabs.util.simplerestclient.HTTPRequest;
 import com.buglabs.util.simplerestclient.HTTPResponse;
 
@@ -22,7 +25,7 @@ import com.buglabs.util.simplerestclient.HTTPResponse;
  * @author kgilmer
  * 
  */
-public class ResourceWSClient extends AbstractSwarmWSClient implements IResourceClient {
+public class ResourceWSClient extends AbstractSwarmWSClient2 implements IResourceClient {
 
 	/**
 	 * @param swarmHostUrl
@@ -32,7 +35,7 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 	 * @param httpClient
 	 *            instance of HTTP client
 	 */
-	public ResourceWSClient(String swarmHostUrl, String apiKey, HTTPRequest httpClient) {
+	public ResourceWSClient(String swarmHostUrl, String apiKey, RestClient httpClient) {
 		super(swarmHostUrl, apiKey, httpClient);
 	}
 
@@ -44,100 +47,58 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 		validateAPIKey();
 
 		// TODO: allow for position coordinates
-		Map<String, String> props = toMap(
-				"id", resourceId, 
-				"user_id", userId, 
-				"name", resourceName, 
-				"description", description, 
-				"type", type.toString(), 
-				"machine_type", machineType, 
-				"position", "{\"Longitude\": 0, \"latitude\": 0}");
+		Map<String, String> props = toMap("id", resourceId, "user_id", userId, "name", resourceName, "description", description, "type",
+				type.toString(), "machine_type", machineType, "position", "{\"Longitude\": 0, \"latitude\": 0}");
 
-		HTTPResponse response = httpClient.post(swarmHostUrl + "resources", props);
-
-		return SwarmWSResponse.fromCode(response.getResponseCode());
+		return httpClient.post(swarmHostUrl + "resources", props, WSRESPONSE_DESERIALIZER).getContent();
 	}
 
 	@Override
-	public SwarmWSResponse update(String resourceId, String resourceName, String resourceDescription
-			, MemberType type, String machineType)
+	public SwarmWSResponse update(String resourceId, String resourceName, String resourceDescription, MemberType type, String machineType)
 			throws IOException {
 		validateParams(resourceId, resourceName, resourceDescription, type, machineType);
 
 		validateAPIKey();
 
-		Map<String, String> props = toMap(
-				"name", resourceName, 
-				"description", resourceDescription, 
-				"type", type.toString(),	
+		Map<String, String> props = toMap("name", resourceName, "description", resourceDescription, "type", type.toString(),
 				"machine_type", machineType);
 
-		HTTPResponse response = httpClient.put(swarmHostUrl + "resources/" + resourceId, props);
-
-		return SwarmWSResponse.fromCode(response.getResponseCode());
+		return httpClient.put(swarmHostUrl + "resources/" + resourceId, props, WSRESPONSE_DESERIALIZER).getContent();
 	}
 
 	@Override
 	public List<ResourceModel> get(MemberType type) throws IOException {
 		validateAPIKey();
-		
-		Map<String, String> params;
-		
+
 		if (type == null)
-			params = Collections.emptyMap();
+			return httpClient.get(swarmHostUrl + "resources", ResourceModelListDeserializer).getContent();
 		else
-			params = toMap("type", type.toString());
-		
-		HTTPResponse response = httpClient.get(swarmHostUrl + "resources", params);
-
-		JSONArray json = (JSONArray) JSONValue.parse(new InputStreamReader(response.getStream()));
-
-		return ResourceModel.createListFromJson(json);		
+			return httpClient.get(swarmHostUrl + "resources", toMap("type", type.toString()), ResourceModelListDeserializer).getContent();
 	}
 
 	@Override
 	public ResourceModel get(String resourceId) throws IOException {
 		validateParams(resourceId);
 		validateAPIKey();
-		
-		HTTPResponse response = httpClient.get(swarmHostUrl + "resources/" + resourceId);
-		
-		if (response.getResponseCode() == HTTPResponse.HTTP_CODE_NOT_FOUND)
-			return null;
-		
-		response.checkStatus();
-		
-		JSONObject jsonObject = (JSONObject) JSONValue.parse(new InputStreamReader(response.getStream()));
-		
-		return ResourceModel.createFromJson(jsonObject);		
+
+		return httpClient.get(swarmHostUrl + "resources/" + resourceId, ResourceModelDeserializer).getContent();
 	}
 
 	@Override
 	public SwarmWSResponse remove(String resourceId) throws IOException {
 		validateParams(resourceId);
-		
+
 		validateAPIKey();
-		
-		HTTPResponse response = httpClient.delete(swarmHostUrl + "resources/" + resourceId);
-		
-		return SwarmWSResponse.fromCode(response.getResponseCode());
+
+		return httpClient.delete(swarmHostUrl + "resources/" + resourceId, WSRESPONSE_DESERIALIZER).getContent();
 	}
 
 	@Override
 	public List<SwarmResourceModel> getMemberSwarms(String resourceId) throws IOException {
 		validateParams(resourceId);
-		
+
 		validateAPIKey();
-		
-		HTTPResponse response = httpClient.get(swarmHostUrl + "resources/" + resourceId + "/swarms");
-		
-		if (response.getResponseCode() == HTTPResponse.HTTP_CODE_NOT_FOUND)
-			return Collections.emptyList();
-		
-		response.checkStatus();
-		
-		JSONArray jsonObject = (JSONArray) JSONValue.parse(new InputStreamReader(response.getStream()));
-		
-		return SwarmResourceModel.createListFromJson(jsonObject);			
+
+		return httpClient.get(swarmHostUrl + "resources/" + resourceId + "/swarms", SwarmResourceModelListDeserializer).getContent();
 	}
 }

@@ -256,6 +256,53 @@ public class RestClient {
 			return mimeType;
 		}
 	}
+	
+	/**
+	 * Used to specify a file to upload in a multipart POST.
+	 *
+	 */
+	public static class FormInputStream extends InputStream {
+		private static final long serialVersionUID = 2957338960806476533L;
+		private final String mimeType;
+		private final InputStream parent;
+		private final String name;
+
+		/**
+		 * @param pathname
+		 */
+		public FormInputStream(InputStream parent, String name, String mimeType) {
+
+			this.parent = parent;
+			this.name = name;
+			this.mimeType = mimeType;					
+		}
+		
+		/**
+		 * @return Mime type of file.
+		 */
+		public String getMimeType() {
+			return mimeType;
+		}
+
+		@Override
+		public int read() throws IOException {			
+			return parent.read();
+		}
+		
+		@Override
+		public int read(byte[] b) throws IOException {		
+			return parent.read(b);
+		}
+		
+		@Override
+		public int read(byte[] b, int off, int len) throws IOException {
+			return parent.read(b, off, len);
+		}
+
+		public String getName() {
+			return name;
+		}
+	}
 
 	private static Random RNG;
 
@@ -569,6 +616,18 @@ public class RestClient {
 	 * @return type specified by deserializer
 	 * @throws IOException on I/O error
 	 */
+	public <T> Response<T> get(String url, Map<String, String> headers, ResponseDeserializer<T> deserializer) throws IOException {
+		return call(HttpMethod.GET, url, deserializer, null, headers);
+	}
+	
+	/**
+	 * Execute GET method and deserialize response.
+	 * 
+	 * @param url of server
+	 * @param deserializer class that can deserialize content into desired type.
+	 * @return type specified by deserializer
+	 * @throws IOException on I/O error
+	 */
 	public <T> Response<T> get(String url, ResponseDeserializer<T> deserializer) throws IOException {
 		return call(HttpMethod.GET, url, deserializer, null, null);
 	}
@@ -600,6 +659,32 @@ public class RestClient {
 	}
 	
 	/**
+	 * Send a POST to the server.
+	 * 
+	 * @param url url of server
+	 * @param body body of post as an input stream
+	 * @return a response to the request
+	 * @throws IOException on I/O error
+	 */
+	public <T> Response<T> post(String url, InputStream body, ResponseDeserializer<T> deserializer) throws IOException {
+		return call(HttpMethod.POST, url, deserializer, body, null);
+	}
+	
+	/**
+	 * Send a POST to the server.
+	 * 
+	 * @param url url of server
+	 * @param formData Form data as strings.  
+	 * @return a response from the POST
+	 * @throws IOException on I/O error
+	 */
+	public <T> Response<T> post(String url, Map<String, String> formData, ResponseDeserializer<T> deserializer) throws IOException {
+		return call(HttpMethod.POST, url, deserializer, 
+				new ByteArrayInputStream(propertyString(formData).getBytes()), 
+				toMap(HEADER_CONTENT_TYPE, APPLICATION_X_WWW_FORM_URLENCODED));
+	}
+	
+	/**
 	 * Send a multipart POST to the server.  Convenience method for post(url, createMultipartPostBody(content)).
 	 * 
 	 * @param url url of server
@@ -609,6 +694,18 @@ public class RestClient {
 	 */
 	public Response<Integer> postMultipart(String url, Map<String, Object> content) throws IOException {
 		return call(HttpMethod.POST, url, HTTP_CODE_DESERIALIZER, createMultipartPostBody(content), null);
+	}
+	
+	/**
+	 * Send a multipart POST to the server.  Convenience method for post(url, createMultipartPostBody(content)).
+	 * 
+	 * @param url url of server
+	 * @param content See createMultipartPostBody() for details on this parameter.
+	 * @return a response from the POST
+	 * @throws IOException on I/O error
+	 */
+	public <T> Response<T> postMultipart(String url, Map<String, Object> content, ResponseDeserializer<T> deserializer) throws IOException {
+		return call(HttpMethod.POST, url, deserializer, createMultipartPostBody(content), null);
 	}
 	
 	/**
@@ -624,6 +721,47 @@ public class RestClient {
 	}
 	
 	/**
+	 * Send a POST to the server.
+	 * 
+	 * @param url url of server
+	 * @param formData Form data as strings.  
+	 * @return a response from the POST
+	 * @throws IOException on I/O error
+	 */
+	public Response<Integer> put(String url, Map<String, String> formData) throws IOException {
+		return call(HttpMethod.PUT, url, HTTP_CODE_DESERIALIZER, 
+				new ByteArrayInputStream(propertyString(formData).getBytes()), 
+				toMap(HEADER_CONTENT_TYPE, APPLICATION_X_WWW_FORM_URLENCODED));
+	}
+	
+	/**
+	 * Call PUT method on a server.
+	 * 
+	 * @param url url of server
+	 * @param content See createMultipartPostBody() for details on this parameter.
+	 * @return a response from the POST
+	 * @throws IOException on I/O error
+	 */
+	public <T> Response<T> put(String url, InputStream content, ResponseDeserializer<T> deserializer) throws IOException {
+		return call(HttpMethod.PUT, url, deserializer, content, null);
+	}
+	
+	/**
+	 * Send a POST to the server.
+	 * 
+	 * @param url url of server
+	 * @param formData Form data as strings.  
+	 * @return a response from the POST
+	 * @throws IOException on I/O error
+	 */
+	public <T> Response<T> put(String url, Map<String, String> formData, ResponseDeserializer<T> deserializer) throws IOException {
+		return call(HttpMethod.PUT, url, deserializer, 
+				new ByteArrayInputStream(propertyString(formData).getBytes()), 
+				toMap(HEADER_CONTENT_TYPE, APPLICATION_X_WWW_FORM_URLENCODED));
+	}
+
+	
+	/**
 	 * Call DELETE method on a server.
 	 * 
 	 * @param url of server
@@ -632,6 +770,17 @@ public class RestClient {
 	 */
 	public Response<Integer> delete(String url) throws IOException {
 		return call(HttpMethod.DELETE, url, HTTP_CODE_DESERIALIZER, null, null);
+	}
+	
+	/**
+	 * Call DELETE method on a server.
+	 * 
+	 * @param url of server
+	 * @return HTTP response from server
+	 * @throws IOException on I/O error
+	 */
+	public <T> Response<T> delete(String url, ResponseDeserializer<T> deserializer) throws IOException {
+		return call(HttpMethod.DELETE, url, deserializer, null, null);
 	}
 	
 	/**
@@ -651,7 +800,7 @@ public class RestClient {
 	/**
 	 * Create a buffer for a multi-part POST body, and return an input stream to the buffer.
 	 * 
-	 * @param content A map of <String, Object>  The values can either be of type String or 
+	 * @param content A map of <String, Object>  The values can either be of type String, RestClient.FormInputStream, or 
 	 * type RestClient.FormFile.  Other types will cause an IllegalArgumentException.
 	 * @return an input stream of buffer of POST body.
 	 * @throws IOException on I/O error.
@@ -686,6 +835,21 @@ public class RestClient {
 				baos.write(LINE_ENDING.getBytes());
 				baos.write(LINE_ENDING.getBytes());
 				baos.write(streamToByteArray(new FileInputStream(ffile)));
+			} else if (entry.getValue() instanceof FormInputStream) {
+				FormInputStream ffile = (FormInputStream) entry.getValue();
+				baos.write("; ".getBytes());
+				baos.write(FILE_NAME.getBytes());
+				baos.write("=\"".getBytes());
+				baos.write(ffile.getName().getBytes());
+				baos.write('"');
+				baos.write(LINE_ENDING.getBytes());				
+				baos.write(HEADER_TYPE.getBytes());
+				baos.write(": ".getBytes());
+				baos.write(ffile.getMimeType().getBytes());
+				baos.write(';');
+				baos.write(LINE_ENDING.getBytes());
+				baos.write(LINE_ENDING.getBytes());
+				baos.write(streamToByteArray(ffile));
 			} else if (entry.getValue() == null) {
 				throw new IllegalArgumentException("Content value is null.");
 			} else {

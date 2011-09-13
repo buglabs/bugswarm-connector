@@ -17,10 +17,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * @author kgilmer
@@ -95,7 +91,7 @@ public class RestClient {
 		 * @return deserialized representation of response
 		 * @throws IOException on I/O error
 		 */
-		T deserialize(InputStream input) throws IOException;
+		T deserialize(InputStream input, int responseCode, Map<String, List<String>> headers) throws IOException;
 	}
 	
 	/**
@@ -104,19 +100,19 @@ public class RestClient {
 	public static final ResponseDeserializer<String> STRING_DESERIALIZER = new ResponseDeserializer<String>() {
 
 		@Override
-		public String deserialize(InputStream input) throws IOException {			
+		public String deserialize(InputStream input, int responseCode, Map<String, List<String>> headers) throws IOException {			
 			return new String(streamToByteArray(input));
 		}
 	};
 	
 	/**
-	 * A HTTPResponseDeserializer that always returns true.  Good when the response content is ignored.
+	 * A HTTPResponseDeserializer that returns true if the response from the server was not an error.
 	 */
-	public static final ResponseDeserializer<Boolean> BOOLEAN_DESERIALIZER = new ResponseDeserializer<Boolean>() {
+	public static final ResponseDeserializer<Integer> HTTP_CODE_DESERIALIZER = new ResponseDeserializer<Integer>() {
 
 		@Override
-		public Boolean deserialize(InputStream input) throws IOException {			
-			return Boolean.TRUE;
+		public Integer deserialize(InputStream input, int responseCode, Map<String, List<String>> headers) throws IOException {			
+			return responseCode;
 		}
 	};
 	
@@ -127,7 +123,7 @@ public class RestClient {
 	public static final ResponseDeserializer<InputStream> PASSTHROUGH = new ResponseDeserializer<InputStream>() {
 
 		@Override
-		public InputStream deserialize(InputStream input) throws IOException {			
+		public InputStream deserialize(InputStream input, int responseCode, Map<String, List<String>> headers) throws IOException {			
 			return input;
 		}
 	};
@@ -165,8 +161,32 @@ public class RestClient {
 	 *
 	 * @param <T>
 	 */
-	public interface Response<T> extends Future<T> {
-		
+	public interface Response<T> {
+	    /**
+	     * Cancel the request.
+	     * 
+	     * @param mayInterruptIfRunning
+	     * @return
+	     */
+	    public abstract boolean cancel(boolean mayInterruptIfRunning);
+
+	    /**
+	     * @return true if the request has been canceled
+	     */
+	    public abstract boolean isCancelled();
+
+	    /**
+	     * @return true if the request has been completed
+	     */
+	    public abstract boolean isDone();
+
+	    /**
+	     * @return the content (body) of the response.
+	     * 
+	     * @throws IOException
+	     */
+	    public abstract T getContent() throws IOException;	   
+	    
 		/**
 		 * @return The HttpURLConnection associated with the request.
 		 */
@@ -328,6 +348,13 @@ public class RestClient {
 	}
 	
 	/**
+	 * Sets an error handler for the client.  If no error handler is set, HTTP (application level) errors will be ignored 
+	 * by the client.
+	 * 
+	 * Creating a custom ErrorHandler let's the client handle specific errors from the server in an application specific way.
+	 * 
+	 * See also: THROW_ALL_ERRORS, THROW_5XX_ERRORS
+	 * 
 	 * @param handler ErrorHandler
 	 */
 	public void setErrorHandler(ErrorHandler handler) {
@@ -365,13 +392,6 @@ public class RestClient {
 	}
 	
 	/**
-	 * @param deserializer ResponseDeserializer
-	 */
-	/*public void setResponseDeserializer(ResponseDeserializer<?> deserializer) {	
-		responseDeserializers = deserializer;
-	}*/
-	
-	/**
 	 * @param method
 	 * @param url
 	 * @param deserializer
@@ -397,18 +417,23 @@ public class RestClient {
 		for (ConnectionInitializer initializer : connectionInitializers)
 			initializer.initialize(connection);
 
+		ByteArrayOutputStream baos;
 		switch(method) {
 		case GET:			
 			connection.setDoInput(true);
 			connection.setDoOutput(false);
 			break;
 		case POST:
-			connection.setDoOutput(true);						
-			writeRequestBody(connection, content);			
+			connection.setDoOutput(true);	
+			baos = new ByteArrayOutputStream();
+			copy(content, baos);			
+			writeRequestBody(connection, baos.toByteArray());			
 			break;
 		case PUT:
 			connection.setDoOutput(true);
-			writeRequestBody(connection, content);
+			baos = new ByteArrayOutputStream();
+			copy(content, baos);
+			writeRequestBody(connection, baos.toByteArray());
 			break;
 		case DELETE:
 			connection.setDoInput(true);
@@ -488,46 +513,61 @@ public class RestClient {
 			}
 
 			@Override
-			public T get() throws InterruptedException, ExecutionException {
-				try {				
-					if (deserializer == null) {
-						T response = (T) RestClient.STRING_DESERIALIZER.deserialize(connection.getInputStream());
-						callEnd = System.currentTimeMillis();
-						done = true;
-						return (T) response;
+			public T getContent() throws IOException {									
+				if (isError())
+					if (errorHandler == null) {
+						return null;
+					} else {
+						errorHandler.handleError(getCode());
+						return null;
 					}
-					
-					T response = (T) deserializer.deserialize(connection.getInputStream());
+				
+				if (deserializer == null) {
+					T response = (T) RestClient.STRING_DESERIALIZER.deserialize(connection.getInputStream(), 0, null);
 					callEnd = System.currentTimeMillis();
 					done = true;
-					return response;
-				} catch (IOException e) {
-					throw new ExecutionException(e);
+					return (T) response;
 				}
-			}
-
-			@Override
-			public T get(long l, TimeUnit timeunit) throws InterruptedException, ExecutionException, TimeoutException {
-				throw new ExecutionException("Unimplemented", null);
-			}		
-		};
 				
-	}
-
-	/**
-	 * @param url
-	 * @return
-	 * @throws IOException
-	 */
-	public Response<String> get(String url) throws IOException {
-		return call(HttpMethod.GET, url, STRING_DESERIALIZER, null, null);
+				T response = (T) deserializer.deserialize(connection.getInputStream(), connection.getResponseCode(), connection.getHeaderFields());
+				callEnd = System.currentTimeMillis();
+				done = true;
+				return response;				
+			}
+			
+		};				
 	}
 	
 	/**
-	 * @param url
-	 * @param deserializer
-	 * @return
-	 * @throws IOException
+	 * Execute GET method and return body as a string.
+	 * @param url of server
+	 * @return body as a String
+	 * @throws IOException on I/O error
+	 */
+	public String getAsString(String url) throws IOException {		
+		return getContent(url, STRING_DESERIALIZER);
+	}
+	
+	
+	/**
+	 * Execute GET method and return body deserizalized.
+	 * 
+	 * @param url of server
+	 * @param deserializer ResponseDeserializer
+	 * @return T deserialized object
+	 * @throws IOException on I/O error
+	 */
+	public <T> T getContent(String url, ResponseDeserializer<T> deserializer) throws IOException {
+		return call(HttpMethod.GET, url, deserializer, null, null).getContent();
+	}
+	
+	/**
+	 * Execute GET method and deserialize response.
+	 * 
+	 * @param url of server
+	 * @param deserializer class that can deserialize content into desired type.
+	 * @return type specified by deserializer
+	 * @throws IOException on I/O error
 	 */
 	public <T> Response<T> get(String url, ResponseDeserializer<T> deserializer) throws IOException {
 		return call(HttpMethod.GET, url, deserializer, null, null);
@@ -541,8 +581,8 @@ public class RestClient {
 	 * @return a response to the request
 	 * @throws IOException on I/O error
 	 */
-	public <T> Response<T> post(String url, ResponseDeserializer<T> deserializer, InputStream body) throws IOException {
-		return call(HttpMethod.POST, url, deserializer, body, null);
+	public Response<Integer> post(String url, InputStream body) throws IOException {
+		return call(HttpMethod.POST, url, HTTP_CODE_DESERIALIZER, body, null);
 	}
 	
 	/**
@@ -553,8 +593,8 @@ public class RestClient {
 	 * @return a response from the POST
 	 * @throws IOException on I/O error
 	 */
-	public <T> Response<T> post(String url, ResponseDeserializer<T> deserializer, Map<String, String> formData) throws IOException {
-		return call(HttpMethod.POST, url, deserializer, 
+	public Response<Integer> post(String url, Map<String, String> formData) throws IOException {
+		return call(HttpMethod.POST, url, HTTP_CODE_DESERIALIZER, 
 				new ByteArrayInputStream(propertyString(formData).getBytes()), 
 				toMap(HEADER_CONTENT_TYPE, APPLICATION_X_WWW_FORM_URLENCODED));
 	}
@@ -567,8 +607,8 @@ public class RestClient {
 	 * @return a response from the POST
 	 * @throws IOException on I/O error
 	 */
-	public <T> Response<T> postMultipart(String url, ResponseDeserializer<T> deserializer, Map<String, Object> content) throws IOException {
-		return post(url, deserializer, createMultipartPostBody(content));
+	public Response<Integer> postMultipart(String url, Map<String, Object> content) throws IOException {
+		return call(HttpMethod.POST, url, HTTP_CODE_DESERIALIZER, createMultipartPostBody(content), null);
 	}
 	
 	/**
@@ -579,9 +619,32 @@ public class RestClient {
 	 * @return a response from the POST
 	 * @throws IOException on I/O error
 	 */
-	public <T> Response<T> put(String url, ResponseDeserializer<T> deserializer, InputStream content) throws IOException {
-		return call(HttpMethod.PUT, url, deserializer, content, null);
+	public Response<Integer> put(String url, InputStream content) throws IOException {
+		return call(HttpMethod.PUT, url, HTTP_CODE_DESERIALIZER, content, null);
 	}
+	
+	/**
+	 * Call DELETE method on a server.
+	 * 
+	 * @param url of server
+	 * @return HTTP response from server
+	 * @throws IOException on I/O error
+	 */
+	public Response<Integer> delete(String url) throws IOException {
+		return call(HttpMethod.DELETE, url, HTTP_CODE_DESERIALIZER, null, null);
+	}
+	
+	/**
+	 * Call HEAD method on a server.
+	 * 
+	 * @param url of server
+	 * @return HTTP Response from server
+	 * @throws IOException on I/O error
+	 */
+	public Response<Integer> head(String url) throws IOException {
+		return call(HttpMethod.HEAD, url, HTTP_CODE_DESERIALIZER, null, null);
+	}
+
 	
 	// Public static methods
 	
@@ -633,40 +696,6 @@ public class RestClient {
 		}
 		
 		return new ByteArrayInputStream(baos.toByteArray());
-		/*
-		// add parameters
-		Object[] elems = parameters.keySet().toArray();
-		StringBuffer buf; // lil helper
-		IFormFile file;
-		for (int i = 0; i < elems.length; i++) {
-			String key = (String) elems[i];
-			Object obj = parameters.get(key);
-			// System.out.println("--" + key);
-
-			buf = new StringBuffer();
-			if (obj instanceof IFormFile) {
-				file = (IFormFile) obj;
-				buf.append("--" + boundary + LINE_ENDING);
-				buf.append(HEADER_PARA);
-				buf.append("; " + PARA_NAME + "=\"" + key + "\"");
-				buf.append("; " + FILE_NAME + "=\"" + file.getFilename() + "\"" + LINE_ENDING);
-				buf.append(HEADER_TYPE + ": " + file.getContentType() + ";");
-				buf.append(LINE_ENDING);
-				buf.append(LINE_ENDING);
-				os.write(buf.toString().getBytes());
-				os.write(file.getBytes());
-			} else if (obj != null) {
-				buf.append("--" + boundary + LINE_ENDING);
-				buf.append(HEADER_PARA);
-				buf.append("; " + PARA_NAME + "=\"" + key + "\"");
-				buf.append(LINE_ENDING);
-				buf.append(LINE_ENDING);
-				buf.append(obj.toString());
-				os.write(buf.toString().getBytes());
-			}
-			os.write(LINE_ENDING.getBytes());
-		}
-		os.write(("--" + boundary + "--" + LINE_ENDING).getBytes());*/
 	}
 	
 	/**
@@ -805,7 +834,7 @@ public class RestClient {
 		outputStream.flush();
 		
 		return size;
-	}
+	}	
 	
 	private static void validateArguments(Object ... args) {
 		for (int i = 0; i < args.length; ++i)
@@ -822,135 +851,14 @@ public class RestClient {
 
 	}
 	
-	private void writeRequestBody(HttpURLConnection connection, InputStream content) throws IOException {
+	private void writeRequestBody(HttpURLConnection connection, byte[] content) throws IOException {
 		if (content != null) {
+			connection.setRequestProperty("Content-Length", Long.toString(content.length));
 			OutputStream outputStream = connection.getOutputStream();
-			long length = copy(content, outputStream);
-			outputStream.close();
-			connection.setRequestProperty("Content-Length", Long.toString(length));
+			outputStream.write(content);			
+			outputStream.close();			
 		} else {
 			connection.setRequestProperty("Content-Length", Long.toString(0));
 		}
 	}
-	
-	
-	/**
-	 * @author kgilmer
-	 *
-	 */
-	/*private abstract class ResponseImpl implements Response<?> {
-
-		private final HttpMethod method;
-		private final String url;
-		private final HttpURLConnection connection;
-		private final ResponseDeserializer<?> deserializer;
-		private final long timeStart;
-		private final long callStart;
-		private long callEnd;
-		private boolean done;
-		private boolean cancelled;
-
-		*//**
-		 * Constructs a Response.  This constructor will block until the response has been recievied.
-		 * @param method
-		 * @param url
-		 * @param connection
-		 * @param deserializer
-		 * @param errorHandler 
-		 * @param timeStart
-		 * @throws IOException 
-		 *//*
-		public ResponseImpl(HttpMethod method, String url, HttpURLConnection connection, ResponseDeserializer<?> deserializer, ErrorHandler errorHandler, long timeStart) throws IOException {
-			this.method = method;
-			this.url = url;
-			this.connection = connection;
-			this.deserializer = deserializer;
-			this.timeStart = timeStart;
-			
-			this.callStart = System.currentTimeMillis();			
-		}
-
-		@Override
-		public int getCode() throws IOException {			
-			return connection.getResponseCode();
-		}
-		
-		@Override
-		public String getRequestUrl() {
-			return url;
-		}
-		
-		@Override
-		public HttpMethod getRequestMethod() {
-			return method;			
-		}
-		
-		@Override
-		public HttpURLConnection getConnection() {
-			return connection;			
-		}
-
-		@Override
-		public boolean isError() {
-			int code;
-			try {
-				code = getCode();
-				return code >= HttpURLConnection.HTTP_BAD_REQUEST && code < HttpURLConnection.HTTP_VERSION;
-			} catch (IOException e) {
-				return true;
-			}			
-		}
-
-		@Override
-		public long getCallTime() {			
-			return callEnd - callStart;
-		}
-
-		@Override
-		public long getTotalTime() {		
-			return callEnd - timeStart;
-		}
-
-		@Override
-		public boolean cancel(boolean flag) {
-			connection.disconnect();
-			cancelled = true;
-			return cancelled;
-		}
-
-		@Override
-		public boolean isCancelled() {			
-			return cancelled;
-		}
-
-		@Override
-		public boolean isDone() {
-			return done;
-		}
-
-		@Override
-		public T get() throws InterruptedException, ExecutionException {
-			try {				
-				if (deserializer == null) {
-					T response = (T) RestClient.STRING_DESERIALIZER.deserialize(connection.getInputStream());
-					callEnd = System.currentTimeMillis();
-					done = true;
-					return (T) response;
-				}
-				
-				T response = (T) deserializer.deserialize(connection.getInputStream());
-				callEnd = System.currentTimeMillis();
-				done = true;
-				return response;
-			} catch (IOException e) {
-				throw new ExecutionException(e);
-			}
-		}
-
-		@Override
-		public T get(long l, TimeUnit timeunit) throws InterruptedException, ExecutionException, TimeoutException {
-			throw new ExecutionException("Unimplemented", null);
-		}		
-	}*/
-	
 }

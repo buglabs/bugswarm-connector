@@ -22,7 +22,7 @@ public class RESTClientTest {
 
 	private void run() {
 		//Create a rest client that will deserialize the server response to a string.
-		RestClient<String> restClient = new RestClient<String>();
+		RestClient restClient = new RestClient();
 		
 		try {
 			//Call GET on localhost, pass in a predefined deserializer, no body (since GET), and no custom headers.
@@ -37,32 +37,29 @@ public class RESTClientTest {
 					restClient.get("localhost").get());
 			
 			// do a POST with the short-form method
-			resp = restClient.post("localhost", new ByteArrayInputStream("My POST content".getBytes()));
+			Response<Boolean> r = restClient.post("localhost", RestClient.BOOLEAN_DESERIALIZER, new ByteArrayInputStream("My POST content".getBytes()));
 			
 			if (resp.isError())
 				System.out.println("boo!");
-			
-			// Creat a rest client that passes the InputStream back to the client unmolested.
-			RestClient<InputStream> restClient2 = new RestClient<InputStream>(RestClient.PASSTHROUGH);
-			
+						
 			System.out.println(
-					restClient2.get("localhost")
+					restClient.get("localhost", RestClient.PASSTHROUGH)
 						.get().available());
 			
 			// Create a rest client that will throw exceptions on all HTTP and I/O errors.
-			RestClient<String> rc3 = new RestClient<String>();
-			rc3.setErrorHandler(RestClient.THROW_ALL_ERRORS);
+		
+			restClient.setErrorHandler(RestClient.THROW_ALL_ERRORS);
 			
 			//following line will throw IOException on any error
-			Response<String> rs = rc3.get("localhost");
+			Response<String> rs = restClient.get("localhost");
 			
 			System.out.println(rs.get());
 			
 			// Subsequent calls to this rest client will not throw exceptions on HTTP errors.
-			rc3.setErrorHandler(null);
+			restClient.setErrorHandler(null);
 						
 			//following line will never throw IOException 
-			rs = rc3.get("localhost");
+			rs = restClient.get("localhost");
 			
 			if (!rs.isError())
 				System.out.println(rs.get());
@@ -73,11 +70,11 @@ public class RESTClientTest {
 			body.put("tkey", "tval");
 			body.put("myfile", new RestClient.FormFile("/tmp/boo.txt", "text/plain"));
 			
-			rc3.postMultipart("localhost", body);
+			restClient.postMultipart("localhost", RestClient.BOOLEAN_DESERIALIZER, body);
 			
 			//PUT, short form, throw exception on error
-			rc3.setErrorHandler(RestClient.THROW_ALL_ERRORS);
-			rc3.put("localhost", new ByteArrayInputStream("boo".getBytes()));
+			restClient.setErrorHandler(RestClient.THROW_ALL_ERRORS);
+			Response<Boolean> mr = restClient.put("localhost", RestClient.BOOLEAN_DESERIALIZER, new ByteArrayInputStream("boo".getBytes()));
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

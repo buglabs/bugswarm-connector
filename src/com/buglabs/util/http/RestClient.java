@@ -27,7 +27,7 @@ import java.util.concurrent.TimeoutException;
  *
  * @param <T> Type that will be returned from Response.getBody().
  */
-public class RestClient<T> {
+public class RestClient {
 	
 	private static final String HEADER_CONTENT_TYPE = "Content-Type";
 	private static final String APPLICATION_X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
@@ -106,6 +106,17 @@ public class RestClient<T> {
 		@Override
 		public String deserialize(InputStream input) throws IOException {			
 			return new String(streamToByteArray(input));
+		}
+	};
+	
+	/**
+	 * A HTTPResponseDeserializer that always returns true.  Good when the response content is ignored.
+	 */
+	public static final ResponseDeserializer<Boolean> BOOLEAN_DESERIALIZER = new ResponseDeserializer<Boolean>() {
+
+		@Override
+		public Boolean deserialize(InputStream input) throws IOException {			
+			return Boolean.TRUE;
 		}
 	};
 	
@@ -232,7 +243,7 @@ public class RestClient<T> {
 
 	private List<ConnectionInitializer> connectionInitializers;
 
-	private ResponseDeserializer<T> responseDeserializers;
+	//private ResponseDeserializer<?> responseDeserializers;
 	
 	private ErrorHandler errorHandler;
 	
@@ -242,7 +253,7 @@ public class RestClient<T> {
 	public RestClient() {
 		this.connectionProvider = new DefaultConnectionProvider();
 		this.connectionInitializers = new ArrayList<ConnectionInitializer>();
-		this.responseDeserializers = null;
+		//this.responseDeserializers = null;
 		this.errorHandler = null;
 	}
 	
@@ -252,7 +263,7 @@ public class RestClient<T> {
 	public RestClient(ConnectionProvider connectionProvider) {
 		this.connectionProvider = connectionProvider;
 		this.connectionInitializers = new ArrayList<ConnectionInitializer>();
-		this.responseDeserializers = null;
+		//this.responseDeserializers = null;
 		this.errorHandler = null;
 	}
 	
@@ -274,20 +285,12 @@ public class RestClient<T> {
 	}
 	
 	/**
-	 * @param deserializer ResponseDeserializer<T>
-	 */
-	public RestClient(ResponseDeserializer<T> deserializer) {
-		this();
-		this.responseDeserializers = deserializer;
-	}
-	
-	/**
 	 * @param initializer ConnectionInitializer
 	 * @param deserializer ResponseDeserializer<T>
 	 */
-	public RestClient(ConnectionInitializer initializer, ResponseDeserializer<T> deserializer) {
+	public RestClient(ConnectionInitializer initializer, ResponseDeserializer<?> deserializer) {
 		this(initializer);
-		this.responseDeserializers = deserializer;
+		//this.responseDeserializers = deserializer;
 	}
 	
 	/**
@@ -295,9 +298,9 @@ public class RestClient<T> {
 	 * @param initializer ConnectionInitializer
 	 * @param deserializer ResponseDeserializer<T>
 	 */
-	public RestClient(ConnectionProvider connectionProvider, ConnectionInitializer initializer, ResponseDeserializer<T> deserializer) {
+	public RestClient(ConnectionProvider connectionProvider, ConnectionInitializer initializer, ResponseDeserializer<?> deserializer) {
 		this(connectionProvider, initializer);
-		this.responseDeserializers = deserializer;
+		//this.responseDeserializers = deserializer;
 	}
 	
 	/**
@@ -307,10 +310,10 @@ public class RestClient<T> {
 	 * @param errorHandler ErrorHandler
 	 */
 	public RestClient(ConnectionProvider connectionProvider, ConnectionInitializer initializer, 
-			ResponseDeserializer<T> deserializer, ErrorHandler errorHandler) {
+			ResponseDeserializer<?> deserializer, ErrorHandler errorHandler) {
 		this.connectionProvider = connectionProvider;
 		this.connectionInitializers = new ArrayList<ConnectionInitializer>();
-		this.responseDeserializers = deserializer;
+		//this.responseDeserializers = deserializer;
 		this.errorHandler = errorHandler;
 		connectionInitializers.add(initializer);		
 	}
@@ -364,9 +367,9 @@ public class RestClient<T> {
 	/**
 	 * @param deserializer ResponseDeserializer
 	 */
-	public void setResponseDeserializer(ResponseDeserializer<T> deserializer) {	
+	/*public void setResponseDeserializer(ResponseDeserializer<?> deserializer) {	
 		responseDeserializers = deserializer;
-	}
+	}*/
 	
 	/**
 	 * @param method
@@ -375,7 +378,7 @@ public class RestClient<T> {
 	 * @return
 	 * @throws IOException
 	 */
-	public Response<T> call(HttpMethod method, String url, ResponseDeserializer<T> deserializer, InputStream content, Map<String, String> headers) throws IOException {
+	public <T> Response<T> call(final HttpMethod method, final String url, final ResponseDeserializer<T> deserializer, InputStream content, Map<String, String> headers) throws IOException {
 		validateArguments(method, url);
 		
 		long timeStart = System.currentTimeMillis();
@@ -384,7 +387,7 @@ public class RestClient<T> {
 		if (!url.toLowerCase().startsWith("http://"))
 			httpUrl = "http://" + url;
 				
-		HttpURLConnection connection = connectionProvider.getConnection(httpUrl);
+		final HttpURLConnection connection = connectionProvider.getConnection(httpUrl);
 		connection.setRequestMethod(method.toString());
 		
 		if (headers != null && headers.size() > 0)
@@ -418,48 +421,106 @@ public class RestClient<T> {
 			throw new RuntimeException("Unhandled HTTP method.");
 		}	
 		
-		return new ResponseImpl(method, url, connection, deserializer, errorHandler, timeStart);
+		return new Response<T>() {
+
+			private boolean done;
+			private long callEnd;
+			private boolean cancelled;
+
+			@Override
+			public int getCode() throws IOException {			
+				return connection.getResponseCode();
+			}
+			
+			@Override
+			public String getRequestUrl() {
+				return url;
+			}
+			
+			@Override
+			public HttpMethod getRequestMethod() {
+				return method;			
+			}
+			
+			@Override
+			public HttpURLConnection getConnection() {
+				return connection;			
+			}
+
+			@Override
+			public boolean isError() {
+				int code;
+				try {
+					code = getCode();
+					return code >= HttpURLConnection.HTTP_BAD_REQUEST && code < HttpURLConnection.HTTP_VERSION;
+				} catch (IOException e) {
+					return true;
+				}			
+			}
+
+			@Override
+			public long getCallTime() {			
+				//return callEnd - callStart;
+				return 0;
+			}
+
+			@Override
+			public long getTotalTime() {		
+				//return callEnd - timeStart;
+				return 0;
+			}
+
+			@Override
+			public boolean cancel(boolean flag) {
+				connection.disconnect();
+				cancelled = true;
+				return cancelled;
+			}
+
+			@Override
+			public boolean isCancelled() {			
+				return cancelled;				
+			}
+
+			@Override
+			public boolean isDone() {
+				return done;				
+			}
+
+			@Override
+			public T get() throws InterruptedException, ExecutionException {
+				try {				
+					if (deserializer == null) {
+						T response = (T) RestClient.STRING_DESERIALIZER.deserialize(connection.getInputStream());
+						callEnd = System.currentTimeMillis();
+						done = true;
+						return (T) response;
+					}
+					
+					T response = (T) deserializer.deserialize(connection.getInputStream());
+					callEnd = System.currentTimeMillis();
+					done = true;
+					return response;
+				} catch (IOException e) {
+					throw new ExecutionException(e);
+				}
+			}
+
+			@Override
+			public T get(long l, TimeUnit timeunit) throws InterruptedException, ExecutionException, TimeoutException {
+				throw new ExecutionException("Unimplemented", null);
+			}		
+		};
+				
 	}
 
 	/**
-	 * @param method
 	 * @param url
 	 * @return
 	 * @throws IOException
 	 */
-	public Response<T> call(HttpMethod method, String url) throws IOException {
-		return call(method, url, responseDeserializers, null, null);
-	}
-	
-	/**
-	 * @param method
-	 * @param url
-	 * @param inputStream
-	 * @return
-	 * @throws IOException
-	 */
-	public Response<T> call(HttpMethod method, String url, InputStream inputStream) throws IOException {
-		return call(method, url, responseDeserializers, inputStream, null);
-	}
-	
-	/**
-	 * @param url
-	 * @return
-	 * @throws IOException
-	 */
-	public Response<T> get(String url) throws IOException {
-		return call(HttpMethod.GET, url, null);
-	}
-	
-	/**
-	 * @param url
-	 * @return
-	 * @throws ExecutionException 
-	 * @throws InterruptedException 
-	 * @throws IOException
-	 */
-	public T getContent(String url) throws InterruptedException, ExecutionException, IOException {
-		return call(HttpMethod.GET, url, null).get();
+	public Response<String> get(String url) throws IOException {
+		return call(HttpMethod.GET, url, STRING_DESERIALIZER, null, null);
 	}
 	
 	/**
@@ -468,7 +529,7 @@ public class RestClient<T> {
 	 * @return
 	 * @throws IOException
 	 */
-	public Response<T> get(String url, ResponseDeserializer<T> deserializer) throws IOException {
+	public <T> Response<T> get(String url, ResponseDeserializer<T> deserializer) throws IOException {
 		return call(HttpMethod.GET, url, deserializer, null, null);
 	}
 	
@@ -480,8 +541,8 @@ public class RestClient<T> {
 	 * @return a response to the request
 	 * @throws IOException on I/O error
 	 */
-	public Response<T> post(String url, InputStream body) throws IOException {
-		return call(HttpMethod.POST, url, body);
+	public <T> Response<T> post(String url, ResponseDeserializer<T> deserializer, InputStream body) throws IOException {
+		return call(HttpMethod.POST, url, deserializer, body, null);
 	}
 	
 	/**
@@ -492,8 +553,8 @@ public class RestClient<T> {
 	 * @return a response from the POST
 	 * @throws IOException on I/O error
 	 */
-	public Response<T> post(String url, Map<String, String> formData) throws IOException {
-		return call(HttpMethod.POST, url, null, 
+	public <T> Response<T> post(String url, ResponseDeserializer<T> deserializer, Map<String, String> formData) throws IOException {
+		return call(HttpMethod.POST, url, deserializer, 
 				new ByteArrayInputStream(propertyString(formData).getBytes()), 
 				toMap(HEADER_CONTENT_TYPE, APPLICATION_X_WWW_FORM_URLENCODED));
 	}
@@ -506,8 +567,8 @@ public class RestClient<T> {
 	 * @return a response from the POST
 	 * @throws IOException on I/O error
 	 */
-	public Response<T> postMultipart(String url, Map<String, Object> content) throws IOException {
-		return post(url, createMultipartPostBody(content));
+	public <T> Response<T> postMultipart(String url, ResponseDeserializer<T> deserializer, Map<String, Object> content) throws IOException {
+		return post(url, deserializer, createMultipartPostBody(content));
 	}
 	
 	/**
@@ -518,8 +579,8 @@ public class RestClient<T> {
 	 * @return a response from the POST
 	 * @throws IOException on I/O error
 	 */
-	public Response<T> put(String url, InputStream content) throws IOException {
-		return call(HttpMethod.PUT, url, null, content, null);
+	public <T> Response<T> put(String url, ResponseDeserializer<T> deserializer, InputStream content) throws IOException {
+		return call(HttpMethod.PUT, url, deserializer, content, null);
 	}
 	
 	// Public static methods
@@ -772,23 +833,24 @@ public class RestClient<T> {
 		}
 	}
 	
+	
 	/**
 	 * @author kgilmer
 	 *
 	 */
-	private class ResponseImpl implements Response<T> {
+	/*private abstract class ResponseImpl implements Response<?> {
 
 		private final HttpMethod method;
 		private final String url;
 		private final HttpURLConnection connection;
-		private final ResponseDeserializer<T> deserializer;
+		private final ResponseDeserializer<?> deserializer;
 		private final long timeStart;
 		private final long callStart;
 		private long callEnd;
 		private boolean done;
 		private boolean cancelled;
 
-		/**
+		*//**
 		 * Constructs a Response.  This constructor will block until the response has been recievied.
 		 * @param method
 		 * @param url
@@ -797,8 +859,8 @@ public class RestClient<T> {
 		 * @param errorHandler 
 		 * @param timeStart
 		 * @throws IOException 
-		 */
-		public ResponseImpl(HttpMethod method, String url, HttpURLConnection connection, ResponseDeserializer<T> deserializer, ErrorHandler errorHandler, long timeStart) throws IOException {
+		 *//*
+		public ResponseImpl(HttpMethod method, String url, HttpURLConnection connection, ResponseDeserializer<?> deserializer, ErrorHandler errorHandler, long timeStart) throws IOException {
 			this.method = method;
 			this.url = url;
 			this.connection = connection;
@@ -889,6 +951,6 @@ public class RestClient<T> {
 		public T get(long l, TimeUnit timeunit) throws InterruptedException, ExecutionException, TimeoutException {
 			throw new ExecutionException("Unimplemented", null);
 		}		
-	}
+	}*/
 	
 }

@@ -59,6 +59,15 @@ public abstract class AbstractSwarmWSClient {
 					connection.setRequestProperty(e.getKey(), e.getValue().toString());
 			}
 		});		
+		
+		httpClient.setErrorHandler(new RestClient.ErrorHandler() {
+			
+			@Override
+			public void handleError(int code) throws IOException {
+				if (code >= 400 && code < 600 && code != 404)
+					throw new IOException("Server returned HTTP error " + code);
+			}
+		});
 	}
 
 	/**

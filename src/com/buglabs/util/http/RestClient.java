@@ -473,7 +473,9 @@ public class RestClient {
 		case POST:
 			connection.setDoOutput(true);	
 			baos = new ByteArrayOutputStream();
-			copy(content, baos);			
+			copy(content, baos);		
+			
+			System.out.println(new String(baos.toByteArray()));
 			writeRequestBody(connection, baos.toByteArray());			
 			break;
 		case PUT:
@@ -561,13 +563,12 @@ public class RestClient {
 
 			@Override
 			public T getContent() throws IOException {									
-				if (isError())
-					if (errorHandler == null) {
-						return null;
-					} else {
+				if (isError()) {
+					if (errorHandler != null) 
 						errorHandler.handleError(getCode());
-						return null;
-					}
+						
+					return (T) deserializer.deserialize(null, connection.getResponseCode(), connection.getHeaderFields());
+				}
 				
 				if (deserializer == null) {
 					T response = (T) RestClient.STRING_DESERIALIZER.deserialize(connection.getInputStream(), 0, null);

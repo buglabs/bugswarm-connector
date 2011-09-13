@@ -473,16 +473,16 @@ public class RestClient {
 		case POST:
 			connection.setDoOutput(true);	
 			baos = new ByteArrayOutputStream();
-			copy(content, baos);		
-			
-			System.out.println(new String(baos.toByteArray()));
-			writeRequestBody(connection, baos.toByteArray());			
+			copy(content, baos);					
+			writeRequestBody(connection, baos.toByteArray());	
+			baos.close();
 			break;
 		case PUT:
 			connection.setDoOutput(true);
 			baos = new ByteArrayOutputStream();
 			copy(content, baos);
 			writeRequestBody(connection, baos.toByteArray());
+			baos.close();
 			break;
 		case DELETE:
 			connection.setDoInput(true);
@@ -567,7 +567,8 @@ public class RestClient {
 					if (errorHandler != null) 
 						errorHandler.handleError(getCode());
 						
-					return (T) deserializer.deserialize(null, connection.getResponseCode(), connection.getHeaderFields());
+					return (T) deserializer.deserialize(null, connection.getResponseCode(), 
+							connection.getHeaderFields());
 				}
 				
 				if (deserializer == null) {
@@ -577,7 +578,9 @@ public class RestClient {
 					return (T) response;
 				}
 				
-				T response = (T) deserializer.deserialize(connection.getInputStream(), connection.getResponseCode(), connection.getHeaderFields());
+				T response = (T) deserializer.deserialize(connection.getInputStream(), 
+						connection.getResponseCode(), connection.getHeaderFields());
+				
 				callEnd = System.currentTimeMillis();
 				done = true;
 				return response;				

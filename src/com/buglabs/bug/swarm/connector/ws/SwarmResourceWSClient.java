@@ -15,7 +15,7 @@ import com.buglabs.util.http.RestClient;
  * @author kgilmer
  * 
  */
-public class SwarmResourceWSClient extends AbstractSwarmWSClient2 implements ISwarmResourcesClient {
+public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwarmResourcesClient {
 
 	/**
 	 * @param swarmHostUrl
@@ -36,7 +36,7 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient2 implements ISw
 		validateAPIKey();
 
 		return httpClient.get(swarmHostUrl + "swarms/" + swarmId + "/resources?type=" + type, 
-				AbstractSwarmWSClient2.SwarmResourceModelListDeserializer).getContent();
+				ModelDeserializers.SwarmResourceModelListDeserializer).getContent();
 	}
 
 	@Override
@@ -53,7 +53,7 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient2 implements ISw
 		props.put("resource", resource);
 
 		return httpClient.post(swarmHostUrl + "swarms/" + swarmId + "/resources", props, 
-				AbstractSwarmWSClient2.WSRESPONSE_DESERIALIZER).getContent();
+				ModelDeserializers.SwarmWSResponseDeserializer).getContent();
 	}
 
 	@Override
@@ -64,7 +64,7 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient2 implements ISw
 
 		//TODO, handle case when swarmHostUrl has slash or not has slash.
 		return httpClient.get(swarmHostUrl + "resources/" + resource + "/swarms", 
-				AbstractSwarmWSClient2.SwarmModelListDeserializer).getContent();
+				ModelDeserializers.SwarmModelListDeserializer).getContent();
 	}
 
 	@Override
@@ -80,6 +80,6 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient2 implements ISw
 			"X-HTTP-Method-Override", "DELETE");
 
 		return httpClient.post(swarmHostUrl + "swarms/" + swarmId + "/resources", props, 
-				AbstractSwarmWSClient2.WSRESPONSE_DESERIALIZER).getContent();
+				ModelDeserializers.SwarmWSResponseDeserializer).getContent();
 	}
 }

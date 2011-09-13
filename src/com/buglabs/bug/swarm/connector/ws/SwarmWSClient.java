@@ -19,7 +19,7 @@ import com.buglabs.util.http.RestClient;
  * @author kgilmer
  * 
  */
-public class SwarmWSClient extends AbstractSwarmWSClient2 implements ISwarmClient {
+public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient {
 	private SwarmResourceWSClient membersClient;
 	private SwarmBinaryUploadWSClient uploadClient;
 	private ResourceWSClient resourceClient;
@@ -84,7 +84,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient2 implements ISwarmClien
 				toMap("name", name, 
 					"public", Boolean.toString(isPublic),
 					"description", description)
-					, AbstractSwarmWSClient2.JSONObjectDeserializer)
+					, ModelDeserializers.JSONObjectDeserializer)
 			.getContent().get("swarm").toString();
 	}
 
@@ -98,7 +98,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient2 implements ISwarmClien
 				toMap(
 						"public", Boolean.toString(isPublic),
 						"description", description),
-				AbstractSwarmWSClient2.WSRESPONSE_DESERIALIZER).getContent();
+				ModelDeserializers.SwarmWSResponseDeserializer).getContent();
 	}
 
 	@Override
@@ -107,14 +107,14 @@ public class SwarmWSClient extends AbstractSwarmWSClient2 implements ISwarmClien
 
 		validateAPIKey();
 
-		return httpClient.delete(swarmHostUrl + "swarms/" + swarmId, AbstractSwarmWSClient2.WSRESPONSE_DESERIALIZER).getContent();
+		return httpClient.delete(swarmHostUrl + "swarms/" + swarmId, ModelDeserializers.SwarmWSResponseDeserializer).getContent();
 	}
 
 	@Override
 	public List<SwarmModel> list() throws IOException {
 		validateAPIKey();
 
-		return httpClient.get(swarmHostUrl + "swarms", AbstractSwarmWSClient2.SwarmModelListDeserializer).getContent();
+		return httpClient.get(swarmHostUrl + "swarms", ModelDeserializers.SwarmModelListDeserializer).getContent();
 	}
 
 	@Override

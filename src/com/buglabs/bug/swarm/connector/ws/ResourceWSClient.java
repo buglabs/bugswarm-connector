@@ -25,7 +25,7 @@ import com.buglabs.util.simplerestclient.HTTPResponse;
  * @author kgilmer
  * 
  */
-public class ResourceWSClient extends AbstractSwarmWSClient2 implements IResourceClient {
+public class ResourceWSClient extends AbstractSwarmWSClient implements IResourceClient {
 
 	/**
 	 * @param swarmHostUrl
@@ -50,7 +50,7 @@ public class ResourceWSClient extends AbstractSwarmWSClient2 implements IResourc
 		Map<String, String> props = toMap("id", resourceId, "user_id", userId, "name", resourceName, "description", description, "type",
 				type.toString(), "machine_type", machineType, "position", "{\"Longitude\": 0, \"latitude\": 0}");
 
-		return httpClient.post(swarmHostUrl + "resources", props, WSRESPONSE_DESERIALIZER).getContent();
+		return httpClient.post(swarmHostUrl + "resources", props, ModelDeserializers.SwarmWSResponseDeserializer).getContent();
 	}
 
 	@Override
@@ -63,7 +63,7 @@ public class ResourceWSClient extends AbstractSwarmWSClient2 implements IResourc
 		Map<String, String> props = toMap("name", resourceName, "description", resourceDescription, "type", type.toString(),
 				"machine_type", machineType);
 
-		return httpClient.put(swarmHostUrl + "resources/" + resourceId, props, WSRESPONSE_DESERIALIZER).getContent();
+		return httpClient.put(swarmHostUrl + "resources/" + resourceId, props, ModelDeserializers.SwarmWSResponseDeserializer).getContent();
 	}
 
 	@Override
@@ -71,9 +71,9 @@ public class ResourceWSClient extends AbstractSwarmWSClient2 implements IResourc
 		validateAPIKey();
 
 		if (type == null)
-			return httpClient.get(swarmHostUrl + "resources", ResourceModelListDeserializer).getContent();
+			return httpClient.get(swarmHostUrl + "resources", ModelDeserializers.ResourceModelListDeserializer).getContent();
 		else
-			return httpClient.get(swarmHostUrl + "resources", toMap("type", type.toString()), ResourceModelListDeserializer).getContent();
+			return httpClient.get(swarmHostUrl + "resources", toMap("type", type.toString()), ModelDeserializers.ResourceModelListDeserializer).getContent();
 	}
 
 	@Override
@@ -81,7 +81,7 @@ public class ResourceWSClient extends AbstractSwarmWSClient2 implements IResourc
 		validateParams(resourceId);
 		validateAPIKey();
 
-		return httpClient.get(swarmHostUrl + "resources/" + resourceId, ResourceModelDeserializer).getContent();
+		return httpClient.get(swarmHostUrl + "resources/" + resourceId, ModelDeserializers.ResourceModelDeserializer).getContent();
 	}
 
 	@Override
@@ -90,7 +90,7 @@ public class ResourceWSClient extends AbstractSwarmWSClient2 implements IResourc
 
 		validateAPIKey();
 
-		return httpClient.delete(swarmHostUrl + "resources/" + resourceId, WSRESPONSE_DESERIALIZER).getContent();
+		return httpClient.delete(swarmHostUrl + "resources/" + resourceId, ModelDeserializers.SwarmWSResponseDeserializer).getContent();
 	}
 
 	@Override
@@ -99,6 +99,6 @@ public class ResourceWSClient extends AbstractSwarmWSClient2 implements IResourc
 
 		validateAPIKey();
 
-		return httpClient.get(swarmHostUrl + "resources/" + resourceId + "/swarms", SwarmResourceModelListDeserializer).getContent();
+		return httpClient.get(swarmHostUrl + "resources/" + resourceId + "/swarms", ModelDeserializers.SwarmResourceModelListDeserializer).getContent();
 	}
 }

@@ -14,7 +14,7 @@ import com.buglabs.util.http.RestClient;
  * @author kgilmer
  * 
  */
-public class SwarmBinaryUploadWSClient extends AbstractSwarmWSClient2 implements ISwarmBinaryUploadClient {
+public class SwarmBinaryUploadWSClient extends AbstractSwarmWSClient implements ISwarmBinaryUploadClient {
 
 	/**
 	 * @param swarmHostUrl
@@ -45,6 +45,6 @@ public class SwarmBinaryUploadWSClient extends AbstractSwarmWSClient2 implements
 											"resource_id", resourceId);		
 		params.put("file", new RestClient.FormInputStream(new ByteArrayInputStream(payload), elems[0], elems[1]));
 
-		return httpClient.postMultipart(swarmHostUrl + "upload", params, AbstractSwarmWSClient2.WSRESPONSE_DESERIALIZER).getContent();
+		return httpClient.postMultipart(swarmHostUrl + "upload", params, ModelDeserializers.SwarmWSResponseDeserializer).getContent();
 	}
 }

@@ -27,7 +27,7 @@ public abstract class AbstractSwarmWSClient {
 
 	private static final boolean DEBUG_MODE = true;
 	
-	protected final String swarmHostUrl;
+	protected final RestClient.URLBuilder swarmHostUrl;
 	protected final String apiKey;
 	protected final RestClient httpClient;
 	protected boolean isValidated = false;
@@ -42,14 +42,11 @@ public abstract class AbstractSwarmWSClient {
 	 */
 	public AbstractSwarmWSClient(String swarmHostUrl, final String apiKey) {
 		if (swarmHostUrl == null || apiKey == null)
-			throw new IllegalArgumentException("An input parameter is null.");
+			throw new IllegalArgumentException("An input parameter is null.");		
 
-		if (!swarmHostUrl.endsWith("/"))
-			swarmHostUrl = swarmHostUrl + "/";
-
-		this.swarmHostUrl = swarmHostUrl;
 		this.apiKey = apiKey;
 		this.httpClient = new RestClient();
+		this.swarmHostUrl = httpClient.buildURL(swarmHostUrl);
 		
 		httpClient.addConnectionInitializer(new RestClient.ConnectionInitializer() {
 			
@@ -82,12 +79,9 @@ public abstract class AbstractSwarmWSClient {
 		if (swarmHostUrl == null || apiKey == null || httpClient == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 
-		if (!swarmHostUrl.endsWith("/"))
-			swarmHostUrl = swarmHostUrl + "/";
-
-		this.swarmHostUrl = swarmHostUrl;
 		this.apiKey = apiKey;
 		this.httpClient = httpClient;
+		this.swarmHostUrl = httpClient.buildURL(swarmHostUrl);
 	}
 
 	/**
@@ -103,7 +97,7 @@ public abstract class AbstractSwarmWSClient {
 			return null;
 
 		try {
-			Response<Integer> response = httpClient.get(swarmHostUrl + "keys/" + apiKey + "/verify", RestClient.HTTP_CODE_DESERIALIZER);
+			Response<Integer> response = httpClient.get(swarmHostUrl.copy().append("keys", apiKey, "verify"), RestClient.HTTP_CODE_DESERIALIZER);
 			SwarmWSResponse wsr = SwarmWSResponse.fromCode(response.getContent());
 
 			if (!wsr.isError()) {

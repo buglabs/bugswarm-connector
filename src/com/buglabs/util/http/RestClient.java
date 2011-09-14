@@ -91,7 +91,7 @@ public class RestClient {
 		 * @param segment to be appended
 		 * @return instance of builder
 		 */
-		URLBuilder append(String segment);
+		URLBuilder append(String ... segment);
 		
 		/**
 		 * @param value if true, scheme is set to https, otherwise http.
@@ -113,7 +113,7 @@ public class RestClient {
 		 * @param segment new segment to append to new copy of URLBuilder
 		 * @return A new instance of URLBuilder with same path and scheme as parent, with segment appended.
 		 */
-		URLBuilder copy(String segment);
+		URLBuilder copy(String ... segments);
 	}
 	
 	/**
@@ -1117,7 +1117,20 @@ public class RestClient {
 		}
 		
 		@Override
-		public URLBuilder append(String segment) {
+		public URLBuilder append(String ... sgmnts) {
+			validateArguments(sgmnts);
+			
+			if (sgmnts.length == 1)
+				appendSingle(sgmnts[0]);
+			else
+				for (String segment : Arrays.asList(sgmnts)) {
+					appendSingle(segment);
+				}
+			
+			return this;
+		}
+		
+		private URLBuilder appendSingle(String segment) {
 			segment = segment.trim();
 			
 			if (segment.length() == 0)
@@ -1183,8 +1196,10 @@ public class RestClient {
 		}
 
 		@Override
-		public URLBuilder copy(String segment) {			
-			return this.copy().append(segment);
+		public URLBuilder copy(String ... segments) {	
+			validateArguments(segments);
+			
+			return this.copy().append(segments);
 		}
 	}
 	

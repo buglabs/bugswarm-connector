@@ -51,7 +51,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 	 */
 	public ISwarmResourcesClient getSwarmResourceClient() {
 		if (membersClient == null)
-			membersClient = new SwarmResourceWSClient(swarmHostUrl, apiKey, httpClient);
+			membersClient = new SwarmResourceWSClient(swarmHostUrl.toString(), apiKey, httpClient);
 
 		return membersClient;
 	}
@@ -59,7 +59,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 	@Override
 	public IResourceClient getResourceClient() {
 		if (resourceClient == null) 
-			resourceClient = new ResourceWSClient(swarmHostUrl, apiKey, httpClient);
+			resourceClient = new ResourceWSClient(swarmHostUrl.toString(), apiKey, httpClient);
 		
 		return resourceClient;
 	}
@@ -69,7 +69,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 	 */
 	public ISwarmBinaryUploadClient getSwarmBinaryUploadClient() {
 		if (uploadClient == null)
-			uploadClient = new SwarmBinaryUploadWSClient(swarmHostUrl, apiKey, httpClient);
+			uploadClient = new SwarmBinaryUploadWSClient(swarmHostUrl.toString(), apiKey, httpClient);
 
 		return uploadClient;
 	}
@@ -80,7 +80,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 		
 		validateAPIKey();
 
-		return httpClient.post(swarmHostUrl + "swarms", 
+		return httpClient.post(swarmHostUrl.copy("swarms"), 
 				toMap("name", name, 
 					"public", Boolean.toString(isPublic),
 					"description", description)
@@ -94,7 +94,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 		
 		validateAPIKey();
 
-		return httpClient.put(swarmHostUrl + "swarms/" + swarmId, 
+		return httpClient.put(swarmHostUrl.copy("swarms/", swarmId), 
 				toMap(
 						"public", Boolean.toString(isPublic),
 						"description", description),
@@ -107,14 +107,14 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 
 		validateAPIKey();
 
-		return httpClient.delete(swarmHostUrl + "swarms/" + swarmId, ModelDeserializers.SwarmWSResponseDeserializer).getContent();
+		return httpClient.delete(swarmHostUrl.copy("swarms/", swarmId), ModelDeserializers.SwarmWSResponseDeserializer).getContent();
 	}
 
 	@Override
 	public List<SwarmModel> list() throws IOException {
 		validateAPIKey();
 
-		return httpClient.get(swarmHostUrl + "swarms", ModelDeserializers.SwarmModelListDeserializer).getContent();
+		return httpClient.get(swarmHostUrl.copy("swarms"), ModelDeserializers.SwarmModelListDeserializer).getContent();
 	}
 
 	@Override

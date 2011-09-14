@@ -65,7 +65,7 @@ public abstract class AbstractSwarmWSClient {
 			@Override
 			public void handleError(int code) throws IOException {
 				if (code >= 400 && code < 600 && code != 404)
-					throw new IOException("Server returned HTTP error " + code);
+					throw new IOException("Server returned HTTP error " + code + ": " + RestClient.getHttpResponseText(code));
 			}
 		});
 	}
@@ -122,8 +122,8 @@ public abstract class AbstractSwarmWSClient {
 	 */
 	protected Map<String, String> getSwarmHeaders() {
 		if (staticHeaders == null) {
-			staticHeaders = toMap(SWARM_APIKEY_HEADER_KEY, apiKey, 
-									CONTENT_TYPE_HEADER_KEY, "application/json");
+			staticHeaders = toMap(SWARM_APIKEY_HEADER_KEY, apiKey);//, 
+									//CONTENT_TYPE_HEADER_KEY, "application/json");
 		}
 
 		return staticHeaders;

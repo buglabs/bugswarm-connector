@@ -124,7 +124,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 		validateAPIKey();
 
 		Object o = JSONValue.parse(new InputStreamReader(
-				httpClient.get(swarmHostUrl + "swarms/" + swarmId, RestClient.PASSTHROUGH).getContent()));
+				httpClient.get(swarmHostUrl + "swarms/" + swarmId, RestClient.INPUTSTREAM_DESERIALIZER).getContent()));
 		JSONObject jo = null;
 
 		if (o instanceof JSONArray)

@@ -8,6 +8,8 @@
 
 		<property name="dist.jar.name" value="${ant.project.name}-tests" />
 		<property name="manifest.location" location="${basedir}/test/MANIFEST.MF"/>
+		<antcall target="build"></antcall>
+		<antcall target="document"></antcall>
 		<antcall target="build.jars"></antcall>
 	</target>
 	

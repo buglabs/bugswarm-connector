@@ -37,6 +37,8 @@ public class RestClient {
 	private static final String LINE_ENDING = "\r\n";
 	private static final String BOUNDARY = "boundary=";
 	private static final String PARA_NAME = "name";
+	
+	private static final Map<Integer, String> HTTP_RESPONSE_TEXT = createResponseMap();
 
 	
 	/**
@@ -80,6 +82,41 @@ public class RestClient {
 	}
 	
 	/**
+	 * Utility interface for building URLs from String segments.
+	 */
+	public interface URLBuilder extends Cloneable {
+		/**
+		 * Append a segment to the URL.  Will handle leading and trailing slashes, and schemes.
+		 * 
+		 * @param segment to be appended
+		 * @return instance of builder
+		 */
+		URLBuilder append(String ... segment);
+		
+		/**
+		 * @param value if true, scheme is set to https, otherwise http.
+		 * @return instance of builder
+		 */
+		URLBuilder setHttps(boolean value);		
+		
+		/**
+		 * @return URL as a String with scheme
+		 */
+		String toString();
+		
+		/**
+		 * @return A new instance of URLBuilder with same path and scheme as parent.
+		 */
+		URLBuilder copy();
+		
+		/**
+		 * @param segment new segment to append to new copy of URLBuilder
+		 * @return A new instance of URLBuilder with same path and scheme as parent, with segment appended.
+		 */
+		URLBuilder copy(String ... segments);
+	}
+	
+	/**
 	 * 
 	 *
 	 * @param <T>
@@ -101,7 +138,10 @@ public class RestClient {
 
 		@Override
 		public String deserialize(InputStream input, int responseCode, Map<String, List<String>> headers) throws IOException {			
-			return new String(streamToByteArray(input));
+			if (input != null)
+				return new String(streamToByteArray(input));
+			
+			return null;
 		}
 	};
 	
@@ -120,7 +160,7 @@ public class RestClient {
 	 * A HTTPResponseDeserializer that simply returns the internal inputstream.
 	 * Useful for clients that wish to handle the response input stream manually.
 	 */
-	public static final ResponseDeserializer<InputStream> PASSTHROUGH = new ResponseDeserializer<InputStream>() {
+	public static final ResponseDeserializer<InputStream> INPUTSTREAM_DESERIALIZER = new ResponseDeserializer<InputStream>() {
 
 		@Override
 		public InputStream deserialize(InputStream input, int responseCode, Map<String, List<String>> headers) throws IOException {			
@@ -136,7 +176,7 @@ public class RestClient {
 		@Override
 		public void handleError(int code) throws IOException {
 			if (code > 0)
-				throw new IOException("HTTP Error " + code + " was returned from the server.");
+				throw new IOException("HTTP Error " + code + " was returned from the server: " + HTTP_RESPONSE_TEXT.get(code));
 			else 
 				throw new IOException("A non-HTTP error was returned from the server.");
 		}
@@ -151,7 +191,7 @@ public class RestClient {
 		@Override
 		public void handleError(int code) throws IOException {
 			if (code > 499 && code < 600)
-				throw new IOException("HTTP Error " + code + " was returned from the server.");			
+				throw new IOException("HTTP Error " + code + " was returned from the server: " + HTTP_RESPONSE_TEXT.get(code));			
 		}
 		
 	};
@@ -256,17 +296,62 @@ public class RestClient {
 			return mimeType;
 		}
 	}
+	
+	/**
+	 * Used to specify a file to upload in a multipart POST.
+	 *
+	 */
+	public static class FormInputStream extends InputStream {
+		private static final long serialVersionUID = 2957338960806476533L;
+		private final String mimeType;
+		private final InputStream parent;
+		private final String name;
+
+		/**
+		 * @param pathname
+		 */
+		public FormInputStream(InputStream parent, String name, String mimeType) {
+
+			this.parent = parent;
+			this.name = name;
+			this.mimeType = mimeType;					
+		}
+		
+		/**
+		 * @return Mime type of file.
+		 */
+		public String getMimeType() {
+			return mimeType;
+		}
+
+		@Override
+		public int read() throws IOException {			
+			return parent.read();
+		}
+		
+		@Override
+		public int read(byte[] b) throws IOException {		
+			return parent.read(b);
+		}
+		
+		@Override
+		public int read(byte[] b, int off, int len) throws IOException {
+			return parent.read(b, off, len);
+		}
+
+		public String getName() {
+			return name;
+		}
+	}
 
 	private static Random RNG;
 
 	private ConnectionProvider connectionProvider;
 
 	private List<ConnectionInitializer> connectionInitializers;
-
-	//private ResponseDeserializer<?> responseDeserializers;
 	
 	private ErrorHandler errorHandler;
-	
+		
 	/**
 	 * Default constructor.
 	 */
@@ -410,12 +495,12 @@ public class RestClient {
 		final HttpURLConnection connection = connectionProvider.getConnection(httpUrl);
 		connection.setRequestMethod(method.toString());
 		
+		for (ConnectionInitializer initializer : connectionInitializers)
+			initializer.initialize(connection);
+		
 		if (headers != null && headers.size() > 0)
 			for (Map.Entry<String, String> entry : headers.entrySet())
 				connection.addRequestProperty(entry.getKey(), entry.getValue());
-
-		for (ConnectionInitializer initializer : connectionInitializers)
-			initializer.initialize(connection);
 
 		ByteArrayOutputStream baos;
 		switch(method) {
@@ -426,14 +511,16 @@ public class RestClient {
 		case POST:
 			connection.setDoOutput(true);	
 			baos = new ByteArrayOutputStream();
-			copy(content, baos);			
-			writeRequestBody(connection, baos.toByteArray());			
+			copy(content, baos);					
+			writeRequestBody(connection, baos.toByteArray());	
+			baos.close();
 			break;
 		case PUT:
 			connection.setDoOutput(true);
 			baos = new ByteArrayOutputStream();
 			copy(content, baos);
 			writeRequestBody(connection, baos.toByteArray());
+			baos.close();
 			break;
 		case DELETE:
 			connection.setDoInput(true);
@@ -514,13 +601,13 @@ public class RestClient {
 
 			@Override
 			public T getContent() throws IOException {									
-				if (isError())
-					if (errorHandler == null) {
-						return null;
-					} else {
+				if (isError()) {
+					if (errorHandler != null) 
 						errorHandler.handleError(getCode());
-						return null;
-					}
+						
+					return (T) deserializer.deserialize(null, connection.getResponseCode(), 
+							connection.getHeaderFields());
+				}
 				
 				if (deserializer == null) {
 					T response = (T) RestClient.STRING_DESERIALIZER.deserialize(connection.getInputStream(), 0, null);
@@ -529,7 +616,9 @@ public class RestClient {
 					return (T) response;
 				}
 				
-				T response = (T) deserializer.deserialize(connection.getInputStream(), connection.getResponseCode(), connection.getHeaderFields());
+				T response = (T) deserializer.deserialize(connection.getInputStream(), 
+						connection.getResponseCode(), connection.getHeaderFields());
+				
 				callEnd = System.currentTimeMillis();
 				done = true;
 				return response;				
@@ -540,49 +629,61 @@ public class RestClient {
 	
 	/**
 	 * Execute GET method and return body as a string.
-	 * @param url of server
+	 * @param url of server.  If not String, toString() will be called.
 	 * @return body as a String
 	 * @throws IOException on I/O error
 	 */
-	public String getAsString(String url) throws IOException {		
-		return getContent(url, STRING_DESERIALIZER);
+	public String getAsString(Object url) throws IOException {		
+		return getContent(url.toString(), STRING_DESERIALIZER);
 	}
 	
 	
 	/**
 	 * Execute GET method and return body deserizalized.
 	 * 
-	 * @param url of server
+	 * @param url of server.  If not String, toString() will be called.
 	 * @param deserializer ResponseDeserializer
 	 * @return T deserialized object
 	 * @throws IOException on I/O error
 	 */
-	public <T> T getContent(String url, ResponseDeserializer<T> deserializer) throws IOException {
-		return call(HttpMethod.GET, url, deserializer, null, null).getContent();
+	public <T> T getContent(Object url, ResponseDeserializer<T> deserializer) throws IOException {
+		return call(HttpMethod.GET, url.toString(), deserializer, null, null).getContent();
 	}
 	
 	/**
 	 * Execute GET method and deserialize response.
 	 * 
-	 * @param url of server
+	 * @param url of server  If not String, toString() will be called.
 	 * @param deserializer class that can deserialize content into desired type.
 	 * @return type specified by deserializer
 	 * @throws IOException on I/O error
 	 */
-	public <T> Response<T> get(String url, ResponseDeserializer<T> deserializer) throws IOException {
-		return call(HttpMethod.GET, url, deserializer, null, null);
+	public <T> Response<T> get(Object url, Map<String, String> headers, ResponseDeserializer<T> deserializer) throws IOException {
+		return call(HttpMethod.GET, url.toString(), deserializer, null, headers);
+	}
+	
+	/**
+	 * Execute GET method and deserialize response.
+	 * 
+	 * @param url of server.  If not String, toString() will be called.
+	 * @param deserializer class that can deserialize content into desired type.
+	 * @return type specified by deserializer
+	 * @throws IOException on I/O error
+	 */
+	public <T> Response<T> get(Object url, ResponseDeserializer<T> deserializer) throws IOException {
+		return call(HttpMethod.GET, url.toString(), deserializer, null, null);
 	}
 	
 	/**
 	 * Send a POST to the server.
 	 * 
-	 * @param url url of server
+	 * @param url url of server.  If not String, toString() will be called.
 	 * @param body body of post as an input stream
 	 * @return a response to the request
 	 * @throws IOException on I/O error
 	 */
-	public Response<Integer> post(String url, InputStream body) throws IOException {
-		return call(HttpMethod.POST, url, HTTP_CODE_DESERIALIZER, body, null);
+	public Response<Integer> post(Object url, InputStream body) throws IOException {
+		return call(HttpMethod.POST, url.toString(), HTTP_CODE_DESERIALIZER, body, null);
 	}
 	
 	/**
@@ -593,8 +694,34 @@ public class RestClient {
 	 * @return a response from the POST
 	 * @throws IOException on I/O error
 	 */
-	public Response<Integer> post(String url, Map<String, String> formData) throws IOException {
-		return call(HttpMethod.POST, url, HTTP_CODE_DESERIALIZER, 
+	public Response<Integer> post(Object url, Map<String, String> formData) throws IOException {
+		return call(HttpMethod.POST, url.toString(), HTTP_CODE_DESERIALIZER, 
+				new ByteArrayInputStream(propertyString(formData).getBytes()), 
+				toMap(HEADER_CONTENT_TYPE, APPLICATION_X_WWW_FORM_URLENCODED));
+	}
+	
+	/**
+	 * Send a POST to the server.
+	 * 
+	 * @param url url of server
+	 * @param body body of post as an input stream
+	 * @return a response to the request
+	 * @throws IOException on I/O error
+	 */
+	public <T> Response<T> post(Object url, InputStream body, ResponseDeserializer<T> deserializer) throws IOException {
+		return call(HttpMethod.POST, url.toString(), deserializer, body, null);
+	}
+	
+	/**
+	 * Send a POST to the server.
+	 * 
+	 * @param url url of server.   If not String, toString() will be called.
+	 * @param formData Form data as strings.  
+	 * @return a response from the POST
+	 * @throws IOException on I/O error
+	 */
+	public <T> Response<T> post(Object url, Map<String, String> formData, ResponseDeserializer<T> deserializer) throws IOException {
+		return call(HttpMethod.POST, url.toString(), deserializer, 
 				new ByteArrayInputStream(propertyString(formData).getBytes()), 
 				toMap(HEADER_CONTENT_TYPE, APPLICATION_X_WWW_FORM_URLENCODED));
 	}
@@ -602,13 +729,25 @@ public class RestClient {
 	/**
 	 * Send a multipart POST to the server.  Convenience method for post(url, createMultipartPostBody(content)).
 	 * 
-	 * @param url url of server
+	 * @param url url of server.  If not String, toString() will be called.
 	 * @param content See createMultipartPostBody() for details on this parameter.
 	 * @return a response from the POST
 	 * @throws IOException on I/O error
 	 */
-	public Response<Integer> postMultipart(String url, Map<String, Object> content) throws IOException {
-		return call(HttpMethod.POST, url, HTTP_CODE_DESERIALIZER, createMultipartPostBody(content), null);
+	public Response<Integer> postMultipart(Object url, Map<String, Object> content) throws IOException {
+		return call(HttpMethod.POST, url.toString(), HTTP_CODE_DESERIALIZER, createMultipartPostBody(content), null);
+	}
+	
+	/**
+	 * Send a multipart POST to the server.  Convenience method for post(url, createMultipartPostBody(content)).
+	 * 
+	 * @param url url of server.  If not String, toString() will be called.
+	 * @param content See createMultipartPostBody() for details on this parameter.
+	 * @return a response from the POST
+	 * @throws IOException on I/O error
+	 */
+	public <T> Response<T> postMultipart(Object url, Map<String, Object> content, ResponseDeserializer<T> deserializer) throws IOException {
+		return call(HttpMethod.POST, url.toString(), deserializer, createMultipartPostBody(content), null);
 	}
 	
 	/**
@@ -619,30 +758,82 @@ public class RestClient {
 	 * @return a response from the POST
 	 * @throws IOException on I/O error
 	 */
-	public Response<Integer> put(String url, InputStream content) throws IOException {
-		return call(HttpMethod.PUT, url, HTTP_CODE_DESERIALIZER, content, null);
+	public Response<Integer> put(Object url, InputStream content) throws IOException {
+		return call(HttpMethod.PUT, url.toString(), HTTP_CODE_DESERIALIZER, content, null);
+	}
+	
+	/**
+	 * Send a POST to the server.
+	 * 
+	 * @param url url of server
+	 * @param formData Form data as strings.  
+	 * @return a response from the POST
+	 * @throws IOException on I/O error
+	 */
+	public Response<Integer> put(Object url, Map<String, String> formData) throws IOException {
+		return call(HttpMethod.PUT, url.toString(), HTTP_CODE_DESERIALIZER, 
+				new ByteArrayInputStream(propertyString(formData).getBytes()), 
+				toMap(HEADER_CONTENT_TYPE, APPLICATION_X_WWW_FORM_URLENCODED));
+	}
+	
+	/**
+	 * Call PUT method on a server.
+	 * 
+	 * @param url url of server
+	 * @param content See createMultipartPostBody() for details on this parameter.
+	 * @return a response from the POST
+	 * @throws IOException on I/O error
+	 */
+	public <T> Response<T> put(Object url, InputStream content, ResponseDeserializer<T> deserializer) throws IOException {
+		return call(HttpMethod.PUT, url.toString(), deserializer, content, null);
+	}
+	
+	/**
+	 * Send a POST to the server.
+	 * 
+	 * @param url url of server
+	 * @param formData Form data as strings.  
+	 * @return a response from the POST
+	 * @throws IOException on I/O error
+	 */
+	public <T> Response<T> put(Object url, Map<String, String> formData, ResponseDeserializer<T> deserializer) throws IOException {
+		return call(HttpMethod.PUT, url.toString(), deserializer, 
+				new ByteArrayInputStream(propertyString(formData).getBytes()), 
+				toMap(HEADER_CONTENT_TYPE, APPLICATION_X_WWW_FORM_URLENCODED));
+	}
+
+	
+	/**
+	 * Call DELETE method on a server.
+	 * 
+	 * @param url of server.  If not String, toString() will be called.
+	 * @return HTTP response from server
+	 * @throws IOException on I/O error
+	 */
+	public Response<Integer> delete(Object url) throws IOException {
+		return call(HttpMethod.DELETE, url.toString(), HTTP_CODE_DESERIALIZER, null, null);
 	}
 	
 	/**
 	 * Call DELETE method on a server.
 	 * 
-	 * @param url of server
+	 * @param url of server.  If not String, toString() will be called.
 	 * @return HTTP response from server
 	 * @throws IOException on I/O error
 	 */
-	public Response<Integer> delete(String url) throws IOException {
-		return call(HttpMethod.DELETE, url, HTTP_CODE_DESERIALIZER, null, null);
+	public <T> Response<T> delete(Object url, ResponseDeserializer<T> deserializer) throws IOException {
+		return call(HttpMethod.DELETE, url.toString(), deserializer, null, null);
 	}
 	
 	/**
 	 * Call HEAD method on a server.
 	 * 
-	 * @param url of server
+	 * @param url of server.  If not String, toString() will be called.
 	 * @return HTTP Response from server
 	 * @throws IOException on I/O error
 	 */
-	public Response<Integer> head(String url) throws IOException {
-		return call(HttpMethod.HEAD, url, HTTP_CODE_DESERIALIZER, null, null);
+	public Response<Integer> head(Object url) throws IOException {
+		return call(HttpMethod.HEAD, url.toString(), HTTP_CODE_DESERIALIZER, null, null);
 	}
 
 	
@@ -651,7 +842,7 @@ public class RestClient {
 	/**
 	 * Create a buffer for a multi-part POST body, and return an input stream to the buffer.
 	 * 
-	 * @param content A map of <String, Object>  The values can either be of type String or 
+	 * @param content A map of <String, Object>  The values can either be of type String, RestClient.FormInputStream, or 
 	 * type RestClient.FormFile.  Other types will cause an IllegalArgumentException.
 	 * @return an input stream of buffer of POST body.
 	 * @throws IOException on I/O error.
@@ -686,6 +877,21 @@ public class RestClient {
 				baos.write(LINE_ENDING.getBytes());
 				baos.write(LINE_ENDING.getBytes());
 				baos.write(streamToByteArray(new FileInputStream(ffile)));
+			} else if (entry.getValue() instanceof FormInputStream) {
+				FormInputStream ffile = (FormInputStream) entry.getValue();
+				baos.write("; ".getBytes());
+				baos.write(FILE_NAME.getBytes());
+				baos.write("=\"".getBytes());
+				baos.write(ffile.getName().getBytes());
+				baos.write('"');
+				baos.write(LINE_ENDING.getBytes());				
+				baos.write(HEADER_TYPE.getBytes());
+				baos.write(": ".getBytes());
+				baos.write(ffile.getMimeType().getBytes());
+				baos.write(';');
+				baos.write(LINE_ENDING.getBytes());
+				baos.write(LINE_ENDING.getBytes());
+				baos.write(streamToByteArray(ffile));
 			} else if (entry.getValue() == null) {
 				throw new IllegalArgumentException("Content value is null.");
 			} else {
@@ -696,6 +902,38 @@ public class RestClient {
 		}
 		
 		return new ByteArrayInputStream(baos.toByteArray());
+	}
+	
+	/**
+	 * Get the general response text associated with an HTTP Response code.
+	 * 
+	 * @param httpResponseCode HTTP code, ex 404
+	 * @return Short description of response or null if invalid or unknown code.
+	 */
+	public static String getHttpResponseText(int httpResponseCode) {
+		return  HTTP_RESPONSE_TEXT.get(httpResponseCode);
+	}
+	
+	/**
+	 * Build a URL with the URLBuilder utility interface.  This interface
+	 * will clean extra/missing path segment terminators and handle schemes.
+	 * 
+	 * @param segment set of segments that compose the url.
+	 * @return an instance of URLBuilder with complete url.
+	 */
+	public URLBuilder buildURL(String ... segment) {
+		URLBuilderImpl builder = new URLBuilderImpl();
+		
+		if (segment != null)
+			if (segment.length == 0)
+				return builder;
+			else if (segment.length == 1)
+				return builder.append(segment[0]);
+			else
+				for (String seg : Arrays.asList(segment))
+					builder.append(seg);
+				
+		return builder;
 	}
 	
 	/**
@@ -776,6 +1014,8 @@ public class RestClient {
 	 *             on I/O error
 	 */
 	private static byte[] streamToByteArray(InputStream in) throws IOException {
+		validateArguments(in);
+		
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		int read = 0;
 		byte[] buff = new byte[COPY_BUFFER_SIZE];
@@ -861,4 +1101,162 @@ public class RestClient {
 			connection.setRequestProperty("Content-Length", Long.toString(0));
 		}
 	}
+	
+	private final class URLBuilderImpl implements URLBuilder {
+		private final List<String> segments;
+		private boolean httpsScheme;
+		
+		public URLBuilderImpl() {
+			segments = new ArrayList<String>();
+			httpsScheme = false;
+		}
+		
+		private URLBuilderImpl(List<String> segments, boolean httpsScheme) {
+			this.segments = segments;
+			this.httpsScheme = httpsScheme;
+		}
+		
+		@Override
+		public URLBuilder append(String ... sgmnts) {
+			validateArguments(sgmnts);
+			
+			if (sgmnts.length == 1)
+				appendSingle(sgmnts[0]);
+			else
+				for (String segment : Arrays.asList(sgmnts)) {
+					appendSingle(segment);
+				}
+			
+			return this;
+		}
+		
+		private URLBuilder appendSingle(String segment) {
+			segment = segment.trim();
+			
+			if (segment.length() == 0)
+				return this;
+			else if (segment.indexOf('/', 1) > -1) {
+				for (String nseg : Arrays.asList(segment.split("/"))) 
+					this.append(nseg);
+			} else if (segment.length() > 0) {
+				if (segment.toUpperCase().startsWith("HTTP:"))					
+						return this;
+				else if (segment.toUpperCase().startsWith("HTTPS:")) {
+					httpsScheme = true;
+					return this;
+				}
+				
+				segments.add(stripIllegalChars(segment));
+			}
+			
+			return this;
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			
+			if (httpsScheme)
+				sb.append("https://");
+			else 
+				sb.append("http://");
+			
+			for (Iterator<String> i = segments.iterator(); i.hasNext(); ) {
+				sb.append(i.next());
+				
+				if (i.hasNext())
+					sb.append('/');
+			}
+				
+			return sb.toString();
+		}
+
+		private String stripIllegalChars(String segment) {
+			return segment.replaceAll("/", "");			
+		}
+
+		@Override
+		public URLBuilder setHttps(boolean value) {
+			httpsScheme = value;
+			return this;
+		}
+		
+		@Override
+		protected Object clone() throws CloneNotSupportedException {			
+			return new URLBuilderImpl(new ArrayList<String>(segments), httpsScheme);
+		}
+
+		@Override
+		public URLBuilder copy() {
+			try {
+				return (URLBuilder) this.clone();
+			} catch (CloneNotSupportedException e) {
+				throw new RuntimeException("Invalid state", e);
+			}
+		}
+
+		@Override
+		public URLBuilder copy(String ... segments) {	
+			validateArguments(segments);
+			
+			return this.copy().append(segments);
+		}
+	}
+	
+	/**
+     * Create map of known HTTP response codes and their text labels.
+     * 
+     * @return a Map<Integer, String> of responses 
+     */
+    private static final Map<Integer, String> createResponseMap()
+    {
+        Map<Integer, String> responses = new HashMap<Integer, String>();
+
+        //Responses is a map, with error code as key, and a 2 dimensional String array with header and HTML error response, segmented where a user error-defined can be specified.
+        responses.put(Integer.valueOf(100), "Continue");
+        responses.put(Integer.valueOf(101), "Switching Protocols");
+
+        responses.put(Integer.valueOf(200), "OK");
+        responses.put(Integer.valueOf(201), "Created");
+        responses.put(Integer.valueOf(202), "Accepted");
+        responses.put(Integer.valueOf(203), "Non-Authoritative Information");
+        responses.put(Integer.valueOf(204), "No Content");
+        responses.put(Integer.valueOf(205), "Reset Content");
+        responses.put(Integer.valueOf(206), "Partial Content");
+
+        //TODO: Add all 3xx codes
+        responses.put(Integer.valueOf(300), "Multiple Choices");
+        responses.put(Integer.valueOf(301), "Moved Permanently");
+        responses.put(Integer.valueOf(302), "Found");
+        responses.put(Integer.valueOf(307), "Temporary Redirect");
+
+        responses.put(Integer.valueOf(400),
+            "Bad Request - HTTP 1.1 requests must include the Host: header.");
+        responses.put(Integer.valueOf(401), "Unauthorized");
+        responses.put(Integer.valueOf(402), "Payment Required");
+        responses.put(Integer.valueOf(403), "Forbidden");
+        responses.put(Integer.valueOf(404), "Not Found");
+        responses.put(Integer.valueOf(405), "Method not Allowed");
+        responses.put(Integer.valueOf(406), "Not Acceptable");
+        responses.put(Integer.valueOf(407), "Proxy Authentication Required");
+        responses.put(Integer.valueOf(408), "Request Timeout");
+        responses.put(Integer.valueOf(409), "Conflict");
+        responses.put(Integer.valueOf(410), "Gone");
+        responses.put(Integer.valueOf(411), "Length Required");
+        responses.put(Integer.valueOf(412), "Precondition Failed");
+        responses.put(Integer.valueOf(413), "Request Entity too Large");
+        responses.put(Integer.valueOf(414), "Request-URI too Long");
+        responses.put(Integer.valueOf(415), "Unsupported Media Type");
+        responses.put(Integer.valueOf(416), "Requested Range not Satisfiable");
+        responses.put(Integer.valueOf(417), "Expectation Failed");
+
+        responses.put(Integer.valueOf(500), "Internal Server Error");
+        responses.put(Integer.valueOf(501), "Not Implemented");
+        responses.put(Integer.valueOf(502), "Bad Gateway");
+        responses.put(Integer.valueOf(503), "Service Unavailable");
+        responses.put(Integer.valueOf(504), "Gateway Timeout");
+        responses.put(Integer.valueOf(505), "HTTP Version not Supported");
+
+        return responses;
+    }
 }

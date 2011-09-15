@@ -1,11 +1,11 @@
 package com.buglabs.bug.swarm.connector.ws;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Map;
 
-import com.buglabs.util.simplerestclient.HTTPRequest;
-import com.buglabs.util.simplerestclient.HTTPResponse;
-import com.buglabs.util.simplerestclient.IFormFile;
+import com.buglabs.util.http.RestClient;
+
 
 /**
  * The implementation of the BUG Swarm Binary Upload WS API. See the interface
@@ -24,7 +24,7 @@ public class SwarmBinaryUploadWSClient extends AbstractSwarmWSClient implements 
 	 * @param httpClient
 	 *            HTTP client instance
 	 */
-	public SwarmBinaryUploadWSClient(String swarmHostUrl, String apiKey, HTTPRequest httpClient) {
+	public SwarmBinaryUploadWSClient(String swarmHostUrl, String apiKey, RestClient httpClient) {
 		super(swarmHostUrl, apiKey, httpClient);
 	}
 
@@ -41,30 +41,11 @@ public class SwarmBinaryUploadWSClient extends AbstractSwarmWSClient implements 
 			throw new IOException("Invalid filename specified: " + filename);
 		}
 
-		IFormFile ffile = new IFormFile() {
-
-			@Override
-			public String getFilename() {
-				return elems[0];
-			}
-
-			@Override
-			public String getContentType() {
-				return elems[1];
-			}
-
-			@Override
-			public byte[] getBytes() {
-				return payload;
-			}
-		};
-
 		Map<String, Object> params = toMap(	(Object) "user_id", userId,
 											"resource_id", resourceId);		
-		params.put("file", ffile);
+		params.put("file", new RestClient.FormInputStream(new ByteArrayInputStream(payload), elems[0], elems[1]));
 
-		HTTPResponse response = httpClient.postMultipart(swarmHostUrl + "upload", params);
-
-		return SwarmWSResponse.fromCode(response.getResponseCode());
+		return httpClient.postMultipart(swarmHostUrl.copy("upload"), params, 
+				ModelDeserializers.SwarmWSResponseDeserializer).getContent();
 	}
 }

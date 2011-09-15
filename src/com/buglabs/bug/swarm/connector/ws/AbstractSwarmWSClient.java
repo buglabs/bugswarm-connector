@@ -7,9 +7,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.buglabs.util.simplerestclient.HTTPException;
-import com.buglabs.util.simplerestclient.HTTPRequest;
-import com.buglabs.util.simplerestclient.HTTPResponse;
+
+import com.buglabs.util.http.RestClient;
+import com.buglabs.util.http.RestClient.Response;
 
 /**
  * Base WSClient class with general common functionality.
@@ -26,10 +26,10 @@ public abstract class AbstractSwarmWSClient {
 	protected static final String INVALID_SWARM_CONNECTION_ERROR_MESSAGE = "API_KEY is invalid.";
 
 	private static final boolean DEBUG_MODE = true;
-
-	protected final String swarmHostUrl;
+	
+	protected final RestClient.URLBuilder swarmHostUrl;
 	protected final String apiKey;
-	protected final HTTPRequest httpClient;
+	protected final RestClient httpClient;
 	protected boolean isValidated = false;
 
 	private Map<String, String> staticHeaders;
@@ -42,21 +42,27 @@ public abstract class AbstractSwarmWSClient {
 	 */
 	public AbstractSwarmWSClient(String swarmHostUrl, final String apiKey) {
 		if (swarmHostUrl == null || apiKey == null)
-			throw new IllegalArgumentException("An input parameter is null.");
+			throw new IllegalArgumentException("An input parameter is null.");		
 
-		if (!swarmHostUrl.endsWith("/"))
-			swarmHostUrl = swarmHostUrl + "/";
-
-		this.swarmHostUrl = swarmHostUrl;
 		this.apiKey = apiKey;
-		this.httpClient = new HTTPRequest(DEBUG_MODE);
-		httpClient.setThrowsHTTPErrorsAsExceptions(false);
-		httpClient.addConfigurator(new com.buglabs.util.simplerestclient.HTTPRequest.HTTPConnectionInitializer() {
-
+		this.httpClient = new RestClient();
+		this.swarmHostUrl = httpClient.buildURL(swarmHostUrl);
+		
+		httpClient.addConnectionInitializer(new RestClient.ConnectionInitializer() {
+			
 			@Override
-			public void initialize(final HttpURLConnection connection) {
+			public void initialize(HttpURLConnection connection) {
 				for (Map.Entry<String, String> e : getSwarmHeaders().entrySet())
 					connection.setRequestProperty(e.getKey(), e.getValue().toString());
+			}
+		});		
+		
+		httpClient.setErrorHandler(new RestClient.ErrorHandler() {
+			
+			@Override
+			public void handleError(int code) throws IOException {
+				if (code >= 400 && code < 600 && code != 404)
+					throw new IOException("Server returned HTTP error " + code + ": " + RestClient.getHttpResponseText(code));
 			}
 		});
 	}
@@ -69,16 +75,13 @@ public abstract class AbstractSwarmWSClient {
 	 * @param httpClient
 	 *            client-provided client
 	 */
-	protected AbstractSwarmWSClient(String swarmHostUrl, final String apiKey, final HTTPRequest httpClient) {
+	protected AbstractSwarmWSClient(String swarmHostUrl, final String apiKey, final RestClient httpClient) {
 		if (swarmHostUrl == null || apiKey == null || httpClient == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 
-		if (!swarmHostUrl.endsWith("/"))
-			swarmHostUrl = swarmHostUrl + "/";
-
-		this.swarmHostUrl = swarmHostUrl;
 		this.apiKey = apiKey;
 		this.httpClient = httpClient;
+		this.swarmHostUrl = httpClient.buildURL(swarmHostUrl);
 	}
 
 	/**
@@ -94,15 +97,15 @@ public abstract class AbstractSwarmWSClient {
 			return null;
 
 		try {
-			HTTPResponse response = httpClient.get(swarmHostUrl + "keys/" + apiKey + "/verify");
-			SwarmWSResponse wsr = SwarmWSResponse.fromCode(response.getResponseCode());
+			Response<Integer> response = httpClient.get(swarmHostUrl.copy().append("keys", apiKey, "verify"), RestClient.HTTP_CODE_DESERIALIZER);
+			SwarmWSResponse wsr = SwarmWSResponse.fromCode(response.getContent());
 
 			if (!wsr.isError()) {
 				isValidated = true;
 				return null;
 			}
 
-			return new HTTPException(wsr.getCode(), "Validation failed: " + wsr.toString());
+			return new IOException("Validation failed: " + wsr.toString());
 		} catch (IOException e) {
 			return e;
 		}
@@ -113,8 +116,8 @@ public abstract class AbstractSwarmWSClient {
 	 */
 	protected Map<String, String> getSwarmHeaders() {
 		if (staticHeaders == null) {
-			staticHeaders = toMap(SWARM_APIKEY_HEADER_KEY, apiKey, 
-									CONTENT_TYPE_HEADER_KEY, "application/json");
+			staticHeaders = toMap(SWARM_APIKEY_HEADER_KEY, apiKey);//, 
+									//CONTENT_TYPE_HEADER_KEY, "application/json");
 		}
 
 		return staticHeaders;
@@ -184,5 +187,5 @@ public abstract class AbstractSwarmWSClient {
 		for (int i = 0; i < params.length; ++i)
 			if (params[i] == null)
 				throw new IllegalArgumentException("An input parameter is null.");		
-	}
+	}	
 }

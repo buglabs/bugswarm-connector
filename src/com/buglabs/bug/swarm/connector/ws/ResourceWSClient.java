@@ -47,23 +47,33 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 		validateAPIKey();
 
 		// TODO: allow for position coordinates
-		Map<String, String> props = toMap("id", resourceId, "user_id", userId, "name", resourceName, "description", description, "type",
-				type.toString(), "machine_type", machineType, "position", "{\"Longitude\": 0, \"latitude\": 0}");
+		Map<String, String> props = toMap(
+				"id", resourceId, 
+				"user_id", userId, 
+				"name", resourceName, 
+				"description", description, 
+				"type",	type.toString(), 
+				"machine_type", machineType, 
+				"position", "{\"Longitude\": 0, \"latitude\": 0}");
 
-		return httpClient.post(swarmHostUrl + "resources", props, ModelDeserializers.SwarmWSResponseDeserializer).getContent();
+		return httpClient.post(swarmHostUrl.copy("resources"), props, ModelDeserializers.SwarmWSResponseDeserializer).getContent();
 	}
 
 	@Override
-	public SwarmWSResponse update(String resourceId, String resourceName, String resourceDescription, MemberType type, String machineType)
-			throws IOException {
+	public SwarmWSResponse update(String resourceId, String resourceName, String resourceDescription, MemberType type, 
+			String machineType)	throws IOException {
 		validateParams(resourceId, resourceName, resourceDescription, type, machineType);
 
 		validateAPIKey();
 
-		Map<String, String> props = toMap("name", resourceName, "description", resourceDescription, "type", type.toString(),
+		Map<String, String> props = toMap(
+				"name", resourceName, 
+				"description", resourceDescription, 
+				"type", type.toString(),
 				"machine_type", machineType);
 
-		return httpClient.put(swarmHostUrl + "resources/" + resourceId, props, ModelDeserializers.SwarmWSResponseDeserializer).getContent();
+		return httpClient.put(swarmHostUrl.copy("resources/", resourceId), props, 
+				ModelDeserializers.SwarmWSResponseDeserializer).getContent();
 	}
 
 	@Override
@@ -71,9 +81,11 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 		validateAPIKey();
 
 		if (type == null)
-			return httpClient.get(swarmHostUrl + "resources", ModelDeserializers.ResourceModelListDeserializer).getContent();
+			return httpClient.get(swarmHostUrl.copy("resources"), ModelDeserializers.ResourceModelListDeserializer)
+					.getContent();
 		else
-			return httpClient.get(swarmHostUrl + "resources", toMap("type", type.toString()), ModelDeserializers.ResourceModelListDeserializer).getContent();
+			return httpClient.get(swarmHostUrl.copy("resources"), toMap("type", type.toString()), 
+					ModelDeserializers.ResourceModelListDeserializer).getContent();
 	}
 
 	@Override
@@ -81,7 +93,8 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 		validateParams(resourceId);
 		validateAPIKey();
 
-		return httpClient.get(swarmHostUrl + "resources/" + resourceId, ModelDeserializers.ResourceModelDeserializer).getContent();
+		return httpClient.get(swarmHostUrl.copy("resources/", resourceId), 
+				ModelDeserializers.ResourceModelDeserializer).getContent();
 	}
 
 	@Override
@@ -90,7 +103,8 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 
 		validateAPIKey();
 
-		return httpClient.delete(swarmHostUrl + "resources/" + resourceId, ModelDeserializers.SwarmWSResponseDeserializer).getContent();
+		return httpClient.delete(swarmHostUrl.copy("resources/", resourceId), 
+				ModelDeserializers.SwarmWSResponseDeserializer).getContent();
 	}
 
 	@Override
@@ -99,6 +113,7 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 
 		validateAPIKey();
 
-		return httpClient.get(swarmHostUrl + "resources/" + resourceId + "/swarms", ModelDeserializers.SwarmResourceModelListDeserializer).getContent();
+		return httpClient.get(swarmHostUrl.copy("resources/", resourceId, "/swarms"), 
+				ModelDeserializers.SwarmResourceModelListDeserializer).getContent();
 	}
 }

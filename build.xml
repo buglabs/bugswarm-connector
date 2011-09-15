@@ -10,8 +10,8 @@
 		<property name="manifest.location" location="${basedir}/test/MANIFEST.MF"/>
 		<antcall target="build.jars"></antcall>
 	</target>
-	<!--
-	<target name="build.jars" depends="build, document" description="Package the java class files into a jar.">
+	
+	<target name="build.jars" description="Package the java class files into a jar.">
 		<echo message="## PROJECT: ${ant.project.name} ## TARGET: build.jars" />
 			
 		<property name="dist.jar.name" value="${ant.project.name}" />
@@ -26,9 +26,26 @@
 			<fileset dir="${buildDirectory}" excludes="**/*.java,build/**,**/.settings/**,**/build.xml/**,**/build.properties/**,**/.classpath,**/.project,src/**,test/**,junit-reports/**,.git/**,**.gitignore,**/.checkstyle,**/README.*,**/build*.sh,checkstyle-reports/**" />
 			<fileset dir="${basedir}" includes="images/**,includes/**,javascripts/**,stylesheets/**,templates/**" />
 		</jar>
-			
 	</target>
-	-->
+	
+	<!-- target: test   Run JUnit tests -->
+	<target name="test">
+		<echo message="## PROJECT: ${ant.project.name} ## TARGET: test" />
+		<fail unless="report.dir" message="Ant variable report.dir must be defined." />
+		<echo message="Generating test result output in ${report.dir}..." />
+		<junit printsummary="yes">
+			<classpath refid="bin.classpath" />
+			<sysproperty key="report.misc" value="${report.misc}" />
+			<formatter type="xml" />
+			<batchtest todir="${report.dir}">
+				<fileset dir="${report.src}">
+					<include name="**/*Test*.java" />
+					<exclude name="**/*OSGiTest*.java" />
+				</fileset>
+			</batchtest>
+		</junit>
+	</target>
+	
 	<!-- PROJECT IMPORTS -->
 	<property name="common.ant.file" location="${base.build.dir}/toolbox/common-osgi.xml" />
 	<import file="${common.ant.file}" />

@@ -25,12 +25,15 @@ import com.buglabs.util.http.RestClient;
 public final class ModelDeserializers {
 	
 	/**
-	 * 
+	 * Utility class.
 	 */
 	private ModelDeserializers() {
 		
 	}
 
+	/**
+	 * Deserialize server content into a JSONObject.
+	 */
 	protected static final RestClient.ResponseDeserializer<JSONObject> JSONObjectDeserializer = 
 		new RestClient.ResponseDeserializer<JSONObject>() {
 	
@@ -43,6 +46,9 @@ public final class ModelDeserializers {
 		}
 	};
 	
+	/**
+	 * Deserialize content into a ResourceModel.
+	 */
 	protected static final RestClient.ResponseDeserializer<ResourceModel> ResourceModelDeserializer = 
 		new RestClient.ResponseDeserializer<ResourceModel>() {
 	
@@ -58,6 +64,9 @@ public final class ModelDeserializers {
 		}
 	};
 	
+	/**
+	 * Deserialize content into a List of ResourceModel.
+	 */
 	protected static final RestClient.ResponseDeserializer<List<ResourceModel>> ResourceModelListDeserializer = 
 		new RestClient.ResponseDeserializer<List<ResourceModel>>() {
 	
@@ -73,6 +82,9 @@ public final class ModelDeserializers {
 		}
 	};
 	
+	/**
+	 * Deserialize into List of SwarmModel.
+	 */
 	protected static final RestClient.ResponseDeserializer<List<SwarmModel>> SwarmModelListDeserializer = 
 		new RestClient.ResponseDeserializer<List<SwarmModel>>() {
 	
@@ -88,6 +100,9 @@ public final class ModelDeserializers {
 		}
 	};
 	
+	/**
+	 * Deserialize to List of SwarmResourceModel.
+	 */
 	protected static final RestClient.ResponseDeserializer<List<SwarmResourceModel>> SwarmResourceModelListDeserializer = 
 		new RestClient.ResponseDeserializer<List<SwarmResourceModel>>() {
 	
@@ -103,6 +118,9 @@ public final class ModelDeserializers {
 		}
 	};
 	
+	/**
+	 * Deserialize to SwarmWSResponse.
+	 */
 	protected static final RestClient.ResponseDeserializer<SwarmWSResponse> SwarmWSResponseDeserializer = 
 		new RestClient.ResponseDeserializer<SwarmWSResponse>() {
 		@Override

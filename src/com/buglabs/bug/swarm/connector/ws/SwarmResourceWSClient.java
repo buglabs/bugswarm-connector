@@ -35,7 +35,7 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 
 		validateAPIKey();
 
-		return httpClient.get(swarmHostUrl + "swarms/" + swarmId + "/resources?type=" + type, 
+		return httpClient.get(swarmHostUrl.copy("swarms/", swarmId, "/resources?type=" + type), 
 				ModelDeserializers.SwarmResourceModelListDeserializer).getContent();
 	}
 
@@ -52,7 +52,7 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 		props.put("user_id", userId);
 		props.put("resource", resource);
 
-		return httpClient.post(swarmHostUrl + "swarms/" + swarmId + "/resources", props, 
+		return httpClient.post(swarmHostUrl.copy("swarms/", swarmId, "/resources"), props, 
 				ModelDeserializers.SwarmWSResponseDeserializer).getContent();
 	}
 
@@ -63,7 +63,7 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 		validateAPIKey();
 
 		//TODO, handle case when swarmHostUrl has slash or not has slash.
-		return httpClient.get(swarmHostUrl + "resources/" + resource + "/swarms", 
+		return httpClient.get(swarmHostUrl.copy("resources/", resource, "/swarms"), 
 				ModelDeserializers.SwarmModelListDeserializer).getContent();
 	}
 
@@ -74,12 +74,13 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 		validateParams(swarmId, type, userId, resource);
 		validateAPIKey();
 
-		Map<String, String> props = toMap("type", type.toString(),
-			"user_id", userId,
-			"resource", resource,
-			"X-HTTP-Method-Override", "DELETE");
+		Map<String, String> props = toMap(
+				"type", type.toString(),
+				"user_id", userId,
+				"resource", resource,
+				"X-HTTP-Method-Override", "DELETE");
 
-		return httpClient.post(swarmHostUrl + "swarms/" + swarmId + "/resources", props, 
+		return httpClient.post(swarmHostUrl.copy("swarms/", swarmId, "/resources"), props, 
 				ModelDeserializers.SwarmWSResponseDeserializer).getContent();
 	}
 }

@@ -262,7 +262,9 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			} catch (IOException e) {
 				// Ignore shutdown error.
 			}
-		}		
+		}	
+		
+		log.log(LogService.LOG_INFO, "Connector shutdown complete.");
 	}
 
 	@Override

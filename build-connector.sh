@@ -72,6 +72,7 @@ mv bug-osgi/com.buglabs.bug.dragonfly $WORKSPACE
 mv bug-osgi/com.buglabs.osgi.sewing $WORKSPACE
 mv bug-osgi/com.buglabs.osgi.tester $WORKSPACE
 mv bug-osgi/com.buglabs.osgi.build $WORKSPACE
+mv bug-osgi/com.buglabs.util.shell $WORKSPACE
 rm -Rf bug-osgi
 
 git clone git://github.com/buglabs/smack-smackx-osgi.git
@@ -80,6 +81,11 @@ git checkout $BUILD_BRANCH
 cd ..
 # Do not compile and run smack and smackx tests
 rm -Rf smack-smackx-osgi/test
+
+git clone git@github.com:buglabs/bugswarm-devicestats.git 
+cd bugswarm-devicestats
+git checkout $BUILD_BRANCH
+cd ..
 
 ###### Build dependencies
 set -e
@@ -98,6 +104,12 @@ ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE
 
 # smack-smackx-osgi
 ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f smack-smackx-osgi/build.xml clean create_dirs build.jars
+
+# com.buglabs.util.shell
+ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f com.buglabs.util.shell/build.xml clean create_dirs build.jars
+
+# bugswarm-devicestats
+ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f bugswarm-devicestats/build.xml clean create_dirs build.jars
 
 ###### Build bugswarm-connector
 if [ ! -z $TEST_HOST ]; then

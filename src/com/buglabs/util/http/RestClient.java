@@ -19,9 +19,10 @@ import java.util.Map;
 import java.util.Random;
 
 /**
+ * A client library for accessing resources via HTTP.
+ * 
  * @author kgilmer
  *
- * @param <T> Type that will be returned from Response.getBody().
  */
 public class RestClient {
 	
@@ -32,7 +33,7 @@ public class RestClient {
 	private static final int RANDOM_CHAR_COUNT = 15;
 	private static final String HEADER_TYPE = HEADER_CONTENT_TYPE;
 	private static final String HEADER_PARA = "Content-Disposition: form-data";
-	private static final String CONTENT_TYPE = "multipart/form-data";
+	private static final String MULTIPART_FORM_DATA_CONTENT_TYPE = "multipart/form-data";
 	private static final String FILE_NAME = "filename";
 	private static final String LINE_ENDING = "\r\n";
 	private static final String BOUNDARY = "boundary=";
@@ -735,7 +736,11 @@ public class RestClient {
 	 * @throws IOException on I/O error
 	 */
 	public Response<Integer> postMultipart(Object url, Map<String, Object> content) throws IOException {
-		return call(HttpMethod.POST, url.toString(), HTTP_CODE_DESERIALIZER, createMultipartPostBody(content), null);
+		String boundary = createMultipartBoundary();
+		String contentType = MULTIPART_FORM_DATA_CONTENT_TYPE + "; " + BOUNDARY + boundary;
+						
+		return call(HttpMethod.POST, url.toString(), HTTP_CODE_DESERIALIZER, 
+				createMultipartPostBody(boundary, content), toMap(HEADER_CONTENT_TYPE, contentType));
 	}
 	
 	/**
@@ -743,11 +748,19 @@ public class RestClient {
 	 * 
 	 * @param url url of server.  If not String, toString() will be called.
 	 * @param content See createMultipartPostBody() for details on this parameter.
+	 * @param deserializer class that can deserialize content into desired type.
+	 * @param <T> Type to be deserialized to.
 	 * @return a response from the POST
 	 * @throws IOException on I/O error
 	 */
-	public <T> Response<T> postMultipart(Object url, Map<String, Object> content, ResponseDeserializer<T> deserializer) throws IOException {
-		return call(HttpMethod.POST, url.toString(), deserializer, createMultipartPostBody(content), null);
+	public <T> Response<T> postMultipart(Object url, Map<String, Object> content, 
+			ResponseDeserializer<T> deserializer) throws IOException {
+		
+		String boundary = createMultipartBoundary();
+		String contentType = MULTIPART_FORM_DATA_CONTENT_TYPE + "; " + BOUNDARY + boundary;
+					
+		return call(HttpMethod.POST, url.toString(), deserializer, 
+				createMultipartPostBody(boundary, content), toMap(HEADER_CONTENT_TYPE, contentType));
 	}
 	
 	/**
@@ -847,9 +860,7 @@ public class RestClient {
 	 * @return an input stream of buffer of POST body.
 	 * @throws IOException on I/O error.
 	 */
-	public static InputStream createMultipartPostBody(Map<String, Object> content) throws IOException {
-		String boundary = createMultipartBoundary();
-		
+	public static InputStream createMultipartPostBody(String boundary, Map<String, Object> content) throws IOException {		
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();	
 		byte[] header = getPartHeader(boundary);
 		

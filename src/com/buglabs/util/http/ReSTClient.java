@@ -24,7 +24,7 @@ import java.util.Random;
  * @author kgilmer
  *
  */
-public class RestClient {
+public class ReSTClient {
 	
 	private static final String HEADER_CONTENT_TYPE = "Content-Type";
 	private static final String APPLICATION_X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
@@ -366,7 +366,7 @@ public class RestClient {
 	/**
 	 * Default constructor.
 	 */
-	public RestClient() {
+	public ReSTClient() {
 		this.connectionProvider = new DefaultConnectionProvider();
 		this.connectionInitializers = new ArrayList<ConnectionInitializer>();
 		//this.responseDeserializers = null;
@@ -376,7 +376,7 @@ public class RestClient {
 	/**
 	 * @param connectionProvider ConnectionProvider
 	 */
-	public RestClient(ConnectionProvider connectionProvider) {
+	public ReSTClient(ConnectionProvider connectionProvider) {
 		this.connectionProvider = connectionProvider;
 		this.connectionInitializers = new ArrayList<ConnectionInitializer>();
 		//this.responseDeserializers = null;
@@ -386,7 +386,7 @@ public class RestClient {
 	/**
 	 * @param initializer ConnectionInitializer
 	 */
-	public RestClient(ConnectionInitializer initializer) {
+	public ReSTClient(ConnectionInitializer initializer) {
 		this();
 		connectionInitializers.add(initializer);
 	}
@@ -395,7 +395,7 @@ public class RestClient {
 	 * @param connectionProvider ConnectionProvider
 	 * @param initializer ConnectionInitializer
 	 */
-	public RestClient(ConnectionProvider connectionProvider, ConnectionInitializer initializer) {
+	public ReSTClient(ConnectionProvider connectionProvider, ConnectionInitializer initializer) {
 		this(connectionProvider);
 		connectionInitializers.add(initializer);
 	}
@@ -404,7 +404,7 @@ public class RestClient {
 	 * @param initializer ConnectionInitializer
 	 * @param deserializer ResponseDeserializer<T>
 	 */
-	public RestClient(ConnectionInitializer initializer, ResponseDeserializer<?> deserializer) {
+	public ReSTClient(ConnectionInitializer initializer, ResponseDeserializer<?> deserializer) {
 		this(initializer);
 		//this.responseDeserializers = deserializer;
 	}
@@ -414,7 +414,7 @@ public class RestClient {
 	 * @param initializer ConnectionInitializer
 	 * @param deserializer ResponseDeserializer<T>
 	 */
-	public RestClient(ConnectionProvider connectionProvider, ConnectionInitializer initializer, ResponseDeserializer<?> deserializer) {
+	public ReSTClient(ConnectionProvider connectionProvider, ConnectionInitializer initializer, ResponseDeserializer<?> deserializer) {
 		this(connectionProvider, initializer);
 		//this.responseDeserializers = deserializer;
 	}
@@ -425,7 +425,7 @@ public class RestClient {
 	 * @param deserializer ResponseDeserializer<T>
 	 * @param errorHandler ErrorHandler
 	 */
-	public RestClient(ConnectionProvider connectionProvider, ConnectionInitializer initializer, 
+	public ReSTClient(ConnectionProvider connectionProvider, ConnectionInitializer initializer, 
 			ResponseDeserializer<?> deserializer, ErrorHandler errorHandler) {
 		this.connectionProvider = connectionProvider;
 		this.connectionInitializers = new ArrayList<ConnectionInitializer>();
@@ -637,7 +637,7 @@ public class RestClient {
 				}
 				
 				if (deserializer == null) {
-					T response = (T) RestClient.STRING_DESERIALIZER.deserialize(connection.getInputStream(), 0, null);
+					T response = (T) ReSTClient.STRING_DESERIALIZER.deserialize(connection.getInputStream(), 0, null);
 					callEnd = System.currentTimeMillis();
 					done = true;
 					return (T) response;

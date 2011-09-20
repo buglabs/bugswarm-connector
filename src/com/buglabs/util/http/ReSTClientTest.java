@@ -7,23 +7,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import com.buglabs.util.http.RestClient.HttpMethod;
-import com.buglabs.util.http.RestClient.Response;
-import com.buglabs.util.http.RestClient.URLBuilder;
+import com.buglabs.util.http.ReSTClient.HttpMethod;
+import com.buglabs.util.http.ReSTClient.Response;
+import com.buglabs.util.http.ReSTClient.URLBuilder;
 import com.buglabs.util.simplerestclient.FormFile;
 
-public class RESTClientTest {
+public class ReSTClientTest {
 
 	
 	public static void main(String[] args) {
-		RESTClientTest rct = new RESTClientTest();
+		ReSTClientTest rct = new ReSTClientTest();
 		
 		rct.run();
 	}
 
 	private void run() {
 		//Create a rest client that will deserialize the server response to a string.
-		RestClient restClient = new RestClient();
+		ReSTClient restClient = new ReSTClient();
 		
 		try {
 			//Test URLBuilder			
@@ -52,7 +52,7 @@ public class RESTClientTest {
 					restClient.callGet(localhost));
 			
 			//Call GET on localhost using long form, pass in a predefined deserializer, no body (since GET), and no custom headers.
-			Response<String> resp = restClient.call(HttpMethod.GET, localhost.toString(), RestClient.STRING_DESERIALIZER, null, null);
+			Response<String> resp = restClient.call(HttpMethod.GET, localhost.toString(), ReSTClient.STRING_DESERIALIZER, null, null);
 			
 			//API allows for code that specifically checks for errors, or relies on exception handling.
 			if (!resp.isError())
@@ -65,15 +65,15 @@ public class RESTClientTest {
 				System.out.println("boo!");
 						
 			System.out.println(
-					restClient.callGet(localhost, RestClient.INPUTSTREAM_DESERIALIZER)
+					restClient.callGet(localhost, ReSTClient.INPUTSTREAM_DESERIALIZER)
 						.getContent().available());
 			
 			// Create a rest client that will throw exceptions on all HTTP and I/O errors.
 		
-			restClient.setErrorHandler(RestClient.THROW_ALL_ERRORS);
+			restClient.setErrorHandler(ReSTClient.THROW_ALL_ERRORS);
 			
 			//following line will throw IOException on any error
-			Response<String> rs = restClient.callGet(localhost, RestClient.STRING_DESERIALIZER);
+			Response<String> rs = restClient.callGet(localhost, ReSTClient.STRING_DESERIALIZER);
 			
 			System.out.println(rs.getContent());
 			
@@ -81,16 +81,16 @@ public class RESTClientTest {
 			restClient.setErrorHandler(null);
 						
 			//following line will never throw IOException 
-			rs = restClient.callGet(localhost.copy("asdf"), RestClient.STRING_DESERIALIZER);
+			rs = restClient.callGet(localhost.copy("asdf"), ReSTClient.STRING_DESERIALIZER);
 			
 			if (rs.isError())
 				System.out.println("Error: " + rs.getCode());
 			
-			restClient.setErrorHandler(RestClient.THROW_ALL_ERRORS);
+			restClient.setErrorHandler(ReSTClient.THROW_ALL_ERRORS);
 			
 			//following line will throw IOException 
 			try {
-				rs = restClient.callGet(localhost.copy("/asdf"), RestClient.STRING_DESERIALIZER);
+				rs = restClient.callGet(localhost.copy("/asdf"), ReSTClient.STRING_DESERIALIZER);
 				//Error is thrown when trying to get content.
 				System.out.println(rs.getContent());
 			} catch (IOException e) {
@@ -106,11 +106,11 @@ public class RESTClientTest {
 			}
 			
 			// Only throw errors relating to server problems.
-			restClient.setErrorHandler(RestClient.THROW_5XX_ERRORS);
+			restClient.setErrorHandler(ReSTClient.THROW_5XX_ERRORS);
 			
 			//following line will throw IOException 
 			try {
-				rs = restClient.callGet("localhost/asdf", RestClient.STRING_DESERIALIZER);
+				rs = restClient.callGet("localhost/asdf", ReSTClient.STRING_DESERIALIZER);
 				//Error is not thrown when trying to get content because it is not a server error, but rather a 404.
 				
 				System.out.println("Should be true: " + rs.isError());
@@ -119,10 +119,10 @@ public class RESTClientTest {
 			}
 			
 			//following line will throw IOException 
-			restClient.setErrorHandler(RestClient.THROW_ALL_ERRORS);
+			restClient.setErrorHandler(ReSTClient.THROW_ALL_ERRORS);
 			try {
 				//Error is thrown when trying to get content.
-				String respstr = restClient.callGetContent(localhost.copy("/asdf"), RestClient.STRING_DESERIALIZER);				
+				String respstr = restClient.callGetContent(localhost.copy("/asdf"), ReSTClient.STRING_DESERIALIZER);				
 			} catch (IOException e) {
 				System.out.println("Error: " + e.getMessage());
 			}
@@ -131,12 +131,12 @@ public class RESTClientTest {
 			Map<String, Object> body = new HashMap<String, Object>();
 			
 			body.put("tkey", "tval");
-			body.put("myfile", new RestClient.FormFile("/tmp/boo.txt", "text/plain"));
+			body.put("myfile", new ReSTClient.FormFile("/tmp/boo.txt", "text/plain"));
 			
 			restClient.callPostMultipart("localhost", body);
 			
 			//PUT, short form, throw exception on error
-			restClient.setErrorHandler(RestClient.THROW_ALL_ERRORS);
+			restClient.setErrorHandler(ReSTClient.THROW_ALL_ERRORS);
 			Response<Integer> mr = restClient.callPut("localhost", new ByteArrayInputStream("boo".getBytes()));
 			
 			//HTTP DELETE

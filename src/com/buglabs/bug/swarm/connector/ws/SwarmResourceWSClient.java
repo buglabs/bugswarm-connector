@@ -7,7 +7,7 @@ import java.util.Map;
 
 import com.buglabs.bug.swarm.connector.model.SwarmModel;
 import com.buglabs.bug.swarm.connector.model.SwarmResourceModel;
-import com.buglabs.util.http.RestClient;
+import com.buglabs.util.http.ReSTClient;
 
 /**
  * Client implementation for Swarm Members API.
@@ -25,7 +25,7 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 	 * @param httpClient
 	 *            base HTTP client
 	 */
-	public SwarmResourceWSClient(final String swarmHostUrl, final String apiKey, final RestClient httpClient) {
+	public SwarmResourceWSClient(final String swarmHostUrl, final String apiKey, final ReSTClient httpClient) {
 		super(swarmHostUrl, apiKey, httpClient);
 	}
 

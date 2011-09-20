@@ -8,8 +8,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 
-import com.buglabs.util.http.RestClient;
-import com.buglabs.util.http.RestClient.Response;
+import com.buglabs.util.http.ReSTClient;
+import com.buglabs.util.http.ReSTClient.Response;
 
 /**
  * Base WSClient class with general common functionality.
@@ -18,18 +18,15 @@ import com.buglabs.util.http.RestClient.Response;
  * 
  */
 public abstract class AbstractSwarmWSClient {
-
-	private static final String CONTENT_TYPE_HEADER_KEY = "Content-Type";
-
 	private static final String SWARM_APIKEY_HEADER_KEY = "X-BugSwarmApiKey";
 
 	protected static final String INVALID_SWARM_CONNECTION_ERROR_MESSAGE = "API_KEY is invalid.";
 
 	private static final boolean DEBUG_MODE = true;
 	
-	protected final RestClient.URLBuilder swarmHostUrl;
+	protected final ReSTClient.URLBuilder swarmHostUrl;
 	protected final String apiKey;
-	protected final RestClient httpClient;
+	protected final ReSTClient httpClient;
 	protected boolean isValidated = false;
 
 	private Map<String, String> staticHeaders;
@@ -45,10 +42,12 @@ public abstract class AbstractSwarmWSClient {
 			throw new IllegalArgumentException("An input parameter is null.");		
 
 		this.apiKey = apiKey;
-		this.httpClient = new RestClient();
+		this.httpClient = new ReSTClient();
 		this.swarmHostUrl = httpClient.buildURL(swarmHostUrl);
 		
-		httpClient.addConnectionInitializer(new RestClient.ConnectionInitializer() {
+		//Add a connection initializer that automatically appends the swarm-server
+		//authentication headers to the request.
+		httpClient.addConnectionInitializer(new ReSTClient.ConnectionInitializer() {
 			
 			@Override
 			public void initialize(HttpURLConnection connection) {
@@ -57,12 +56,17 @@ public abstract class AbstractSwarmWSClient {
 			}
 		});		
 		
-		httpClient.setErrorHandler(new RestClient.ErrorHandler() {
+		//Set up an error handler for the rest client that throws exceptions in some situations, 
+		//based on the swarm-server behavior.
+		httpClient.setErrorHandler(new ReSTClient.ErrorHandler() {
 			
 			@Override
 			public void handleError(int code) throws IOException {
-				if (code >= 400 && code < 600 && code != 404)
-					throw new IOException("Server returned HTTP error " + code + ": " + RestClient.getHttpResponseText(code));
+				//Return 5xx errors, and 4xx errors except for 404 (resource does not exist) and 409 (resource conflict)
+				//as these errors typically require something to be handled in the code that makes the initial request.
+				
+				if (code >= 400 && code < 600 && code != 404 && code != 409)
+					throw new IOException("Server returned HTTP error " + code + ": " + ReSTClient.getHttpResponseText(code));
 			}
 		});
 	}
@@ -75,7 +79,7 @@ public abstract class AbstractSwarmWSClient {
 	 * @param httpClient
 	 *            client-provided client
 	 */
-	protected AbstractSwarmWSClient(String swarmHostUrl, final String apiKey, final RestClient httpClient) {
+	protected AbstractSwarmWSClient(String swarmHostUrl, final String apiKey, final ReSTClient httpClient) {
 		if (swarmHostUrl == null || apiKey == null || httpClient == null)
 			throw new IllegalArgumentException("An input parameter is null.");
 
@@ -97,7 +101,7 @@ public abstract class AbstractSwarmWSClient {
 			return null;
 
 		try {
-			Response<Integer> response = httpClient.callGet(swarmHostUrl.copy().append("keys", apiKey, "verify"), RestClient.HTTP_CODE_DESERIALIZER);
+			Response<Integer> response = httpClient.callGet(swarmHostUrl.copy().append("keys", apiKey, "verify"), ReSTClient.HTTP_CODE_DESERIALIZER);
 			SwarmWSResponse wsr = SwarmWSResponse.fromCode(response.getContent());
 
 			if (!wsr.isError()) {

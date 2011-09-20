@@ -4,7 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Map;
 
-import com.buglabs.util.http.RestClient;
+import com.buglabs.util.http.ReSTClient;
 
 
 /**
@@ -24,7 +24,7 @@ public class SwarmBinaryUploadWSClient extends AbstractSwarmWSClient implements 
 	 * @param httpClient
 	 *            HTTP client instance
 	 */
-	public SwarmBinaryUploadWSClient(String swarmHostUrl, String apiKey, RestClient httpClient) {
+	public SwarmBinaryUploadWSClient(String swarmHostUrl, String apiKey, ReSTClient httpClient) {
 		super(swarmHostUrl, apiKey, httpClient);
 	}
 
@@ -43,7 +43,7 @@ public class SwarmBinaryUploadWSClient extends AbstractSwarmWSClient implements 
 
 		Map<String, Object> params = toMap(	(Object) "user_id", userId,
 											"resource_id", resourceId);		
-		params.put("file", new RestClient.FormInputStream(new ByteArrayInputStream(payload), elems[0], elems[1]));
+		params.put("file", new ReSTClient.FormInputStream(new ByteArrayInputStream(payload), elems[0], elems[1]));
 
 		return httpClient.callPostMultipart(swarmHostUrl.copy("upload"), params, 
 				ModelDeserializers.SwarmWSResponseDeserializer).getContent();

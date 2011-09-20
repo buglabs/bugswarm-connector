@@ -14,8 +14,8 @@ import org.json.simple.JSONValue;
 import com.buglabs.bug.swarm.connector.model.ResourceModel;
 import com.buglabs.bug.swarm.connector.model.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
-import com.buglabs.util.http.RestClient;
-import com.buglabs.util.http.RestClient.Response;
+import com.buglabs.util.http.ReSTClient;
+import com.buglabs.util.http.ReSTClient.Response;
 import com.buglabs.util.simplerestclient.HTTPRequest;
 import com.buglabs.util.simplerestclient.HTTPResponse;
 
@@ -35,7 +35,7 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 	 * @param httpClient
 	 *            instance of HTTP client
 	 */
-	public ResourceWSClient(String swarmHostUrl, String apiKey, RestClient httpClient) {
+	public ResourceWSClient(String swarmHostUrl, String apiKey, ReSTClient httpClient) {
 		super(swarmHostUrl, apiKey, httpClient);
 	}
 
@@ -92,9 +92,17 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 	public ResourceModel get(String resourceId) throws IOException {
 		validateParams(resourceId);
 		validateAPIKey();
+		
+		List<ResourceModel> responseContent = httpClient.callGet(swarmHostUrl.copy("resources/", resourceId), 
+				ModelDeserializers.ResourceModelListDeserializer).getContent();
 
-		return httpClient.callGet(swarmHostUrl.copy("resources/", resourceId), 
-				ModelDeserializers.ResourceModelDeserializer).getContent();
+		//Return the first element in the array if exists, null otherwise.  
+		//Not sure why the service returns an array of things when we are asking for
+		//a specific resource.
+		if (responseContent != null) 
+			return responseContent.get(0);
+		
+		return null;
 	}
 
 	@Override

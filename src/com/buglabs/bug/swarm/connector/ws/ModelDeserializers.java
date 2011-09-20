@@ -14,7 +14,7 @@ import org.json.simple.JSONValue;
 import com.buglabs.bug.swarm.connector.model.ResourceModel;
 import com.buglabs.bug.swarm.connector.model.SwarmModel;
 import com.buglabs.bug.swarm.connector.model.SwarmResourceModel;
-import com.buglabs.util.http.RestClient;
+import com.buglabs.util.http.ReSTClient;
 
 /**
  * A set of static objects that can deserialize model object from remote input streams.
@@ -34,8 +34,8 @@ public final class ModelDeserializers {
 	/**
 	 * Deserialize server content into a JSONObject.
 	 */
-	protected static final RestClient.ResponseDeserializer<JSONObject> JSONObjectDeserializer = 
-		new RestClient.ResponseDeserializer<JSONObject>() {
+	protected static final ReSTClient.ResponseDeserializer<JSONObject> JSONObjectDeserializer = 
+		new ReSTClient.ResponseDeserializer<JSONObject>() {
 	
 		@Override
 		public JSONObject deserialize(InputStream input, int responseCode, Map<String, List<String>> headers) throws IOException {
@@ -49,8 +49,8 @@ public final class ModelDeserializers {
 	/**
 	 * Deserialize content into a ResourceModel.
 	 */
-	protected static final RestClient.ResponseDeserializer<ResourceModel> ResourceModelDeserializer = 
-		new RestClient.ResponseDeserializer<ResourceModel>() {
+	protected static final ReSTClient.ResponseDeserializer<ResourceModel> ResourceModelDeserializer = 
+		new ReSTClient.ResponseDeserializer<ResourceModel>() {
 	
 		@Override
 		public ResourceModel deserialize(InputStream input, int responseCode, Map<String, List<String>> headers) 
@@ -67,8 +67,8 @@ public final class ModelDeserializers {
 	/**
 	 * Deserialize content into a List of ResourceModel.
 	 */
-	protected static final RestClient.ResponseDeserializer<List<ResourceModel>> ResourceModelListDeserializer = 
-		new RestClient.ResponseDeserializer<List<ResourceModel>>() {
+	protected static final ReSTClient.ResponseDeserializer<List<ResourceModel>> ResourceModelListDeserializer = 
+		new ReSTClient.ResponseDeserializer<List<ResourceModel>>() {
 	
 		@Override
 		public List<ResourceModel> deserialize(InputStream input, int responseCode, Map<String, List<String>> headers)
@@ -85,8 +85,8 @@ public final class ModelDeserializers {
 	/**
 	 * Deserialize into List of SwarmModel.
 	 */
-	protected static final RestClient.ResponseDeserializer<List<SwarmModel>> SwarmModelListDeserializer = 
-		new RestClient.ResponseDeserializer<List<SwarmModel>>() {
+	protected static final ReSTClient.ResponseDeserializer<List<SwarmModel>> SwarmModelListDeserializer = 
+		new ReSTClient.ResponseDeserializer<List<SwarmModel>>() {
 	
 		@Override
 		public List<SwarmModel> deserialize(InputStream input, int responseCode, Map<String, List<String>> headers)
@@ -103,8 +103,8 @@ public final class ModelDeserializers {
 	/**
 	 * Deserialize to List of SwarmResourceModel.
 	 */
-	protected static final RestClient.ResponseDeserializer<List<SwarmResourceModel>> SwarmResourceModelListDeserializer = 
-		new RestClient.ResponseDeserializer<List<SwarmResourceModel>>() {
+	protected static final ReSTClient.ResponseDeserializer<List<SwarmResourceModel>> SwarmResourceModelListDeserializer = 
+		new ReSTClient.ResponseDeserializer<List<SwarmResourceModel>>() {
 	
 		@Override
 		public List<SwarmResourceModel> deserialize(InputStream input, int responseCode, Map<String, List<String>> headers)
@@ -121,8 +121,8 @@ public final class ModelDeserializers {
 	/**
 	 * Deserialize to SwarmWSResponse.
 	 */
-	protected static final RestClient.ResponseDeserializer<SwarmWSResponse> SwarmWSResponseDeserializer = 
-		new RestClient.ResponseDeserializer<SwarmWSResponse>() {
+	protected static final ReSTClient.ResponseDeserializer<SwarmWSResponse> SwarmWSResponseDeserializer = 
+		new ReSTClient.ResponseDeserializer<SwarmWSResponse>() {
 		@Override
 		public SwarmWSResponse deserialize(InputStream input, int responseCode, Map<String, List<String>> headers)
 			throws IOException {

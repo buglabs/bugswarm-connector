@@ -153,15 +153,33 @@ public class ResourceModel {
 	 */
 	public static ResourceModel createFromJson(JSONObject jsonObject) {
 		return new ResourceModel(null,
-				MemberType.valueOf(jsonObject.get("type").toString()),
-				jsonObject.get("created_at").toString(),
-				jsonObject.get("user_id").toString(),
-				jsonObject.get("name").toString(),
-				jsonObject.get("modified_at").toString(),
-				jsonObject.get("machine_type").toString(),
-				jsonObject.get("id").toString(),
-				jsonObject.get("description").toString());
+				toMemberTypeSafely(jsonObject.get("type")),
+				toStringSafely(jsonObject.get("created_at")),
+				toStringSafely(jsonObject.get("user_id")),
+				toStringSafely(jsonObject.get("name")),
+				toStringSafely(jsonObject.get("modified_at")),
+				toStringSafely(jsonObject.get("machine_type")),
+				toStringSafely(jsonObject.get("id")),
+				toStringSafely(jsonObject.get("description")));
+	}
+	
+	/**
+	 * @param in Input, null ok.
+	 * @return null if input is null, MemberType.valueOf() eval otherwise.
+	 */
+	private static MemberType toMemberTypeSafely(Object in) {
+		if (in == null)
+			return null;
+		return MemberType.valueOf(in.toString());
+	}
+	/**
+	 * @param in String input, null ok.
+	 * @return null if input is null, or toString() on object.
+	 */
+	private static String toStringSafely(Object in) {
+		if (in == null)
+			return null;
+		return in.toString();
 	}
 
-	
 }

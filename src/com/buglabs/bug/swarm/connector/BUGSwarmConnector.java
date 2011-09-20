@@ -17,6 +17,7 @@ import org.osgi.service.log.LogService;
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.connector.model.FeedRequest;
 import com.buglabs.bug.swarm.connector.model.Jid;
+import com.buglabs.bug.swarm.connector.model.ResourceModel;
 import com.buglabs.bug.swarm.connector.model.SwarmModel;
 import com.buglabs.bug.swarm.connector.model.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.osgi.Activator;
@@ -190,19 +191,30 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			
 			SwarmWSResponse response = null;
 			
-			response = wsClient.getResourceClient().add(
-					xmppClient.getResource(), xmppClient.getUsername(), 
-					"BUG-Connector-Device", "A connector-enabled BUG device", 
-					MemberType.PRODUCER, "BUG");
+			//See if the resource already exists on the server.
+			ResourceModel resource = wsClient.getResourceClient().get(xmppClient.getResource());
+			
+			//If it does exist, update the existing record, otherwise add.
+			if (resource == null)
+				response = wsClient.getResourceClient().add(
+						xmppClient.getResource(), xmppClient.getUsername(), 
+						"BUG-Connector-Device", "A connector-enabled BUG device", 
+						MemberType.PRODUCER, "BUG");
+			else
+				response = wsClient.getResourceClient().update(
+						xmppClient.getResource(),  
+						"BUG-Connector-Device", "A connector-enabled BUG device", 
+						MemberType.PRODUCER, "BUG");
 			
 			if (response.isError()) 
 				log.log(LogService.LOG_WARNING, 
 						"Server returned an error when adding device resource: " + response.getMessage());
 			
-			
-			
 			if (response.isError() && response.getCode() != 409)
 				throw new IOException(response.getMessage());
+			else if (response.isError() && response.getCode() == 409)
+				log.log(LogService.LOG_WARNING, 
+						"Ignoring error 409 on add/update resource.");
 							
 			initialized = true;
 			return true;

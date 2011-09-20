@@ -977,8 +977,8 @@ public class RestClient {
 	}
 	
 	/**
-	 * @param boundary
-	 * @return
+	 * @param boundary String that represents form part boundary.
+	 * @return byte array of String of part header.
 	 */
 	private static byte[] getPartHeader(String boundary) {
 		StringBuilder sb = new StringBuilder();
@@ -1094,9 +1094,11 @@ public class RestClient {
 	/**
 	 * Create a byte array from the contents of an input stream.
 	 * 
-	 * @param in
-	 *            InputStream to turn into a byte array
-	 * @return byte array (byte[]) w/ contents of input stream
+	 * @param inputStream
+	 *            InputStream to read from
+	 * @param outputStream
+	 * 			  OutputStream to write to
+	 * @return number of bytes copied
 	 * @throws IOException
 	 *             on I/O error
 	 */
@@ -1116,14 +1118,25 @@ public class RestClient {
 		return size;
 	}	
 	
+	/**
+	 * Throws an IllegalArgumentException if any input parameters are null.
+	 * 
+	 * @param args list of parameters.
+	 */
 	private static void validateArguments(Object ... args) {
 		for (int i = 0; i < args.length; ++i)
 			if (args[i] == null)
 				throw new IllegalArgumentException("An input parameter is null.");
 	}
 
+	/**
+	 * The default connection provider returns a HttpUrlConnection.
+	 */
 	private class DefaultConnectionProvider implements ConnectionProvider {
 
+		/* (non-Javadoc)
+		 * @see com.buglabs.util.http.RestClient.ConnectionProvider#getConnection(java.lang.String)
+		 */
 		public HttpURLConnection getConnection(String urlStr) throws IOException {
 			URL url = new URL(urlStr);
 			return (HttpURLConnection) url.openConnection();
@@ -1131,6 +1144,12 @@ public class RestClient {
 
 	}
 	
+	/**
+	 * Write the content to the request body.
+	 * @param connection associated with request
+	 * @param content content of request.  If null, no body is sent and HTTP header Content-Length is set to zero.
+	 * @throws IOException on I/O error.
+	 */
 	private void writeRequestBody(HttpURLConnection connection, byte[] content) throws IOException {
 		if (content != null) {
 			connection.setRequestProperty("Content-Length", Long.toString(content.length));
@@ -1142,15 +1161,25 @@ public class RestClient {
 		}
 	}
 	
+	/**
+	 * URLBuilder Implementation for safely composing URLs.
+	 */
 	private final class URLBuilderImpl implements URLBuilder {
 		private final List<String> segments;
 		private boolean httpsScheme;
 		
+		/**
+		 * 
+		 */
 		public URLBuilderImpl() {
 			segments = new ArrayList<String>();
 			httpsScheme = false;
 		}
 		
+		/**
+		 * @param segments list of in-order segments that are used to build the url.
+		 * @param httpsScheme true if HTTPS should be used, false otherwise.
+		 */
 		private URLBuilderImpl(List<String> segments, boolean httpsScheme) {
 			this.segments = segments;
 			this.httpsScheme = httpsScheme;
@@ -1170,6 +1199,11 @@ public class RestClient {
 			return this;
 		}
 		
+		/**
+		 * Append a single segment.
+		 * @param segment segment to append.
+		 * @return instance of URLBuilder with the new segment attached.
+		 */
 		private URLBuilder appendSingle(String segment) {
 			segment = segment.trim();
 			
@@ -1201,7 +1235,7 @@ public class RestClient {
 			else 
 				sb.append("http://");
 			
-			for (Iterator<String> i = segments.iterator(); i.hasNext(); ) {
+			for (Iterator<String> i = segments.iterator(); i.hasNext();) {
 				sb.append(i.next());
 				
 				if (i.hasNext())
@@ -1211,6 +1245,11 @@ public class RestClient {
 			return sb.toString();
 		}
 
+		/**
+		 * Remove characters that should be removed from a segment before appending.
+		 * @param segment input segment
+		 * @return segment string without invalid characters.
+		 */
 		private String stripIllegalChars(String segment) {
 			return segment.replaceAll("/", "");			
 		}
@@ -1248,11 +1287,12 @@ public class RestClient {
      * 
      * @return a Map<Integer, String> of responses 
      */
-    private static final Map<Integer, String> createResponseMap()
+    private static Map<Integer, String> createResponseMap()
     {
         Map<Integer, String> responses = new HashMap<Integer, String>();
 
-        //Responses is a map, with error code as key, and a 2 dimensional String array with header and HTML error response, segmented where a user error-defined can be specified.
+        //Responses is a map, with error code as key, and a 2 dimensional String array with 
+        //header and HTML error response, segmented where a user error-defined can be specified.
         responses.put(Integer.valueOf(100), "Continue");
         responses.put(Integer.valueOf(101), "Switching Protocols");
 

@@ -162,8 +162,11 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		// modules.
 		for (SwarmModel swarm : allSwarms)
 			for (SwarmResourceModel member : swarm.getMembers())
-				if (member.getType() == MemberType.CONSUMER && xmppClient.isPresent(swarm.getId(), member.getUserId()))
-					xmppClient.advertise(swarm.getId(), member.getUserId(), document);
+				if (member.getType() == MemberType.CONSUMER && xmppClient.isPresent(swarm.getId(), member.getUserId())) {
+					xmppClient.advertise(swarm.getId(), 
+							(new Jid(member.getUserId(), xmppClient.getHostname(), 
+									member.getResource())).toString(), document);
+				}
 	}
 
 	/**
@@ -223,7 +226,12 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		// In the future it may be better to cache and determine delta and send
 		// only that.
 
-		log.log(LogService.LOG_DEBUG, "Local feed notification.");
+		//log.log(LogService.LOG_DEBUG, "Local feed notification.");
+		
+		//TODO: Verify broadcast logic is correct with Camilo & Andy
+		log.log(LogService.LOG_WARNING, "Local feed notification is disabled until functionality can be verified to be correct.");
+		return;
+		/*
 		try {
 			// Load data about server configuration and local configuration.
 			List<SwarmModel> allSwarms = wsClient.getSwarmResourceClient().getSwarmsByMember(config.getResource());
@@ -231,7 +239,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			broadcastState(allSwarms);
 		} catch (Exception e) {
 			log.log(LogService.LOG_ERROR, "Error occurred while sending updated device state to swarm server.", e);
-		}
+		}*/
 	}
 
 	/**

@@ -80,7 +80,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 		
 		validateAPIKey();
 
-		return httpClient.post(swarmHostUrl.copy("swarms"), 
+		return httpClient.callPost(swarmHostUrl.copy("swarms"), 
 				toMap("name", name, 
 					"public", Boolean.toString(isPublic),
 					"description", description)
@@ -94,7 +94,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 		
 		validateAPIKey();
 
-		return httpClient.put(swarmHostUrl.copy("swarms/", swarmId), 
+		return httpClient.callPut(swarmHostUrl.copy("swarms/", swarmId), 
 				toMap(
 						"public", Boolean.toString(isPublic),
 						"description", description),
@@ -107,14 +107,14 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 
 		validateAPIKey();
 
-		return httpClient.delete(swarmHostUrl.copy("swarms/", swarmId), ModelDeserializers.SwarmWSResponseDeserializer).getContent();
+		return httpClient.callDelete(swarmHostUrl.copy("swarms/", swarmId), ModelDeserializers.SwarmWSResponseDeserializer).getContent();
 	}
 
 	@Override
 	public List<SwarmModel> list() throws IOException {
 		validateAPIKey();
 
-		return httpClient.get(swarmHostUrl.copy("swarms"), ModelDeserializers.SwarmModelListDeserializer).getContent();
+		return httpClient.callGet(swarmHostUrl.copy("swarms"), ModelDeserializers.SwarmModelListDeserializer).getContent();
 	}
 
 	@Override
@@ -124,7 +124,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 		validateAPIKey();
 
 		Object o = JSONValue.parse(new InputStreamReader(
-				httpClient.get(swarmHostUrl.copy("swarms", swarmId), RestClient.INPUTSTREAM_DESERIALIZER).getContent()));
+				httpClient.callGet(swarmHostUrl.copy("swarms", swarmId), RestClient.INPUTSTREAM_DESERIALIZER).getContent()));
 		JSONObject jo = null;
 
 		if (o instanceof JSONArray)

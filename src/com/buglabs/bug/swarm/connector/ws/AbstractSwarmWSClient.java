@@ -97,7 +97,7 @@ public abstract class AbstractSwarmWSClient {
 			return null;
 
 		try {
-			Response<Integer> response = httpClient.get(swarmHostUrl.copy().append("keys", apiKey, "verify"), RestClient.HTTP_CODE_DESERIALIZER);
+			Response<Integer> response = httpClient.callGet(swarmHostUrl.copy().append("keys", apiKey, "verify"), RestClient.HTTP_CODE_DESERIALIZER);
 			SwarmWSResponse wsr = SwarmWSResponse.fromCode(response.getContent());
 
 			if (!wsr.isError()) {

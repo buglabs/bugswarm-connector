@@ -49,7 +49,7 @@ public class RESTClientTest {
 			
 			//Simplest GET, with the short-form method
 			System.out.println(
-					restClient.getAsString(localhost));
+					restClient.callGet(localhost));
 			
 			//Call GET on localhost using long form, pass in a predefined deserializer, no body (since GET), and no custom headers.
 			Response<String> resp = restClient.call(HttpMethod.GET, localhost.toString(), RestClient.STRING_DESERIALIZER, null, null);
@@ -59,13 +59,13 @@ public class RESTClientTest {
 				System.out.println(resp.getContent());			
 			
 			// do a POST with the short-form method
-			Response<Integer> rc = restClient.post(localhost, new ByteArrayInputStream("My POST content".getBytes()));
+			Response<Integer> rc = restClient.callPost(localhost, new ByteArrayInputStream("My POST content".getBytes()));
 			
 			if (rc.isError())
 				System.out.println("boo!");
 						
 			System.out.println(
-					restClient.get(localhost, RestClient.INPUTSTREAM_DESERIALIZER)
+					restClient.callGet(localhost, RestClient.INPUTSTREAM_DESERIALIZER)
 						.getContent().available());
 			
 			// Create a rest client that will throw exceptions on all HTTP and I/O errors.
@@ -73,7 +73,7 @@ public class RESTClientTest {
 			restClient.setErrorHandler(RestClient.THROW_ALL_ERRORS);
 			
 			//following line will throw IOException on any error
-			Response<String> rs = restClient.get(localhost, RestClient.STRING_DESERIALIZER);
+			Response<String> rs = restClient.callGet(localhost, RestClient.STRING_DESERIALIZER);
 			
 			System.out.println(rs.getContent());
 			
@@ -81,7 +81,7 @@ public class RESTClientTest {
 			restClient.setErrorHandler(null);
 						
 			//following line will never throw IOException 
-			rs = restClient.get(localhost.copy("asdf"), RestClient.STRING_DESERIALIZER);
+			rs = restClient.callGet(localhost.copy("asdf"), RestClient.STRING_DESERIALIZER);
 			
 			if (rs.isError())
 				System.out.println("Error: " + rs.getCode());
@@ -90,7 +90,7 @@ public class RESTClientTest {
 			
 			//following line will throw IOException 
 			try {
-				rs = restClient.get(localhost.copy("/asdf"), RestClient.STRING_DESERIALIZER);
+				rs = restClient.callGet(localhost.copy("/asdf"), RestClient.STRING_DESERIALIZER);
 				//Error is thrown when trying to get content.
 				System.out.println(rs.getContent());
 			} catch (IOException e) {
@@ -100,7 +100,7 @@ public class RESTClientTest {
 			//following line will throw IOException 
 			try {
 				//Error is thrown when trying to get content.
-				String respstr = restClient.getAsString("localhost/asdf");				
+				String respstr = restClient.callGet("localhost/asdf");				
 			} catch (IOException e) {
 				System.out.println("Error: " + e.getMessage());
 			}
@@ -110,7 +110,7 @@ public class RESTClientTest {
 			
 			//following line will throw IOException 
 			try {
-				rs = restClient.get("localhost/asdf", RestClient.STRING_DESERIALIZER);
+				rs = restClient.callGet("localhost/asdf", RestClient.STRING_DESERIALIZER);
 				//Error is not thrown when trying to get content because it is not a server error, but rather a 404.
 				
 				System.out.println("Should be true: " + rs.isError());
@@ -122,7 +122,7 @@ public class RESTClientTest {
 			restClient.setErrorHandler(RestClient.THROW_ALL_ERRORS);
 			try {
 				//Error is thrown when trying to get content.
-				String respstr = restClient.getContent(localhost.copy("/asdf"), RestClient.STRING_DESERIALIZER);				
+				String respstr = restClient.callGetContent(localhost.copy("/asdf"), RestClient.STRING_DESERIALIZER);				
 			} catch (IOException e) {
 				System.out.println("Error: " + e.getMessage());
 			}
@@ -133,18 +133,18 @@ public class RESTClientTest {
 			body.put("tkey", "tval");
 			body.put("myfile", new RestClient.FormFile("/tmp/boo.txt", "text/plain"));
 			
-			restClient.postMultipart("localhost", body);
+			restClient.callPostMultipart("localhost", body);
 			
 			//PUT, short form, throw exception on error
 			restClient.setErrorHandler(RestClient.THROW_ALL_ERRORS);
-			Response<Integer> mr = restClient.put("localhost", new ByteArrayInputStream("boo".getBytes()));
+			Response<Integer> mr = restClient.callPut("localhost", new ByteArrayInputStream("boo".getBytes()));
 			
 			//HTTP DELETE
-			Response<Integer> drc = restClient.delete(localhost.copy("/deleteurl"));
+			Response<Integer> drc = restClient.callDelete(localhost.copy("/deleteurl"));
 			System.out.println("should be true: " + drc.isError());
 			
 			//HTTP HEAD
-			Response<Integer> mrc = restClient.head(localhost);
+			Response<Integer> mrc = restClient.callHead(localhost);
 			
 			System.out.println("should be false: " + mrc.isError());
 			

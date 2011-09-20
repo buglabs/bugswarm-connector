@@ -111,7 +111,7 @@ public class RestClient {
 		URLBuilder copy();
 		
 		/**
-		 * @param segment new segment to append to new copy of URLBuilder
+		 * @param segments new segment to append to new copy of URLBuilder
 		 * @return A new instance of URLBuilder with same path and scheme as parent, with segment appended.
 		 */
 		URLBuilder copy(String ... segments);
@@ -126,6 +126,8 @@ public class RestClient {
 		/**
 		 * Deserialize the input.
 		 * @param input input stream of response
+		 * @param responseCode HTTP response from server
+		 * @param headers HTTP response headers
 		 * @return deserialized representation of response
 		 * @throws IOException on I/O error
 		 */
@@ -138,7 +140,8 @@ public class RestClient {
 	public static final ResponseDeserializer<String> STRING_DESERIALIZER = new ResponseDeserializer<String>() {
 
 		@Override
-		public String deserialize(InputStream input, int responseCode, Map<String, List<String>> headers) throws IOException {			
+		public String deserialize(InputStream input, int responseCode, Map<String, 
+				List<String>> headers) throws IOException {			
 			if (input != null)
 				return new String(streamToByteArray(input));
 			
@@ -152,7 +155,8 @@ public class RestClient {
 	public static final ResponseDeserializer<Integer> HTTP_CODE_DESERIALIZER = new ResponseDeserializer<Integer>() {
 
 		@Override
-		public Integer deserialize(InputStream input, int responseCode, Map<String, List<String>> headers) throws IOException {			
+		public Integer deserialize(InputStream input, int responseCode, Map<String, 
+				List<String>> headers) throws IOException {			
 			return responseCode;
 		}
 	};
@@ -164,7 +168,8 @@ public class RestClient {
 	public static final ResponseDeserializer<InputStream> INPUTSTREAM_DESERIALIZER = new ResponseDeserializer<InputStream>() {
 
 		@Override
-		public InputStream deserialize(InputStream input, int responseCode, Map<String, List<String>> headers) throws IOException {			
+		public InputStream deserialize(InputStream input, int responseCode, Map<String, 
+				List<String>> headers) throws IOException {			
 			return input;
 		}
 	};
@@ -309,7 +314,9 @@ public class RestClient {
 		private final String name;
 
 		/**
-		 * @param pathname
+		 * @param parent Input stream of file
+		 * @param name name of file
+		 * @param mimeType mimetype for content of file
 		 */
 		public FormInputStream(InputStream parent, String name, String mimeType) {
 
@@ -340,6 +347,9 @@ public class RestClient {
 			return parent.read(b, off, len);
 		}
 
+		/**
+		 * @return name of content
+		 */
 		public String getName() {
 			return name;
 		}
@@ -478,13 +488,26 @@ public class RestClient {
 	}
 	
 	/**
-	 * @param method
-	 * @param url
-	 * @param deserializer
-	 * @return
-	 * @throws IOException
+	 * This is the primary call in RestClient.  All other HTTP method calls call this method with some specific parameters.
+	 * For flexibility this method is exposed to clients but should not be used in a majority of cases.  See callGet(), 
+	 * callPost() etc. for the simplest usage.  This call is asynchronous, the Response works like a Future.
+	 * 
+	 * This method handles errors based on how the client is configured.  If no Deserializer or ErrorHander is specified
+	 * the response content will produce null.  The response class will contain the HTTP error information.
+	 * 
+	 * @param method HTTP method.  Cannot be null.
+	 * @param url url of server.  Cannot be null.
+	 * @param deserializer class to deserialize the response body.  If null then response is deserialized to a String.
+	 * @param content Optional content to pass to server, can be null.
+	 * @param headers HTTP headers that should be appended to the call.  These are in addition to any headers set 
+	 * 			in any ConnectionInitializers associated with client.
+	 * @param <T> type to deserialize to
+	 * @return deserialized response
+	 * @throws IOException on I/O error
 	 */
-	public <T> Response<T> call(final HttpMethod method, final String url, final ResponseDeserializer<T> deserializer, InputStream content, Map<String, String> headers) throws IOException {
+	public <T> Response<T> call(final HttpMethod method, final String url, final ResponseDeserializer<T> deserializer, 
+			InputStream content, Map<String, String> headers) throws IOException {
+		
 		validateArguments(method, url);
 		
 		long timeStart = System.currentTimeMillis();
@@ -606,8 +629,11 @@ public class RestClient {
 					if (errorHandler != null) 
 						errorHandler.handleError(getCode());
 						
-					return (T) deserializer.deserialize(null, connection.getResponseCode(), 
-							connection.getHeaderFields());
+					if (deserializer != null)
+						return (T) deserializer.deserialize(null, connection.getResponseCode(), 
+								connection.getHeaderFields());
+					
+					return null;
 				}
 				
 				if (deserializer == null) {
@@ -629,25 +655,28 @@ public class RestClient {
 	}
 	
 	/**
-	 * Execute GET method and return body as a string.
+	 * Execute GET method and return body as a string.  This call blocks
+	 * until the response content is deserialized into a String.
+	 * 
 	 * @param url of server.  If not String, toString() will be called.
 	 * @return body as a String
 	 * @throws IOException on I/O error
 	 */
-	public String getAsString(Object url) throws IOException {		
-		return getContent(url.toString(), STRING_DESERIALIZER);
+	public String callGet(Object url) throws IOException {		
+		return callGetContent(url.toString(), STRING_DESERIALIZER);
 	}
 	
 	
 	/**
-	 * Execute GET method and return body deserizalized.
+	 * Execute GET method and return body deserizalized.  This call
+	 * blocks until the response body content is deserialized.
 	 * 
 	 * @param url of server.  If not String, toString() will be called.
 	 * @param deserializer ResponseDeserializer
 	 * @return T deserialized object
 	 * @throws IOException on I/O error
 	 */
-	public <T> T getContent(Object url, ResponseDeserializer<T> deserializer) throws IOException {
+	public <T> T callGetContent(Object url, ResponseDeserializer<T> deserializer) throws IOException {
 		return call(HttpMethod.GET, url.toString(), deserializer, null, null).getContent();
 	}
 	
@@ -659,7 +688,7 @@ public class RestClient {
 	 * @return type specified by deserializer
 	 * @throws IOException on I/O error
 	 */
-	public <T> Response<T> get(Object url, Map<String, String> headers, ResponseDeserializer<T> deserializer) throws IOException {
+	public <T> Response<T> callGet(Object url, Map<String, String> headers, ResponseDeserializer<T> deserializer) throws IOException {
 		return call(HttpMethod.GET, url.toString(), deserializer, null, headers);
 	}
 	
@@ -671,7 +700,7 @@ public class RestClient {
 	 * @return type specified by deserializer
 	 * @throws IOException on I/O error
 	 */
-	public <T> Response<T> get(Object url, ResponseDeserializer<T> deserializer) throws IOException {
+	public <T> Response<T> callGet(Object url, ResponseDeserializer<T> deserializer) throws IOException {
 		return call(HttpMethod.GET, url.toString(), deserializer, null, null);
 	}
 	
@@ -683,7 +712,7 @@ public class RestClient {
 	 * @return a response to the request
 	 * @throws IOException on I/O error
 	 */
-	public Response<Integer> post(Object url, InputStream body) throws IOException {
+	public Response<Integer> callPost(Object url, InputStream body) throws IOException {
 		return call(HttpMethod.POST, url.toString(), HTTP_CODE_DESERIALIZER, body, null);
 	}
 	
@@ -695,7 +724,7 @@ public class RestClient {
 	 * @return a response from the POST
 	 * @throws IOException on I/O error
 	 */
-	public Response<Integer> post(Object url, Map<String, String> formData) throws IOException {
+	public Response<Integer> callPost(Object url, Map<String, String> formData) throws IOException {
 		return call(HttpMethod.POST, url.toString(), HTTP_CODE_DESERIALIZER, 
 				new ByteArrayInputStream(propertyString(formData).getBytes()), 
 				toMap(HEADER_CONTENT_TYPE, APPLICATION_X_WWW_FORM_URLENCODED));
@@ -709,7 +738,7 @@ public class RestClient {
 	 * @return a response to the request
 	 * @throws IOException on I/O error
 	 */
-	public <T> Response<T> post(Object url, InputStream body, ResponseDeserializer<T> deserializer) throws IOException {
+	public <T> Response<T> callPost(Object url, InputStream body, ResponseDeserializer<T> deserializer) throws IOException {
 		return call(HttpMethod.POST, url.toString(), deserializer, body, null);
 	}
 	
@@ -721,7 +750,7 @@ public class RestClient {
 	 * @return a response from the POST
 	 * @throws IOException on I/O error
 	 */
-	public <T> Response<T> post(Object url, Map<String, String> formData, ResponseDeserializer<T> deserializer) throws IOException {
+	public <T> Response<T> callPost(Object url, Map<String, String> formData, ResponseDeserializer<T> deserializer) throws IOException {
 		return call(HttpMethod.POST, url.toString(), deserializer, 
 				new ByteArrayInputStream(propertyString(formData).getBytes()), 
 				toMap(HEADER_CONTENT_TYPE, APPLICATION_X_WWW_FORM_URLENCODED));
@@ -735,7 +764,7 @@ public class RestClient {
 	 * @return a response from the POST
 	 * @throws IOException on I/O error
 	 */
-	public Response<Integer> postMultipart(Object url, Map<String, Object> content) throws IOException {
+	public Response<Integer> callPostMultipart(Object url, Map<String, Object> content) throws IOException {
 		String boundary = createMultipartBoundary();
 		String contentType = MULTIPART_FORM_DATA_CONTENT_TYPE + "; " + BOUNDARY + boundary;
 						
@@ -753,7 +782,7 @@ public class RestClient {
 	 * @return a response from the POST
 	 * @throws IOException on I/O error
 	 */
-	public <T> Response<T> postMultipart(Object url, Map<String, Object> content, 
+	public <T> Response<T> callPostMultipart(Object url, Map<String, Object> content, 
 			ResponseDeserializer<T> deserializer) throws IOException {
 		
 		String boundary = createMultipartBoundary();
@@ -771,7 +800,7 @@ public class RestClient {
 	 * @return a response from the POST
 	 * @throws IOException on I/O error
 	 */
-	public Response<Integer> put(Object url, InputStream content) throws IOException {
+	public Response<Integer> callPut(Object url, InputStream content) throws IOException {
 		return call(HttpMethod.PUT, url.toString(), HTTP_CODE_DESERIALIZER, content, null);
 	}
 	
@@ -783,7 +812,7 @@ public class RestClient {
 	 * @return a response from the POST
 	 * @throws IOException on I/O error
 	 */
-	public Response<Integer> put(Object url, Map<String, String> formData) throws IOException {
+	public Response<Integer> callPut(Object url, Map<String, String> formData) throws IOException {
 		return call(HttpMethod.PUT, url.toString(), HTTP_CODE_DESERIALIZER, 
 				new ByteArrayInputStream(propertyString(formData).getBytes()), 
 				toMap(HEADER_CONTENT_TYPE, APPLICATION_X_WWW_FORM_URLENCODED));
@@ -797,7 +826,7 @@ public class RestClient {
 	 * @return a response from the POST
 	 * @throws IOException on I/O error
 	 */
-	public <T> Response<T> put(Object url, InputStream content, ResponseDeserializer<T> deserializer) throws IOException {
+	public <T> Response<T> callPut(Object url, InputStream content, ResponseDeserializer<T> deserializer) throws IOException {
 		return call(HttpMethod.PUT, url.toString(), deserializer, content, null);
 	}
 	
@@ -809,7 +838,7 @@ public class RestClient {
 	 * @return a response from the POST
 	 * @throws IOException on I/O error
 	 */
-	public <T> Response<T> put(Object url, Map<String, String> formData, ResponseDeserializer<T> deserializer) throws IOException {
+	public <T> Response<T> callPut(Object url, Map<String, String> formData, ResponseDeserializer<T> deserializer) throws IOException {
 		return call(HttpMethod.PUT, url.toString(), deserializer, 
 				new ByteArrayInputStream(propertyString(formData).getBytes()), 
 				toMap(HEADER_CONTENT_TYPE, APPLICATION_X_WWW_FORM_URLENCODED));
@@ -823,7 +852,7 @@ public class RestClient {
 	 * @return HTTP response from server
 	 * @throws IOException on I/O error
 	 */
-	public Response<Integer> delete(Object url) throws IOException {
+	public Response<Integer> callDelete(Object url) throws IOException {
 		return call(HttpMethod.DELETE, url.toString(), HTTP_CODE_DESERIALIZER, null, null);
 	}
 	
@@ -834,7 +863,7 @@ public class RestClient {
 	 * @return HTTP response from server
 	 * @throws IOException on I/O error
 	 */
-	public <T> Response<T> delete(Object url, ResponseDeserializer<T> deserializer) throws IOException {
+	public <T> Response<T> callDelete(Object url, ResponseDeserializer<T> deserializer) throws IOException {
 		return call(HttpMethod.DELETE, url.toString(), deserializer, null, null);
 	}
 	
@@ -845,7 +874,7 @@ public class RestClient {
 	 * @return HTTP Response from server
 	 * @throws IOException on I/O error
 	 */
-	public Response<Integer> head(Object url) throws IOException {
+	public Response<Integer> callHead(Object url) throws IOException {
 		return call(HttpMethod.HEAD, url.toString(), HTTP_CODE_DESERIALIZER, null, null);
 	}
 

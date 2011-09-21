@@ -1,9 +1,16 @@
 package com.buglabs.bug.swarm.connector.xmpp;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ObjectNode;
+
 
 import com.buglabs.bug.swarm.connector.osgi.Feed;
 
@@ -29,14 +36,16 @@ public final class JSONElementCreator {
 	 * @param feeds
 	 *            list of feeds
 	 * @return JSON array
+	 * @throws IOException 
+	 * @throws JsonMappingException 
+	 * @throws JsonGenerationException 
 	 */
-	public static JSONArray createFeedArray(final List<Feed> feeds) {
-		JSONArray array = new JSONArray();
-
-		for (Feed feed : feeds)
-			array.add(createFeedElement(feed));
-
-		return array;
+	public static String createFeedArray(final List<Feed> feeds) throws JsonGenerationException, JsonMappingException, IOException {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.writeValue(baos, feeds);
+		
+		return baos.toString();	
 	}
 
 	/**
@@ -45,11 +54,15 @@ public final class JSONElementCreator {
 	 * @param feed
 	 *            feed to be converted
 	 * @return JSON representation of feed
+	 * @throws IOException 
+	 * @throws JsonMappingException 
+	 * @throws JsonGenerationException 
 	 */
-	public static JSONObject createFeedElement(final Feed feed) {
-		JSONObject jobj = new JSONObject();
-		jobj.put(feed.getName(), feed.getFeed());
-
-		return jobj;
+	public static String createFeedElement(final Feed feed) throws JsonGenerationException, JsonMappingException, IOException {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.writeValue(baos, feed);
+		
+		return baos.toString();		
 	}
 }

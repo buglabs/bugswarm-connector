@@ -42,7 +42,6 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smackx.muc.Affiliate;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.Configuration;
@@ -223,11 +222,11 @@ public class SwarmXMPPClient {
 	 * @throws XMPPException
 	 *             on XMPP protocol error
 	 */
-	public void advertise(final String swarmId, final String userId, final JSONArray feedDocument) throws XMPPException {
+	public void advertise(final String swarmId, final String userId, final String feedDocument) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
 
 		Chat pchat = muc.createPrivateChat(userId, new NullMessageListener());
-		pchat.sendMessage(feedDocument.toString());
+		pchat.sendMessage(feedDocument);
 	}
 
 	/**
@@ -240,9 +239,9 @@ public class SwarmXMPPClient {
 	 * @throws XMPPException
 	 *             on XMPP protocol error
 	 */
-	public void announce(final String swarmId, final JSONArray feedDocument) throws XMPPException {
+	public void announce(final String swarmId, final String feedDocument) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
-		muc.sendMessage(feedDocument.toString());
+		muc.sendMessage(feedDocument);
 	}
 
 	/**
@@ -343,7 +342,7 @@ public class SwarmXMPPClient {
 	 * @throws XMPPException
 	 *             on XMPP error
 	 */
-	public void sendAllFeedsToUser(Jid requestJid, String swarmId, JSONArray document) throws XMPPException {
+	public void sendAllFeedsToUser(Jid requestJid, String swarmId, String document) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
 
 		if (muc == null)
@@ -354,9 +353,9 @@ public class SwarmXMPPClient {
 		Chat pchat = muc.createPrivateChat(requestJid.toString(), null);
 
 		Activator.getLog().log(
-				LogService.LOG_DEBUG, "Sending " + document.toJSONString() + " to " + requestJid.toString());
+				LogService.LOG_DEBUG, "Sending " + document + " to " + requestJid.toString());
 		
-		pchat.sendMessage(document.toJSONString());
+		pchat.sendMessage(document);
 	}
 
 	/**
@@ -376,7 +375,7 @@ public class SwarmXMPPClient {
 	 * @throws XMPPException
 	 *             on XMPP error
 	 */
-	public void sendFeedToUser(Jid requestJid, String swarmId, JSONObject document) throws XMPPException {
+	public void sendFeedToUser(Jid requestJid, String swarmId, String document) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
 
 		if (muc == null)
@@ -387,7 +386,7 @@ public class SwarmXMPPClient {
 		Chat pchat = muc.createPrivateChat(requestJid.toString(), null);
 
 		Activator.getLog().log(
-				LogService.LOG_DEBUG, "Sending " + document.toJSONString() + " to " + requestJid.toString());
-		pchat.sendMessage(document.toJSONString());
+				LogService.LOG_DEBUG, "Sending " + document + " to " + requestJid.toString());
+		pchat.sendMessage(document);
 	}
 }

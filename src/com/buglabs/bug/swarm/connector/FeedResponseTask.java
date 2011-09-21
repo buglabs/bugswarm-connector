@@ -1,7 +1,10 @@
 package com.buglabs.bug.swarm.connector;
 
+import java.io.IOException;
 import java.util.TimerTask;
 
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.jivesoftware.smack.XMPPException;
 import org.json.simple.JSONObject;
 import org.osgi.service.log.LogService;
@@ -42,13 +45,14 @@ public class FeedResponseTask extends TimerTask {
 	
 	@Override
 	public void run() {
-		JSONObject document = JSONElementCreator.createFeedElement(feed);
-		
 		try {
+			String document = JSONElementCreator.createFeedElement(feed);
+		
+		
 			xmppClient.sendFeedToUser(jid, swarmId, document);
-		} catch (XMPPException e) {
+		} catch (Exception e) {
 			log.log(LogService.LOG_ERROR, "Error occurred while sending feeds to " + jid, e);
-		}
+		} 
 	}
 
 }

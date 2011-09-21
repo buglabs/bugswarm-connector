@@ -58,12 +58,12 @@ public class SwarmXMPPClientTests extends TestCase {
 		OSGiHelper osgi = OSGiHelper.getRef();
 		
 		//Create the document.
-		JSONArray xd = JSONElementCreator.createFeedArray(osgi.getBUGFeeds());
+		String xd = JSONElementCreator.createFeedArray(osgi.getBUGFeeds());
 		
 		//Verify it's what we expect
 		assertTrue(xd != null);
 		
-		System.out.println(xd.toJSONString());
+		System.out.println(xd);
 	}
 	
 	public void testJidParsing() throws Exception {

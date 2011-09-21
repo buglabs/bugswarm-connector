@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.XMPPException;
 import org.json.simple.JSONArray;
@@ -155,9 +157,12 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	 *            list of SwarmModel to send state to
 	 * @throws XMPPException
 	 *             upon XMPP failure
+	 * @throws IOException 
+	 * @throws JsonMappingException 
+	 * @throws JsonGenerationException 
 	 */
-	private void broadcastState(final List<SwarmModel> allSwarms) throws XMPPException {
-		JSONArray document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
+	private void broadcastState(final List<SwarmModel> allSwarms) throws XMPPException, JsonGenerationException, JsonMappingException, IOException {
+		String document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
 
 		// Notify all consumer-members of swarms of services, feeds, and
 		// modules.
@@ -289,26 +294,26 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 
 	@Override
 	public void feedListRequest(final Jid requestJid, final String swarmId) {
-		JSONArray document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
-
 		try {
+			String document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
+		
 			xmppClient.sendAllFeedsToUser(requestJid, swarmId, document);
-		} catch (XMPPException e) {
+		} catch (Exception e) {
 			log.log(LogService.LOG_ERROR, "Error occurred while sending feeds to " + requestJid, e);
 		}
 	}
 
 	@Override
 	public void feedListRequest(final Chat chat, final String swarmId) {
-		JSONArray document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
-
 		try {
-			chat.sendMessage(document.toJSONString());
-		} catch (XMPPException e) {
+			String document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
+		
+			chat.sendMessage(document);
+			
+			log.log(LogService.LOG_DEBUG, "Sent " + document + " to " + chat.getParticipant());
+		} catch (Exception e) {
 			log.log(LogService.LOG_ERROR, "Failed to send private message to " + chat.getParticipant(), e);
-		}
-
-		log.log(LogService.LOG_DEBUG, "Sent " + document.toJSONString() + " to " + chat.getParticipant());
+		}		
 	}
 
 	/**

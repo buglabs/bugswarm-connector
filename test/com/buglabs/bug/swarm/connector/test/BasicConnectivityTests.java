@@ -143,7 +143,7 @@ public class BasicConnectivityTests extends TestCase {
 		OSGiHelper osgi = OSGiHelper.getRef();
 
 		for (SwarmModel swarm : connectedSwarms) {
-			JSONArray advertisement = JSONElementCreator.createFeedArray(osgi.getBUGFeeds());
+			String advertisement = JSONElementCreator.createFeedArray(osgi.getBUGFeeds());
 			System.out.println("Announcing " + advertisement + " to swarm: " + swarm.getId());
 			xmppClient.announce(swarm.getId(), advertisement);
 		}

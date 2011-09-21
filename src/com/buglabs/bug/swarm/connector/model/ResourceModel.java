@@ -146,7 +146,7 @@ public class ResourceModel {
 	}
 
 	/**
-	 * See https://github.com/buglabs/bugswarm/wiki/Resources.
+	 * See http://developer.bugswarm.net/restful_user_resources.html#get-resource-info	 
 	 * 
 	 * @param jsonObject ResourceModel Json object
 	 * @return a ResourceModel from the json stanza.

@@ -93,16 +93,8 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 		validateParams(resourceId);
 		validateAPIKey();
 		
-		List<ResourceModel> responseContent = httpClient.callGet(swarmHostUrl.copy("resources/", resourceId), 
-				ModelDeserializers.ResourceModelListDeserializer).getContent();
-
-		//Return the first element in the array if exists, null otherwise.  
-		//Not sure why the service returns an array of things when we are asking for
-		//a specific resource.
-		if (responseContent != null) 
-			return responseContent.get(0);
-		
-		return null;
+		return httpClient.callGet(swarmHostUrl.copy("resources/", resourceId), 
+				ModelDeserializers.ResourceModelDeserializer).getContent();				
 	}
 
 	@Override

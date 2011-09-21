@@ -1,17 +1,11 @@
 package com.buglabs.bug.swarm.connector.ws;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.List;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 
 import com.buglabs.bug.swarm.connector.Configuration;
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.connector.model.SwarmModel;
-import com.buglabs.util.http.ReSTClient;
 
 /**
  * A Swarm WS Client implementation using json.simple and simplerestclient.
@@ -122,20 +116,8 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 		validateParams(swarmId);
 
 		validateAPIKey();
-
-		Object o = JSONValue.parse(new InputStreamReader(
-				httpClient.callGet(swarmHostUrl.copy("swarms", swarmId), ReSTClient.INPUTSTREAM_DESERIALIZER).getContent()));
-		JSONObject jo = null;
-
-		if (o instanceof JSONArray)
-			jo = (JSONObject) ((JSONArray) o).get(0);
-		else if (o instanceof JSONObject)
-			jo = (JSONObject) o;
-
-		if (jo != null)
-			return SwarmModel.createFromJson(jo);
-
-		return null;
+		
+		return httpClient.callGet(swarmHostUrl.copy("swarms", swarmId), ModelDeserializers.SwarmModelDeserializer).getContent();
 	}
 
 	@Override

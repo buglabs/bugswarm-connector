@@ -1,13 +1,14 @@
 package com.buglabs.bug.swarm.connector.model;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 
-import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
 
 /**
@@ -132,17 +133,17 @@ public class ResourceModel {
 	 * 
 	 * @param json Array of json objects
 	 * @return List of Resource Model
+	 * @throws IOException 
+	 * @throws JsonMappingException 
+	 * @throws JsonParseException 
 	 */
-	public static List<ResourceModel> createListFromJson(JSONArray json) {
-		if (json == null || json.size() == 0)
+	public static List<ResourceModel> createListFromJson(final String json) throws JsonParseException, JsonMappingException, IOException {
+		if (json == null || json.length() == 0)
 			return Collections.emptyList();
 		
-		List<ResourceModel> l = new ArrayList<ResourceModel>();
-
-		for (Object o : json)
-			l.add(createFromJson((JSONObject) o));
-
-		return l;
+		ObjectMapper mapper = new ObjectMapper();
+		List<ResourceModel> result = mapper.readValue(json, new TypeReference<List<ResourceModel>>() { });
+		return result;		
 	}
 
 	/**
@@ -150,17 +151,13 @@ public class ResourceModel {
 	 * 
 	 * @param jsonObject ResourceModel Json object
 	 * @return a ResourceModel from the json stanza.
+	 * @throws IOException 
+	 * @throws JsonMappingException 
+	 * @throws JsonParseException 
 	 */
-	public static ResourceModel createFromJson(JSONObject jsonObject) {
-		return new ResourceModel(null,
-				toMemberTypeSafely(jsonObject.get("type")),
-				toStringSafely(jsonObject.get("created_at")),
-				toStringSafely(jsonObject.get("user_id")),
-				toStringSafely(jsonObject.get("name")),
-				toStringSafely(jsonObject.get("modified_at")),
-				toStringSafely(jsonObject.get("machine_type")),
-				toStringSafely(jsonObject.get("id")),
-				toStringSafely(jsonObject.get("description")));
+	public static ResourceModel createFromJson(String jsonObject) throws JsonParseException, JsonMappingException, IOException {
+		ObjectMapper mapper = new ObjectMapper(); 
+		return mapper.readValue(jsonObject, ResourceModel.class);		
 	}
 	
 	/**

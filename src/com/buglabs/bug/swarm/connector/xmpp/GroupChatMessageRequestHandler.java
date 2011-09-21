@@ -79,7 +79,13 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 	 * @param sender JID of originator of message
 	 */
 	private void processServerMessage(String rawMessage, String sender) {
-		FeedRequest freq = FeedRequest.parseJSON(rawMessage);
+		FeedRequest freq = null;
+		try {
+			freq = FeedRequest.parseJSON(rawMessage);
+		} catch (Exception e1) {
+			Activator.getLog().log(LogService.LOG_ERROR, 
+					"Unable to parse or serialize JSON message: " + rawMessage);
+		} 
 		
 		if (freq == null) {
 			Activator.getLog().log(LogService.LOG_ERROR, 

@@ -19,6 +19,7 @@ Import-Package:
  org.codehaus.jackson,
  org.codehaus.jackson.map,
  org.codehaus.jackson.node,
+ org.codehaus.jackson.type,
  org.jivesoftware.smack,
  org.jivesoftware.smack.packet,
  org.jivesoftware.smackx.muc,

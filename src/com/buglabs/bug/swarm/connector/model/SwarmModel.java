@@ -1,11 +1,16 @@
 package com.buglabs.bug.swarm.connector.model;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
+import org.osgi.service.useradmin.User;
 
 /**
  * Model class to represent a Swarm.
@@ -123,17 +128,18 @@ public class SwarmModel {
 	 * @param json
 	 *            input object
 	 * @return List of SwarmModel
+	 * @throws IOException 
+	 * @throws JsonMappingException 
+	 * @throws JsonParseException 
 	 */
-	public static List<SwarmModel> createListFromJson(final JSONArray json) {
-		if (json == null || json.size() == 0)
+	public static List<SwarmModel> createListFromJson(final String json) throws JsonParseException, JsonMappingException, IOException {
+		if (json == null || json.length() == 0)
 			return Collections.emptyList();
 		
-		List<SwarmModel> l = new ArrayList<SwarmModel>();
-
-		for (Object o : json)
-			l.add(createFromJson((JSONObject) o));
-
-		return l;
+		ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally
+		List<SwarmModel>  list = mapper.readValue(json,  new TypeReference<List<SwarmModel>>() { });		
+		
+		return list;
 	}
 
 	/**
@@ -142,9 +148,15 @@ public class SwarmModel {
 	 * @param jsonObject
 	 *            input object
 	 * @return SwarmModel instance of SwarmModel
+	 * @throws IOException 
+	 * @throws JsonMappingException 
+	 * @throws JsonParseException 
 	 */
-	public static SwarmModel createFromJson(final JSONObject jsonObject) {
+	public static SwarmModel createFromJson(final String jsonObject) throws JsonParseException, JsonMappingException, IOException {
 		// server is currently not returning modified_at
+		ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally
+		return mapper.readValue(jsonObject, SwarmModel.class);		
+		/*
 		return new SwarmModel(
 				Boolean.parseBoolean(jsonObject.get("public").toString()),
 				SwarmResourceModel.createListFromJson((JSONArray) jsonObject.get("resources")), 
@@ -153,7 +165,7 @@ public class SwarmModel {
 				jsonObject.get("description").toString(), 
 				null, 
 				jsonObject.get("name").toString(),
-				jsonObject.get("user_id").toString());
+				jsonObject.get("user_id").toString());*/
 	}
 
 	@Override

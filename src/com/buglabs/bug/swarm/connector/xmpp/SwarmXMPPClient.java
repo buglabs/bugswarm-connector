@@ -41,7 +41,6 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smackx.muc.Affiliate;
 import org.jivesoftware.smackx.muc.MultiUserChat;
-import org.json.simple.JSONArray;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.Configuration;

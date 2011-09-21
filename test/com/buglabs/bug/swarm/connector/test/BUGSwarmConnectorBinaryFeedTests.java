@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.codehaus.jackson.map.ObjectMapper;
 
-import org.json.simple.JSONValue;
+import junit.framework.TestCase;
 
 import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
@@ -137,9 +137,11 @@ public class BUGSwarmConnectorBinaryFeedTests extends TestCase {
 			Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
 	
 			assertTrue(scanner.hasInputBeenRecieved());
+			
+			ObjectMapper mapper = new ObjectMapper();
 	
 			for (String r : scanner.getResponses()) {
-				Object o = JSONValue.parse(r);
+				Object o = mapper.readTree(r);
 	
 				assertNotNull(o);
 				System.out.println(o);

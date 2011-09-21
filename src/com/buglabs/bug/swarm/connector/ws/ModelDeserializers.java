@@ -2,14 +2,13 @@ package com.buglabs.bug.swarm.connector.ws;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ObjectNode;
+import org.codehaus.jackson.type.TypeReference;
 
 import com.buglabs.bug.swarm.connector.model.ResourceModel;
 import com.buglabs.bug.swarm.connector.model.SwarmModel;
@@ -34,15 +33,16 @@ public final class ModelDeserializers {
 	/**
 	 * Deserialize server content into a JSONObject.
 	 */
-	protected static final ReSTClient.ResponseDeserializer<JSONObject> JSONObjectDeserializer = 
-		new ReSTClient.ResponseDeserializer<JSONObject>() {
+	protected static final ReSTClient.ResponseDeserializer<ObjectNode> JSONObjectDeserializer = 
+		new ReSTClient.ResponseDeserializer<ObjectNode>() {
 	
 		@Override
-		public JSONObject deserialize(InputStream input, int responseCode, Map<String, List<String>> headers) throws IOException {
+		public ObjectNode deserialize(InputStream input, int responseCode, Map<String, List<String>> headers) throws IOException {
 			if (responseCode == 404)
 				return null;
+			ObjectMapper mapper = new ObjectMapper();
 			
-			return (JSONObject) JSONValue.parse(new InputStreamReader(input));
+			return (ObjectNode) mapper.readTree(input);
 		}
 	};
 	
@@ -58,9 +58,8 @@ public final class ModelDeserializers {
 			if (responseCode == 404)
 				return null;
 			
-			JSONObject jsonObject = (JSONObject) JSONValue.parse(new InputStreamReader(input));
-			
-			return ResourceModel.createFromJson(jsonObject);
+			ObjectMapper mapper = new ObjectMapper();
+			return mapper.readValue(input, ResourceModel.class);			
 		}
 	};
 	
@@ -74,11 +73,10 @@ public final class ModelDeserializers {
 		public List<ResourceModel> deserialize(InputStream input, int responseCode, Map<String, List<String>> headers)
 			throws IOException {
 			if (responseCode == 404)
-				return Collections.emptyList();
-			
-			JSONArray json = (JSONArray) JSONValue.parse(new InputStreamReader(input));
-	
-			return ResourceModel.createListFromJson(json);
+				return Collections.emptyList();			
+
+			ObjectMapper mapper = new ObjectMapper();
+			return mapper.readValue(input, new TypeReference<List<ResourceModel>>() { });					
 		}
 	};
 	
@@ -94,9 +92,25 @@ public final class ModelDeserializers {
 			if (responseCode == 404)
 				return Collections.emptyList();
 			
-			JSONArray json = (JSONArray) JSONValue.parse(new InputStreamReader(input));
+			ObjectMapper mapper = new ObjectMapper();
+			return mapper.readValue(input, new TypeReference<List<SwarmModel>>() { });			
+		}
+	};
 	
-			return SwarmModel.createListFromJson(json);
+	/**
+	 * Deserialize into List of SwarmModel.
+	 */
+	protected static final ReSTClient.ResponseDeserializer<SwarmModel> SwarmModelDeserializer = 
+		new ReSTClient.ResponseDeserializer<SwarmModel>() {
+	
+		@Override
+		public SwarmModel deserialize(InputStream input, int responseCode, Map<String, List<String>> headers)
+			throws IOException {
+			if (responseCode == 404)
+				return null;
+			
+			ObjectMapper mapper = new ObjectMapper();
+			return mapper.readValue(input, SwarmModel.class);			
 		}
 	};
 	
@@ -112,9 +126,8 @@ public final class ModelDeserializers {
 			if (responseCode == 404)
 				return Collections.emptyList();
 			
-			JSONArray jsonObject = (JSONArray) JSONValue.parse(new InputStreamReader(input));
-	
-			return SwarmResourceModel.createListFromJson(jsonObject);
+			ObjectMapper mapper = new ObjectMapper();
+			return mapper.readValue(input, new TypeReference<List<SwarmResourceModel>>() { });					
 		}
 	};
 	

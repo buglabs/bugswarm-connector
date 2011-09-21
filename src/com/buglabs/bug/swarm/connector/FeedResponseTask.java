@@ -1,12 +1,7 @@
 package com.buglabs.bug.swarm.connector;
 
-import java.io.IOException;
 import java.util.TimerTask;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.jivesoftware.smack.XMPPException;
-import org.json.simple.JSONObject;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.model.Jid;

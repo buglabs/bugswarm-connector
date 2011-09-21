@@ -1,11 +1,12 @@
 package com.buglabs.bug.swarm.connector.model;
 
+import java.io.IOException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * A swarm-server based Feed request.
@@ -114,32 +115,15 @@ public class FeedRequest {
 	/**
 	 * @param jsonString json document from server as a String
 	 * @return FeedRequest object or null if invalid or incomplete message.
+	 * @throws IOException 
+	 * @throws JsonMappingException 
+	 * @throws JsonParseException 
 	 */
-	public static FeedRequest parseJSON(String jsonString) {
-		Object o = JSONValue.parse(jsonString);
-
-		if (o != null && o instanceof JSONObject) {
-			JSONObject jo = (JSONObject) o;
-			Map<String, Object> frp = null;
-			
-			String type = jo.get("type").toString();
-			String name = jo.get("feed").toString();
-			JSONObject params = (JSONObject) jo.get("params");
-			
-			if (params != null) {
-				frp = new HashMap<String, Object>();
-				for (Object e : params.entrySet()) {
-					Object key = ((Map.Entry) e).getKey();
-					Object val = ((Map.Entry) e).getValue();
-					
-					frp.put(key.toString(), val);					
-				}
-			}
-			
-			return new FeedRequest(type, name, frp);
-		}
+	public static FeedRequest parseJSON(String jsonString) throws JsonParseException, JsonMappingException, IOException {
+		ObjectMapper mapper = new ObjectMapper(); // can reuse, share globally
+		FeedRequest request = mapper.readValue(jsonString, FeedRequest.class);
 		
-		return null;
+		return request;				
 	}
 
 	/**

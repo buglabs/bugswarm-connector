@@ -13,7 +13,6 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.XMPPException;
-import org.json.simple.JSONArray;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;

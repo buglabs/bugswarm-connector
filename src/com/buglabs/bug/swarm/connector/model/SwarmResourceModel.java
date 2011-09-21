@@ -1,13 +1,14 @@
 package com.buglabs.bug.swarm.connector.model;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient;
-import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
 
 /**
  * Swarm model class for SwarmMember.
@@ -92,17 +93,13 @@ public class SwarmResourceModel {
 	 * @param json
 	 *            input object
 	 * @return a List of SwarmMemberModel
+	 * @throws IOException 
+	 * @throws JsonMappingException 
+	 * @throws JsonParseException 
 	 */
-	public static List<SwarmResourceModel> createListFromJson(final JSONArray json) {
-		List<SwarmResourceModel> l = new ArrayList<SwarmResourceModel>();
-
-		for (Object o : json) {
-			JSONObject jo = (JSONObject) o;
-
-			l.add(new SwarmResourceModel(jo.get("created_at").toString(), MemberType.valueOf(jo.get("type").toString().toUpperCase()), jo
-					.get("user_id").toString(), jo.get("id").toString(), jo.get("swarm_id").toString()));
-		}
-
-		return l;
+	public static List<SwarmResourceModel> createListFromJson(final String json) throws JsonParseException, JsonMappingException, IOException {
+		ObjectMapper mapper = new ObjectMapper();
+		List<SwarmResourceModel> result = mapper.readValue(json, new TypeReference<List<SwarmResourceModel>>() { });
+		return result;
 	}
 }

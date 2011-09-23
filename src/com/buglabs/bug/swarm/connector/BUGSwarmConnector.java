@@ -118,11 +118,15 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			try {
 				List<SwarmModel> allSwarms = wsClient.getSwarmResourceClient().getSwarmsByMember(config.getResource());
 
-				// Notify all swarms of presence.
-				for (SwarmModel swarm : allSwarms) {
-					log.log(LogService.LOG_DEBUG, "Joining swarm " + swarm.getId());
-					xmppClient.joinSwarm(swarm.getId(), this);
-					memberSwarms.add(swarm);
+				if (allSwarms == null || allSwarms.size() == 0) {
+					log.log(LogService.LOG_INFO, "User does not belong to any swarms.");
+				} else {
+					// Notify all swarms of presence.
+					for (SwarmModel swarm : allSwarms) {
+						log.log(LogService.LOG_DEBUG, "Joining swarm " + swarm.getId());
+						xmppClient.joinSwarm(swarm.getId(), this);
+						memberSwarms.add(swarm);
+					}
 				}
 			} catch (HTTPException e) {
 				if (e.getErrorCode() == HTTP_404)
@@ -142,6 +146,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 
 			// Listen for local changes
 			osgiHelper.addListener(this);
+			log.log(LogService.LOG_INFO, "Connector initialization complete.");
 
 		} catch (Exception e) {
 			log.log(LogService.LOG_ERROR, "Error occurred while initializing swarm client.", e);

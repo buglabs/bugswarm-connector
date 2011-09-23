@@ -1,23 +1,13 @@
 package com.buglabs.bug.swarm.connector.ws;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 
 import com.buglabs.bug.swarm.connector.model.ResourceModel;
 import com.buglabs.bug.swarm.connector.model.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
 import com.buglabs.util.http.ReSTClient;
-import com.buglabs.util.http.ReSTClient.Response;
-import com.buglabs.util.simplerestclient.HTTPRequest;
-import com.buglabs.util.simplerestclient.HTTPResponse;
 
 /**
  * Implementation of IResourceClient.

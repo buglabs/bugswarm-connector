@@ -2,15 +2,12 @@ package com.buglabs.util.http;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 import com.buglabs.util.http.ReSTClient.HttpMethod;
 import com.buglabs.util.http.ReSTClient.Response;
 import com.buglabs.util.http.ReSTClient.URLBuilder;
-import com.buglabs.util.simplerestclient.FormFile;
 
 public class ReSTClientTest {
 

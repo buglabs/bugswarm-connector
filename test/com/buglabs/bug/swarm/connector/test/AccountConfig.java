@@ -14,6 +14,8 @@ public final class AccountConfig {
 	protected static final String XMPP_USERNAME2 = "connector_test2";
 	protected static final String XMPP_USERNAME = "connector_test";
 	private static final String SWARM_TEST_HOSTNAME_KEY = "report.misc";
+	private static final int DEFAULT_XMPP_SERVER_PORT = 5222;
+	private static final int DEFAULT_HTTP_SERVER_PORT = 80;
 	
 	protected static String testSwarmId;
 	
@@ -23,25 +25,37 @@ public final class AccountConfig {
 	protected static final int CONNECTOR_INIT_SLEEP_MILLIS = 10000;
 	public static final long CONNECTOR_FEED_CHANGE_SLEEP_MILLIS = 1000;
 	
+	/**
+	 * @return
+	 */
 	protected static Configuration getConfiguration() {
 		if (config == null) {
-			config = new Configuration(getHostSystemProperty(), getAPIKeySystemProperty(), XMPP_USERNAME);
+			config = new Configuration(getHostSystemProperty(), getAPIKeySystemProperty(), 
+					XMPP_USERNAME, DEFAULT_HTTP_SERVER_PORT, DEFAULT_XMPP_SERVER_PORT);
 		}
 		
 		return config;
 	}	
 
+	/**
+	 * @return
+	 */
 	protected static Configuration getXmppConfiguration() {
 		if (xmppconfig == null) {
-			xmppconfig = new Configuration(getHostSystemProperty(), getAPIKeySystemProperty(), XMPP_USERNAME);
+			xmppconfig = new Configuration(getHostSystemProperty(), getAPIKeySystemProperty(), 
+					XMPP_USERNAME, DEFAULT_HTTP_SERVER_PORT, DEFAULT_XMPP_SERVER_PORT);
 		}
 		
 		return xmppconfig;
 	}
 	
+	/**
+	 * @return
+	 */
 	protected static Configuration getConfiguration2() {
 		if (config == null) {
-			config = new Configuration(getHostSystemProperty(), getAPIKey2SystemProperty(), XMPP_USERNAME2);
+			config = new Configuration(getHostSystemProperty(), getAPIKey2SystemProperty(), 
+					XMPP_USERNAME2, DEFAULT_HTTP_SERVER_PORT, DEFAULT_XMPP_SERVER_PORT);
 		}
 		
 		return config;

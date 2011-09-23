@@ -57,7 +57,6 @@ import com.buglabs.bug.swarm.connector.osgi.Activator;
  * 
  */
 public class SwarmXMPPClient {
-	private static final int DEFAULT_XMPP_SERVER_PORT = 5222;
 	private volatile boolean disposed = false;
 	private XMPPConnection connection;
 
@@ -83,6 +82,7 @@ public class SwarmXMPPClient {
 	/**
 	 * Connect to XMPP server using the configuration passed in the constructor.
 	 * 
+	 * @param listener ISwarmServerRequestListener
 	 * @throws IOException
 	 *             on connection failure
 	 * @throws XMPPException
@@ -92,7 +92,7 @@ public class SwarmXMPPClient {
 		// Get a unique ID for the device software is running on.
 		// String clientId = ClientIdentity.getRef().getId();
 		if (connection == null) {
-			connection = createConnection(config.getHostname(Protocol.XMPP), DEFAULT_XMPP_SERVER_PORT);
+			connection = createConnection(config.getHostname(Protocol.XMPP), config.getXMPPPort());
 			login(connection, config.getUsername(), config.getAPIKey(), config.getResource());
 			disposed = false;
 		}

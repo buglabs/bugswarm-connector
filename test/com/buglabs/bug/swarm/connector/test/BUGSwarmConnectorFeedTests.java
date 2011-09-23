@@ -93,12 +93,12 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 	}
 
 	/**
-	 * https://github.com/buglabs/bugswarm/wiki/Swarm-Feeds-API
+	 * https://github.com/buglabs/bugswarm/wiki/Swarm-Feeds-API.
 	 * 
 	 * Test 'Querying available Feeds in a Swarm'
 	 * 
-	 * @throws IOException
-	 * @throws InterruptedException
+	 * @throws IOException on I/O error
+	 * @throws InterruptedException if interrupted
 	 */
 	public void testGetFeedsGlobal() throws IOException, InterruptedException {
 		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
@@ -113,7 +113,8 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getAPIKey());
 
-		HTTPResponse response = request.get(AccountConfig.getConfiguration().getHostname(Protocol.HTTP) + "/swarms/" + AccountConfig.testSwarmId + "/feeds?stream=true", headers);
+		HTTPResponse response = request.get(AccountConfig.getConfiguration().getHostname(Protocol.HTTP) 
+				+ "/swarms/" + AccountConfig.testSwarmId + "/feeds?stream=true", headers);
 		
 		StreamScanner scanner = new StreamScanner(response.getStream());
 		scanner.start();
@@ -139,7 +140,7 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 	}
 
 	/**
-	 * https://github.com/buglabs/bugswarm/wiki/Swarm-Feeds-API
+	 * https://github.com/buglabs/bugswarm/wiki/Swarm-Feeds-API.
 	 * 
 	 * Test 'Querying available Feeds in a Swarm Resource'
 	 * 

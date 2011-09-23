@@ -132,11 +132,14 @@ public class Activator implements BundleActivator, ManagedService {
 	}
 
 	/**
-	 * @return Hostname property as defined as a OSGi property, or null if
+	 * @param defaultValue Default value if undefined.
+	 * @return Hostname property as defined as a OSGi property, or defaultValue if
 	 *         undefined.
+	 *         
 	 */
-	public static String getHostnameProperty() {
-		return context.getProperty(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER);
+	public static Object getBundleContextProperty(String key, Object defaultValue) {
+		Object property = context.getProperty(key);
+		return property == null ? defaultValue : property;
 	}
 
 	/**

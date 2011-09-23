@@ -63,4 +63,14 @@ public final class SwarmConfigKeys {
 	 * The username used in the XMPP server.
 	 */
 	public static final String CONFIG_KEY_BUGSWARM_USERNAME = "com.buglabs.bugswarm.username";
+
+	/**
+	 * The port for WS API access.
+	 */
+	public static final String CONFIG_KEY_BUGSWARM_HTTP_PORT = "com.buglabs.bugswarm.http.port";
+
+	/**
+	 * The port for XMPP API access.
+	 */
+	public static final String CONFIG_KEY_BUGSWARM_XMPP_PORT = "com.buglabs.bugswarm.xmpp.port";
 }

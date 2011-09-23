@@ -36,11 +36,14 @@ public class Configuration {
 	private static final String HTTP_SCHEME = "HTTP://";
 	private static final String XMPP_PREFIX = "xmpp.";
 	private static final String HTTP_PREFIX = "api.";
-	private static final String BUG20_SYSFS_MACADDR_FILE = "/sys/devices/platform/ehci-omap.0/usb1/1-2/1-2.4/1-2.4:1.0/net/eth0/address";
+	private static final String BUG20_SYSFS_MACADDR_FILE = 
+		"/sys/devices/platform/ehci-omap.0/usb1/1-2/1-2.4/1-2.4:1.0/net/eth0/address";
+	private static final int DEFAULT_XMPP_SERVER_PORT = 5222;
+	private static final int DEFAULT_HTTP_SERVER_PORT = 80;
 	/**
 	 * Stores the configuration.
 	 */
-	private Dictionary<String, String> config;
+	private Dictionary<String, Object> config;
 	private final String resource;
 
 	/**
@@ -53,16 +56,21 @@ public class Configuration {
 	 *            API_KEY as defined by server
 	 * @param username
 	 *            swarm username
+	 * @param httpPort port of WS API server
+	 * @param xmppPort port of messaging server
+	 * 
 	 */
-	public Configuration(final String hostname, final String apiKey, final String username) {
+	public Configuration(final String hostname, final String apiKey, final String username, final int httpPort, final int xmppPort) {
 		if (hostname.contains("://"))
 			throw new IllegalArgumentException("Hostname must note include a scheme.");
 
-		config = new Hashtable<String, String>();
+		config = new Hashtable<String, Object>();
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, hostname);
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME, username);
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY, apiKey);
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_ENABLED, Boolean.toString(true));
+		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_HTTP_PORT, httpPort);
+		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_XMPP_PORT, xmppPort);
 		resource = getMachineResource();
 	}
 
@@ -70,15 +78,16 @@ public class Configuration {
 	 * @param config
 	 *            pre-loaded Configuration
 	 */
-	public Configuration(final Dictionary<String, String> config) {
+	public Configuration(final Dictionary<String, Object> config) {
 		this.config = config;
 		resource = getMachineResource();
 
-		String hostname = Activator.getHostnameProperty();
-		if (hostname != null)
-			config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, hostname);
-		else
-			config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, DEFAULT_HOSTNAME);
+		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, 
+				Activator.getBundleContextProperty(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, DEFAULT_HOSTNAME));
+		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_HTTP_PORT, Activator.
+				getBundleContextProperty(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_HTTP_PORT, DEFAULT_HTTP_SERVER_PORT));
+		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_XMPP_PORT, Activator.
+				getBundleContextProperty(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_XMPP_PORT, DEFAULT_XMPP_SERVER_PORT));
 	}
 
 	/**
@@ -124,19 +133,51 @@ public class Configuration {
 	public String getHostname(final Protocol protocol) {
 		switch (protocol) {
 		case HTTP:
-			return HTTP_SCHEME + HTTP_PREFIX + config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER);
+			if (getHTTPPort() == DEFAULT_HTTP_SERVER_PORT)
+				return HTTP_SCHEME + HTTP_PREFIX + config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER);
+			else
+				return HTTP_SCHEME + HTTP_PREFIX + config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER) 
+							+ ":" + getHTTPPort();
 		case XMPP:
 			return XMPP_PREFIX + config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER);
 		default:
 			throw new IllegalArgumentException("Unknown protocol");
 		}
 	}
+	
+	/**
+	 * @return HTTP port for WS API.
+	 */
+	public int getHTTPPort() {
+		if (config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_HTTP_PORT) != null) {
+			try {
+				return Integer.parseInt(config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_HTTP_PORT).toString());
+			} catch (NumberFormatException e) {			
+			}
+		}
+		
+		return DEFAULT_HTTP_SERVER_PORT;
+	}
+	
+	/**
+	 * @return XMPP Port for Messaging API.
+	 */
+	public int getXMPPPort() {
+		if (config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_XMPP_PORT) != null) {
+			try {
+				return Integer.parseInt(config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_XMPP_PORT).toString());
+			} catch (NumberFormatException e) {				
+			}
+		}
+		
+		return DEFAULT_XMPP_SERVER_PORT;
+	}
 
 	/**
 	 * @return the client API_KEY
 	 */
 	public String getAPIKey() {
-		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY);
+		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY).toString();
 	}
 
 	/**
@@ -148,7 +189,8 @@ public class Configuration {
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName() + " (" + config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER) + ", " + getUsername()
+		return this.getClass().getSimpleName() + " (" 
+				+ config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER) + ", " + getUsername()
 				+ ", " + getAPIKey() + ", " + getResource() + ")";
 	}
 
@@ -156,7 +198,7 @@ public class Configuration {
 	 * @return the username as defined on client.
 	 */
 	public String getUsername() {
-		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME);
+		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME).toString();
 	}
 
 	/**
@@ -167,7 +209,7 @@ public class Configuration {
 	 * @return true if the dictionary has values for the necessary keys to
 	 *         create a swarm connection.
 	 */
-	public static boolean isValid(final Dictionary<String, String> config) {
+	public static boolean isValid(final Dictionary<String, Object> config) {
 		if (config.isEmpty())
 			return false;
 
@@ -197,11 +239,11 @@ public class Configuration {
 	 * @return true if the passed dictionary contains a key and a value that
 	 *         does not evaluate to empty string or null.
 	 */
-	private static boolean hasEntry(final Dictionary<String, String> dictionary, final String key) {
+	private static boolean hasEntry(final Dictionary<String, Object> dictionary, final String key) {
 		if (dictionary.get(key) == null)
 			return false;
 
-		if (dictionary.get(key).trim().length() == 0)
+		if (dictionary.get(key) instanceof String && ((String) dictionary.get(key)).trim().length() == 0)
 			return false;
 
 		return true;

@@ -1,11 +1,16 @@
 package com.buglabs.bug.swarm.connector.ws;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+
+import org.codehaus.jackson.type.TypeReference;
 
 import com.buglabs.bug.swarm.connector.Configuration;
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.connector.model.SwarmModel;
+import com.buglabs.bug.swarm.connector.model.SwarmResourceModel;
+import com.buglabs.util.http.ReSTClient;
 
 /**
  * A Swarm WS Client implementation using json.simple and simplerestclient.
@@ -108,7 +113,11 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 	public List<SwarmModel> list() throws IOException {
 		validateAPIKey();
 
-		return httpClient.callGet(swarmHostUrl.copy("swarms"), ModelDeserializers.SwarmModelListDeserializer).getContent();
+		InputStream inputStream = httpClient.callGetContent(swarmHostUrl.copy("swarms"), ReSTClient.INPUTSTREAM_DESERIALIZER);
+		
+		return getMapper().readValue(inputStream, new TypeReference<List<SwarmModel>>() { });
+		
+		//return httpClient.callGet(swarmHostUrl.copy("swarms"), ModelDeserializers.SwarmModelListDeserializer).getContent();
 	}
 
 	@Override

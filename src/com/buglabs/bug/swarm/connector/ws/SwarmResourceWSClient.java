@@ -46,11 +46,10 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 
 		validateAPIKey();
 
-		Map<String, String> props = new HashMap<String, String>();
-
-		props.put("type", type.toString());
-		props.put("user_id", userId);
-		props.put("resource", resource);
+		Map<String, String> props = toMap(
+				"type", type.toString(),
+				"user_id", userId,
+				"resource", resource);
 
 		return httpClient.callPost(swarmHostUrl.copy("swarms/", swarmId, "/resources"), props, 
 				ModelDeserializers.SwarmWSResponseDeserializer).getContent();

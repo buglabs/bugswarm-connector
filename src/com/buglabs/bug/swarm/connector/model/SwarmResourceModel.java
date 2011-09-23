@@ -3,6 +3,7 @@ package com.buglabs.bug.swarm.connector.model;
 import java.io.IOException;
 import java.util.List;
 
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -97,7 +98,7 @@ public class SwarmResourceModel {
 	 * @throws JsonMappingException 
 	 * @throws JsonParseException 
 	 */
-	public static List<SwarmResourceModel> createListFromJson(final String json) throws JsonParseException, JsonMappingException, IOException {
+	public static List<SwarmResourceModel> createListFromJson(final JsonNode json) throws JsonParseException, JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		List<SwarmResourceModel> result = mapper.readValue(json, new TypeReference<List<SwarmResourceModel>>() { });
 		return result;

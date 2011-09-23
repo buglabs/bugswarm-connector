@@ -7,7 +7,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.codehaus.jackson.Version;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.module.SimpleModule;
 
+import com.buglabs.bug.swarm.connector.model.SwarmModel;
 import com.buglabs.util.http.ReSTClient;
 import com.buglabs.util.http.ReSTClient.Response;
 
@@ -30,6 +34,8 @@ public abstract class AbstractSwarmWSClient {
 	protected boolean isValidated = false;
 
 	private Map<String, String> staticHeaders;
+	private static ObjectMapper jsonMapper;
+	
 
 	/**
 	 * @param swarmHostUrl
@@ -69,6 +75,16 @@ public abstract class AbstractSwarmWSClient {
 					throw new IOException("Server returned HTTP error " + code + ": " + ReSTClient.getHttpResponseText(code));
 			}
 		});
+		
+		if (jsonMapper == null) {
+			jsonMapper = new ObjectMapper();
+			
+			SimpleModule swarmDeserializerModule = new SimpleModule("SwarmDeserializers", new Version(1, 0, 0, null));
+			
+			swarmDeserializerModule.addDeserializer(SwarmModel.class, new SwarmModel.JSONDeserializer());
+			
+			jsonMapper.registerModule(swarmDeserializerModule);
+		}
 	}
 
 	/**
@@ -192,4 +208,8 @@ public abstract class AbstractSwarmWSClient {
 			if (params[i] == null)
 				throw new IllegalArgumentException("An input parameter is null.");		
 	}	
+	
+	public static ObjectMapper getMapper() {
+		return jsonMapper;
+	}
 }

@@ -1,16 +1,20 @@
 package com.buglabs.bug.swarm.connector.model;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.JsonProcessingException;
+import org.codehaus.jackson.map.DeserializationContext;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.deser.StdDeserializer;
 import org.codehaus.jackson.type.TypeReference;
-import org.osgi.service.useradmin.User;
+
+import com.buglabs.bug.swarm.connector.ws.AbstractSwarmWSClient;
 
 /**
  * Model class to represent a Swarm.
@@ -166,6 +170,30 @@ public class SwarmModel {
 				null, 
 				jsonObject.get("name").toString(),
 				jsonObject.get("user_id").toString());*/
+	}
+	
+	public static class JSONDeserializer extends StdDeserializer {
+
+		public JSONDeserializer() {
+			super(SwarmModel.class);			
+		}
+
+		@Override
+		public Object deserialize(JsonParser arg0, DeserializationContext arg1) throws IOException, JsonProcessingException {
+			
+			JsonNode jsonObject = AbstractSwarmWSClient.getMapper().readTree(arg0);
+			
+			return new SwarmModel(
+					Boolean.parseBoolean(jsonObject.get("public").toString()),
+					SwarmResourceModel.createListFromJson((JsonNode) jsonObject.get("resources")), 
+					jsonObject.get("created_at").toString(),
+					jsonObject.get("id").toString(), 
+					jsonObject.get("description").toString(), 
+					null, 
+					jsonObject.get("name").toString(),
+					jsonObject.get("user_id").toString());
+		}
+		
 	}
 
 	@Override

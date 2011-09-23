@@ -18,6 +18,8 @@ Import-Package:
  javax.servlet.http,
  org.codehaus.jackson,
  org.codehaus.jackson.map,
+ org.codehaus.jackson.map.deser,
+ org.codehaus.jackson.map.module,
  org.codehaus.jackson.node,
  org.codehaus.jackson.type,
  org.jivesoftware.smack,

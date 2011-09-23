@@ -58,9 +58,18 @@ public final class ModelDeserializers {
 			if (responseCode == 404)
 				return null;
 			
-			JSONObject jsonObject = (JSONObject) JSONValue.parse(new InputStreamReader(input));
+			//Temporary hack to work for both Object and Array responses 
+			//from server until documentation matches actual behavior.
+			//TODO: remove temp hack
+			Object response = JSONValue.parse(new InputStreamReader(input));
 			
-			return ResourceModel.createFromJson(jsonObject);
+			if (response instanceof JSONArray) {
+				return ResourceModel.createFromJson((JSONObject) ((JSONArray) response).get(0));
+			} else if (response instanceof JSONObject) {
+				return ResourceModel.createFromJson((JSONObject) response); 
+			}
+			
+			throw new IOException("Unknown type returned from JSON parser.");
 		}
 	};
 	

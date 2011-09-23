@@ -1,4 +1,6 @@
 #!/bin/sh
+# This script is intented to be run on a BUG.  It will download the latest connector jars from the build server
+# and update the running Felix system if active.
 
 SWARM_HOSTNAME="bugswarm-test"
 
@@ -16,6 +18,7 @@ if [ ! -f /usr/share/osgi/properties/connector.properties ]; then
 	echo "Be sure that the client is able to connect to $SWARM_HOSTNAME"
 	echo "Setting connector host property"
 	echo "com.buglabs.bugswarm.hostname=$SWARM_HOSTNAME" > /usr/share/osgi/properties/connector.properties
+	echo "Please restart Felix for system property change to take effect"
 fi
 
 if [ -e /usr/share/osgi/bin/update ]; then

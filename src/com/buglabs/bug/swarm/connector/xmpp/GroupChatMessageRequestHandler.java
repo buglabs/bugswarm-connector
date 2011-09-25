@@ -113,8 +113,8 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 			if (im != null) {
 				for (ISwarmServerRequestListener listener : requestListeners) {
 					try {
-						handlePlainTextMessage(im, listener);
-						return;
+						if (handlePlainTextMessage(im, listener))
+							return;
 					} catch (ParseException e) {
 						Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
 					}
@@ -177,17 +177,16 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 	 *            message
 	 * @param listener
 	 *            listener to send event to
-	 * @throws ParseException if message cannot be parsed.
+	 * @return true if message was successfully handled, false otherwise.
 	 */
-	private void handlePlainTextMessage(final XMPPMessage im, final ISwarmServerRequestListener listener) throws ParseException {
+	private boolean handlePlainTextMessage(final XMPPMessage im, final ISwarmServerRequestListener listener) throws ParseException {
 		switch (im.getType()) {
 		case SWARM_INVITE:
 			InviteMessageImpl imi = (InviteMessageImpl) im;
 			listener.swarmInviteRequest(new Jid(imi.getSenderJID()), imi.getRoomID());
-			break;
+			return true;
 		default:
-			throw new RuntimeException("Unhandled XMPPMessage in handlePlainTextMessage()");
+			return false;
 		}
-
 	}
 }

@@ -166,6 +166,8 @@ public class SwarmXMPPClient {
 			GroupChatMessageRequestHandler requestHandler = new GroupChatMessageRequestHandler(jid, swarmId, requestListeners);
 			connection.getChatManager().addChatListener(requestHandler);
 			muc.addMessageListener(requestHandler);
+			muc.addParticipantListener(requestHandler);
+			
 		}
 	}
 

@@ -260,17 +260,19 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		//log.log(LogService.LOG_DEBUG, "Local feed notification.");
 		
 		//TODO: Verify broadcast logic is correct with Camilo & Andy
-		log.log(LogService.LOG_WARNING, "Local feed notification is disabled until functionality can be verified to be correct.");
-		return;
-		/*
+		//log.log(LogService.LOG_WARNING, "Local feed notification is disabled until functionality can be verified to be correct.");
+		//return;
+		
+		//TODO 2: Not sure if is correct, awaiting feedback.  For now will enable functionality.
+		
 		try {
-			// Load data about server configuration and local configuration.
-			List<SwarmModel> allSwarms = wsClient.getSwarmResourceClient().getSwarmsByMember(config.getResource());
-
-			broadcastState(allSwarms);
+			// Load data about server configuration and local configuration.			
+			announceState(
+					wsClient.getSwarmResourceClient().getSwarmsByMember(
+							config.getResource()));
 		} catch (Exception e) {
 			log.log(LogService.LOG_ERROR, "Error occurred while sending updated device state to swarm server.", e);
-		}*/
+		}
 	}
 
 	/**

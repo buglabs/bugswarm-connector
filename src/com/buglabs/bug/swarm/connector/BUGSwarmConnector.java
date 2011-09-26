@@ -127,6 +127,13 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 						xmppClient.joinSwarm(swarm.getId(), this);
 						memberSwarms.add(swarm);
 					}
+					
+					// Send feed state to other swarm peers
+					// This is disabled as it's only used by the Web UI which is not
+					// currently available.
+					
+					log.log(LogService.LOG_DEBUG, "Announcing local state to member swarms.");
+					announceState(allSwarms);					
 				}
 			} catch (HTTPException e) {
 				if (e.getErrorCode() == HTTP_404)
@@ -134,15 +141,6 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 				else
 					throw e;
 			}
-
-			// Send feed state to other swarm peers
-			// This is disabled as it's only used by the Web UI which is not
-			// currently available.
-			/*
-			 * log.log(LogService.LOG_DEBUG,
-			 * "Announcing local state to member swarms.");
-			 * announceState(allSwarms);
-			 */
 
 			// Listen for local changes
 			osgiHelper.addListener(this);
@@ -152,9 +150,25 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			log.log(LogService.LOG_ERROR, "Error occurred while initializing swarm client.", e);
 		}
 	}
+	
+	/**
+	 * Send feed information as public message to MUC rooms for all member swarms.
+	 * 
+	 * @param allSwarms
+	 * @throws XMPPException
+	 */
+	private void announceState(final List<SwarmModel> allSwarms) throws XMPPException {
+		JSONArray document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
+		
+		//Notify all consumer-members of swarms of services, feeds, and modules.
+		for (SwarmModel swarm : allSwarms) {
+			Activator.getLog().log(LogService.LOG_DEBUG, "Announcing state " + document + " to swarm " + swarm.getId());
+			xmppClient.announce(swarm.getId(), document);
+		}
+	}
 
 	/**
-	 * Send the state of this device to all interested swarm members.
+	 * Send the state of this device to all interested swarm members as private messages.
 	 * 
 	 * @param allSwarms
 	 *            list of SwarmModel to send state to

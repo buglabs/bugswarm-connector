@@ -9,6 +9,7 @@ import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.packet.Presence;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.model.FeedRequest;
@@ -142,6 +143,16 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 			Message m = (Message) packet;
 			
 			processServerMessage(m.getBody(), m.getFrom());
+		} else if (packet instanceof Presence) {
+			Presence p = (Presence) packet;
+			
+			for (ISwarmServerRequestListener listener : requestListeners) {
+				try {
+					listener.feedListRequest(new Jid(p.getFrom()), swarmId);
+				} catch (ParseException e) {
+					Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
+				}
+			}
 		} else {
 			Activator.getLog().log(LogService.LOG_WARNING, "Unhandled packet received from swarm " + swarmId);
 		}

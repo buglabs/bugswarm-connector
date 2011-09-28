@@ -49,7 +49,7 @@
 	</target>
 	
 	<!-- PROJECT IMPORTS -->
-	<exec executable="${wget.bin}">
+	<exec executable="/usr/bin/wget">
 		<arg line="-P ${base.build.dir}" />
 		<arg line="--no-check-certificate" />
 		<arg line="-nc" />

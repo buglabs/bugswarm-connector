@@ -12,6 +12,7 @@ import java.util.TimerTask;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.XMPPException;
 import org.json.simple.JSONArray;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
@@ -270,16 +271,16 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		
 		//TODO 2: Not sure if is correct, awaiting feedback.  For now will enable functionality.
 		
-		if (source instanceof Feed) {
-			try {
-				// Load data about server configuration and local configuration.
-				announceState(
-						wsClient.getSwarmResourceClient().getSwarmsByMember(
-								config.getResource()), (Feed) source);
-			} catch (Exception e) {
-				log.log(LogService.LOG_ERROR, "Error occurred while sending updated device state to swarm server.", e);
-			}
+		
+		try {
+			// Load data about server configuration and local configuration.
+			announceState(
+					wsClient.getSwarmResourceClient().getSwarmsByMember(
+							config.getResource()), Feed.createForType(source));
+		} catch (Exception e) {
+			log.log(LogService.LOG_ERROR, "Error occurred while sending updated device state to swarm server.", e);
 		}
+		
 	}
 
 	/**

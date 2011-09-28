@@ -145,7 +145,7 @@ public class BasicConnectivityTests extends TestCase {
 		for (SwarmModel swarm : connectedSwarms) {
 			JSONArray advertisement = JSONElementCreator.createFeedArray(osgi.getBUGFeeds());
 			System.out.println("Announcing " + advertisement + " to swarm: " + swarm.getId());
-			xmppClient.announce(swarm.getId(), advertisement);
+			xmppClient.announce(swarm.getId(), advertisement.toJSONString());
 		}
 
 		// At this point we should be connected to the swarm server, verify.

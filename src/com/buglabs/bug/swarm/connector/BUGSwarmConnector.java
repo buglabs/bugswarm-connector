@@ -133,7 +133,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 					// currently available.
 					
 					log.log(LogService.LOG_DEBUG, "Announcing local state to member swarms.");
-					announceState(allSwarms);					
+					announceState(allSwarms, null);					
 				}
 			} catch (HTTPException e) {
 				if (e.getErrorCode() == HTTP_404)
@@ -154,11 +154,16 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	/**
 	 * Send feed information as public message to MUC rooms for all member swarms.
 	 * 
-	 * @param allSwarms
-	 * @throws XMPPException
+	 * @param allSwarms list of swarms to announce to
+	 * @param source specific feed to announce or null to announce all feeds.
+	 * @throws XMPPException thrown on XMPP error
 	 */
-	private void announceState(final List<SwarmModel> allSwarms) throws XMPPException {
-		JSONArray document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
+	private void announceState(final List<SwarmModel> allSwarms, Feed source) throws XMPPException {
+		String document = null;
+		if (source == null)
+			document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds()).toJSONString();
+		else 
+			document = JSONElementCreator.createFeedElement(source).toJSONString();
 		
 		//Notify all consumer-members of swarms of services, feeds, and modules.
 		for (SwarmModel swarm : allSwarms) {
@@ -265,13 +270,15 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		
 		//TODO 2: Not sure if is correct, awaiting feedback.  For now will enable functionality.
 		
-		try {
-			// Load data about server configuration and local configuration.			
-			announceState(
-					wsClient.getSwarmResourceClient().getSwarmsByMember(
-							config.getResource()));
-		} catch (Exception e) {
-			log.log(LogService.LOG_ERROR, "Error occurred while sending updated device state to swarm server.", e);
+		if (source instanceof Feed) {
+			try {
+				// Load data about server configuration and local configuration.
+				announceState(
+						wsClient.getSwarmResourceClient().getSwarmsByMember(
+								config.getResource()), (Feed) source);
+			} catch (Exception e) {
+				log.log(LogService.LOG_ERROR, "Error occurred while sending updated device state to swarm server.", e);
+			}
 		}
 	}
 

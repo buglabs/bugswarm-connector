@@ -274,7 +274,7 @@ public final class OSGiHelper implements ServiceListener {
 			// If we have event listeners, send notifications of the change.
 			if (listeners != null && listeners.size() > 0) {
 				for (EntityChangeListener listener : listeners)
-					listener.change(event.getType(), event.getSource());
+					listener.change(event.getType(), svc);
 			}
 		}
 	}

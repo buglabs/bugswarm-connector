@@ -242,9 +242,9 @@ public class SwarmXMPPClient {
 	 * @throws XMPPException
 	 *             on XMPP protocol error
 	 */
-	public void announce(final String swarmId, final JSONArray feedDocument) throws XMPPException {
+	public void announce(final String swarmId, final String feedDocument) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
-		muc.sendMessage(feedDocument.toString());
+		muc.sendMessage(feedDocument);
 	}
 
 	/**

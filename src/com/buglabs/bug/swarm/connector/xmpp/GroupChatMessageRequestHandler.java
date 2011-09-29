@@ -146,12 +146,16 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 		} else if (packet instanceof Presence) {
 			Presence p = (Presence) packet;
 			
-			for (ISwarmServerRequestListener listener : requestListeners) {
-				try {
-					listener.feedListRequest(new Jid(p.getFrom()), swarmId);
-				} catch (ParseException e) {
-					Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
+			if (p.isAvailable()) {
+				for (ISwarmServerRequestListener listener : requestListeners) {
+					try {
+						listener.feedListRequest(new Jid(p.getFrom()), swarmId);
+					} catch (ParseException e) {
+						Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
+					}
 				}
+			} else if (p.isAway()) {
+				Activator.getLog().log(LogService.LOG_INFO, "TODO: cleanup any existing feed requests to user " + p.getFrom());
 			}
 		} else {
 			Activator.getLog().log(LogService.LOG_WARNING, "Unhandled packet received from swarm " + swarmId);

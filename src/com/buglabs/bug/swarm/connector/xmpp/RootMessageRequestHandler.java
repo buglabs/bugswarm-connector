@@ -57,22 +57,19 @@ public class RootMessageRequestHandler implements PacketListener, ChatManagerLis
 	 * @param sender JID of originator of message
 	 */
 	private void processServerMessage(String rawMessage, String sender) {
-			XMPPMessage im = XMPPPlainTextMessageParser.parseServerMessage(rawMessage);
+		XMPPMessage im = XMPPPlainTextMessageParser.parseServerMessage(rawMessage);
 
-			if (im != null) {
-				for (ISwarmServerRequestListener listener : requestListeners) {
-					try {
-						if (handlePlainTextMessage(im, listener))
-							return;
-					} catch (ParseException e) {
-						Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
-					}
+		if (im != null) {
+			for (ISwarmServerRequestListener listener : requestListeners) {
+				try {
+					if (handlePlainTextMessage(im, listener))
+						return;
+				} catch (ParseException e) {
+					Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
 				}
+			}
 
-			} 
-			
-			Activator.getLog().log(LogService.LOG_ERROR, 
-					"Unhandled request from : " + rawMessage + " in " + this.getClass().getCanonicalName());
+		} 
 	}
 
 	@Override

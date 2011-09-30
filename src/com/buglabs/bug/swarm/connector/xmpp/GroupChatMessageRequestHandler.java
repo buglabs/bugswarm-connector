@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.util.List;
 
 import org.jivesoftware.smack.Chat;
+import org.jivesoftware.smack.ChatManagerListener;
 import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Message;
@@ -22,7 +23,7 @@ import com.buglabs.bug.swarm.connector.osgi.Activator;
  * @author kgilmer
  * 
  */
-public class GroupChatMessageRequestHandler implements PacketListener, MessageListener {
+public class GroupChatMessageRequestHandler implements PacketListener, MessageListener, ChatManagerListener {
 
 	private final Jid jid;
 	private final String swarmId;
@@ -138,5 +139,15 @@ public class GroupChatMessageRequestHandler implements PacketListener, MessageLi
 	@Override
 	public void processMessage(final Chat chat, final Message message) {	
 		processServerMessage(message.getBody(), chat.getParticipant());
+	}
+
+	@Override
+	public void chatCreated(final Chat chat, final boolean createdLocally) {
+		Activator.getLog().log(LogService.LOG_DEBUG, "Private chat created with " + chat.getParticipant());
+
+		chat.addMessageListener(this);
+
+		// TODO: figure out how to handle when clients close chat connections
+		// for proper cleanup.
 	}
 }

@@ -102,7 +102,7 @@ public class SwarmXMPPClient {
 
 		try {
 			rootRequestHandler = new RootMessageRequestHandler(jid, requestListeners);
-			connection.getChatManager().addChatListener(rootRequestHandler);			
+			connection.getChatManager().addChatListener(rootRequestHandler);		
 		} catch (Exception e) {
 			throw new IOException(e);
 		}
@@ -165,7 +165,7 @@ public class SwarmXMPPClient {
 			muc.join(getResource());
 			GroupChatMessageRequestHandler requestHandler = new GroupChatMessageRequestHandler(jid, swarmId, requestListeners);
 			// TODO: Verify it is correct to not execute the following line.
-			//connection.getChatManager().addChatListener(requestHandler);
+			connection.getChatManager().addChatListener(requestHandler);
 			muc.addMessageListener(requestHandler);
 			muc.addParticipantListener(requestHandler);
 			

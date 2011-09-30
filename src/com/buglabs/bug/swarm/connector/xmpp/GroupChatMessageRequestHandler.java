@@ -1,7 +1,10 @@
 package com.buglabs.bug.swarm.connector.xmpp;
 
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManagerListener;
@@ -28,9 +31,23 @@ import com.buglabs.bug.swarm.connector.xmpp.parse.XMPPPlainTextMessageParser.XMP
  */
 public class GroupChatMessageRequestHandler implements PacketListener, ChatManagerListener, MessageListener {
 
+	/**
+	 * If same message comes from server within this time window, it will be ignored.
+	 */
+	private static final long DUPLICATE_DELAY = 1000 * 3;
+	/**
+	 * Stores a window of messages recently received from the server.
+	 */
+	private static final Map<String, Long> MESSAGE_HISTORY = new HashMap<String, Long>();
+	/**
+	 * If the number of messages in messageHistory exceeds value, scan for messages that have passed DUPLICATE_DELAY and remove them.
+	 */
+	private static final int MESSAGE_HISTORY_GC_COUNT = 10;
+	
 	private final Jid jid;
 	private final String swarmId;
 	private final List<ISwarmServerRequestListener> requestListeners;
+	
 
 	/**
 	 * Construct the handler with a jid, swarmid, and list of local listeners.
@@ -80,6 +97,12 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 	 * @param sender JID of originator of message
 	 */
 	private void processServerMessage(String rawMessage, String sender) {
+		if (isDuplicateMessage(rawMessage, sender, DUPLICATE_DELAY)) {
+			Activator.getLog().log(LogService.LOG_ERROR, 
+					"Ignoring duplicate message from " + sender);
+			return;
+		}
+		
 		FeedRequest freq = FeedRequest.parseJSON(rawMessage);
 		
 		if (freq == null) {
@@ -126,6 +149,47 @@ public class GroupChatMessageRequestHandler implements PacketListener, ChatManag
 			Activator.getLog().log(LogService.LOG_ERROR, 
 					"Unhandled feed request from swarm " + swarmId + " message: " + rawMessage);
 		}
+	}
+
+	/**
+	 * Check if a given message from the server is a dup.
+	 * 
+	 * @param rawMessage message from server
+	 * @param sender sender of message
+	 * @param timeWindowMillis time that message is to be considered duplicate
+	 * @return true if the request message
+	 */
+	private synchronized boolean isDuplicateMessage(String rawMessage, String sender, long timeWindowMillis) {
+		StringBuilder sb = new StringBuilder();
+		boolean retval = false;
+		
+		String key = sb.append(rawMessage).append(sender).toString();
+		
+		if (MESSAGE_HISTORY.containsKey(key)) {
+			long time = System.currentTimeMillis() - MESSAGE_HISTORY.get(key);
+			
+			if (time <= timeWindowMillis)
+				retval = true;
+		} 
+		
+		MESSAGE_HISTORY.put(key, System.currentTimeMillis());
+		
+		if (MESSAGE_HISTORY.size() > MESSAGE_HISTORY_GC_COUNT) {
+			//Garbage collect old messages
+			List<String> garbage = new ArrayList<String>();
+			
+			for (Map.Entry<String, Long> entry : MESSAGE_HISTORY.entrySet())
+				if ((System.currentTimeMillis() - entry.getValue()) > DUPLICATE_DELAY)
+					garbage.add(entry.getKey());
+			
+			for (String mkey : garbage)
+				MESSAGE_HISTORY.remove(mkey);
+			
+			if (garbage.size() > 0)
+				Activator.getLog().log(LogService.LOG_DEBUG, "Garbage collected " + garbage.size() + " messages.");
+		}
+		
+		return retval;
 	}
 
 	@Override

@@ -68,6 +68,6 @@ public class InviteMessageImpl implements XMPPMessage {
 	 *         it as this type.
 	 */
 	public static boolean isMessageOfType(final String message) {
-		return message.contains("invites you to the room") && message.split(" ").length > (ROOM_ID_INDEX + 1);
+		return message.contains("invites you to the room"); // && message.split(" ").length > (ROOM_ID_INDEX + 1);
 	}
 }

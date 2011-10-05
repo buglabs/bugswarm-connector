@@ -2,10 +2,12 @@ package com.buglabs.bug.swarm.connector.osgi;
 
 import java.util.Map;
 
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 
-import com.buglabs.bug.dragonfly.module.IModuleControl;
 import com.buglabs.services.ws.PublicWSProvider;
+import com.buglabs.util.osgi.OSGiServiceLoader;
 
 /**
  * Internally represents a swarm-feed. Essentially a named Map.
@@ -38,6 +40,8 @@ public class Feed {
 	 * Name/value pairs of Feed.
 	 */
 	private Map<?, ?> feed;
+
+	private ServiceRegistration serviceRegistration;
 
 	/**
 	 * @param feedName
@@ -77,6 +81,31 @@ public class Feed {
 
 		return super.equals(obj);
 	}
+	
+	public void register(BundleContext context) {
+		serviceRegistration = context.registerService(
+				Map.class.getName(), 
+				feed, 
+				OSGiServiceLoader.toDictionary(
+						FEED_SERVICE_NAME_PROPERTY, feedName,
+						FEED_SERVICE_TIMESTAMP_PROPERTY, Long.toString(System.currentTimeMillis())));
+	}
+	
+	public void unregister() {
+		if (serviceRegistration != null) {
+			serviceRegistration.unregister();
+			serviceRegistration = null;
+		}			
+	}
+	
+	public void update(Map<?, ?> feed) {
+		this.feed = feed;
+		
+		if (serviceRegistration != null)
+			serviceRegistration.setProperties(OSGiServiceLoader.toDictionary(
+							FEED_SERVICE_NAME_PROPERTY, feedName,
+							FEED_SERVICE_TIMESTAMP_PROPERTY, Long.toString(System.currentTimeMillis())));
+	}
 
 	/**
 	 * Convenience factory for feed type.
@@ -86,10 +115,7 @@ public class Feed {
 	 *            Other types will yield null on return.
 	 * @return new Feed based on input
 	 */
-	public static Feed createForType(final Object input) {
-		if (input instanceof IModuleControl)
-			return new ModuleFeedAdapter((IModuleControl) input);
-
+	public static Feed createForType(final Object input) {		
 		if (input instanceof PublicWSProvider)
 			return new ServiceFeedAdapter((PublicWSProvider) input);
 

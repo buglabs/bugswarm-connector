@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
@@ -16,6 +17,7 @@ import org.osgi.service.log.LogService;
 import com.buglabs.bug.dragonfly.module.IModuleControl;
 import com.buglabs.bug.swarm.connector.test.OSGiHelperTester;
 import com.buglabs.services.ws.PublicWSProvider;
+import com.buglabs.util.osgi.FilterUtil;
 import com.buglabs.util.osgi.OSGiServiceLoader;
 
 /**
@@ -49,6 +51,8 @@ public final class OSGiHelper implements ServiceListener {
 	private Map<String, Feed> feedNameMap;
 
 	private List<EntityChangeListener> listeners;
+	private ModulesFeed modulesFeed;
+	private CapabilitiesFeed capabilitiesFeed;
 
 	/**
 	 * @throws Exception
@@ -59,7 +63,8 @@ public final class OSGiHelper implements ServiceListener {
 		feedServiceMap = new HashMap<Object, Feed>();
 		feedNameMap = new HashMap<String, Feed>();
 
-		initializeModuleProviders();
+		modulesFeed = createModuleFeed();
+		capabilitiesFeed = createCapabiltiesFeed(modulesFeed);
 		initializeWSProviders();
 		initializeFeedProviders();
 
@@ -67,6 +72,37 @@ public final class OSGiHelper implements ServiceListener {
 			context.addServiceListener(this);
 
 		listeners = new CopyOnWriteArrayList<OSGiHelper.EntityChangeListener>();
+	}
+
+	/**
+	 * Create the capabilities feed.
+	 * 
+	 * @param moduleFeed Modules Feed
+	 * @return CapabilitiesFeed
+	 */
+	private CapabilitiesFeed createCapabiltiesFeed(ModulesFeed moduleFeed) {
+		CapabilitiesFeed cf = new CapabilitiesFeed(context, moduleFeed);
+		
+		cf.register(context);
+		
+		return cf;
+	}
+
+	/**
+	 * Refer to https://github.com/buglabs/bugswarm-connector/issues/20.
+	 * @return ModulesFeed
+	 * @throws InvalidSyntaxException 
+	 */
+	private ModulesFeed createModuleFeed() throws InvalidSyntaxException {
+			
+		ModulesFeed feed = new ModulesFeed(context);
+		
+		feed.register(context);
+		context.addServiceListener(
+				feed, 
+				FilterUtil.generateServiceFilter(IModuleControl.class.getName()));
+		
+		return feed;
 	}
 
 	/**
@@ -119,6 +155,10 @@ public final class OSGiHelper implements ServiceListener {
 		return new ArrayList<Feed>(feedServiceMap.values());
 	}
 
+	/**
+	 * @param feedRequestName name of feed
+	 * @return Feed from name
+	 */
 	public Feed getBUGFeed(String feedRequestName) {
 
 		return feedNameMap.get(feedRequestName);
@@ -131,7 +171,8 @@ public final class OSGiHelper implements ServiceListener {
 	private void initializeModuleProviders() throws Exception {
 		if (context != null) {
 			synchronized (feedServiceMap) {
-				OSGiServiceLoader.loadServices(context, IModuleControl.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
+				OSGiServiceLoader.loadServices(
+						context, IModuleControl.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
 					public void load(final Object service) throws Exception {
 						if (!feedServiceMap.containsKey(service)) {
 							feedServiceMap.put(service, Feed.createForType(service));
@@ -140,7 +181,8 @@ public final class OSGiHelper implements ServiceListener {
 				});
 			}
 			synchronized (feedNameMap) {
-				OSGiServiceLoader.loadServices(context, IModuleControl.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
+				OSGiServiceLoader.loadServices(
+						context, IModuleControl.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
 					public void load(final Object service) throws Exception {
 						Feed f = Feed.createForType(service);
 						if (!feedNameMap.containsKey(f.getName())) {
@@ -164,7 +206,8 @@ public final class OSGiHelper implements ServiceListener {
 	private void initializeWSProviders() throws Exception {
 		if (context != null) {
 			synchronized (feedServiceMap) {
-				OSGiServiceLoader.loadServices(context, PublicWSProvider.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
+				OSGiServiceLoader.loadServices(
+						context, PublicWSProvider.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
 					public void load(final Object service) throws Exception {
 						if (!feedServiceMap.containsKey(service)) {
 							feedServiceMap.put(service, Feed.createForType(service));
@@ -173,7 +216,8 @@ public final class OSGiHelper implements ServiceListener {
 				});
 			}
 			synchronized (feedNameMap) {
-				OSGiServiceLoader.loadServices(context, PublicWSProvider.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
+				OSGiServiceLoader.loadServices(
+						context, PublicWSProvider.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
 					public void load(final Object service) throws Exception {
 						Feed f = Feed.createForType(service);
 
@@ -240,8 +284,14 @@ public final class OSGiHelper implements ServiceListener {
 	public void shutdown() {
 		if (context != null) {
 			context.removeServiceListener(this);
+			
+			if (modulesFeed != null)
+				context.removeServiceListener(modulesFeed);
+						
+			if (capabilitiesFeed != null)
+				capabilitiesFeed = null;
 		}
-
+		
 		if (feedServiceMap != null) {
 			feedServiceMap.clear();
 		}
@@ -305,7 +355,7 @@ public final class OSGiHelper implements ServiceListener {
 	}
 
 	/**
-	 * @param event
+	 * @param service
 	 *            service event
 	 * @return true if event is from a BUG service.
 	 */
@@ -314,7 +364,7 @@ public final class OSGiHelper implements ServiceListener {
 	}
 
 	/**
-	 * @param event
+	 * @param service
 	 *            service event
 	 * @return true if event is from a BUG module.
 	 */

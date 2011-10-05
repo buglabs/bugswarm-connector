@@ -2,7 +2,10 @@ package com.buglabs.bug.swarm.connector.osgi;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -370,5 +373,26 @@ public final class OSGiHelper implements ServiceListener {
 	 */
 	private boolean isModuleEvent(final Object service) {
 		return service instanceof IModuleControl;
+	}
+	
+	/**
+	 * Convert an array of Strings into a Dictionary.
+	 * 
+	 * @param elements a list of elements of even size.  First element is key, second is value, and repeat.
+	 * @return Dictionary of key value pairs of input elements
+	 */
+	public static Dictionary toDictionary(String ... elements) {
+		if (elements.length % 2 != 0) {
+			throw new IllegalStateException("Input parameters must be even.");
+		}
+
+		Iterator<String> i = Arrays.asList(elements).iterator();
+		Hashtable<String, String> m = new Hashtable<String, String>();
+
+		while (i.hasNext()) {
+			m.put(i.next().toString(), i.next());
+		}
+
+		return m;
 	}
 }

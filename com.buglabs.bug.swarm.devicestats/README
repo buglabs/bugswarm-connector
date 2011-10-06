@@ -1,0 +1,12 @@
+bugswarm-devicestats is a BUGapp that utilizes bugswarm connector to export device statistics to swarm clients.  
+
+It addresses the pivotal story defined here: https://www.pivotaltracker.com/projects/294833?story_id=17210089
+
+The application supports an extension model such that new device properties can be added and exported to swarm without modifying the application itself.  Clients wishing to do this should implement and register the com.buglabs.bug.swarm.devicestats.pub.DeviceStatProviderService service.
+
+Currently the application supports the following device properties:
+-Wifi 
+-Ram
+-Storage
+
+To fulfill the requirements specified in the story, Battery/AC and BT device stats will need to be added.

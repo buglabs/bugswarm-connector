@@ -3,6 +3,12 @@
 	<!-- PROJECT CONSTANTS -->
 
 	<!-- PROJECT IMPORTS -->
-	<property name="common.ant.file" location="${base.build.dir}/toolbox/common-osgi.xml" />
-	<import file="${common.ant.file}" />
+	<exec executable="/usr/bin/wget">
+			<arg line="-P ${base.build.dir}" />
+			<arg line="--no-check-certificate" />
+			<arg line="-nc" />
+			<arg line="https://github.com/downloads/buglabs/bug-osgi/common-osgi.xml" />
+		</exec>
+		<property name="common.ant.file" location="${base.build.dir}/common-osgi.xml" />
+		<import file="${common.ant.file}" />
 </project>

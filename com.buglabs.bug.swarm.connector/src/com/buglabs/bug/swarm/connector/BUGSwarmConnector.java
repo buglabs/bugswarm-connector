@@ -12,6 +12,7 @@ import java.util.TimerTask;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.XMPPException;
 import org.json.simple.JSONArray;
+import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogService;
 
@@ -262,21 +263,20 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		// the entire state to each interested party.
 		// In the future it may be better to cache and determine delta and send
 		// only that.
-
-		//log.log(LogService.LOG_DEBUG, "Local feed notification.");
-		
-		//TODO: Verify broadcast logic is correct with Camilo & Andy
-		//log.log(LogService.LOG_WARNING, "Local feed notification is disabled until functionality can be verified to be correct.");
-		//return;
-		
-		//TODO 2: Not sure if is correct, awaiting feedback.  For now will enable functionality.
-		
 		
 		try {
-			// Load data about server configuration and local configuration.
-			announceState(
-					wsClient.getSwarmResourceClient().getSwarmsByMember(
-							config.getResource()), Feed.createForType(source));
+			switch(eventType) {
+			case ServiceEvent.REGISTERED:
+			case ServiceEvent.MODIFIED:
+				// Load data about server configuration and local configuration.
+				announceState(
+						wsClient.getSwarmResourceClient().getSwarmsByMember(
+								config.getResource()), Feed.createForType(source));
+				break;
+			case ServiceEvent.UNREGISTERING:
+				// TODO: determine if message is required when feed is no longer available.
+			default:
+			}			
 		} catch (Exception e) {
 			log.log(LogService.LOG_ERROR, "Error occurred while sending updated device state to swarm server.", e);
 		}

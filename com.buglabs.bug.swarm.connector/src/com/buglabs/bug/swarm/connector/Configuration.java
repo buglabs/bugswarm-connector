@@ -34,7 +34,8 @@ public class Configuration {
 	};
 
 	private static final String HTTP_SCHEME = "HTTP://";
-	private static final String XMPP_PREFIX = "xmpp.";
+	//Per converstaion with Camilo there is no longer a prefix to the XMPP server.
+	private static final String XMPP_PREFIX = "";
 	private static final String HTTP_PREFIX = "api.";
 	private static final String BUG20_SYSFS_MACADDR_FILE = 
 		"/sys/devices/platform/ehci-omap.0/usb1/1-2/1-2.4/1-2.4:1.0/net/eth0/address";

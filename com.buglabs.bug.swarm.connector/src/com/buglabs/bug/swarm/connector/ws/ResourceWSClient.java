@@ -34,8 +34,6 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 			String machineType) throws IOException {
 		validateParams(resourceId, type, userId, resourceName, description);
 
-		validateAPIKey();
-
 		// TODO: allow for position coordinates
 		Map<String, String> props = toMap(
 				"id", resourceId, 
@@ -54,8 +52,6 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 			String machineType)	throws IOException {
 		validateParams(resourceId, resourceName, resourceDescription, type, machineType);
 
-		validateAPIKey();
-
 		Map<String, String> props = toMap(
 				"name", resourceName, 
 				"description", resourceDescription, 
@@ -68,8 +64,6 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 
 	@Override
 	public List<ResourceModel> get(MemberType type) throws IOException {
-		validateAPIKey();
-
 		if (type == null)
 			return httpClient.callGet(swarmHostUrl.copy("resources"), ModelDeserializers.ResourceModelListDeserializer)
 					.getContent();
@@ -81,7 +75,6 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 	@Override
 	public ResourceModel get(String resourceId) throws IOException {
 		validateParams(resourceId);
-		validateAPIKey();
 		
 		return httpClient.callGet(swarmHostUrl.copy("resources/", resourceId), 
 				ModelDeserializers.ResourceModelDeserializer).getContent();				
@@ -91,8 +84,6 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 	public SwarmWSResponse remove(String resourceId) throws IOException {
 		validateParams(resourceId);
 
-		validateAPIKey();
-
 		return httpClient.callDelete(swarmHostUrl.copy("resources/", resourceId), 
 				ModelDeserializers.SwarmWSResponseDeserializer).getContent();
 	}
@@ -100,8 +91,6 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 	@Override
 	public List<SwarmResourceModel> getMemberSwarms(String resourceId) throws IOException {
 		validateParams(resourceId);
-
-		validateAPIKey();
 
 		return httpClient.callGet(swarmHostUrl.copy("resources/", resourceId, "/swarms"), 
 				ModelDeserializers.SwarmResourceModelListDeserializer).getContent();

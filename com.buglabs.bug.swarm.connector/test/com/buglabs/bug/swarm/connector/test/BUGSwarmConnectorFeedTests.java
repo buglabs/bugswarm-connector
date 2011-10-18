@@ -34,8 +34,6 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 		System.out.println("setUp()");
 		SwarmWSClient c = new SwarmWSClient(AccountConfig.getConfiguration());
 
-		assertTrue(c.isValid() == null);
-
 		// Delete all pre-existing swarms owned by test user.
 		try {
 			List<SwarmModel> swarms = c.list();
@@ -67,8 +65,6 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 	protected void tearDown() throws Exception {
 		System.out.println("tearDown()");
 		SwarmWSClient c = new SwarmWSClient(AccountConfig.getConfiguration());
-
-		assertTrue(c.isValid() == null);
 
 		SwarmWSResponse response = c.destroy(AccountConfig.testSwarmId);
 		assertFalse(response.isError());

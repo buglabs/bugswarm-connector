@@ -28,7 +28,6 @@
 package com.buglabs.bug.swarm.connector.ui;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Hashtable;
 

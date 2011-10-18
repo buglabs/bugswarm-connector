@@ -1,10 +1,10 @@
 package com.buglabs.bug.swarm.connector.test;
 
+import junit.framework.TestCase;
+
 import com.buglabs.bug.swarm.connector.xmpp.parse.InviteMessageImpl;
 import com.buglabs.bug.swarm.connector.xmpp.parse.XMPPPlainTextMessageParser;
 import com.buglabs.bug.swarm.connector.xmpp.parse.XMPPPlainTextMessageParser.XMPPMessage;
-
-import junit.framework.TestCase;
 
 /**
  * Tests for the parsing of plain-text messages originating from the XMPP server intended for (human) chat recipients that need to

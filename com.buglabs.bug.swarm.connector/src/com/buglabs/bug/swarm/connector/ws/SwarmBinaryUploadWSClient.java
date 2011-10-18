@@ -32,8 +32,6 @@ public class SwarmBinaryUploadWSClient extends AbstractSwarmWSClient implements 
 	public SwarmWSResponse upload(String userId, String resourceId, String filename, final byte[] payload) throws IOException {
 		validateParams(userId, resourceId, filename, payload);
 	
-		validateAPIKey();
-
 		final String[] elems = filename.split("\\.");
 
 		if (elems.length != 2) {

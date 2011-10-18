@@ -45,8 +45,6 @@ public class BasicConnectivityTests extends TestCase {
 		System.out.println("setUp()");
 		wsClient = new SwarmWSClient(AccountConfig.getConfiguration().getHostname(Protocol.HTTP), AccountConfig.getConfiguration()
 				.getAPIKey());
-
-		assertTrue(wsClient.isValid() == null);
 		
 		//Delete all pre-existing swarms owned by test user.
 		try {

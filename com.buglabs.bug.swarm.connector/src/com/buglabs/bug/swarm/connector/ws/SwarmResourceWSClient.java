@@ -32,8 +32,6 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 	public List<SwarmResourceModel> list(final String swarmId, final MemberType type) throws IOException {
 		validateParams(swarmId, type);
 
-		validateAPIKey();
-
 		return httpClient.callGet(swarmHostUrl.copy("swarms/", swarmId, "/resources?type=" + type), 
 				ModelDeserializers.SwarmResourceModelListDeserializer).getContent();
 	}
@@ -42,8 +40,6 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 	public SwarmWSResponse add(final String swarmId, final MemberType type
 			, final String userId, final String resource) throws IOException {
 		validateParams(swarmId, type, userId, resource);
-
-		validateAPIKey();
 
 		Map<String, String> props = toMap(
 				"type", type.toString(),
@@ -58,8 +54,6 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 	public List<SwarmModel> getSwarmsByMember(final String resource) throws IOException {
 		validateParams(resource);
 
-		validateAPIKey();
-
 		//TODO, handle case when swarmHostUrl has slash or not has slash.
 		return httpClient.callGet(swarmHostUrl.copy("resources/", resource, "/swarms"), 
 				ModelDeserializers.SwarmModelListDeserializer).getContent();
@@ -70,7 +64,6 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 			throws IOException {
 
 		validateParams(swarmId, type, userId, resource);
-		validateAPIKey();
 
 		Map<String, String> props = toMap(
 				"type", type.toString(),

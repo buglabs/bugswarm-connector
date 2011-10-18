@@ -74,17 +74,6 @@ public interface ISwarmClient {
 	SwarmModel get(String swarmId) throws IOException;
 
 	/**
-	 * Returns null if client was able to validate with the Swarm server. If an
-	 * error occurred while validating, or the validation failed, a Throwable
-	 * will be returned.
-	 * 
-	 * @return null or a Throwable if there was a problem in communication with
-	 *         swarm server.
-	 * @throws IOException
-	 */
-	Throwable isValid();
-
-	/**
 	 * Convenience method to return WS client for Swarm Membership API.
 	 * 
 	 * @return the WS API client for members

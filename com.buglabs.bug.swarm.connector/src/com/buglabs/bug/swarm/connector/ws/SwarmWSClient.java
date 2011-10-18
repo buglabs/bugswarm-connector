@@ -1,5 +1,6 @@
 package com.buglabs.bug.swarm.connector.ws;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
@@ -78,13 +79,14 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 	public String create(final String name, final boolean isPublic, final String description) throws IOException {
 		validateParams(name, description);
 		
-		validateAPIKey();
-
+		JSONObject jobj = new JSONObject();
+		jobj.put("name", name);
+		jobj.put("description", description);
+		jobj.put("public", new Boolean(isPublic));
+		
 		return httpClient.callPost(swarmHostUrl.copy("swarms"), 
-				toMap("name", name, 
-					"public", Boolean.toString(isPublic),
-					"description", description)
-					, ModelDeserializers.JSONObjectDeserializer)
+					new ByteArrayInputStream(jobj.toJSONString().getBytes()),
+					ModelDeserializers.JSONObjectDeserializer)
 			.getContent().get("swarm").toString();
 	}
 
@@ -92,8 +94,6 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 	public SwarmWSResponse update(final String swarmId, final boolean isPublic, final String description) throws IOException {
 		validateParams(swarmId, description);
 		
-		validateAPIKey();
-
 		return httpClient.callPut(swarmHostUrl.copy("swarms/", swarmId), 
 				toMap(
 						"public", Boolean.toString(isPublic),
@@ -105,23 +105,17 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 	public SwarmWSResponse destroy(final String swarmId) throws IOException {
 		validateParams(swarmId);
 
-		validateAPIKey();
-
 		return httpClient.callDelete(swarmHostUrl.copy("swarms/", swarmId), ModelDeserializers.SwarmWSResponseDeserializer).getContent();
 	}
 
 	@Override
 	public List<SwarmModel> list() throws IOException {
-		validateAPIKey();
-
 		return httpClient.callGet(swarmHostUrl.copy("swarms"), ModelDeserializers.SwarmModelListDeserializer).getContent();
 	}
 
 	@Override
 	public SwarmModel get(final String swarmId) throws IOException {
 		validateParams(swarmId);
-
-		validateAPIKey();
 
 		Object o = JSONValue.parse(new InputStreamReader(
 				httpClient.callGet(swarmHostUrl.copy("swarms", swarmId), ReSTClient.INPUTSTREAM_DESERIALIZER).getContent()));
@@ -136,10 +130,5 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 			return SwarmModel.createFromJson(jo);
 
 		return null;
-	}
-
-	@Override
-	public Throwable isValid() {
-		return super.checkAndValidate(false);
 	}
 }

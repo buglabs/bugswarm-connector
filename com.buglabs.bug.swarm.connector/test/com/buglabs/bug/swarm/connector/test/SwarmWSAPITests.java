@@ -121,12 +121,8 @@ public class SwarmWSAPITests extends TestCase {
 	public void testVerifyAPIKey() throws IOException {
 		SwarmWSClient client = new SwarmWSClient(AccountConfig.getConfiguration());
 		assertNotNull(client);
-		
-		assertTrue(client.isValid() == null);
-		
-		client = new SwarmWSClient(AccountConfig.getConfiguration().getHostname(Protocol.HTTP), "ohmyisthiskeyvalid");
-		
-		assertFalse(client.isValid() == null);
+				
+		client = new SwarmWSClient(AccountConfig.getConfiguration().getHostname(Protocol.HTTP), "ohmyisthiskeyvalid");		
 	}
 
 	/**

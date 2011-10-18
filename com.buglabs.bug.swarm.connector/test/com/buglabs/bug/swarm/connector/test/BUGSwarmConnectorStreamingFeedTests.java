@@ -1,23 +1,6 @@
 package com.buglabs.bug.swarm.connector.test;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import junit.framework.TestCase;
-
-import org.json.simple.JSONValue;
-
-import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
-import com.buglabs.bug.swarm.connector.Configuration.Protocol;
-import com.buglabs.bug.swarm.connector.model.SwarmModel;
-import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
-import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
-import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
-import com.buglabs.util.simplerestclient.HTTPException;
-import com.buglabs.util.simplerestclient.HTTPRequest;
-import com.buglabs.util.simplerestclient.HTTPResponse;
 
 /**
  * Tests the BUGSwarmConnector class in regards to binary feeds.

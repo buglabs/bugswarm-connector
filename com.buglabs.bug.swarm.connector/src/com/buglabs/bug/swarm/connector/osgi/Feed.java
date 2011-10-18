@@ -7,7 +7,6 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
 import com.buglabs.services.ws.PublicWSProvider;
-import com.buglabs.util.osgi.OSGiServiceLoader;
 
 /**
  * Internally represents a swarm-feed. Essentially a named Map.

@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import com.buglabs.util.http.ReSTClient;
-import com.buglabs.util.http.ReSTClient.Response;
 
 /**
  * Base WSClient class with general common functionality.
@@ -25,8 +24,7 @@ public abstract class AbstractSwarmWSClient {
 	
 	protected final ReSTClient.URLBuilder swarmHostUrl;
 	protected final String apiKey;
-	protected final ReSTClient httpClient;
-	protected boolean isValidated = false;
+	protected final ReSTClient httpClient;	
 
 	private Map<String, String> staticHeaders;
 
@@ -88,52 +86,15 @@ public abstract class AbstractSwarmWSClient {
 	}
 
 	/**
-	 * Validate connection to server.
-	 * 
-	 * @param force
-	 *            ignores any previous successful validation.
-	 * @return true if response is 200, false if otherwise
-	 * @throws IOException
-	 */
-	public Throwable checkAndValidate(final boolean force) {
-		if (isValidated && !force)
-			return null;
-
-		try {
-			Response<Integer> response = httpClient.callGet(swarmHostUrl.copy().append("keys", apiKey, "verify"), ReSTClient.HTTP_CODE_DESERIALIZER);
-			SwarmWSResponse wsr = SwarmWSResponse.fromCode(response.getContent());
-
-			if (!wsr.isError()) {
-				isValidated = true;
-				return null;
-			}
-
-			return new IOException("Validation failed: " + wsr.toString());
-		} catch (IOException e) {
-			return e;
-		}
-	}
-
-	/**
 	 * @return required swarm headers
 	 */
 	protected Map<String, String> getSwarmHeaders() {
 		if (staticHeaders == null) {
-			staticHeaders = toMap(SWARM_APIKEY_HEADER_KEY, apiKey);//, 
-									//CONTENT_TYPE_HEADER_KEY, "application/json");
+			staticHeaders = toMap(SWARM_APIKEY_HEADER_KEY, apiKey, 
+								"content-type", "application/json");
 		}
 
 		return staticHeaders;
-	}
-
-	/**
-	 * @throws IOException
-	 *             thrown when connection error occurs
-	 */
-	protected void validateAPIKey() throws IOException {
-		Throwable err = checkAndValidate(false);
-		if (err != null)
-			throw new IOException(INVALID_SWARM_CONNECTION_ERROR_MESSAGE, err);
 	}
 
 	/**

@@ -52,7 +52,6 @@ public class SwarmResourceWSAPITests extends TestCase {
 	protected void tearDown() throws Exception {
 		if (AccountConfig.testSwarmId != null) {
 			ISwarmClient client = new SwarmWSClient(AccountConfig.getConfiguration());
-			assertTrue(client.isValid() == null);
 			client.destroy(AccountConfig.testSwarmId);
 		}
 	}

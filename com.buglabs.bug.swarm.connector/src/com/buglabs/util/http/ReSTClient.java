@@ -970,7 +970,7 @@ public class ReSTClient {
 			else if (segment.length == 1)
 				return builder.append(segment[0]);
 			else
-				for (String seg : Arrays.asList(segment))
+				for (String seg : segment)
 					builder.append(seg);
 				
 		return builder;
@@ -1192,7 +1192,7 @@ public class ReSTClient {
 			if (sgmnts.length == 1)
 				appendSingle(sgmnts[0]);
 			else
-				for (String segment : Arrays.asList(sgmnts)) {
+				for (String segment : sgmnts) {
 					appendSingle(segment);
 				}
 			
@@ -1210,7 +1210,7 @@ public class ReSTClient {
 			if (segment.length() == 0)
 				return this;
 			else if (segment.indexOf('/', 1) > -1) {
-				for (String nseg : Arrays.asList(segment.split("/"))) 
+				for (String nseg : segment.split("/")) 
 					this.append(nseg);
 			} else if (segment.length() > 0) {
 				if (segment.toUpperCase().startsWith("HTTP:"))					

@@ -147,7 +147,7 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 		 *         otherwise
 		 */
 		protected final String missingParameter(RequestParameters params, String... requiredKeys) {
-			for (String key : Arrays.asList(requiredKeys))
+			for (String key : requiredKeys)
 				if (params.get(key) == null)
 					return key;
 

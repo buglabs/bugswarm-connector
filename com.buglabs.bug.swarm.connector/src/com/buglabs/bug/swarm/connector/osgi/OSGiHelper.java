@@ -249,7 +249,7 @@ public final class OSGiHelper implements ServiceListener {
 				// filter in code.
 				ServiceReference[] srs = context.getAllServiceReferences(Map.class.getName(), null);
 				if (srs != null)
-					for (ServiceReference sr : Arrays.asList(srs)) {
+					for (ServiceReference sr : srs) {
 						Feed feed = Feed.createForType(sr);
 
 						if (feed != null && !feedServiceMap.entrySet().contains(feed)) {
@@ -265,7 +265,7 @@ public final class OSGiHelper implements ServiceListener {
 				// filter in code.
 				ServiceReference[] srs = context.getAllServiceReferences(Map.class.getName(), null);
 				if (srs != null)
-					for (ServiceReference sr : Arrays.asList(srs)) {
+					for (ServiceReference sr : srs) {
 						Feed feed = Feed.createForType(sr);
 
 						if (feed != null && !feedNameMap.entrySet().contains(feed)) {

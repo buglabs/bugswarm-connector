@@ -125,7 +125,7 @@ public class Activator implements BundleActivator, ServiceListener {
 		List<DeviceStatProviderService> d = new ArrayList<DeviceStatProviderService>();
 		
 		try {
-			for (ServiceReference sr : Arrays.asList(context.getServiceReferences(DeviceStatProviderService.class.getName(), null)))
+			for (ServiceReference sr : context.getServiceReferences(DeviceStatProviderService.class.getName(), null))
 				d.add((DeviceStatProviderService) context.getService(sr));
 			
 		} catch (InvalidSyntaxException e) {

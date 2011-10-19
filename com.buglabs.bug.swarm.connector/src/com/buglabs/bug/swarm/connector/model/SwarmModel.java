@@ -120,18 +120,19 @@ public class SwarmModel {
 	/**
 	 * From a json array, create a List of SwarmModel.
 	 * 
-	 * @param json
+	 * @param swarmId swarm id
+	 * @param resources
 	 *            input object
 	 * @return List of SwarmModel
 	 */
-	public static List<SwarmModel> createListFromJson(final JSONArray json) {
-		if (json == null || json.size() == 0)
+	public static List<SwarmModel> createListFromJson(final String swarmId, final JSONArray resources) {
+		if (resources == null || resources.size() == 0)
 			return Collections.emptyList();
 		
 		List<SwarmModel> l = new ArrayList<SwarmModel>();
 
-		for (Object o : json)
-			l.add(createFromJson((JSONObject) o));
+		for (Object o : resources)
+			l.add(createFromJson(swarmId, (JSONObject) o));
 
 		return l;
 	}
@@ -139,21 +140,22 @@ public class SwarmModel {
 	/**
 	 * Create a SwarmModel from a JSON object.
 	 * 
-	 * @param jsonObject
-	 *            input object
+	 * @param swarmId swarm id
+	 * @param resource
+	 *            input resource
 	 * @return SwarmModel instance of SwarmModel
 	 */
-	public static SwarmModel createFromJson(final JSONObject jsonObject) {
+	public static SwarmModel createFromJson(final String swarmId, final JSONObject resource) {
 		// server is currently not returning modified_at
 		return new SwarmModel(
-				Boolean.parseBoolean(jsonObject.get("public").toString()),
-				SwarmResourceModel.createListFromJson((JSONArray) jsonObject.get("resources")), 
-				jsonObject.get("created_at").toString(),
-				jsonObject.get("id").toString(), 
-				jsonObject.get("description").toString(), 
+				Boolean.parseBoolean(resource.get("public").toString()),
+				SwarmResourceModel.createListFromJson(swarmId, (JSONArray) resource.get("resources")), 
+				resource.get("created_at").toString(),
+				resource.get("id").toString(), 
+				resource.get("description").toString(), 
 				null, 
-				jsonObject.get("name").toString(),
-				jsonObject.get("user_id").toString());
+				resource.get("name").toString(),
+				resource.get("user_id").toString());
 	}
 
 	@Override

@@ -127,7 +127,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 			jo = (JSONObject) o;
 
 		if (jo != null)
-			return SwarmModel.createFromJson(jo);
+			return SwarmModel.createFromJson(swarmId, jo);
 
 		return null;
 	}

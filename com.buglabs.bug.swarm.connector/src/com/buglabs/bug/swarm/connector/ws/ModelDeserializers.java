@@ -103,9 +103,46 @@ public final class ModelDeserializers {
 			if (responseCode == 404)
 				return Collections.emptyList();
 			
+			//Here we need to completely change the serialization code.  
+			
+			/*
+			 * Example of what we get from 0.3 server:
+			 * [
+			    {
+			        "id": "0d7e3064b9e0973691d69c2e55d634154c389c13",
+			        "resources": [
+			            {
+			                "id": "t410s",
+			                "member_since": "2011-10-18T21:38:25.767Z",
+			                "_id": "4e9df1d17633ae6521000064",
+			                "created_at": "2011-09-20T22:48:51.269Z",
+			                "user_id": "connector_test",
+			                "type": "producer"
+			            },
+			            {
+			                "id": "web",
+			                "member_since": "2011-10-18T21:38:25.767Z",
+			                "_id": "4e9df1d17633ae6521000065",
+			                "created_at": "2011-09-20T22:48:52.941Z",
+			                "user_id": "connector_test",
+			                "type": "consumer"
+			            }
+			        ],
+			        "description": "A test swarm.",
+			        "name": "TestSwarm-AccountConfig0.08131975",
+			        "created_at": "2011-09-20T22:48:48.991Z",
+			        "user_id": "kgilmer",
+			        "public": true
+			    }
+			]
+			 */
 			JSONArray json = (JSONArray) JSONValue.parse(new InputStreamReader(input));
+			
+			JSONObject jsonObj = (JSONObject) json.get(0);			
+			String swarmId = (String) jsonObj.get("id");
+			JSONArray resourceArray = (JSONArray) jsonObj.get("resources");
 	
-			return SwarmModel.createListFromJson(json);
+			return SwarmModel.createListFromJson(swarmId, resourceArray);
 		}
 	};
 	
@@ -123,7 +160,7 @@ public final class ModelDeserializers {
 			
 			JSONArray jsonObject = (JSONArray) JSONValue.parse(new InputStreamReader(input));
 	
-			return SwarmResourceModel.createListFromJson(jsonObject);
+			return SwarmResourceModel.createListFromJson(null, jsonObject);
 		}
 	};
 	

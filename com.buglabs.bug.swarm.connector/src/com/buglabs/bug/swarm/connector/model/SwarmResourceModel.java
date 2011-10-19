@@ -89,18 +89,22 @@ public class SwarmResourceModel {
 	/**
 	 * From a json array, create a List of SwarmMemberModel.
 	 * 
-	 * @param json
+	 * @param swarmId swarm id
+	 * @param resource
 	 *            input object
 	 * @return a List of SwarmMemberModel
 	 */
-	public static List<SwarmResourceModel> createListFromJson(final JSONArray json) {
+	public static List<SwarmResourceModel> createListFromJson(final String swarmId, final JSONArray resource) {
+		if (swarmId == null)
+			throw new IllegalArgumentException("swarmId cannot be null.");
+		
 		List<SwarmResourceModel> l = new ArrayList<SwarmResourceModel>();
 
-		for (Object o : json) {
+		for (Object o : resource) {
 			JSONObject jo = (JSONObject) o;
 
 			l.add(new SwarmResourceModel(jo.get("created_at").toString(), MemberType.valueOf(jo.get("type").toString().toUpperCase()), jo
-					.get("user_id").toString(), jo.get("id").toString(), jo.get("swarm_id").toString()));
+					.get("user_id").toString(), jo.get("id").toString(), swarmId));
 		}
 
 		return l;

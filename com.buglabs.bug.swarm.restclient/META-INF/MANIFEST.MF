@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: BUGswarm ReST Client
+Bundle-SymbolicName: com.buglabs.bug.swarm.restclient
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Bug Labs, Inc.
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: 
+ junit.framework;resolution:=optional,
+ org.osgi.framework,
+ org.codehaus.jackson,
+ org.codehaus.jackson.map,
+ org.codehaus.jackson.node,
+ org.apache.commons.io

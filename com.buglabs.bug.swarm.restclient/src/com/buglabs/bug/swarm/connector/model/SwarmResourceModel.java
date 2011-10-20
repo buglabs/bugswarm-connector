@@ -85,12 +85,7 @@ public class SwarmResourceModel extends ModelBase {
 		return swarmId + "[" + userId + " (" + type + ")/" + resource + "]";
 	}
 
-	public static SwarmResourceModel deserialize(String json) throws IOException {
-		if (objectMapper == null)
-			objectMapper = new ObjectMapper();
-		
-		JsonNode jo = objectMapper.readTree(json);
-		
+	public static SwarmResourceModel deserialize(JsonNode jo) throws IOException {		
 		return new SwarmResourceModel(
 				jo.get("created_at").toString(), 
 				MemberType.valueOf(jo.get("type").toString().toUpperCase()), 

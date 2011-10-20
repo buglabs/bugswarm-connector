@@ -129,26 +129,21 @@ public class SwarmModel extends ModelBase {
 		return tsm.getId().equals(this.getId());
 	}
 
-	public static SwarmModel deserialize(final String json) throws IOException {
-		if (objectMapper == null)
-			objectMapper = new ObjectMapper();
-		
-		JsonNode jsonObject = objectMapper.readTree(json);
-		
+	public static SwarmModel deserialize(final JsonNode jsonObject) throws IOException {
 		List<SwarmResourceModel> srml = new ArrayList<SwarmResourceModel>();
 		
 		for (JsonNode jn : jsonObject.get("resources"))
-			srml.add(SwarmResourceModel.deserialize(jn.toString()));
+			srml.add(SwarmResourceModel.deserialize(jn));
 		
 		return new SwarmModel(
-				Boolean.parseBoolean(jsonObject.get("public").toString()),
+				Boolean.parseBoolean(jsonObject.get("public").getTextValue()),
 				srml, 
-				jsonObject.get("created_at").toString(),
-				jsonObject.get("id").toString(), 
+				jsonObject.get("created_at").getTextValue(),
+				jsonObject.get("id").getTextValue(), 
 				jsonObject.get("description").toString(), 
 				null, 
-				jsonObject.get("name").toString(),
-				jsonObject.get("user_id").toString());
+				jsonObject.get("name").getTextValue(),
+				jsonObject.get("user_id").getTextValue());
 	}
 
 	public static String serialize(SwarmModel object) throws IOException {

@@ -12,8 +12,7 @@ import java.util.Map;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-
-import com.buglabs.util.http.ReSTClient;
+import org.touge.restclient.ReSTClient;
 
 /**
  * Base WSClient class with general common functionality.

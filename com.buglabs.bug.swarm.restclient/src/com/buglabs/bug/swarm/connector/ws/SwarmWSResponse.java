@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import com.buglabs.util.http.ReSTClient;
+import org.touge.restclient.ReSTClient;
 
 /**
  * An enumeration for HTTP response code as they pertain to bugswarm.

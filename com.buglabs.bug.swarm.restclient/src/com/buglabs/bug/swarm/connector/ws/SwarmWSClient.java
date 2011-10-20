@@ -1,18 +1,15 @@
 package com.buglabs.bug.swarm.connector.ws;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
 
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ObjectNode;
+import org.touge.restclient.ReSTClient.Response;
 
 import com.buglabs.bug.swarm.connector.Configuration;
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.connector.model.ModelBase;
 import com.buglabs.bug.swarm.connector.model.SwarmModel;
-import com.buglabs.util.http.ReSTClient.Response;
 
 /**
  * A Swarm WS Client implementation using json.simple and simplerestclient.
@@ -23,7 +20,7 @@ import com.buglabs.util.http.ReSTClient.Response;
 public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient {
 	private SwarmResourceWSClient membersClient;
 	private SwarmBinaryUploadWSClient uploadClient;
-	private ResourceWSClient resourceClient;
+	private UserResourceWSClient resourceClient;
 
 	/**
 	 * Create a client from a url and apikey.
@@ -58,9 +55,9 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 	}
 	
 	@Override
-	public IResourceClient getResourceClient() {
+	public IUserResourceClient getUserResourceClient() {
 		if (resourceClient == null) 
-			resourceClient = new ResourceWSClient(swarmHostUrl.toString(), apiKey, httpClient);
+			resourceClient = new UserResourceWSClient(swarmHostUrl.toString(), apiKey, httpClient);
 		
 		return resourceClient;
 	}

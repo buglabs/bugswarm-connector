@@ -9,10 +9,10 @@ import java.util.Map;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.touge.restclient.ReSTClient;
 
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
-import com.buglabs.util.http.ReSTClient;
 
 /**
  * Swarm model class for SwarmMember.

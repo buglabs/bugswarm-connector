@@ -3,8 +3,6 @@ package com.buglabs.bug.swarm.connector.test;
 import java.io.IOException;
 import java.util.List;
 
-import javax.xml.ws.http.HTTPException;
-
 import junit.framework.TestCase;
 
 import com.buglabs.bug.swarm.connector.model.SwarmModel;
@@ -59,7 +57,10 @@ public class SwarmResourceWSAPITests extends TestCase {
 		ISwarmResourcesClient membersClient = ((SwarmWSClient) client).getSwarmResourceClient();
 		
 		//TODO: determine set of test users that can be created or assumed to exist.
-		SwarmWSResponse rc = membersClient.add(AccountConfig.testSwarmId, DEFAULT_MEMBER_TYPE, AccountConfig.getConfiguration().getUsername(), AccountConfig.getConfiguration().getResource());
+		SwarmWSResponse rc = membersClient.add(
+				AccountConfig.testSwarmId, 
+				DEFAULT_MEMBER_TYPE, 
+				AccountConfig.getConfiguration().getResource());
 		
 		assertTrue(!rc.isError());
 	}
@@ -95,7 +96,10 @@ public class SwarmResourceWSAPITests extends TestCase {
 		ISwarmResourcesClient membersClient2 = ((SwarmWSClient) client2).getSwarmResourceClient();
 		
 		//Now add a producer
-		assertFalse(membersClient2.add(AccountConfig.testSwarmId, MemberType.PRODUCER, AccountConfig.getConfiguration2().getUsername(), AccountConfig.getConfiguration2().getResource()).isError());
+		assertNotNull(membersClient2.add(
+				AccountConfig.testSwarmId, 
+				MemberType.PRODUCER, 				
+				AccountConfig.getConfiguration2().getResource()));
 		
 		list = membersClient.list(AccountConfig.testSwarmId, MemberType.PRODUCER);
 		assertNotNull(list);

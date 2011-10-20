@@ -8,6 +8,7 @@ import junit.framework.TestCase;
 
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.connector.model.SwarmModel;
+import com.buglabs.bug.swarm.connector.model.UserResourceModel;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
@@ -42,6 +43,12 @@ public class SwarmWSAPITests extends TestCase {
 		assertNotNull(client.getSwarmResourceClient());
 		assertNotNull(AccountConfig.getConfiguration().getResource());
 		
+		//Delete all pre-existing resources owned by the test user.
+		for (UserResourceModel ur : client.getUserResourceClient().list())
+			client.getUserResourceClient().remove(ur.getResourceId());
+		
+		assertTrue(client.getUserResourceClient().list().size() == 0);
+		
 		//Delete all pre-existing swarms owned by test user.		
 		List<SwarmModel> swarms = client.list();
 		
@@ -61,9 +68,19 @@ public class SwarmWSAPITests extends TestCase {
 		
 		AccountConfig.testSwarmId = id;
 		
+		//Create user resource.
+		UserResourceModel userResource = client.getUserResourceClient().add(
+				AccountConfig.getConfiguration().getResource(),
+				"Test user resource",
+				"test machine");
+		
+		assertNotNull(userResource);	
+		
 		//Creator must be added as member to swarm.
-		SwarmWSResponse response = 
-			client.getSwarmResourceClient().add(id, MemberType.CONSUMER, id, AccountConfig.getConfiguration().getResource());
+		SwarmWSResponse response = client.getSwarmResourceClient().add(
+				id, 
+				MemberType.CONSUMER, 				 
+				userResource.getResourceId());
 		
 		assertNotNull(response);
 		assertFalse(response.isError());

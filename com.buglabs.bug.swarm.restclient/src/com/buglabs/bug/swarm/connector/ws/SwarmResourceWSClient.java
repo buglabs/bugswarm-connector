@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.touge.restclient.ReSTClient;
+
 import com.buglabs.bug.swarm.connector.model.SwarmModel;
 import com.buglabs.bug.swarm.connector.model.SwarmResourceModel;
-import com.buglabs.util.http.ReSTClient;
 
 /**
  * Client implementation for Swarm Members API.
@@ -38,16 +39,15 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 
 	@Override
 	public SwarmWSResponse add(final String swarmId, final MemberType type
-			, final String userId, final String resource) throws IOException {
-		validateParams(swarmId, type, userId, resource);
+			, final String resource) throws IOException {
+		validateParams(swarmId, type, resource);
 
 		Map<String, String> props = toMap(
-				"type", type.toString(),
-				"user_id", userId,
-				"resource", resource);
+				"resource_type", type.toString(),
+				"resource_id", resource);
 
 		return httpClient.callPost(
-				swarmHostUrl.copy("swarms/", swarmId, "/resources"), 
+				swarmHostUrl.copy("swarms/", swarmId), 
 				createJsonStream(props), 
 				SwarmWSResponse.Deserializer).getContent();
 	}

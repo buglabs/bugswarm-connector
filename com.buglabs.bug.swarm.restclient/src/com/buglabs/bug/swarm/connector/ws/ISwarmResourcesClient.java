@@ -66,7 +66,7 @@ public interface ISwarmResourcesClient {
 	 * @return HTTP response of operation
 	 * @throws IOException
 	 */
-	SwarmWSResponse add(String swarmId, ISwarmResourcesClient.MemberType type, String userId, String resource) throws IOException;
+	SwarmWSResponse add(String swarmId, ISwarmResourcesClient.MemberType type, String resource) throws IOException;
 
 	/**
 	 * @param swarmId

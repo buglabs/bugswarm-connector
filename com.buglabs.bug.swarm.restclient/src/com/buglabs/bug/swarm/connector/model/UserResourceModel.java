@@ -10,9 +10,9 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.touge.restclient.ReSTClient;
 
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
-import com.buglabs.util.http.ReSTClient;
 
 /**
  * Represents the device-centric aspects of a Resource.
@@ -20,26 +20,26 @@ import com.buglabs.util.http.ReSTClient;
  * @author kgilmer
  *
  */
-public class ResourceModel extends ModelBase {
+public class UserResourceModel extends ModelBase {
 	
 	/**
 	 * Deserialize content into a List of ResourceModel.
 	 */
-	public static final ReSTClient.ResponseDeserializer<List<ResourceModel>> ListDeserializer = 
-		new ReSTClient.ResponseDeserializer<List<ResourceModel>>() {
+	public static final ReSTClient.ResponseDeserializer<List<UserResourceModel>> ListDeserializer = 
+		new ReSTClient.ResponseDeserializer<List<UserResourceModel>>() {
 	
 		@Override
-		public List<ResourceModel> deserialize(InputStream input, int responseCode, Map<String, List<String>> headers)
+		public List<UserResourceModel> deserialize(InputStream input, int responseCode, Map<String, List<String>> headers)
 			throws IOException {
 			if (responseCode == 404)
 				return Collections.emptyList();
 			
-			List<ResourceModel> rml = new ArrayList<ResourceModel>();
+			List<UserResourceModel> rml = new ArrayList<UserResourceModel>();
 			
 			JsonNode jn = objectMapper.readTree(input);
 			
 			for (JsonNode rm : jn)
-				rml.add(ResourceModel.deserialize(rm.toString()));
+				rml.add(UserResourceModel.deserialize(rm.toString()));
 			
 			return rml;
 		}
@@ -48,16 +48,16 @@ public class ResourceModel extends ModelBase {
 	/**
 	 * Deserialize content into a ResourceModel.
 	 */
-	public static final ReSTClient.ResponseDeserializer<ResourceModel> Deserializer = 
-		new ReSTClient.ResponseDeserializer<ResourceModel>() {
+	public static final ReSTClient.ResponseDeserializer<UserResourceModel> Deserializer = 
+		new ReSTClient.ResponseDeserializer<UserResourceModel>() {
 	
 		@Override
-		public ResourceModel deserialize(InputStream input, int responseCode, Map<String, List<String>> headers) 
+		public UserResourceModel deserialize(InputStream input, int responseCode, Map<String, List<String>> headers) 
 			throws IOException {
 			if (responseCode == 404)
 				return null;
 			
-			return ResourceModel.deserialize(IOUtils.toString(input));			
+			return UserResourceModel.deserialize(IOUtils.toString(input));			
 		}
 	};
 
@@ -94,7 +94,7 @@ public class ResourceModel extends ModelBase {
 	 * @param resourceId id of resource
 	 * @param description description of resource
 	 */
-	public ResourceModel(ResourcePosition position, MemberType type, String createDate, String userId, String name
+	public UserResourceModel(ResourcePosition position, MemberType type, String createDate, String userId, String name
 			, String modifyDate, String machineType, String resourceId, String description) {
 		this.position = position;
 		this.type = type;
@@ -170,13 +170,13 @@ public class ResourceModel extends ModelBase {
 		return description;
 	}
 	
-	public static ResourceModel deserialize(final String json) throws IOException {
+	public static UserResourceModel deserialize(final String json) throws IOException {
 		if (objectMapper == null)
 			objectMapper = new ObjectMapper();
 		
 		JsonNode jsonObject = objectMapper.readTree(json);
 						
-		return new ResourceModel(null,
+		return new UserResourceModel(null,
 				toMemberTypeSafely(jsonObject.get("type")),
 				toStringSafely(jsonObject.get("created_at")),
 				toStringSafely(jsonObject.get("user_id")),
@@ -187,7 +187,7 @@ public class ResourceModel extends ModelBase {
 				toStringSafely(jsonObject.get("description")));
 	}
 
-	public static String serialize(ResourceModel object) throws IOException {
+	public static String serialize(UserResourceModel object) throws IOException {
 		if (objectMapper == null)
 			objectMapper = new ObjectMapper();
 		

@@ -83,7 +83,7 @@ public interface ISwarmClient {
 	/**
 	 * @return an instance of an IResourceClient associated with the ISwarmClient's user and api key.
 	 */
-	IResourceClient getResourceClient();
+	IUserResourceClient getUserResourceClient();
 	
 	/**
 	 * @return an instance of a ISwarmBinaryUploadClient.

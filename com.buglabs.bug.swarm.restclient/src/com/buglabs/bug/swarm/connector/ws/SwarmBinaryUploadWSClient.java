@@ -4,7 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Map;
 
-import com.buglabs.util.http.ReSTClient;
+import org.touge.restclient.ReSTClient;
 
 
 /**

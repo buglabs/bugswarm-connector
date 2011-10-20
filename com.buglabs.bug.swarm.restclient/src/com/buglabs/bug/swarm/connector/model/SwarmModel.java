@@ -9,8 +9,7 @@ import java.util.Map;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-
-import com.buglabs.util.http.ReSTClient;
+import org.touge.restclient.ReSTClient;
 
 /**
  * Model class to represent a Swarm.

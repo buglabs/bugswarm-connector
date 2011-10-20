@@ -4,10 +4,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import com.buglabs.bug.swarm.connector.model.ResourceModel;
+import org.touge.restclient.ReSTClient;
+
 import com.buglabs.bug.swarm.connector.model.SwarmResourceModel;
+import com.buglabs.bug.swarm.connector.model.UserResourceModel;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
-import com.buglabs.util.http.ReSTClient;
 
 /**
  * Implementation of IResourceClient.
@@ -15,7 +16,7 @@ import com.buglabs.util.http.ReSTClient;
  * @author kgilmer
  * 
  */
-public class ResourceWSClient extends AbstractSwarmWSClient implements IResourceClient {
+public class UserResourceWSClient extends AbstractSwarmWSClient implements IUserResourceClient {
 
 	/**
 	 * @param swarmHostUrl
@@ -25,29 +26,24 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 	 * @param httpClient
 	 *            instance of HTTP client
 	 */
-	public ResourceWSClient(String swarmHostUrl, String apiKey, ReSTClient httpClient) {
+	public UserResourceWSClient(String swarmHostUrl, String apiKey, ReSTClient httpClient) {
 		super(swarmHostUrl, apiKey, httpClient);
 	}
 
 	@Override
-	public SwarmWSResponse add(String resourceId, String userId, String resourceName, String description, MemberType type,
-			String machineType) throws IOException {
-		validateParams(resourceId, type, userId, resourceName, description);
+	public UserResourceModel add(String resourceName, String description, String machineType) throws IOException {
+		validateParams(resourceName, description, machineType);
 
 		// TODO: allow for position coordinates
-		Map<String, String> props = toMap(
-				"id", resourceId, 
-				"user_id", userId, 
+		Map<String, String> props = toMap(				
 				"name", resourceName, 
 				"description", description, 
-				"type",	type.toString(), 
-				"machine_type", machineType, 
-				"position", "{\"Longitude\": 0, \"latitude\": 0}");
+				"machine_type", machineType);
 
 		return httpClient.callPost(
 				swarmHostUrl.copy("resources"), 
-				props, 
-				SwarmWSResponse.Deserializer).getContent();
+				createJsonStream(props), 
+				UserResourceModel.Deserializer).getContent();
 	}
 
 	@Override
@@ -66,21 +62,21 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 	}
 
 	@Override
-	public List<ResourceModel> get(MemberType type) throws IOException {
+	public List<UserResourceModel> get(MemberType type) throws IOException {
 		if (type == null)
-			return httpClient.callGet(swarmHostUrl.copy("resources"), ResourceModel.ListDeserializer)
+			return httpClient.callGet(swarmHostUrl.copy("resources"), UserResourceModel.ListDeserializer)
 					.getContent();
 		else
 			return httpClient.callGet(swarmHostUrl.copy("resources"), toMap("type", type.toString()), 
-					ResourceModel.ListDeserializer).getContent();
+					UserResourceModel.ListDeserializer).getContent();
 	}
 
 	@Override
-	public ResourceModel get(String resourceId) throws IOException {
+	public UserResourceModel get(String resourceId) throws IOException {
 		validateParams(resourceId);
 		
 		return httpClient.callGet(swarmHostUrl.copy("resources/", resourceId), 
-				ResourceModel.Deserializer).getContent();				
+				UserResourceModel.Deserializer).getContent();				
 	}
 
 	@Override
@@ -97,5 +93,11 @@ public class ResourceWSClient extends AbstractSwarmWSClient implements IResource
 
 		return httpClient.callGet(swarmHostUrl.copy("resources/", resourceId, "/swarms"), 
 				SwarmResourceModel.ListDeserializer).getContent();
+	}
+
+	@Override
+	public List<UserResourceModel> list() throws IOException {		
+		return httpClient.callGet(swarmHostUrl.copy("resources"), 
+				UserResourceModel.ListDeserializer).getContent();
 	}
 }

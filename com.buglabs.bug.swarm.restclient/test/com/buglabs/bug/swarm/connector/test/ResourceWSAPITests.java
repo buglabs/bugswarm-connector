@@ -3,15 +3,13 @@ package com.buglabs.bug.swarm.connector.test;
 import java.io.IOException;
 import java.util.List;
 
-import javax.xml.ws.http.HTTPException;
-
 import junit.framework.TestCase;
 
-import com.buglabs.bug.swarm.connector.model.ResourceModel;
 import com.buglabs.bug.swarm.connector.model.SwarmModel;
-import com.buglabs.bug.swarm.connector.ws.IResourceClient;
+import com.buglabs.bug.swarm.connector.model.UserResourceModel;
 import com.buglabs.bug.swarm.connector.ws.ISwarmClient;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
+import com.buglabs.bug.swarm.connector.ws.IUserResourceClient;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
 
@@ -45,12 +43,12 @@ public class ResourceWSAPITests extends TestCase {
 		
 		
 		//Delete all pre-existing resources owned by the test user.
-		IResourceClient resourceClient = client.getResourceClient();
+		IUserResourceClient resourceClient = client.getUserResourceClient();
 		assertNotNull(resourceClient);
 		
-		List<ResourceModel> resources = resourceClient.get((MemberType) null);
+		List<UserResourceModel> resources = resourceClient.get((MemberType) null);
 	
-		for (ResourceModel model : resources)
+		for (UserResourceModel model : resources)
 			if (model.getUserId().equals(AccountConfig.getConfiguration().getUsername()))
 				resourceClient.remove(model.getResourceId());		
 	
@@ -71,20 +69,16 @@ public class ResourceWSAPITests extends TestCase {
 	 */
 	public void testAddResource() throws IOException {
 		ISwarmClient client = new SwarmWSClient(AccountConfig.getConfiguration());
-		IResourceClient rclient = client.getResourceClient();
+		IUserResourceClient rclient = client.getUserResourceClient();
 		
-		SwarmWSResponse response = rclient.add(
-				TEST_RESOURCE_ID, 
-				AccountConfig.getConfiguration().getUsername(), 
+		UserResourceModel urm = rclient.add(				
 				TEST_RESOURCE_NAME, 
 				TEST_RESOURCE_DESC, 
-				TEST_RESOURCE_TYPE, 
 				TEST_RESOURCE_MACHINE_TYPE);
 		
-		assertNotNull(response);
-		assertFalse(response.isError());
+		assertNotNull(urm);
 		
-		List<ResourceModel> resources = rclient.get(TEST_RESOURCE_TYPE);
+		List<UserResourceModel> resources = rclient.get(TEST_RESOURCE_TYPE);
 		
 		assertNotNull(resources);
 		assertTrue(resources.size() == 1);
@@ -98,11 +92,11 @@ public class ResourceWSAPITests extends TestCase {
 	
 	public void testListProducerMembers() throws IOException {
 		ISwarmClient client = new SwarmWSClient(AccountConfig.getConfiguration());
-		IResourceClient rclient = client.getResourceClient();
+		IUserResourceClient rclient = client.getUserResourceClient();
 		
 		testAddResource();
 		
-		List<ResourceModel> resources = rclient.get(MemberType.CONSUMER);
+		List<UserResourceModel> resources = rclient.get(MemberType.CONSUMER);
 		
 		assertNotNull(resources);
 		assertTrue(resources.size() == 0);
@@ -113,11 +107,11 @@ public class ResourceWSAPITests extends TestCase {
 	 */
 	public void testDeleteResources() throws IOException {
 		ISwarmClient client = new SwarmWSClient(AccountConfig.getConfiguration());
-		IResourceClient rclient = client.getResourceClient();
+		IUserResourceClient rclient = client.getUserResourceClient();
 		
 		testAddResource();
 		
-		List<ResourceModel> resources = rclient.get(TEST_RESOURCE_TYPE);
+		List<UserResourceModel> resources = rclient.get(TEST_RESOURCE_TYPE);
 		
 		assertNotNull(resources);
 		assertTrue(resources.size() == 1);

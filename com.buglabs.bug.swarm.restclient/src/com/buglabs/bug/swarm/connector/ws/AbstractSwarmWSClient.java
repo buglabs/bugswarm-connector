@@ -1,11 +1,17 @@
 package com.buglabs.bug.swarm.connector.ws;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import com.buglabs.util.http.ReSTClient;
 
@@ -21,6 +27,8 @@ public abstract class AbstractSwarmWSClient {
 	protected static final String INVALID_SWARM_CONNECTION_ERROR_MESSAGE = "API_KEY is invalid.";
 
 	private static final boolean DEBUG_MODE = true;
+
+	private static ObjectMapper mapper;
 	
 	protected final ReSTClient.URLBuilder swarmHostUrl;
 	protected final String apiKey;
@@ -152,4 +160,20 @@ public abstract class AbstractSwarmWSClient {
 			if (params[i] == null)
 				throw new IllegalArgumentException("An input parameter is null.");		
 	}	
+	
+	/**
+	 * Create an input stream of a String-representation of a JSon object.
+	 * Uses Jackson's serialization logic to change a Map to JSon.
+	 * @param input A map of serializable types 
+	 * @return A JSon document as an input stream.
+	 * @throws JsonGenerationException on serialization errors
+	 * @throws JsonMappingException on serialization errors
+	 * @throws IOException on serialization errors
+	 */
+	protected static InputStream createJsonStream(Map<?, ?> input) throws JsonGenerationException, JsonMappingException, IOException {
+		if (mapper == null)
+			mapper = new ObjectMapper();
+		
+		return new ByteArrayInputStream(mapper.writeValueAsBytes(input));		
+	}
 }

@@ -104,9 +104,27 @@ public final class ModelDeserializers {
 			JsonNode jn = mapper.readTree(input);
 			
 			for (JsonNode rm : jn)
-				rml.add(SwarmModel.deserialize(rm.toString()));
+				rml.add(SwarmModel.deserialize(rm));
 			
 			return rml;			
+		}
+	};
+	
+	/**
+	 * Deserialize into SwarmModel.
+	 */
+	protected static final ReSTClient.ResponseDeserializer<SwarmModel> SwarmModelDeserializer = 
+		new ReSTClient.ResponseDeserializer<SwarmModel>() {
+	
+		@Override
+		public SwarmModel deserialize(InputStream input, int responseCode, Map<String, List<String>> headers)
+			throws IOException {
+			if (responseCode == 404)
+				return null;
+						
+			JsonNode jn = mapper.readTree(input);
+					
+			return SwarmModel.deserialize(jn);			
 		}
 	};
 	
@@ -127,7 +145,7 @@ public final class ModelDeserializers {
 			JsonNode jn = mapper.readTree(input);
 			
 			for (JsonNode rm : jn)
-				rml.add(SwarmResourceModel.deserialize(rm.toString()));
+				rml.add(SwarmResourceModel.deserialize(rm));
 			
 			return rml;			
 		}

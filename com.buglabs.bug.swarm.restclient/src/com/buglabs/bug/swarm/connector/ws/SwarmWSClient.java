@@ -4,12 +4,15 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
 
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
 
 import com.buglabs.bug.swarm.connector.Configuration;
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
+import com.buglabs.bug.swarm.connector.model.ModelBase;
 import com.buglabs.bug.swarm.connector.model.SwarmModel;
+import com.buglabs.util.http.ReSTClient.Response;
 
 /**
  * A Swarm WS Client implementation using json.simple and simplerestclient.
@@ -75,19 +78,17 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 	@Override
 	public String create(final String name, final boolean isPublic, final String description) throws IOException {
 		validateParams(name, description);
+				
+		JsonNode response = httpClient.callPost(
+				swarmHostUrl.copy("swarms"), 
+				createJsonStream(toMap(
+						"name", name,
+						"description", description,
+						"public", new Boolean(isPublic))),
+				ModelBase.JSONObjectDeserializer).getContent();
 		
-		ObjectMapper mapper = new ObjectMapper();
-		ObjectNode jobj = mapper.createObjectNode();
 		
-		jobj.put("name", name);
-		jobj.put("description", description);
-		jobj.put("public", new Boolean(isPublic));
-		
-		
-		return httpClient.callPost(swarmHostUrl.copy("swarms"), 
-					new ByteArrayInputStream(jobj.toString().getBytes()),
-					ModelDeserializers.JSONObjectDeserializer)
-			.getContent().get("swarm").toString();
+		return response.get("id").getTextValue();
 	}
 
 	@Override
@@ -99,26 +100,33 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 				toMap(
 						"public", Boolean.toString(isPublic),
 						"description", description),
-				ModelDeserializers.SwarmWSResponseDeserializer).getContent();
+						SwarmWSResponse.Deserializer).getContent();
 	}
 
 	@Override
 	public SwarmWSResponse destroy(final String swarmId) throws IOException {
 		validateParams(swarmId);
 
-		return httpClient.callDelete(swarmHostUrl.copy("swarms/", swarmId), ModelDeserializers.SwarmWSResponseDeserializer).getContent();
+		return httpClient.callDelete(
+				swarmHostUrl.copy("swarms/", swarmId), 
+				SwarmWSResponse.Deserializer).getContent();
 	}
 
 	@Override
 	public List<SwarmModel> list() throws IOException {
-		return httpClient.callGet(swarmHostUrl.copy("swarms"), ModelDeserializers.SwarmModelListDeserializer).getContent();
+		return httpClient.callGet(
+				swarmHostUrl.copy("swarms"), 
+				SwarmModel.ListDeserializer).getContent();
 	}
 
 	@Override
 	public SwarmModel get(final String swarmId) throws IOException {
 		validateParams(swarmId);
 		
-		return SwarmModel.deserialize(
-				httpClient.callGet(swarmHostUrl.copy("swarms", swarmId)));
+		Response<SwarmModel> response = httpClient.callGet(
+				swarmHostUrl.copy("swarms", swarmId),
+				SwarmModel.Deserializer);
+		
+		return response.getContent();
 	}
 }

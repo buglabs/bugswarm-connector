@@ -1,11 +1,18 @@
 package com.buglabs.bug.swarm.connector.model;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
+import com.buglabs.util.http.ReSTClient;
 
 /**
  * Represents the device-centric aspects of a Resource.
@@ -14,6 +21,45 @@ import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
  *
  */
 public class ResourceModel extends ModelBase {
+	
+	/**
+	 * Deserialize content into a List of ResourceModel.
+	 */
+	public static final ReSTClient.ResponseDeserializer<List<ResourceModel>> ListDeserializer = 
+		new ReSTClient.ResponseDeserializer<List<ResourceModel>>() {
+	
+		@Override
+		public List<ResourceModel> deserialize(InputStream input, int responseCode, Map<String, List<String>> headers)
+			throws IOException {
+			if (responseCode == 404)
+				return Collections.emptyList();
+			
+			List<ResourceModel> rml = new ArrayList<ResourceModel>();
+			
+			JsonNode jn = objectMapper.readTree(input);
+			
+			for (JsonNode rm : jn)
+				rml.add(ResourceModel.deserialize(rm.toString()));
+			
+			return rml;
+		}
+	};
+	
+	/**
+	 * Deserialize content into a ResourceModel.
+	 */
+	public static final ReSTClient.ResponseDeserializer<ResourceModel> Deserializer = 
+		new ReSTClient.ResponseDeserializer<ResourceModel>() {
+	
+		@Override
+		public ResourceModel deserialize(InputStream input, int responseCode, Map<String, List<String>> headers) 
+			throws IOException {
+			if (responseCode == 404)
+				return null;
+			
+			return ResourceModel.deserialize(IOUtils.toString(input));			
+		}
+	};
 
 	/*
 	 * * [{"position":{ "longitude":0, "latitude":0 },

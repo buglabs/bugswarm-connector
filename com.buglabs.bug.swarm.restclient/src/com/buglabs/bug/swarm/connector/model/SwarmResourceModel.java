@@ -1,12 +1,18 @@
 package com.buglabs.bug.swarm.connector.model;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
+import com.buglabs.util.http.ReSTClient;
 
 /**
  * Swarm model class for SwarmMember.
@@ -22,6 +28,45 @@ public class SwarmResourceModel extends ModelBase {
 	private final String userId;
 	private final String resource;
 	private final String swarmId;
+	
+	/**
+	 * Deserialize to List of SwarmResourceModel.
+	 */
+	public static final ReSTClient.ResponseDeserializer<SwarmResourceModel> Deserializer = 
+		new ReSTClient.ResponseDeserializer<SwarmResourceModel>() {
+	
+		@Override
+		public SwarmResourceModel deserialize(InputStream input, int responseCode, Map<String, List<String>> headers)
+			throws IOException {
+			if (responseCode == 404)
+				return null;
+			
+			return SwarmResourceModel.deserialize(objectMapper.readTree(input));			
+		}
+	};
+	
+	/**
+	 * Deserialize to List of SwarmResourceModel.
+	 */
+	public static final ReSTClient.ResponseDeserializer<List<SwarmResourceModel>> ListDeserializer = 
+		new ReSTClient.ResponseDeserializer<List<SwarmResourceModel>>() {
+	
+		@Override
+		public List<SwarmResourceModel> deserialize(InputStream input, int responseCode, Map<String, List<String>> headers)
+			throws IOException {
+			if (responseCode == 404)
+				return Collections.emptyList();
+			
+			List<SwarmResourceModel> srml= new ArrayList<SwarmResourceModel>();
+			
+			for (JsonNode jn : objectMapper.readTree(input))
+				srml.add(SwarmResourceModel.deserialize(jn));
+			
+			return srml;			
+		}
+	};
+	
+	//public static List<?> jsonListOf(Input)
 
 	/**
 	 * @param createdAt
@@ -87,11 +132,11 @@ public class SwarmResourceModel extends ModelBase {
 
 	public static SwarmResourceModel deserialize(JsonNode jo) throws IOException {		
 		return new SwarmResourceModel(
-				jo.get("created_at").toString(), 
-				MemberType.valueOf(jo.get("type").toString().toUpperCase()), 
-				jo.get("user_id").toString(),
-				jo.get("id").toString(), 
-				jo.get("swarm_id").toString());		
+				jo.get("created_at").getTextValue(), 
+				MemberType.valueOf(jo.get("type").getTextValue()), 
+				jo.get("user_id").getTextValue(),
+				jo.get("id").getTextValue(), 
+				jo.get("swarm_id").getTextValue());		
 	}
 
 	public static String serialize(SwarmResourceModel object) throws IOException {

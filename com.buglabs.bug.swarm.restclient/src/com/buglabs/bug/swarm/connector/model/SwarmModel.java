@@ -1,11 +1,16 @@
 package com.buglabs.bug.swarm.connector.model;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
+
+import com.buglabs.util.http.ReSTClient;
 
 /**
  * Model class to represent a Swarm.
@@ -23,6 +28,47 @@ public class SwarmModel extends ModelBase {
 	private final String name;
 	private final String userId;
 
+	/**
+	 * Deserialize into SwarmModel.
+	 */
+	public static final ReSTClient.ResponseDeserializer<SwarmModel> Deserializer = 
+		new ReSTClient.ResponseDeserializer<SwarmModel>() {
+	
+		@Override
+		public SwarmModel deserialize(InputStream input, int responseCode, Map<String, List<String>> headers)
+			throws IOException {
+			if (responseCode == 404)
+				return null;
+						
+			JsonNode jn = objectMapper.readTree(input);
+					
+			return SwarmModel.deserialize(jn);			
+		}
+	};
+	
+	/**
+	 * Deserialize into List of SwarmModel.
+	 */
+	public static final ReSTClient.ResponseDeserializer<List<SwarmModel>> ListDeserializer = 
+		new ReSTClient.ResponseDeserializer<List<SwarmModel>>() {
+	
+		@Override
+		public List<SwarmModel> deserialize(InputStream input, int responseCode, Map<String, List<String>> headers)
+			throws IOException {
+			if (responseCode == 404)
+				return Collections.emptyList();
+			
+			List<SwarmModel> rml = new ArrayList<SwarmModel>();
+			
+			JsonNode jn = objectMapper.readTree(input);
+			
+			for (JsonNode rm : jn)
+				rml.add(SwarmModel.deserialize(rm));
+			
+			return rml;			
+		}
+	};
+	
 	/**
 	 * @param isPublic
 	 *            swarm public?

@@ -51,7 +51,10 @@ public class SwarmWSAPITests extends TestCase {
 			}
 		}
 		
-		String id = client.create(AccountConfig.generateRandomSwarmName(), true, AccountConfig.getTestSwarmDescription());
+		String id = client.create(
+				AccountConfig.generateRandomSwarmName(), 
+				true, 
+				AccountConfig.getTestSwarmDescription());
 		
 		assertNotNull(id);
 		assertTrue(id.length() > 0);

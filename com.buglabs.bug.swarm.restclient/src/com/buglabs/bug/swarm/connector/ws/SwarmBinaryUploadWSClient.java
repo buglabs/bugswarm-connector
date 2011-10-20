@@ -44,6 +44,6 @@ public class SwarmBinaryUploadWSClient extends AbstractSwarmWSClient implements 
 		params.put("file", new ReSTClient.FormInputStream(new ByteArrayInputStream(payload), elems[0], elems[1]));
 
 		return httpClient.callPostMultipart(swarmHostUrl.copy("upload"), params, 
-				ModelDeserializers.SwarmWSResponseDeserializer).getContent();
+				SwarmWSResponse.Deserializer).getContent();
 	}
 }

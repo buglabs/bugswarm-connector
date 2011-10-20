@@ -1,5 +1,12 @@
 package com.buglabs.bug.swarm.connector.ws;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+
+import com.buglabs.util.http.ReSTClient;
+
 /**
  * An enumeration for HTTP response code as they pertain to bugswarm.
  * 
@@ -9,6 +16,7 @@ package com.buglabs.bug.swarm.connector.ws;
  * 
  */
 public enum SwarmWSResponse {
+	
 	/*
 	 * These codes and descriptions were copied/pasted from specification.
 	 * @formatter:off
@@ -26,6 +34,18 @@ public enum SwarmWSResponse {
 
 	private final int code;
 	private final String message;
+	
+	/**
+	 * Deserialize to SwarmWSResponse.
+	 */
+	public static final ReSTClient.ResponseDeserializer<SwarmWSResponse> Deserializer = 
+		new ReSTClient.ResponseDeserializer<SwarmWSResponse>() {
+		@Override
+		public SwarmWSResponse deserialize(InputStream input, int responseCode, Map<String, List<String>> headers)
+			throws IOException {
+			return SwarmWSResponse.fromCode(responseCode);
+		}
+	};
 
 	/**
 	 * @param code

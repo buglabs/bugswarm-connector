@@ -63,13 +63,13 @@ public class UserResourceWSClient extends AbstractSwarmWSClient implements IUser
 	}
 
 	@Override
-	public List<UserResourceModel> get(MemberType type) throws IOException {
-		if (type == null)
-			return httpClient.callGet(swarmHostUrl.copy("resources"), UserResourceModel.ListDeserializer)
-					.getContent();
-		else
-			return httpClient.callGet(swarmHostUrl.copy("resources"), toMap("type", type.toString()), 
-					UserResourceModel.ListDeserializer).getContent();
+	public List<UserResourceModel> get() throws IOException {
+
+		return httpClient.callGet(
+				swarmHostUrl.copy("resources"), 
+				UserResourceModel.ListDeserializer)
+				.getContent();
+		
 	}
 
 	@Override

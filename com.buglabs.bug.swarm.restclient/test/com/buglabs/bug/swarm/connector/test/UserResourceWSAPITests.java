@@ -45,7 +45,7 @@ public class UserResourceWSAPITests extends TestCase {
 		IUserResourceClient resourceClient = client.getUserResourceClient();
 		assertNotNull(resourceClient);
 		
-		List<UserResourceModel> resources = resourceClient.get((MemberType) null);
+		List<UserResourceModel> resources = resourceClient.get();
 	
 		for (UserResourceModel model : resources)
 			if (model.getUserId().equals(AccountConfig.getConfiguration().getUsername()))
@@ -79,7 +79,7 @@ public class UserResourceWSAPITests extends TestCase {
 		
 		assertNotNull(urm);
 		
-		List<UserResourceModel> resources = rclient.get(TEST_RESOURCE_TYPE);
+		List<UserResourceModel> resources = rclient.get();
 		
 		assertNotNull(resources);
 		assertTrue(resources.size() == 1);
@@ -91,18 +91,6 @@ public class UserResourceWSAPITests extends TestCase {
 		assertTrue(userrm.getUserId().equals(AccountConfig.getConfiguration().getUsername()));
 	}
 	
-	public void testListProducerMembers() throws IOException {
-		ISwarmClient client = new SwarmWSClient(AccountConfig.getConfiguration());
-		IUserResourceClient rclient = client.getUserResourceClient();
-		
-		testAddResource();
-		
-		List<UserResourceModel> resources = rclient.get(MemberType.CONSUMER);
-		
-		assertNotNull(resources);
-		assertTrue(resources.size() == 0);
-	}
-	
 	/**
 	 * @throws IOException
 	 */
@@ -112,7 +100,7 @@ public class UserResourceWSAPITests extends TestCase {
 		
 		testAddResource();
 		
-		List<UserResourceModel> resources = rclient.get(TEST_RESOURCE_TYPE);
+		List<UserResourceModel> resources = rclient.get();
 		
 		assertNotNull(resources);
 		assertTrue(resources.size() == 1);
@@ -120,7 +108,7 @@ public class UserResourceWSAPITests extends TestCase {
 		SwarmWSResponse response = rclient.remove(resources.get(0).getResourceId());
 		assertFalse(response.isError());
 		
-		resources = rclient.get(TEST_RESOURCE_TYPE);
+		resources = rclient.get();
 		assertNotNull(resources);
 		assertTrue(resources.size() == 0);
 	}

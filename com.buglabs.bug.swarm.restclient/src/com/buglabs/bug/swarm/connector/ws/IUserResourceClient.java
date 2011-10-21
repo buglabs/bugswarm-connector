@@ -45,12 +45,11 @@ public interface IUserResourceClient {
 
 	/**
 	*	Get my resources.
-	*	  
-	 * @param type null allowed.  Consumer, producer or null if all MemberTypes should be returned.
+	*	  	
 	 * @return List of ResourceModel or empty list of no matches are found.
 	 * @throws IOException on I/O or authentication error.
 	 */
-	List<UserResourceModel> get(MemberType type) throws IOException;
+	List<UserResourceModel> get() throws IOException;
 	
 	/**
 	*	Get a specific resource.

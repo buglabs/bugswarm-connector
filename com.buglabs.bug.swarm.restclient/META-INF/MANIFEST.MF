@@ -7,9 +7,8 @@ Bundle-Vendor: Bug Labs, Inc.
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: 
  junit.framework;resolution:=optional,
- org.osgi.framework,
  org.codehaus.jackson,
  org.codehaus.jackson.map,
- org.codehaus.jackson.node,
- org.apache.commons.io,
- org.touge.restclient; version="1.0"
+ org.touge.restclient;version="1.0"
+Export-Package: com.buglabs.bug.swarm.restclient;version="0.3.0",
+ com.buglabs.bug.swarm.restclient.model;version="0.3.0"

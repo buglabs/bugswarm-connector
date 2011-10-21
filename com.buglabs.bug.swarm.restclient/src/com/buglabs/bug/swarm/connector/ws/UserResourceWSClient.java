@@ -31,14 +31,15 @@ public class UserResourceWSClient extends AbstractSwarmWSClient implements IUser
 	}
 
 	@Override
-	public UserResourceModel add(String resourceName, String description, String machineType) throws IOException {
+	public UserResourceModel add(String resourceName, String description, String machineType, float longitude, float latitude) throws IOException {
 		validateParams(resourceName, description, machineType);
 
 		// TODO: allow for position coordinates
-		Map<String, String> props = toMap(				
+		Map<String, Object> props = toMap(				
 				"name", resourceName, 
 				"description", description, 
-				"machine_type", machineType);
+				"machine_type", machineType,
+				"position", toMap("longitude", longitude, "latitude", latitude));
 
 		return httpClient.callPost(
 				swarmHostUrl.copy("resources"), 

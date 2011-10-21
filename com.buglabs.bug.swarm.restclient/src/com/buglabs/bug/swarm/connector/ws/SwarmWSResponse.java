@@ -97,6 +97,6 @@ public enum SwarmWSResponse {
 	 * @return true if the response is an error, false otherwise.
 	 */
 	public boolean isError() {
-		return code != R200.code && code != R201.code;
+		return code != R200.code && code != R201.code && code != R204.code;
 	}
 }

@@ -22,7 +22,7 @@ public interface ISwarmResourcesClient {
 		/**
 		 * There are two types of members, 'consumer' and 'producer'.
 		 */
-		CONSUMER("CONSUMER"), PRODUCER("PRODUCER");
+		CONSUMER("consumer"), PRODUCER("producer");
 
 		/**
 		 * Name of member.

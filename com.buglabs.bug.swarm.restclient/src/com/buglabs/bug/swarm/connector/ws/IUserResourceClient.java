@@ -23,10 +23,12 @@ public interface IUserResourceClient {
 	 * @param resourceName name of resource
 	 * @param description description of resource
 	 * @param machineType type of device
+	 * @param longitude position of device at time of call, or 0.
+	 * @param latitude position of device at time of call, or 0.
 	 * @return WS response
 	 * @throws IOException on I/O error
 	 */	
-	UserResourceModel add(String resourceName, String description, String machineType) throws IOException;
+	UserResourceModel add(String resourceName, String description, String machineType, float longitude, float latitude) throws IOException;
 	
 	/**
 	 * 
@@ -83,4 +85,6 @@ public interface IUserResourceClient {
 	 * @throws IOException 
 	 */
 	List<UserResourceModel> list() throws IOException;
+
+	
 }

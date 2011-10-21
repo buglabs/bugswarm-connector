@@ -49,6 +49,9 @@ public abstract class AbstractSwarmWSClient {
 		this.httpClient = new ReSTClient();
 		this.swarmHostUrl = httpClient.buildURL(swarmHostUrl);
 		
+		if (DEBUG_MODE)
+			httpClient.setDebugStream(System.out);
+		
 		//Add a connection initializer that automatically appends the swarm-server
 		//authentication headers to the request.
 		httpClient.addConnectionInitializer(new ReSTClient.ConnectionInitializer() {

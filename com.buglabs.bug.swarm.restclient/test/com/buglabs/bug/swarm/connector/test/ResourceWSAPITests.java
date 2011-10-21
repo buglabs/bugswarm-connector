@@ -74,7 +74,9 @@ public class ResourceWSAPITests extends TestCase {
 		UserResourceModel urm = rclient.add(				
 				TEST_RESOURCE_NAME, 
 				TEST_RESOURCE_DESC, 
-				TEST_RESOURCE_MACHINE_TYPE);
+				TEST_RESOURCE_MACHINE_TYPE,
+				0,
+				0);
 		
 		assertNotNull(urm);
 		

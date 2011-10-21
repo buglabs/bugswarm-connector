@@ -49,4 +49,14 @@ public abstract class ModelBase {
 			return null;
 		return in.toString();
 	}
+	
+	/**
+	 * @param in JsonInput input, null ok.
+	 * @return null if input is null, or JsonNode.getTextValue() on object.
+	 */
+	protected static String toStringSafely(JsonNode in) {
+		if (in == null)
+			return null;
+		return in.getTextValue();
+	}
 }

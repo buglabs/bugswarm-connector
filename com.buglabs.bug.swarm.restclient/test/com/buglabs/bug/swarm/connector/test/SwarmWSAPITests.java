@@ -8,6 +8,7 @@ import junit.framework.TestCase;
 
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.connector.model.SwarmModel;
+import com.buglabs.bug.swarm.connector.model.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.model.UserResourceModel;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
@@ -49,10 +50,8 @@ public class SwarmWSAPITests extends TestCase {
 		
 		assertTrue(client.getUserResourceClient().list().size() == 0);
 		
-		//Delete all pre-existing swarms owned by test user.		
-		List<SwarmModel> swarms = client.list();
-		
-		for (SwarmModel sm : swarms) {
+		//Delete all pre-existing swarms owned by test user.			
+		for (SwarmModel sm : client.list()) {
 			if (sm.getUserId().equals(AccountConfig.getConfiguration().getUsername())) {
 				client.destroy(sm.getId());
 			}
@@ -63,27 +62,44 @@ public class SwarmWSAPITests extends TestCase {
 				true, 
 				AccountConfig.getTestSwarmDescription());
 		
+		System.out.println("Created swarm with id: " + id);
 		assertNotNull(id);
 		assertTrue(id.length() > 0);
 		
 		AccountConfig.testSwarmId = id;
 		
+		//Test that id now is in the list of swarms for client.
+		boolean swarmIdFound = false;
+		for (SwarmModel sm : client.list()) {
+			if (sm.getId().equals(id)) {
+				swarmIdFound = true;
+			}
+		}
+		assertTrue(swarmIdFound);
+		
 		//Create user resource.
+		/*
+		 * "name": "My resource",
+		    "machine_type": "pc",
+		    "description": "My Resource description",
+		    "position": {
+		                    "longitude": 0,
+		                    "latitude": 0
+		    }
+		 */
 		UserResourceModel userResource = client.getUserResourceClient().add(
 				AccountConfig.getConfiguration().getResource(),
-				"Test user resource",
-				"test machine");
+				"My resource",
+				"pc", 0, 0);				
 		
 		assertNotNull(userResource);	
 		
-		//Creator must be added as member to swarm.
-		SwarmWSResponse response = client.getSwarmResourceClient().add(
-				id, 
-				MemberType.CONSUMER, 				 
-				userResource.getResourceId());
-		
-		assertNotNull(response);
-		assertFalse(response.isError());
+		//Make sure user resource is now present in list.
+		boolean userResourceFound = false;
+		for (UserResourceModel ur : client.getUserResourceClient().list())
+			if (ur.getResourceId().equals(userResource.getResourceId()))
+				userResourceFound = true;		
+		assertTrue(userResourceFound);		
 	}
 	
 	/**

@@ -7,7 +7,9 @@ import junit.framework.TestCase;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
-import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
+import com.buglabs.bug.swarm.connector.Configuration.Protocol;
+import com.buglabs.bug.swarm.restclient.ISwarmClient;
+import com.buglabs.bug.swarm.restclient.SwarmClientFactory;
 
 /**
  * Tests the high-level BUGSwarmConnector class in regards to feeds.
@@ -56,6 +58,8 @@ public class BUGSwarmConnectorNativeT3sts extends TestCase {
 	public void testCreateAssociateSwarmToBUG() {
 		String host = System.getProperty("com.buglabs.bugswarm.hostname");
 		String apikey = System.getProperty("com.buglabs.bugswarm.apikey");
-		SwarmWSClient wsClient = new SwarmWSClient("http://ws." + host, apikey);
+		ISwarmClient wsClient = SwarmClientFactory.getSwarmClient(
+				AccountConfig.getConfiguration().getHostname(Protocol.HTTP), 
+				AccountConfig.getConfiguration().getAPIKey());
 	}
 }

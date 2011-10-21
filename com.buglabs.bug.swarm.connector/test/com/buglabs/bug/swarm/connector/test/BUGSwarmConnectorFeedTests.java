@@ -13,10 +13,11 @@ import org.json.simple.JSONValue;
 
 import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
-import com.buglabs.bug.swarm.connector.model.SwarmModel;
-import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
-import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
-import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
+import com.buglabs.bug.swarm.restclient.ISwarmClient;
+import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
+import com.buglabs.bug.swarm.restclient.SwarmClientFactory;
+import com.buglabs.bug.swarm.restclient.SwarmWSResponse;
+import com.buglabs.bug.swarm.restclient.model.SwarmModel;
 import com.buglabs.util.simplerestclient.HTTPException;
 import com.buglabs.util.simplerestclient.HTTPRequest;
 import com.buglabs.util.simplerestclient.HTTPResponse;
@@ -32,8 +33,10 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		System.out.println("setUp()");
-		SwarmWSClient c = new SwarmWSClient(AccountConfig.getConfiguration());
-
+		ISwarmClient c =  SwarmClientFactory.getSwarmClient(
+				AccountConfig.getConfiguration().getHostname(Protocol.HTTP), 
+				AccountConfig.getConfiguration().getAPIKey());
+		
 		// Delete all pre-existing swarms owned by test user.
 		try {
 			List<SwarmModel> swarms = c.list();
@@ -53,19 +56,26 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 
 		AccountConfig.testSwarmId = c.create(AccountConfig.generateRandomSwarmName(), false, "A test swarm.");
 
-		SwarmWSResponse response = c.getSwarmResourceClient().add(AccountConfig.testSwarmId, MemberType.PRODUCER,
-				AccountConfig.XMPP_USERNAME, AccountConfig.getConfiguration().getResource());
+		SwarmWSResponse response = c.getSwarmResourceClient().add(
+				AccountConfig.testSwarmId, 
+				MemberType.PRODUCER,
+				AccountConfig.getConfiguration().getResource());
 		assertFalse(response.isError());
 		// Resource 'web' is required so that http streaming will work
-		response = c.getSwarmResourceClient().add(AccountConfig.testSwarmId, MemberType.CONSUMER, AccountConfig.XMPP_USERNAME, "web");
+		response = c.getSwarmResourceClient().add(
+				AccountConfig.testSwarmId, 
+				MemberType.CONSUMER, 
+				"web");
 		assertFalse(response.isError());
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
 		System.out.println("tearDown()");
-		SwarmWSClient c = new SwarmWSClient(AccountConfig.getConfiguration());
-
+		ISwarmClient c =  SwarmClientFactory.getSwarmClient(
+				AccountConfig.getConfiguration().getHostname(Protocol.HTTP), 
+				AccountConfig.getConfiguration().getAPIKey());
+		
 		SwarmWSResponse response = c.destroy(AccountConfig.testSwarmId);
 		assertFalse(response.isError());
 	}

@@ -6,10 +6,12 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
-import com.buglabs.bug.swarm.connector.model.SwarmModel;
-import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
-import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
-import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
+import com.buglabs.bug.swarm.connector.Configuration.Protocol;
+import com.buglabs.bug.swarm.restclient.ISwarmClient;
+import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
+import com.buglabs.bug.swarm.restclient.SwarmClientFactory;
+import com.buglabs.bug.swarm.restclient.SwarmWSResponse;
+import com.buglabs.bug.swarm.restclient.model.SwarmModel;
 import com.buglabs.util.simplerestclient.HTTPException;
 
 /**
@@ -24,7 +26,9 @@ public class BUGSwarmConnectorNotificationTests extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		System.out.println("setUp()");
-		SwarmWSClient c = new SwarmWSClient(AccountConfig.getConfiguration());
+		ISwarmClient c = SwarmClientFactory.getSwarmClient(
+				AccountConfig.getConfiguration().getHostname(Protocol.HTTP), 
+				AccountConfig.getConfiguration().getAPIKey());
 
 		// Delete all pre-existing swarms owned by test user.
 		try {
@@ -47,8 +51,10 @@ public class BUGSwarmConnectorNotificationTests extends TestCase {
 	@Override
 	protected void tearDown() throws Exception {
 		System.out.println("tearDown()");
-		SwarmWSClient c = new SwarmWSClient(AccountConfig.getConfiguration());
-
+		ISwarmClient c =  SwarmClientFactory.getSwarmClient(
+				AccountConfig.getConfiguration().getHostname(Protocol.HTTP), 
+				AccountConfig.getConfiguration().getAPIKey());
+		
 		SwarmWSResponse response = c.destroy(AccountConfig.testSwarmId);
 		assertFalse(response.isError());
 	}
@@ -63,7 +69,10 @@ public class BUGSwarmConnectorNotificationTests extends TestCase {
 	 * @throws InterruptedException
 	 */
 	public void testGetNotificationAfterFirstSwarmJoin() throws IOException, InterruptedException {
-		SwarmWSClient c = new SwarmWSClient(AccountConfig.getConfiguration());
+		ISwarmClient c =  SwarmClientFactory.getSwarmClient(
+				AccountConfig.getConfiguration().getHostname(Protocol.HTTP), 
+				AccountConfig.getConfiguration().getAPIKey());
+		
 		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
 
 		// Start the connector
@@ -78,11 +87,18 @@ public class BUGSwarmConnectorNotificationTests extends TestCase {
 		
 		AccountConfig.testSwarmId = c.create(AccountConfig.generateRandomSwarmName(), false, "A test swarm for user " + AccountConfig.getConfiguration().getUsername());
 
-		SwarmWSResponse response = c.getSwarmResourceClient().add(AccountConfig.testSwarmId, MemberType.PRODUCER,
-				AccountConfig.XMPP_USERNAME, AccountConfig.getConfiguration().getResource());
+		SwarmWSResponse response = c.getSwarmResourceClient().add(
+				AccountConfig.testSwarmId, 
+				MemberType.PRODUCER,
+				 AccountConfig.getConfiguration().getResource());
+		
 		assertFalse(response.isError());
 		// Resource 'web' is required so that http streaming will work
-		response = c.getSwarmResourceClient().add(AccountConfig.testSwarmId, MemberType.CONSUMER, AccountConfig.XMPP_USERNAME, "web");
+		response = c.getSwarmResourceClient().add(
+				AccountConfig.testSwarmId, 
+				MemberType.CONSUMER, 
+				"web");
+		
 		assertFalse(response.isError());
 		
 		Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);

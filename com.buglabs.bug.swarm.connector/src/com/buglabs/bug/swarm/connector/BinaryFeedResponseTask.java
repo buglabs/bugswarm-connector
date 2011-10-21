@@ -7,7 +7,7 @@ import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.model.Jid;
 import com.buglabs.bug.swarm.connector.osgi.BinaryFeed;
-import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
+import com.buglabs.bug.swarm.restclient.ISwarmClient;
 
 /**
  * A TimerTask that handles responding to a feed request for binary data.
@@ -17,7 +17,7 @@ import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
  */
 public class BinaryFeedResponseTask extends TimerTask {
 	
-	private final SwarmWSClient wsClient;
+	private final ISwarmClient wsClient;
 	private final Jid jid;
 	private final String swarmId;
 	private BinaryFeed feed;
@@ -30,7 +30,7 @@ public class BinaryFeedResponseTask extends TimerTask {
 	 * @param feed binary feed that has been requested
 	 * @param log instance of log service
 	 */
-	public BinaryFeedResponseTask(SwarmWSClient wsClient, Jid jid, String swarmId, BinaryFeed feed, LogService log) {
+	public BinaryFeedResponseTask(ISwarmClient wsClient, Jid jid, String swarmId, BinaryFeed feed, LogService log) {
 		this.wsClient = wsClient;
 		this.jid = jid;
 		this.swarmId = swarmId;

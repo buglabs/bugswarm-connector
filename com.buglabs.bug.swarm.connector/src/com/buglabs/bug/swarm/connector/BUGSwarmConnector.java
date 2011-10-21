@@ -18,20 +18,21 @@ import org.osgi.service.log.LogService;
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.connector.model.FeedRequest;
 import com.buglabs.bug.swarm.connector.model.Jid;
-import com.buglabs.bug.swarm.connector.model.ResourceModel;
-import com.buglabs.bug.swarm.connector.model.SwarmModel;
-import com.buglabs.bug.swarm.connector.model.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.osgi.Activator;
 import com.buglabs.bug.swarm.connector.osgi.BinaryFeed;
 import com.buglabs.bug.swarm.connector.osgi.Feed;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper.EntityChangeListener;
-import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
-import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
-import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
 import com.buglabs.bug.swarm.connector.xmpp.ISwarmServerRequestListener;
 import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
+import com.buglabs.bug.swarm.restclient.ISwarmClient;
+import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
+import com.buglabs.bug.swarm.restclient.SwarmClientFactory;
+import com.buglabs.bug.swarm.restclient.SwarmWSResponse;
+import com.buglabs.bug.swarm.restclient.model.SwarmModel;
+import com.buglabs.bug.swarm.restclient.model.SwarmResourceModel;
+import com.buglabs.bug.swarm.restclient.model.UserResourceModel;
 import com.buglabs.util.simplerestclient.HTTPException;
 
 /**
@@ -61,7 +62,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	/**
 	 * Web service client to swarm server.
 	 */
-	private SwarmWSClient wsClient;
+	private ISwarmClient wsClient;
 	/**
 	 * True if the initalize() method has been called, false otherwise.
 	 */
@@ -203,7 +204,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	 */
 	private boolean initialize() throws Exception {
 		log.log(LogService.LOG_DEBUG, "Initializing " + BUGSwarmConnector.class.getSimpleName());
-		wsClient = new SwarmWSClient(config.getHostname(Protocol.HTTP), config.getAPIKey());
+		wsClient = SwarmClientFactory.getSwarmClient(config.getHostname(Protocol.HTTP), config.getAPIKey());
 
 		xmppClient = new SwarmXMPPClient(config);
 		xmppClient.connect(this);
@@ -216,23 +217,27 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		SwarmWSResponse response = null;
 		
 		//See if the resource already exists on the server.
-		ResourceModel resource = wsClient.getResourceClient().get(xmppClient.getResource());
+		UserResourceModel resource = wsClient.getUserResourceClient().get(xmppClient.getResource());
 		
 		//If it does exist, update the existing record, otherwise add.
 		if (resource == null)
-			response = wsClient.getResourceClient().add(
-					xmppClient.getResource(), xmppClient.getUsername(), 
-					"BUG-Connector-Device", "A connector-enabled BUG device", 
-					MemberType.PRODUCER, "BUG");
-		else
-			response = wsClient.getResourceClient().update(
+			resource = wsClient.getUserResourceClient().add( 
+					"bug", 
+					"A connector-enabled BUG device", 
+					"bug", 0, 0);					
+			if (resource == null) 
+				log.log(LogService.LOG_WARNING, 
+						"Server returned an error when adding device resource: " + response.getMessage());
+		else {
+			response = wsClient.getUserResourceClient().update(
 					xmppClient.getResource(),  
 					"BUG-Connector-Device", "A connector-enabled BUG device", 
 					MemberType.PRODUCER, "BUG");
 		
-		if (response.isError()) 
-			log.log(LogService.LOG_WARNING, 
-					"Server returned an error when adding device resource: " + response.getMessage());
+			if (response.isError()) 
+				log.log(LogService.LOG_WARNING, 
+						"Server returned an error when updating device resource: " + response.getMessage());
+		}
 		
 		if (response.isError() && response.getCode() != 409)
 			throw new IOException(response.getMessage());
@@ -302,7 +307,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		
 		if (wsClient != null && resourceId != null) {
 			try {
-				wsClient.getResourceClient().remove(resourceId);
+				wsClient.getUserResourceClient().remove(resourceId);
 			} catch (IOException e) {
 				// Ignore shutdown error.
 			}

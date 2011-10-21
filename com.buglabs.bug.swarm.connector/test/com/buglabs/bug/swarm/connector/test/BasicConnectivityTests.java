@@ -14,16 +14,17 @@ import org.json.simple.JSONArray;
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.connector.model.FeedRequest;
 import com.buglabs.bug.swarm.connector.model.Jid;
-import com.buglabs.bug.swarm.connector.model.SwarmModel;
-import com.buglabs.bug.swarm.connector.model.SwarmResourceModel;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
-import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient;
-import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
-import com.buglabs.bug.swarm.connector.ws.SwarmWSClient;
-import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
 import com.buglabs.bug.swarm.connector.xmpp.ISwarmServerRequestListener;
 import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
+import com.buglabs.bug.swarm.restclient.ISwarmClient;
+import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient;
+import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
+import com.buglabs.bug.swarm.restclient.SwarmClientFactory;
+import com.buglabs.bug.swarm.restclient.SwarmWSResponse;
+import com.buglabs.bug.swarm.restclient.model.SwarmModel;
+import com.buglabs.bug.swarm.restclient.model.SwarmResourceModel;
 import com.buglabs.util.simplerestclient.HTTPException;
 import com.buglabs.util.simplerestclient.HTTPResponse;
 
@@ -37,14 +38,15 @@ public class BasicConnectivityTests extends TestCase {
 
 	protected MultiUserChat swarmRoom;
 	protected ChatManager chatManager;
-	private SwarmWSClient wsClient;
+	private ISwarmClient wsClient;
 	private SwarmXMPPClient xmppClient;
 	
 	@Override
 	protected void setUp() throws Exception {
 		System.out.println("setUp()");
-		wsClient = new SwarmWSClient(AccountConfig.getConfiguration().getHostname(Protocol.HTTP), AccountConfig.getConfiguration()
-				.getAPIKey());
+		wsClient = SwarmClientFactory.getSwarmClient(
+				AccountConfig.getConfiguration().getHostname(Protocol.HTTP), 
+				AccountConfig.getConfiguration().getAPIKey());
 		
 		//Delete all pre-existing swarms owned by test user.
 		try {
@@ -110,8 +112,14 @@ public class BasicConnectivityTests extends TestCase {
 	 * @throws Exception
 	 */
 	public void testJoinMemberSwarms() throws Exception {
-		wsClient.getSwarmResourceClient().add(AccountConfig.testSwarmId, MemberType.PRODUCER, AccountConfig.getConfiguration().getUsername(), AccountConfig.getConfiguration().getResource());
-		wsClient.getSwarmResourceClient().add(AccountConfig.testSwarmId, MemberType.PRODUCER, AccountConfig.getConfiguration().getUsername(), "web");
+		wsClient.getSwarmResourceClient().add(
+				AccountConfig.testSwarmId, 
+				MemberType.PRODUCER, 
+				AccountConfig.getConfiguration().getResource());
+		wsClient.getSwarmResourceClient().add(
+				AccountConfig.testSwarmId, 
+				MemberType.PRODUCER,  
+				"web");
 		
 		List<SwarmModel> allSwarms = wsClient.getSwarmResourceClient().getSwarmsByMember(AccountConfig.getConfiguration().getResource());
 
@@ -184,11 +192,17 @@ public class BasicConnectivityTests extends TestCase {
 		// Add my xmpp client as a member
 		ISwarmResourcesClient resClient = wsClient.getSwarmResourceClient();
 		assertNotNull(resClient);
-		SwarmWSResponse response = resClient.add(id, ISwarmResourcesClient.MemberType.PRODUCER, xmppClient.getUsername() , xmppClient.getResource());
+		SwarmWSResponse response = resClient.add(
+				id, 
+				ISwarmResourcesClient.MemberType.PRODUCER, 
+				xmppClient.getResource());
 		assertFalse(response.isError());
 		
 		// Create the 'web' resource, this will be used later w/ feed api
-		response = resClient.add(id, ISwarmResourcesClient.MemberType.CONSUMER, xmppClient.getUsername() , "web");
+		response = resClient.add(
+				id, 
+				ISwarmResourcesClient.MemberType.CONSUMER, 
+				"web");
 		assertFalse(response.isError());
 		
 		// Confirm swarm has two members

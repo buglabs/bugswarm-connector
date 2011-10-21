@@ -1,4 +1,4 @@
-package com.buglabs.bug.swarm.restclient.model;
+package com.buglabs.bug.swarm.connector.model;
 
 import java.text.ParseException;
 

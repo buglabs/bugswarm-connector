@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.touge.restclient.ReSTClient;
@@ -39,7 +38,7 @@ public class UserResourceModel extends ModelBase {
 			JsonNode jn = objectMapper.readTree(input);
 			
 			for (JsonNode rm : jn)
-				rml.add(UserResourceModel.deserialize(rm.toString()));
+				rml.add(UserResourceModel.deserialize(rm));
 			
 			return rml;
 		}
@@ -57,7 +56,7 @@ public class UserResourceModel extends ModelBase {
 			if (responseCode == 404)
 				return null;
 			
-			return UserResourceModel.deserialize(IOUtils.toString(input));			
+			return UserResourceModel.deserialize(objectMapper.readTree(input));			
 		}
 	};
 
@@ -82,7 +81,6 @@ public class UserResourceModel extends ModelBase {
 	private String machineType;
 	private String resourceId;
 	private String description;
-	private final MemberType type;
 	
 	/**
 	 * @param position ResourcePosition
@@ -94,10 +92,9 @@ public class UserResourceModel extends ModelBase {
 	 * @param resourceId id of resource
 	 * @param description description of resource
 	 */
-	public UserResourceModel(ResourcePosition position, MemberType type, String createDate, String userId, String name
+	public UserResourceModel(ResourcePosition position, String createDate, String userId, String name
 			, String modifyDate, String machineType, String resourceId, String description) {
 		this.position = position;
-		this.type = type;
 		this.createDate = createDate;
 		this.userId = userId;
 		this.name = name;
@@ -105,13 +102,6 @@ public class UserResourceModel extends ModelBase {
 		this.machineType = machineType;
 		this.resourceId = resourceId;
 		this.description = description;
-	}
-	
-	/**
-	 * @return MemberType
-	 */
-	public MemberType getType() {
-		return type;
 	}
 	
 	/**
@@ -170,14 +160,9 @@ public class UserResourceModel extends ModelBase {
 		return description;
 	}
 	
-	public static UserResourceModel deserialize(final String json) throws IOException {
-		if (objectMapper == null)
-			objectMapper = new ObjectMapper();
-		
-		JsonNode jsonObject = objectMapper.readTree(json);
-						
+	public static UserResourceModel deserialize(final JsonNode jsonObject) throws IOException {
+		//TODO: Implement the ResourcePosition
 		return new UserResourceModel(null,
-				toMemberTypeSafely(jsonObject.get("type")),
 				toStringSafely(jsonObject.get("created_at")),
 				toStringSafely(jsonObject.get("user_id")),
 				toStringSafely(jsonObject.get("name")),

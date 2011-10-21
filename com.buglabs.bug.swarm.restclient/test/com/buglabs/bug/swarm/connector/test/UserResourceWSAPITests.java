@@ -22,10 +22,9 @@ import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
  */
 public class UserResourceWSAPITests extends TestCase {
 	
-	private static final String TEST_RESOURCE_ID = "test_resource_id";
 	private static final String TEST_RESOURCE_NAME = "test_resource_name";
 	private static final String TEST_RESOURCE_DESC = "test resource desc";
-	private static final String TEST_RESOURCE_MACHINE_TYPE = "test_client";
+	private static final String TEST_RESOURCE_MACHINE_TYPE = "pc";
 	private static final MemberType TEST_RESOURCE_TYPE = MemberType.PRODUCER;
 	
 	@Override
@@ -85,11 +84,11 @@ public class UserResourceWSAPITests extends TestCase {
 		assertNotNull(resources);
 		assertTrue(resources.size() == 1);
 		
-		assertTrue(resources.iterator().next().getResourceId().equals(TEST_RESOURCE_ID));
-		assertTrue(resources.iterator().next().getDescription().equals(TEST_RESOURCE_DESC));
-		assertTrue(resources.iterator().next().getMachineType().equals(TEST_RESOURCE_MACHINE_TYPE));
-		assertTrue(resources.iterator().next().getUserId().equals(AccountConfig.getConfiguration().getUsername()));
-		assertTrue(resources.iterator().next().getType().equals(TEST_RESOURCE_TYPE));
+		UserResourceModel userrm = resources.get(0);
+		
+		assertTrue(userrm.getDescription().equals(TEST_RESOURCE_DESC));
+		assertTrue(userrm.getMachineType().equals(TEST_RESOURCE_MACHINE_TYPE));
+		assertTrue(userrm.getUserId().equals(AccountConfig.getConfiguration().getUsername()));
 	}
 	
 	public void testListProducerMembers() throws IOException {
@@ -118,7 +117,7 @@ public class UserResourceWSAPITests extends TestCase {
 		assertNotNull(resources);
 		assertTrue(resources.size() == 1);
 		
-		SwarmWSResponse response = rclient.remove(TEST_RESOURCE_ID);
+		SwarmWSResponse response = rclient.remove(resources.get(0).getResourceId());
 		assertFalse(response.isError());
 		
 		resources = rclient.get(TEST_RESOURCE_TYPE);

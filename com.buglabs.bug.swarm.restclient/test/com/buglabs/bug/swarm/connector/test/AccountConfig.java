@@ -3,6 +3,7 @@ package com.buglabs.bug.swarm.connector.test;
 import java.util.Random;
 
 import com.buglabs.bug.swarm.connector.Configuration;
+import com.buglabs.bug.swarm.connector.model.UserResourceModel;
 
 /**
  * Unit tests for ISwarmWSClient implementation.
@@ -21,6 +22,8 @@ public final class AccountConfig {
 	
 	private static Configuration config;
 	private static Configuration xmppconfig;
+	private static Configuration config2;
+	public static UserResourceModel testUserResource2;
 	
 	protected static final int CONNECTOR_INIT_SLEEP_MILLIS = 10000;
 	public static final long CONNECTOR_FEED_CHANGE_SLEEP_MILLIS = 1000;
@@ -53,12 +56,12 @@ public final class AccountConfig {
 	 * @return
 	 */
 	protected static Configuration getConfiguration2() {
-		if (config == null) {
-			config = new Configuration(getHostSystemProperty(), getAPIKey2SystemProperty(), 
+		if (config2 == null) {
+			config2 = new Configuration(getHostSystemProperty(), getAPIKey2SystemProperty(), 
 					XMPP_USERNAME2, DEFAULT_HTTP_SERVER_PORT, DEFAULT_XMPP_SERVER_PORT);
 		}
 		
-		return config;
+		return config2;
 	}
 	
 	private static String getHostSystemProperty() {

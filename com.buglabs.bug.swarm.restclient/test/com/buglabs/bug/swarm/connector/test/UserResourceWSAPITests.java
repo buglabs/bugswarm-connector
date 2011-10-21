@@ -20,7 +20,7 @@ import com.buglabs.bug.swarm.connector.ws.SwarmWSResponse;
  * @author kgilmer
  *
  */
-public class ResourceWSAPITests extends TestCase {
+public class UserResourceWSAPITests extends TestCase {
 	
 	private static final String TEST_RESOURCE_ID = "test_resource_id";
 	private static final String TEST_RESOURCE_NAME = "test_resource_name";

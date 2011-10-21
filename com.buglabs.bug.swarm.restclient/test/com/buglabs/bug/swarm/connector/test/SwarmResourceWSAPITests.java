@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 
 import com.buglabs.bug.swarm.connector.model.SwarmModel;
 import com.buglabs.bug.swarm.connector.model.SwarmResourceModel;
+import com.buglabs.bug.swarm.connector.model.UserResourceModel;
 import com.buglabs.bug.swarm.connector.ws.ISwarmClient;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient;
 import com.buglabs.bug.swarm.connector.ws.ISwarmResourcesClient.MemberType;
@@ -26,6 +27,11 @@ public class SwarmResourceWSAPITests extends TestCase {
 	
 	@Override
 	protected void setUp() throws Exception {
+		assertNotNull(AccountConfig.getConfiguration());
+		assertNotNull(AccountConfig.getConfiguration2());
+		
+		assertFalse(AccountConfig.getConfiguration().getAPIKey().equals(AccountConfig.getConfiguration2().getAPIKey()));
+		
 		ISwarmClient client = new SwarmWSClient(AccountConfig.getConfiguration());
 		
 		//Delete all pre-existing swarms owned by test user.
@@ -39,6 +45,25 @@ public class SwarmResourceWSAPITests extends TestCase {
 		
 		String id = client.create(AccountConfig.generateRandomSwarmName(), true, AccountConfig.getTestSwarmDescription());
 		AccountConfig.testSwarmId = id;
+		
+		//Determine that 2nd user can connect and delete any existing swarms.
+		SwarmWSClient client2 = new SwarmWSClient(AccountConfig.getConfiguration2());
+		
+		//Delete all pre-existing swarms owned by test user.	
+		for (SwarmModel sm : client2.list()) {
+			if (sm.getUserId().equals(AccountConfig.getConfiguration2().getUsername())) {
+				client2.destroy(sm.getId());
+			}
+		}
+		
+		for (UserResourceModel ur : client2.getUserResourceClient().list())
+			client2.getUserResourceClient().remove(ur.getResourceId());
+		
+		UserResourceModel urc = client2.getUserResourceClient().add("3rd_resource", "user resource desc", "pc", 0, 0);
+		AccountConfig.testUserResource2 = urc;
+		
+		//Confirm that original user still has swarm.
+		assertTrue(client.list().size() == 1);
 	}
 	
 	@Override
@@ -56,13 +81,16 @@ public class SwarmResourceWSAPITests extends TestCase {
 		ISwarmClient client = new SwarmWSClient(AccountConfig.getConfiguration());
 		ISwarmResourcesClient membersClient = ((SwarmWSClient) client).getSwarmResourceClient();
 		
-		//TODO: determine set of test users that can be created or assumed to exist.
+		assertNotNull(AccountConfig.testUserResource2);
+		
 		SwarmWSResponse rc = membersClient.add(
 				AccountConfig.testSwarmId, 
 				DEFAULT_MEMBER_TYPE, 
-				AccountConfig.getConfiguration().getResource());
+				AccountConfig.testUserResource2.getResourceId());
 		
 		assertTrue(!rc.isError());
+		
+		//TODO: This test is failing, and am not sure why.
 	}
 
 	public void testListConsumerMembers() throws IOException {

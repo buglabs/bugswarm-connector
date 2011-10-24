@@ -6,10 +6,13 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import com.buglabs.bug.swarm.restclient.ISwarmClient;
+import com.buglabs.bug.swarm.restclient.ISwarmInviteClient.InvitationResponse;
+import com.buglabs.bug.swarm.restclient.ISwarmInviteClient.InvitationState;
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient;
 import com.buglabs.bug.swarm.restclient.SwarmWSResponse;
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.restclient.impl.SwarmWSClient;
+import com.buglabs.bug.swarm.restclient.model.Invitation;
 import com.buglabs.bug.swarm.restclient.model.SwarmModel;
 import com.buglabs.bug.swarm.restclient.model.SwarmResourceModel;
 import com.buglabs.bug.swarm.restclient.model.UserResourceModel;
@@ -80,10 +83,26 @@ public class SwarmResourceWSAPITests extends TestCase {
 	public void testAddSwarmMember() throws IOException {
 		ISwarmClient client = new SwarmWSClient(AccountConfig.getConfiguration());
 		ISwarmResourcesClient membersClient = ((SwarmWSClient) client).getSwarmResourceClient();
-		
 		assertNotNull(AccountConfig.testUserResource2);
+		String inviteTarget = AccountConfig.getConfiguration2().getUsername();
 		
-		SwarmWSResponse rc = membersClient.add(
+		//Send invitation
+		Invitation invite = client.getSwarmInviteClient().send(
+				AccountConfig.testSwarmId, inviteTarget, 
+				AccountConfig.testUserResource2.getResourceId(), 
+				DEFAULT_MEMBER_TYPE, 
+				"test");
+		assertNotNull(invite);
+		assertTrue(invite.getStatus() == InvitationState.NEW);
+		
+		ISwarmClient client2 = new SwarmWSClient(AccountConfig.getConfiguration2());
+		
+		assertTrue(client2.getSwarmInviteClient().getRecievedInvitations(AccountConfig.testUserResource2.getResourceId()).size() > 0);
+		Invitation inviteResponse = client2.getSwarmInviteClient().respond(invite.getResourceId(), invite.getId(), InvitationResponse.ACCEPT);
+		assertNotNull(inviteResponse);
+		assertTrue(inviteResponse.getStatus() == InvitationState.ACCEPTED);
+		
+		SwarmWSResponse rc = client.getSwarmResourceClient().add(
 				AccountConfig.testSwarmId, 
 				DEFAULT_MEMBER_TYPE, 
 				AccountConfig.testUserResource2.getResourceId());

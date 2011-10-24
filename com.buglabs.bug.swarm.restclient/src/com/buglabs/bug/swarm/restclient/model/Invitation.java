@@ -10,6 +10,7 @@ import java.util.Map;
 import org.codehaus.jackson.JsonNode;
 import org.touge.restclient.ReSTClient.ResponseDeserializer;
 
+import com.buglabs.bug.swarm.restclient.ISwarmInviteClient.InvitationState;
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient;
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
 
@@ -87,11 +88,11 @@ public class Invitation extends ModelBase {
 	private final String resourceId;
 	private final String fromUser;
 	private final String toUser;
-	private final String status;
+	private final InvitationState status;
 	private final String acceptedAt;
 	private final String sentAt;
 	
-	public Invitation(String id, String description, MemberType type, String resourceId, String fromUser, String toUser, String status,
+	public Invitation(String id, String description, MemberType type, String resourceId, String fromUser, String toUser, InvitationState status,
 			String sentAt) {
 		this.id = id;
 		this.description = description;
@@ -113,13 +114,13 @@ public class Invitation extends ModelBase {
 				jn.get("resource_id").getTextValue(), 
 				jn.get("from").getTextValue(), 
 				jn.get("to").getTextValue(), 
-				jn.get("status").getTextValue(), 
+				InvitationState.valueOf(jn.get("status").getTextValue().toUpperCase()), 
 				ModelBase.toStringSafely(jn.get("accepted_at")),
 				jn.get("sent_at").getTextValue());
 	}
 
 
-	public Invitation(String id, String description, MemberType type, String resourceId, String fromUser, String toUser, String status,
+	public Invitation(String id, String description, MemberType type, String resourceId, String fromUser, String toUser, InvitationState status,
 			String acceptedAt, String sentAt) {
 		this.id = id;
 		this.description = description;
@@ -171,7 +172,7 @@ public class Invitation extends ModelBase {
 	/**
 	 * @return if invitation has been accepted or not.
 	 */
-	public String getStatus() {
+	public InvitationState getStatus() {
 		return status;
 	}
 	/**

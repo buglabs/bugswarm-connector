@@ -78,7 +78,7 @@ public class SwarmInviteWSClient extends AbstractSwarmWSClient implements ISwarm
 	}
 
 	@Override
-	public Invitation respond(String resourceId, String invitationId, boolean acceptInvitation) throws IOException {
+	public Invitation respond(String resourceId, String invitationId, InvitationResponse resourceType) throws IOException {
 		// URL: http://api.bugswarm.net/resources/RESOURCE_ID/invitations/INVITATION_ID
 		URLBuilder url = swarmHostUrl.copy()
 			.append("resources")
@@ -86,11 +86,7 @@ public class SwarmInviteWSClient extends AbstractSwarmWSClient implements ISwarm
 			.append("invitations")
 			.append(invitationId);	
 		
-		String action = "accept";
-		if (!acceptInvitation)
-			action = "reject";
-		
-		Map<String, String> body = toMap("status", action);
+		Map<String, String> body = toMap("status", resourceType.toString());
 		
 		Response<Invitation> response = httpClient.callPut(url, super.createJsonStream(body), Invitation.DESERIALIZER);
 		

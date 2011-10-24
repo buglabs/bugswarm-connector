@@ -6,6 +6,8 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import com.buglabs.bug.swarm.restclient.ISwarmClient;
+import com.buglabs.bug.swarm.restclient.ISwarmInviteClient.InvitationResponse;
+import com.buglabs.bug.swarm.restclient.ISwarmInviteClient.InvitationState;
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.restclient.impl.SwarmWSClient;
 import com.buglabs.bug.swarm.restclient.model.Invitation;
@@ -84,7 +86,7 @@ public class SwarmInvitationWSAPITests extends TestCase {
 		assertNotNull(invite.getToUser());
 		assertNotNull(invite.getResourceId());
 		assertNotNull(invite.getStatus());
-		assertTrue(invite.getStatus().equals("new"));
+		assertTrue(invite.getStatus().equals(InvitationState.NEW));
 		assertNotNull(invite.getDescription());
 		assertTrue(invite.getDescription().equals(description));
 		
@@ -118,7 +120,7 @@ public class SwarmInvitationWSAPITests extends TestCase {
 		assertNotNull(invite.getToUser());
 		assertNotNull(invite.getResourceId());
 		assertNotNull(invite.getStatus());
-		assertTrue(invite.getStatus().equals("new"));
+		assertTrue(invite.getStatus().equals(InvitationState.NEW));
 		assertNotNull(invite.getDescription());
 		assertTrue(invite.getDescription().equals(description));
 	}
@@ -147,7 +149,7 @@ public class SwarmInvitationWSAPITests extends TestCase {
 		assertNotNull(invite.getToUser());
 		assertNotNull(invite.getResourceId());
 		assertNotNull(invite.getStatus());
-		assertTrue(invite.getStatus().equals("new"));
+		assertTrue(invite.getStatus().equals(InvitationState.NEW));
 		assertNotNull(invite.getDescription());
 		assertTrue(invite.getDescription().equals(description));
 	}
@@ -176,7 +178,7 @@ public class SwarmInvitationWSAPITests extends TestCase {
 		assertNotNull(invite.getToUser());
 		assertNotNull(invite.getResourceId());
 		assertNotNull(invite.getStatus());
-		assertTrue(invite.getStatus().equals("new"));
+		assertTrue(invite.getStatus().equals(InvitationState.NEW));
 		assertNotNull(invite.getDescription());
 		assertTrue(invite.getDescription().equals(description));
 	}
@@ -205,14 +207,14 @@ public class SwarmInvitationWSAPITests extends TestCase {
 		assertNotNull(invite.getToUser());
 		assertNotNull(invite.getResourceId());
 		assertNotNull(invite.getStatus());
-		assertTrue(invite.getStatus().equals("new"));
+		assertTrue(invite.getStatus().equals(InvitationState.NEW));
 		assertNotNull(invite.getDescription());
 		assertTrue(invite.getDescription().equals(description));
 		
-		Invitation acceptInvite = client2.getSwarmInviteClient().respond(invite.getResourceId(), invite.getId(), true);
+		Invitation acceptInvite = client2.getSwarmInviteClient().respond(invite.getResourceId(), invite.getId(), InvitationResponse.ACCEPT);
 		
 		assertNotNull(acceptInvite);
-		assertTrue(acceptInvite.getStatus().equals("accepted"));
+		assertTrue(acceptInvite.getStatus().equals(InvitationState.ACCEPTED));
 		assertNotNull(acceptInvite.getAcceptedAt());
 	}
 	
@@ -240,14 +242,14 @@ public class SwarmInvitationWSAPITests extends TestCase {
 		assertNotNull(invite.getToUser());
 		assertNotNull(invite.getResourceId());
 		assertNotNull(invite.getStatus());
-		assertTrue(invite.getStatus().equals("new"));
+		assertTrue(invite.getStatus().equals(InvitationState.NEW));
 		assertNotNull(invite.getDescription());
 		assertTrue(invite.getDescription().equals(description));
 		
-		Invitation acceptInvite = client2.getSwarmInviteClient().respond(invite.getResourceId(), invite.getId(), false);
+		Invitation acceptInvite = client2.getSwarmInviteClient().respond(invite.getResourceId(), invite.getId(), InvitationResponse.REJECT);
 		
 		assertNotNull(acceptInvite);
-		assertTrue(acceptInvite.getStatus().equals("rejected"));
+		assertTrue(acceptInvite.getStatus().equals(InvitationState.REJECTED));
 		assertNull(acceptInvite.getAcceptedAt());
 	}
 }

@@ -15,6 +15,61 @@ import com.buglabs.bug.swarm.restclient.model.Invitation;
  *
  */
 public interface ISwarmInviteClient {
+	/**
+	 * An invitation sent to a resource can be accepted or rejected by the owner (user) of that resource.
+	 */
+	public enum InvitationResponse {
+		/**
+		 * There are two types of members, 'consumer' and 'producer'.
+		 */
+		ACCEPT("accept"), REJECT("reject");
+
+		/**
+		 * Name of member.
+		 */
+		private final String name;
+
+		/**
+		 * @param name
+		 *            of member
+		 */
+		private InvitationResponse(final String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
+	
+	/**
+	 * An invitation sent to a resource can be accepted or rejected by the owner (user) of that resource.
+	 */
+	public enum InvitationState {
+		/**
+		 * There are two types of members, 'consumer' and 'producer'.
+		 */
+		ACCEPTED("accepted"), REJECTED("rejected"), NEW("new");
+
+		/**
+		 * Name of member.
+		 */
+		private final String name;
+
+		/**
+		 * @param name
+		 *            of member
+		 */
+		private InvitationState(final String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
 	
 	/**
 	 * "to": "other username",
@@ -65,6 +120,6 @@ public interface ISwarmInviteClient {
 	 * @return an Invitation type with response populated.
 	 * @throws IOException on I/O error
 	 */
-	Invitation respond(String resourceId, String invitationId, boolean acceptInvitation) throws IOException;
+	Invitation respond(String resourceId, String invitationId, InvitationResponse action) throws IOException;
 
 }

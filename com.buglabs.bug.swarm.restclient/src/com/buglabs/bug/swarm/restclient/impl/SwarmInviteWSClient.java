@@ -66,15 +66,34 @@ public class SwarmInviteWSClient extends AbstractSwarmWSClient implements ISwarm
 
 	@Override
 	public List<Invitation> getRecievedInvitations(String resourceId) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		// URL: http://api.bugswarm.net/resources/RESOURCE_ID/invitations
+		URLBuilder url = swarmHostUrl.copy()
+			.append("resources")
+			.append(resourceId)
+			.append("invitations");	
+		
+		Response<List<Invitation>> resp = httpClient.callGet(url, Invitation.LIST_DESERIALIZER);
+		
+		return resp.getContent();		
 	}
 
 	@Override
-	public Invitation respond(boolean acceptInvitation) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+	public Invitation respond(String resourceId, String invitationId, boolean acceptInvitation) throws IOException {
+		// URL: http://api.bugswarm.net/resources/RESOURCE_ID/invitations/INVITATION_ID
+		URLBuilder url = swarmHostUrl.copy()
+			.append("resources")
+			.append(resourceId)
+			.append("invitations")
+			.append(invitationId);	
+		
+		String action = "accept";
+		if (!acceptInvitation)
+			action = "reject";
+		
+		Map<String, String> body = toMap("status", action);
+		
+		Response<Invitation> response = httpClient.callPut(url, super.createJsonStream(body), Invitation.DESERIALIZER);
+		
+		return response.getContent();
 	}
-
-	
 }

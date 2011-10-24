@@ -59,10 +59,12 @@ public interface ISwarmInviteClient {
 	/**
 	 * At any point in time, users may choose to respond to pending invitations for a given resource. Use this method to either accept or reject these invitations.
 	 * 
+	 * @param resourceId resource id
+	 * @param invitationId invitation id
 	 * @param acceptInvitation if true, will attempt to accept invitation, otherwise will reject.
 	 * @return an Invitation type with response populated.
 	 * @throws IOException on I/O error
 	 */
-	Invitation respond(boolean acceptInvitation) throws IOException;
+	Invitation respond(String resourceId, String invitationId, boolean acceptInvitation) throws IOException;
 
 }

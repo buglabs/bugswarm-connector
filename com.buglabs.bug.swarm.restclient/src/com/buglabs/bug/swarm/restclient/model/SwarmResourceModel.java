@@ -26,7 +26,7 @@ public class SwarmResourceModel extends ModelBase {
 	private final String createdAt;
 	private final ISwarmResourcesClient.MemberType type;
 	private final String userId;
-	private final String resource;
+	private final String resourceId;
 	private final String swarmId;
 	
 	/**
@@ -41,7 +41,7 @@ public class SwarmResourceModel extends ModelBase {
 			if (responseCode == 404)
 				return null;
 			
-			return SwarmResourceModel.deserialize(objectMapper.readTree(input));			
+			return SwarmResourceModel.deserialize(null, objectMapper.readTree(input));			
 		}
 	};
 	
@@ -60,7 +60,7 @@ public class SwarmResourceModel extends ModelBase {
 			List<SwarmResourceModel> srml= new ArrayList<SwarmResourceModel>();
 			
 			for (JsonNode jn : objectMapper.readTree(input))
-				srml.add(SwarmResourceModel.deserialize(jn));
+				srml.add(SwarmResourceModel.deserialize(null, jn));
 			
 			return srml;			
 		}
@@ -75,17 +75,17 @@ public class SwarmResourceModel extends ModelBase {
 	 *            consumer or producer
 	 * @param userId
 	 *            user id
-	 * @param resource
+	 * @param resourceId
 	 *            resource (XMPP)
 	 * @param swarmId
 	 *            id of swarm
 	 */
 	public SwarmResourceModel(final String createdAt, final ISwarmResourcesClient.MemberType type, final String userId,
-			final String resource, final String swarmId) {
+			final String resourceId, final String swarmId) {
 		this.createdAt = createdAt;
 		this.type = type;
 		this.userId = userId;
-		this.resource = resource;
+		this.resourceId = resourceId;
 		this.swarmId = swarmId;
 	}
 
@@ -111,10 +111,10 @@ public class SwarmResourceModel extends ModelBase {
 	}
 
 	/**
-	 * @return resource (XMPP)
+	 * @return resource id
 	 */
-	public String getResource() {
-		return resource;
+	public String getResourceId() {
+		return resourceId;
 	}
 
 	/**
@@ -127,16 +127,16 @@ public class SwarmResourceModel extends ModelBase {
 	@Override
 	public String toString() {
 
-		return swarmId + "[" + userId + " (" + type + ")/" + resource + "]";
+		return swarmId + "[" + userId + " (" + type + ")/" + resourceId + "]";
 	}
 
-	public static SwarmResourceModel deserialize(JsonNode jo) throws IOException {		
+	public static SwarmResourceModel deserialize(String swarmId, JsonNode jo) throws IOException {		
 		return new SwarmResourceModel(
-				jo.get("created_at").getTextValue(), 
-				MemberType.valueOf(jo.get("type").getTextValue().toUpperCase()), 
+				toStringSafely(jo.get("created_at")), 
+				MemberType.valueOf(jo.get("resource_type").getTextValue().toUpperCase()), 
 				jo.get("user_id").getTextValue(),
-				jo.get("id").getTextValue(), 
-				jo.get("swarm_id").getTextValue());		
+				jo.get("resource_id").getTextValue(), 
+				swarmId);		
 	}
 
 	public static String serialize(SwarmResourceModel object) throws IOException {

@@ -178,7 +178,8 @@ public class SwarmModel extends ModelBase {
 		List<SwarmResourceModel> srml = new ArrayList<SwarmResourceModel>();
 		
 		for (JsonNode jn : jsonObject.get("resources"))
-			srml.add(SwarmResourceModel.deserialize(jn));
+			srml.add(SwarmResourceModel.deserialize(
+					jsonObject.get("id").getTextValue(), jn));
 		
 		return new SwarmModel(
 				Boolean.parseBoolean(jsonObject.get("public").getTextValue()),

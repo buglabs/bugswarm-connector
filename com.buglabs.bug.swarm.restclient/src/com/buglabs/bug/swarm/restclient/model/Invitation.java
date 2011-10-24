@@ -114,6 +114,7 @@ public class Invitation extends ModelBase {
 				jn.get("from").getTextValue(), 
 				jn.get("to").getTextValue(), 
 				jn.get("status").getTextValue(), 
+				ModelBase.toStringSafely(jn.get("accepted_at")),
 				jn.get("sent_at").getTextValue());
 	}
 

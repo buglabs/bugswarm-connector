@@ -151,4 +151,103 @@ public class SwarmInvitationWSAPITests extends TestCase {
 		assertNotNull(invite.getDescription());
 		assertTrue(invite.getDescription().equals(description));
 	}
+	
+	public void testListRecievedInvitations2() throws IOException {
+		ISwarmClient client2 = new SwarmWSClient(AccountConfig.getConfiguration2());
+		assertNotNull(client2);
+		assertNotNull(client2.getSwarmInviteClient());
+		assertNotNull(AccountConfig.testSwarmId);
+		assertNotNull(AccountConfig.testInviteId);
+		
+		testSendInvite();
+		List<Invitation> receivedInvites = client2.getSwarmInviteClient().getRecievedInvitations(AccountConfig.testUserResource2.getResourceId());
+		
+		assertNotNull(receivedInvites);
+		assertTrue(receivedInvites.isEmpty() == false);
+		Invitation invite = null;
+		
+		for (Invitation i : receivedInvites)
+			if (i.getId().equals(AccountConfig.testInviteId))
+				invite = i;
+		
+		assertNotNull(invite);
+		assertNotNull(invite.getId());
+		assertNotNull(invite.getFromUser());
+		assertNotNull(invite.getToUser());
+		assertNotNull(invite.getResourceId());
+		assertNotNull(invite.getStatus());
+		assertTrue(invite.getStatus().equals("new"));
+		assertNotNull(invite.getDescription());
+		assertTrue(invite.getDescription().equals(description));
+	}
+	
+	public void testAcceptInvitation() throws IOException {
+		ISwarmClient client2 = new SwarmWSClient(AccountConfig.getConfiguration2());
+		assertNotNull(client2);
+		assertNotNull(client2.getSwarmInviteClient());
+		assertNotNull(AccountConfig.testSwarmId);
+		assertNotNull(AccountConfig.testInviteId);
+		
+		testSendInvite();
+		List<Invitation> receivedInvites = client2.getSwarmInviteClient().getRecievedInvitations(AccountConfig.testUserResource2.getResourceId());
+		
+		assertNotNull(receivedInvites);
+		assertTrue(receivedInvites.isEmpty() == false);
+		Invitation invite = null;
+		
+		for (Invitation i : receivedInvites)
+			if (i.getId().equals(AccountConfig.testInviteId))
+				invite = i;
+		
+		assertNotNull(invite);
+		assertNotNull(invite.getId());
+		assertNotNull(invite.getFromUser());
+		assertNotNull(invite.getToUser());
+		assertNotNull(invite.getResourceId());
+		assertNotNull(invite.getStatus());
+		assertTrue(invite.getStatus().equals("new"));
+		assertNotNull(invite.getDescription());
+		assertTrue(invite.getDescription().equals(description));
+		
+		Invitation acceptInvite = client2.getSwarmInviteClient().respond(invite.getResourceId(), invite.getId(), true);
+		
+		assertNotNull(acceptInvite);
+		assertTrue(acceptInvite.getStatus().equals("accepted"));
+		assertNotNull(acceptInvite.getAcceptedAt());
+	}
+	
+	public void testRejectInvitation() throws IOException {
+		ISwarmClient client2 = new SwarmWSClient(AccountConfig.getConfiguration2());
+		assertNotNull(client2);
+		assertNotNull(client2.getSwarmInviteClient());
+		assertNotNull(AccountConfig.testSwarmId);
+		assertNotNull(AccountConfig.testInviteId);
+		
+		testSendInvite();
+		List<Invitation> receivedInvites = client2.getSwarmInviteClient().getRecievedInvitations(AccountConfig.testUserResource2.getResourceId());
+		
+		assertNotNull(receivedInvites);
+		assertTrue(receivedInvites.isEmpty() == false);
+		Invitation invite = null;
+		
+		for (Invitation i : receivedInvites)
+			if (i.getId().equals(AccountConfig.testInviteId))
+				invite = i;
+		
+		assertNotNull(invite);
+		assertNotNull(invite.getId());
+		assertNotNull(invite.getFromUser());
+		assertNotNull(invite.getToUser());
+		assertNotNull(invite.getResourceId());
+		assertNotNull(invite.getStatus());
+		assertTrue(invite.getStatus().equals("new"));
+		assertNotNull(invite.getDescription());
+		assertTrue(invite.getDescription().equals(description));
+		
+		Invitation acceptInvite = client2.getSwarmInviteClient().respond(invite.getResourceId(), invite.getId(), false);
+		
+		assertNotNull(acceptInvite);
+		assertTrue(acceptInvite.getStatus().equals("rejected"));
+		assertNull(acceptInvite.getAcceptedAt());
+	}
 }

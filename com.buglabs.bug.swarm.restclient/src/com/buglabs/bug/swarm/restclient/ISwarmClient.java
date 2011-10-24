@@ -89,4 +89,9 @@ public interface ISwarmClient {
 	 * @return an instance of a ISwarmBinaryUploadClient.
 	 */
 	ISwarmBinaryUploadClient getSwarmBinaryUploadClient();
+	
+	/**
+	 * @return an instance of ISwarmInviteClient.
+	 */
+	ISwarmInviteClient getSwarmInviteClient();
 }

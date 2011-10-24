@@ -1,0 +1,134 @@
+package com.buglabs.bug.swarm.restclient.model;
+
+import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient;
+import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
+
+/**
+ * A Swarm Invitation is the mechanism by which users can advertise and associate with 3rd party swarms.
+ * 
+ * See http://developer.bugswarm.net/restful_invitations.html
+ * 
+ * @author kgilmer
+ *
+ */
+public class Invitation extends ModelBase {
+
+	/*
+	 * This appears to be the complete set of fields for Invitation in the server:
+	 * 
+	 *  "accepted_at": "2011-10-10T03:28:56.083Z",
+     *  "id": "b773a3c03b413d0f8398913aff719a00b7ef2d5"
+     *  "from": "username",
+     *  "swarm_id": "3a147bd1a79a7d075b8cd2f1d48db9719c1f6739",
+     *  "description": "Hey. Come join my awesome swarm!",
+     *  "resource_type": "producer",
+     *  "resource_id": "052be4babe6efa128fa9a09997d4562250156aae"
+     *  "to": "other username",
+     *  "sent_at": "2011-10-10T03:12:11.773Z",
+     *  "status": "accepted"
+     *  
+     *  This appears to be the minimal required set to send an invite:
+     *  
+	 *  "id": "fba0ca4bc9c63a964d9781c5487617e5f17dffd9",
+	 *  "from": "username",
+	 *  "swarm_id": "3a147bd1a79a7d075b8cd2f1d48db9719c1f6739",
+	 *  "description": "Hey. Come join my awesome swarm!",
+	 *  "resource_type": "consumer",
+	 *  "resource_id": "16f101010e80dd123b87363af759cc22cf49ff5f",
+	 *  "to": "other username",
+	 *  "sent_at": "2011-10-10T03:12:11.773Z",
+	 *  "status": "new"
+	 */
+	
+	private final String id;
+	private final String description;
+	private final ISwarmResourcesClient.MemberType type;
+	private final String resourceId;
+	private final String fromUser;
+	private final String toUser;
+	private final String status;
+	private final String acceptedAt;
+	private final String sentAt;
+	
+	public Invitation(String id, String description, MemberType type, String resourceId, String fromUser, String toUser, String status,
+			String sentAt) {
+		this.id = id;
+		this.description = description;
+		this.type = type;
+		this.resourceId = resourceId;
+		this.fromUser = fromUser;
+		this.toUser = toUser;
+		this.status = status;
+		this.acceptedAt = null;
+		this.sentAt = sentAt;
+	}
+	
+	
+	public Invitation(String id, String description, MemberType type, String resourceId, String fromUser, String toUser, String status,
+			String acceptedAt, String sentAt) {
+		this.id = id;
+		this.description = description;
+		this.type = type;
+		this.resourceId = resourceId;
+		this.fromUser = fromUser;
+		this.toUser = toUser;
+		this.status = status;
+		this.acceptedAt = acceptedAt;
+		this.sentAt = sentAt;
+	}
+	
+	/**
+	 * @return id of invitation.
+	 */
+	public String getId() {
+		return id;
+	}
+	/**
+	 * @return description of invitation.
+	 */
+	public String getDescription() {
+		return description;
+	}
+	/**
+	 * @return type of membership associated with the invitation.
+	 */
+	public ISwarmResourcesClient.MemberType getType() {
+		return type;
+	}
+	/**
+	 * @return resource id of the invitation.
+	 */
+	public String getResourceId() {
+		return resourceId;
+	}
+	/**
+	 * @return originator of invitation
+	 */
+	public String getFromUser() {
+		return fromUser;
+	}
+	/**
+	 * @return target of invitation
+	 */
+	public String getToUser() {
+		return toUser;
+	}
+	/**
+	 * @return if invitation has been accepted or not.
+	 */
+	public String getStatus() {
+		return status;
+	}
+	/**
+	 * @return if invitation accepted, date which occurred.
+	 */
+	public String getAcceptedAt() {
+		return acceptedAt;
+	}
+	/**
+	 * @return date that invitation was sent.
+	 */
+	public String getSentAt() {
+		return sentAt;
+	}
+}

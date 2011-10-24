@@ -8,6 +8,7 @@ import org.touge.restclient.ReSTClient.Response;
 
 import com.buglabs.bug.swarm.restclient.ISwarmBinaryUploadClient;
 import com.buglabs.bug.swarm.restclient.ISwarmClient;
+import com.buglabs.bug.swarm.restclient.ISwarmInviteClient;
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient;
 import com.buglabs.bug.swarm.restclient.IUserResourceClient;
 import com.buglabs.bug.swarm.restclient.SwarmWSResponse;
@@ -26,6 +27,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 	private SwarmResourceWSClient membersClient;
 	private SwarmBinaryUploadWSClient uploadClient;
 	private UserResourceWSClient resourceClient;
+	private SwarmInviteWSClient inviteClient;
 
 	/**
 	 * Create a client from a url and apikey.
@@ -130,5 +132,13 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 				SwarmModel.Deserializer);
 		
 		return response.getContent();
+	}
+
+	@Override
+	public ISwarmInviteClient getSwarmInviteClient() {
+		if (inviteClient == null)
+			inviteClient = new SwarmInviteWSClient(swarmHostUrl.toString(), apiKey, httpClient);
+
+		return inviteClient;		
 	}
 }

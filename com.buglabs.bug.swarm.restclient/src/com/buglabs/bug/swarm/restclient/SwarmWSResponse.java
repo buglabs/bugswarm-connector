@@ -33,7 +33,7 @@ public enum SwarmWSResponse {
 	// @formatter:on
 
 	private final int code;
-	private final String message;
+	private String message;
 	
 	/**
 	 * Deserialize to SwarmWSResponse.
@@ -43,7 +43,17 @@ public enum SwarmWSResponse {
 		@Override
 		public SwarmWSResponse deserialize(InputStream input, int responseCode, Map<String, List<String>> headers)
 			throws IOException {
-			return SwarmWSResponse.fromCode(responseCode);
+			
+			SwarmWSResponse response = SwarmWSResponse.fromCode(responseCode);
+			
+			if (input != null) {
+				String serverMessage = new String(ReSTClient.readStream(input), "UTF-8");
+				
+				if (serverMessage.length() > 0)
+					response.setMessage(serverMessage);
+			}
+			
+			return response;							
 		}
 	};
 
@@ -76,6 +86,14 @@ public enum SwarmWSResponse {
 	 */
 	public String getMessage() {
 		return message;
+	}
+	
+	/**
+	 * Set a custom message for the response.
+	 * @param message
+	 */
+	protected void setMessage(String message) {
+		this.message = message;
 	}
 
 	/**

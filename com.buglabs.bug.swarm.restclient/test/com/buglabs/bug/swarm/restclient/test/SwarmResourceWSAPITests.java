@@ -88,6 +88,9 @@ public class SwarmResourceWSAPITests extends TestCase {
 				DEFAULT_MEMBER_TYPE, 
 				AccountConfig.testUserResource2.getResourceId());
 		
+		if (rc.isError()) {
+			System.err.println(rc.getMessage());
+		}
 		assertTrue(!rc.isError());
 		
 		//TODO: This test is failing, and am not sure why.

@@ -23,6 +23,7 @@ public final class AccountConfig {
 	private static Configuration xmppconfig;
 	private static Configuration config2;
 	public static UserResourceModel testUserResource2;
+	public static String testInviteId;
 	
 	protected static final int CONNECTOR_INIT_SLEEP_MILLIS = 10000;
 	public static final long CONNECTOR_FEED_CHANGE_SLEEP_MILLIS = 1000;

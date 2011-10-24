@@ -1,5 +1,15 @@
 package com.buglabs.bug.swarm.restclient.model;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import org.codehaus.jackson.JsonNode;
+import org.touge.restclient.ReSTClient.ResponseDeserializer;
+
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient;
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
 
@@ -40,6 +50,29 @@ public class Invitation extends ModelBase {
 	 *  "status": "new"
 	 */
 	
+	public static final ResponseDeserializer<Invitation> DESERIALIZER = new ResponseDeserializer<Invitation>() {
+
+		@Override
+		public Invitation deserialize(InputStream input, int responseCode, Map<String, List<String>> headers) throws IOException {
+			if (responseCode == 404)
+				return null;		
+			
+			JsonNode jn = objectMapper.readTree(input);
+			
+			Invitation inv = new Invitation(
+					jn.get("id").getTextValue(), 
+					jn.get("description").getTextValue(), 
+					MemberType.valueOf(jn.get("resource_type").getTextValue()), 
+					jn.get("resource_id").getTextValue(), 
+					jn.get("from").getTextValue(), 
+					jn.get("to").getTextValue(), 
+					jn.get("status").getTextValue(), 
+					jn.get("sent_at").getTextValue());
+			
+			return inv;
+		}
+		
+	};
 	private final String id;
 	private final String description;
 	private final ISwarmResourcesClient.MemberType type;

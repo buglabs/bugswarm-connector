@@ -1,9 +1,12 @@
 package com.buglabs.bug.swarm.restclient.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 import org.touge.restclient.ReSTClient;
+import org.touge.restclient.ReSTClient.URLBuilder;
 
 import com.buglabs.bug.swarm.restclient.ISwarmInviteClient;
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
@@ -16,8 +19,22 @@ public class SwarmInviteWSClient extends AbstractSwarmWSClient implements ISwarm
 	}
 
 	@Override
-	public Invitation send(String user, String resourceId, MemberType resourceType) throws IOException {
-		// TODO Auto-generated method stub
+	public Invitation send(String swarmId, String user, String resourceId, MemberType resourceType, String description) throws IOException {
+		URLBuilder url = swarmHostUrl.copy()
+			.append("swarms")
+			.append(swarmId)
+			.append("invitations");
+		
+		Map<String, String> body = toMap(
+				"to", user,
+				"resource_id", resourceId,
+				"resource_type", resourceType.toString());
+		
+		if (description != null)
+			body.put("description", description);
+		
+		httpClient.callPost(url, super.createJsonStream(body), Invitation.DESERIALIZER);
+		
 		return null;
 	}
 

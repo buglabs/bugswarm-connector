@@ -21,10 +21,15 @@ public interface ISwarmInviteClient {
 	 * "resource_id": "16f101010e80dd123b87363af759cc22cf49ff5f",
 	 * "resource_type": "consumer",
 	 * "description": "Hey. Come join my awesome swarm!"
-	 * @return fully poluted invitation.
+	 * @param swarmId swarm id
+	 * @param user user id
+	 * @param resourceId resource id
+	 * @param resourceType resource type
+	 * @param description description or null for no description
+	 * @return fully populated invitation.
 	 * @throws IOException on I/O or application error.
-	 */
-	Invitation send(String user, String resourceId, MemberType resourceType) throws IOException;
+	 */	
+	Invitation send(String swarmId, String user, String resourceId, MemberType resourceType, String description) throws IOException;
 	
 	/**
 	 * Use this method to monitor the status of invitations sent to resources to join a given swarm.

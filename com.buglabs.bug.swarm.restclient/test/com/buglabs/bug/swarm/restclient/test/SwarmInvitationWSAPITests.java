@@ -22,6 +22,8 @@ import com.buglabs.bug.swarm.restclient.test.Configuration.Protocol;
  *
  */
 public class SwarmInvitationWSAPITests extends TestCase {
+	
+	private static final String description = "invite test description";
 
 	@Override
 	protected void setUp() throws Exception {
@@ -72,8 +74,6 @@ public class SwarmInvitationWSAPITests extends TestCase {
 		assertNotNull(client.getSwarmInviteClient());
 		assertNotNull(AccountConfig.testSwarmId);
 		
-		String description = "invite test description";
-		
 		Invitation invite = client.getSwarmInviteClient().send(
 				AccountConfig.testSwarmId, 
 				AccountConfig.getConfiguration2().getUsername(), 
@@ -92,5 +92,37 @@ public class SwarmInvitationWSAPITests extends TestCase {
 		assertTrue(invite.getDescription().equals(description));
 		
 		AccountConfig.testInviteId = invite.getId();
+	}
+	
+	public void testListSentInvitations() throws IOException {
+		ISwarmClient client = new SwarmWSClient(AccountConfig.getConfiguration());
+		assertNotNull(client);
+		assertNotNull(client.getSwarmInviteClient());
+		assertNotNull(AccountConfig.testSwarmId);
+		assertNotNull(AccountConfig.testInviteId);
+		
+		List<Invitation> sentInvites = client.getSwarmInviteClient().getSentInvitations(AccountConfig.testSwarmId);
+		
+		assertNotNull(sentInvites);
+		assertTrue(sentInvites.isEmpty() == true);
+
+		testSendInvite();
+		sentInvites = client.getSwarmInviteClient().getSentInvitations(AccountConfig.testSwarmId);
+		
+		assertNotNull(sentInvites);
+		assertTrue(sentInvites.isEmpty() == false);
+		assertTrue(sentInvites.size() == 1);
+		Invitation invite = sentInvites.get(0);
+		assertTrue(invite.getId().equals(AccountConfig.testInviteId));
+		
+		assertNotNull(invite);
+		assertNotNull(invite.getId());
+		assertNotNull(invite.getFromUser());
+		assertNotNull(invite.getToUser());
+		assertNotNull(invite.getResourceId());
+		assertNotNull(invite.getStatus());
+		assertTrue(invite.getStatus().equals("new"));
+		assertNotNull(invite.getDescription());
+		assertTrue(invite.getDescription().equals(description));
 	}
 }

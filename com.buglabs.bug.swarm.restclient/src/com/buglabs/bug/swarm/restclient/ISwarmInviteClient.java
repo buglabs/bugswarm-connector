@@ -34,10 +34,11 @@ public interface ISwarmInviteClient {
 	/**
 	 * Use this method to monitor the status of invitations sent to resources to join a given swarm.
 	 * 
+	 * @param swarmId swarm id
 	 * @return List of Invitations
 	 * @throws IOException on I/O or application error.
 	 */
-	List<Invitation> getSentInvitations() throws IOException;
+	List<Invitation> getSentInvitations(String swarmId) throws IOException;
 	
 	/**
 	 * Use this method to keep track of all invitations you have received.
@@ -63,4 +64,5 @@ public interface ISwarmInviteClient {
 	 * @throws IOException on I/O error
 	 */
 	Invitation respond(boolean acceptInvitation) throws IOException;
+
 }

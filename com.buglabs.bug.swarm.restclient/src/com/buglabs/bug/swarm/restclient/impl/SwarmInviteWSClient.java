@@ -21,6 +21,7 @@ public class SwarmInviteWSClient extends AbstractSwarmWSClient implements ISwarm
 
 	@Override
 	public Invitation send(String swarmId, String user, String resourceId, MemberType resourceType, String description) throws IOException {
+		//URL: http://api.bugswarm.net/swarms/SWARM_ID/invitations
 		URLBuilder url = swarmHostUrl.copy()
 			.append("swarms")
 			.append(swarmId)
@@ -31,8 +32,9 @@ public class SwarmInviteWSClient extends AbstractSwarmWSClient implements ISwarm
 				"resource_id", resourceId,
 				"resource_type", resourceType.toString());
 		
-		if (description != null)
+		if (description != null && description.length() > 0)
 			body.put("description", description);
+		
 		
 		Response<Invitation> resp = httpClient.callPost(url, super.createJsonStream(body), Invitation.DESERIALIZER);
 		
@@ -40,9 +42,16 @@ public class SwarmInviteWSClient extends AbstractSwarmWSClient implements ISwarm
 	}
 
 	@Override
-	public List<Invitation> getSentInvitations() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Invitation> getSentInvitations(String swarmId) throws IOException {
+		//URL: http://api.bugswarm.net/swarms/SWARM_ID/invitations
+		URLBuilder url = swarmHostUrl.copy()
+			.append("swarms")
+			.append(swarmId)
+			.append("invitations");
+		
+		 Response<List<Invitation>> resp = httpClient.callGet(url, Invitation.LIST_DESERIALIZER);
+		
+		return resp.getContent();
 	}
 
 	@Override

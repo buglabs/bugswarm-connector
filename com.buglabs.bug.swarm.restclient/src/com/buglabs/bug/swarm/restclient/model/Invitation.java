@@ -12,6 +12,7 @@ import org.touge.restclient.ReSTClient.ResponseDeserializer;
 
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient;
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
+import com.buglabs.bug.swarm.restclient.impl.AbstractSwarmWSClient;
 
 /**
  * A Swarm Invitation is the mechanism by which users can advertise and associate with 3rd party swarms.
@@ -59,20 +60,28 @@ public class Invitation extends ModelBase {
 			
 			JsonNode jn = objectMapper.readTree(input);
 			
-			Invitation inv = new Invitation(
-					jn.get("id").getTextValue(), 
-					jn.get("description").getTextValue(), 
-					MemberType.valueOf(jn.get("resource_type").getTextValue().toUpperCase()), 
-					jn.get("resource_id").getTextValue(), 
-					jn.get("from").getTextValue(), 
-					jn.get("to").getTextValue(), 
-					jn.get("status").getTextValue(), 
-					jn.get("sent_at").getTextValue());
-			
-			return inv;
+			return Invitation.deserialize(jn);
 		}
 		
 	};
+	
+	public static final ResponseDeserializer<List<Invitation>> LIST_DESERIALIZER = new ResponseDeserializer<List<Invitation>>() {
+
+		@Override
+		public List<Invitation> deserialize(InputStream input, int responseCode, Map<String, List<String>> headers) throws IOException {
+			if (responseCode == 404)
+				return Collections.emptyList();	
+			
+			List<Invitation> srml= new ArrayList<Invitation>();
+			
+			for (JsonNode jn : objectMapper.readTree(input))
+				srml.add(Invitation.deserialize(jn));
+			
+			return srml;			
+		}
+		
+	};
+	
 	private final String id;
 	private final String description;
 	private final ISwarmResourcesClient.MemberType type;
@@ -97,6 +106,19 @@ public class Invitation extends ModelBase {
 	}
 	
 	
+	protected static Invitation deserialize(JsonNode jn) {
+		return new Invitation(
+				jn.get("id").getTextValue(), 
+				ModelBase.toStringSafely(jn.get("description")), 
+				MemberType.valueOf(jn.get("resource_type").getTextValue().toUpperCase()), 
+				jn.get("resource_id").getTextValue(), 
+				jn.get("from").getTextValue(), 
+				jn.get("to").getTextValue(), 
+				jn.get("status").getTextValue(), 
+				jn.get("sent_at").getTextValue());
+	}
+
+
 	public Invitation(String id, String description, MemberType type, String resourceId, String fromUser, String toUser, String status,
 			String acceptedAt, String sentAt) {
 		this.id = id;

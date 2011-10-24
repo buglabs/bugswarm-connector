@@ -192,7 +192,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 				if (member.getType() == MemberType.CONSUMER && xmppClient.isPresent(swarm.getId(), member.getUserId())) {
 					xmppClient.advertise(swarm.getId(), 
 							(new Jid(member.getUserId(), xmppClient.getHostname(), 
-									member.getResource())).toString(), document);
+									member.getResourceId())).toString(), document);
 				}
 	}
 

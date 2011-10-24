@@ -1,19 +1,16 @@
 package com.buglabs.bug.swarm.restclient.test;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.TestCase;
 
 import com.buglabs.bug.swarm.restclient.ISwarmClient;
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
-import com.buglabs.bug.swarm.restclient.SwarmWSResponse;
 import com.buglabs.bug.swarm.restclient.impl.SwarmWSClient;
 import com.buglabs.bug.swarm.restclient.model.Invitation;
 import com.buglabs.bug.swarm.restclient.model.SwarmModel;
 import com.buglabs.bug.swarm.restclient.model.UserResourceModel;
-import com.buglabs.bug.swarm.restclient.test.Configuration.Protocol;
 
 /**
  * Unit tests for ISwarmInvitationWSClient implementation.
@@ -114,6 +111,35 @@ public class SwarmInvitationWSAPITests extends TestCase {
 		assertTrue(sentInvites.size() == 1);
 		Invitation invite = sentInvites.get(0);
 		assertTrue(invite.getId().equals(AccountConfig.testInviteId));
+		
+		assertNotNull(invite);
+		assertNotNull(invite.getId());
+		assertNotNull(invite.getFromUser());
+		assertNotNull(invite.getToUser());
+		assertNotNull(invite.getResourceId());
+		assertNotNull(invite.getStatus());
+		assertTrue(invite.getStatus().equals("new"));
+		assertNotNull(invite.getDescription());
+		assertTrue(invite.getDescription().equals(description));
+	}
+	
+	public void testListRecievedInvitations() throws IOException {
+		ISwarmClient client2 = new SwarmWSClient(AccountConfig.getConfiguration2());
+		assertNotNull(client2);
+		assertNotNull(client2.getSwarmInviteClient());
+		assertNotNull(AccountConfig.testSwarmId);
+		assertNotNull(AccountConfig.testInviteId);
+		
+		testSendInvite();
+		List<Invitation> receivedInvites = client2.getSwarmInviteClient().getRecievedInvitations();
+		
+		assertNotNull(receivedInvites);
+		assertTrue(receivedInvites.isEmpty() == false);
+		Invitation invite = null;
+		
+		for (Invitation i : receivedInvites)
+			if (i.getId().equals(AccountConfig.testInviteId))
+				invite = i;
 		
 		assertNotNull(invite);
 		assertNotNull(invite.getId());

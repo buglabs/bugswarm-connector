@@ -48,15 +48,20 @@ public class SwarmInviteWSClient extends AbstractSwarmWSClient implements ISwarm
 			.append(swarmId)
 			.append("invitations");
 		
-		 Response<List<Invitation>> resp = httpClient.callGet(url, Invitation.LIST_DESERIALIZER);
+		Response<List<Invitation>> resp = httpClient.callGet(url, Invitation.LIST_DESERIALIZER);
 		
 		return resp.getContent();
 	}
 
 	@Override
 	public List<Invitation> getRecievedInvitations() throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		// URL: http://api.bugswarm.net/invitations
+		URLBuilder url = swarmHostUrl.copy()
+			.append("invitations");	
+		
+		Response<List<Invitation>> resp = httpClient.callGet(url, Invitation.LIST_DESERIALIZER);
+		
+		return resp.getContent();
 	}
 
 	@Override

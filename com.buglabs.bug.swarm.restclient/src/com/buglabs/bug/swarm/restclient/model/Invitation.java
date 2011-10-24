@@ -12,7 +12,6 @@ import org.touge.restclient.ReSTClient.ResponseDeserializer;
 
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient;
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
-import com.buglabs.bug.swarm.restclient.impl.AbstractSwarmWSClient;
 
 /**
  * A Swarm Invitation is the mechanism by which users can advertise and associate with 3rd party swarms.

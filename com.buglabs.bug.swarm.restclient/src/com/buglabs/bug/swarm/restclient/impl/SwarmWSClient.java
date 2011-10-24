@@ -89,7 +89,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 						"name", name,
 						"description", description,
 						"public", new Boolean(isPublic))),
-				ModelBase.JSONObjectDeserializer).getContent();
+				ModelBase.JSON_DESERIALIZER).getContent();
 		
 		
 		return response.get("id").getTextValue();
@@ -120,7 +120,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 	public List<SwarmModel> list() throws IOException {
 		return httpClient.callGet(
 				swarmHostUrl.copy("swarms"), 
-				SwarmModel.ListDeserializer).getContent();
+				SwarmModel.LIST_DESERIALIZER).getContent();
 	}
 
 	@Override
@@ -129,7 +129,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 		
 		Response<SwarmModel> response = httpClient.callGet(
 				swarmHostUrl.copy("swarms", swarmId),
-				SwarmModel.Deserializer);
+				SwarmModel.DESERIALIZER);
 		
 		return response.getContent();
 	}

@@ -8,7 +8,6 @@ import org.touge.restclient.ReSTClient;
 
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient;
 import com.buglabs.bug.swarm.restclient.SwarmWSResponse;
-import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.restclient.model.SwarmModel;
 import com.buglabs.bug.swarm.restclient.model.SwarmResourceModel;
 
@@ -37,7 +36,7 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 		validateParams(swarmId, type);
 
 		return httpClient.callGet(swarmHostUrl.copy("swarms/", swarmId, "/resources?type=" + type), 
-				SwarmResourceModel.ListDeserializer).getContent();
+				SwarmResourceModel.LIST_DESERIALIZER).getContent();
 	}
 
 	@Override
@@ -61,7 +60,7 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 
 		//TODO, handle case when swarmHostUrl has slash or not has slash.
 		return httpClient.callGet(swarmHostUrl.copy("resources/", resource, "/swarms"), 
-				SwarmModel.ListDeserializer).getContent();
+				SwarmModel.LIST_DESERIALIZER).getContent();
 	}
 
 	@Override

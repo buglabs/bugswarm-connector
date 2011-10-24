@@ -6,10 +6,9 @@ import java.util.Map;
 
 import org.touge.restclient.ReSTClient;
 
-import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient;
+import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.restclient.IUserResourceClient;
 import com.buglabs.bug.swarm.restclient.SwarmWSResponse;
-import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.restclient.model.SwarmResourceModel;
 import com.buglabs.bug.swarm.restclient.model.UserResourceModel;
 
@@ -47,7 +46,7 @@ public class UserResourceWSClient extends AbstractSwarmWSClient implements IUser
 		return httpClient.callPost(
 				swarmHostUrl.copy("resources"), 
 				createJsonStream(props), 
-				UserResourceModel.Deserializer).getContent();
+				UserResourceModel.DESERIALIZER).getContent();
 	}
 
 	@Override
@@ -70,7 +69,7 @@ public class UserResourceWSClient extends AbstractSwarmWSClient implements IUser
 
 		return httpClient.callGet(
 				swarmHostUrl.copy("resources"), 
-				UserResourceModel.ListDeserializer)
+				UserResourceModel.LIST_DESERIALIZER)
 				.getContent();
 		
 	}
@@ -80,7 +79,7 @@ public class UserResourceWSClient extends AbstractSwarmWSClient implements IUser
 		validateParams(resourceId);
 		
 		return httpClient.callGet(swarmHostUrl.copy("resources/", resourceId), 
-				UserResourceModel.Deserializer).getContent();				
+				UserResourceModel.DESERIALIZER).getContent();				
 	}
 
 	@Override
@@ -96,12 +95,12 @@ public class UserResourceWSClient extends AbstractSwarmWSClient implements IUser
 		validateParams(resourceId);
 
 		return httpClient.callGet(swarmHostUrl.copy("resources/", resourceId, "/swarms"), 
-				SwarmResourceModel.ListDeserializer).getContent();
+				SwarmResourceModel.LIST_DESERIALIZER).getContent();
 	}
 
 	@Override
 	public List<UserResourceModel> list() throws IOException {		
 		return httpClient.callGet(swarmHostUrl.copy("resources"), 
-				UserResourceModel.ListDeserializer).getContent();
+				UserResourceModel.LIST_DESERIALIZER).getContent();
 	}
 }

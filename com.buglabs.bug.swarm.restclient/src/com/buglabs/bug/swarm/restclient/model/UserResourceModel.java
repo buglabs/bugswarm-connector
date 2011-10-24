@@ -11,8 +11,6 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.touge.restclient.ReSTClient;
 
-import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
-
 /**
  * Represents the device-centric aspects of a Resource.
  * 
@@ -24,7 +22,7 @@ public class UserResourceModel extends ModelBase {
 	/**
 	 * Deserialize content into a List of ResourceModel.
 	 */
-	public static final ReSTClient.ResponseDeserializer<List<UserResourceModel>> ListDeserializer = 
+	public static final ReSTClient.ResponseDeserializer<List<UserResourceModel>> LIST_DESERIALIZER = 
 		new ReSTClient.ResponseDeserializer<List<UserResourceModel>>() {
 	
 		@Override
@@ -47,7 +45,7 @@ public class UserResourceModel extends ModelBase {
 	/**
 	 * Deserialize content into a ResourceModel.
 	 */
-	public static final ReSTClient.ResponseDeserializer<UserResourceModel> Deserializer = 
+	public static final ReSTClient.ResponseDeserializer<UserResourceModel> DESERIALIZER = 
 		new ReSTClient.ResponseDeserializer<UserResourceModel>() {
 	
 		@Override

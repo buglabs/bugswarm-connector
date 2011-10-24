@@ -30,7 +30,7 @@ public class SwarmModel extends ModelBase {
 	/**
 	 * Deserialize into SwarmModel.
 	 */
-	public static final ReSTClient.ResponseDeserializer<SwarmModel> Deserializer = 
+	public static final ReSTClient.ResponseDeserializer<SwarmModel> DESERIALIZER = 
 		new ReSTClient.ResponseDeserializer<SwarmModel>() {
 	
 		@Override
@@ -48,7 +48,7 @@ public class SwarmModel extends ModelBase {
 	/**
 	 * Deserialize into List of SwarmModel.
 	 */
-	public static final ReSTClient.ResponseDeserializer<List<SwarmModel>> ListDeserializer = 
+	public static final ReSTClient.ResponseDeserializer<List<SwarmModel>> LIST_DESERIALIZER = 
 		new ReSTClient.ResponseDeserializer<List<SwarmModel>>() {
 	
 		@Override

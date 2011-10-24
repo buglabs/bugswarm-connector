@@ -18,7 +18,7 @@ public abstract class ModelBase {
 	/**
 	 * Deserialize server content into a JSONObject.
 	 */
-	public static final ReSTClient.ResponseDeserializer<JsonNode> JSONObjectDeserializer = 
+	public static final ReSTClient.ResponseDeserializer<JsonNode> JSON_DESERIALIZER = 
 		new ReSTClient.ResponseDeserializer<JsonNode>() {
 	
 		@Override

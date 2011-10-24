@@ -62,7 +62,7 @@ public class Invitation extends ModelBase {
 			Invitation inv = new Invitation(
 					jn.get("id").getTextValue(), 
 					jn.get("description").getTextValue(), 
-					MemberType.valueOf(jn.get("resource_type").getTextValue()), 
+					MemberType.valueOf(jn.get("resource_type").getTextValue().toUpperCase()), 
 					jn.get("resource_id").getTextValue(), 
 					jn.get("from").getTextValue(), 
 					jn.get("to").getTextValue(), 

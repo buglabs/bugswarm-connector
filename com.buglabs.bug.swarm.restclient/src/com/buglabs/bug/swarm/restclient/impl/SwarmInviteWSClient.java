@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.touge.restclient.ReSTClient;
+import org.touge.restclient.ReSTClient.Response;
 import org.touge.restclient.ReSTClient.URLBuilder;
 
 import com.buglabs.bug.swarm.restclient.ISwarmInviteClient;
@@ -33,9 +34,9 @@ public class SwarmInviteWSClient extends AbstractSwarmWSClient implements ISwarm
 		if (description != null)
 			body.put("description", description);
 		
-		httpClient.callPost(url, super.createJsonStream(body), Invitation.DESERIALIZER);
+		Response<Invitation> resp = httpClient.callPost(url, super.createJsonStream(body), Invitation.DESERIALIZER);
 		
-		return null;
+		return resp.getContent();
 	}
 
 	@Override

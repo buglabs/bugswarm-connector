@@ -133,7 +133,7 @@ public class SwarmResourceModel extends ModelBase {
 	public static SwarmResourceModel deserialize(JsonNode jo) throws IOException {		
 		return new SwarmResourceModel(
 				jo.get("created_at").getTextValue(), 
-				MemberType.valueOf(jo.get("type").getTextValue()), 
+				MemberType.valueOf(jo.get("type").getTextValue().toUpperCase()), 
 				jo.get("user_id").getTextValue(),
 				jo.get("id").getTextValue(), 
 				jo.get("swarm_id").getTextValue());		

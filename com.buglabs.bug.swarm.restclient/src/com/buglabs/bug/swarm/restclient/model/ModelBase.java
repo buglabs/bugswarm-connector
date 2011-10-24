@@ -37,7 +37,7 @@ public abstract class ModelBase {
 	protected static MemberType toMemberTypeSafely(Object in) {
 		if (in == null)
 			return null;
-		return MemberType.valueOf(in.toString());
+		return MemberType.valueOf(in.toString().toUpperCase());
 	}
 	
 	/**

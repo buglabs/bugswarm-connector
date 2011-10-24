@@ -3,6 +3,7 @@ package com.buglabs.bug.swarm.restclient.impl;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -50,7 +51,7 @@ public abstract class AbstractSwarmWSClient {
 		this.swarmHostUrl = httpClient.buildURL(swarmHostUrl);
 		
 		if (DEBUG_MODE)
-			httpClient.setDebugStream(System.out);
+			httpClient.setDebugWriter(new PrintWriter(System.out));
 		
 		//Add a connection initializer that automatically appends the swarm-server
 		//authentication headers to the request.

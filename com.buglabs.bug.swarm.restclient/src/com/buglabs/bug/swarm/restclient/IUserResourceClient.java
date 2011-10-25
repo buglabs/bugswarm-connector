@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
+import com.buglabs.bug.swarm.restclient.model.SwarmModel;
 import com.buglabs.bug.swarm.restclient.model.SwarmResourceModel;
 import com.buglabs.bug.swarm.restclient.model.UserResourceModel;
 
@@ -75,7 +76,7 @@ public interface IUserResourceClient {
 	 * @return List of SwarmResourceModel or empty list if no matches are found
 	 * @throws IOException on I/O or authentication error.
 	 */
-	List<SwarmResourceModel> getMemberSwarms(String resourceId) throws IOException;
+	List<SwarmModel> getMemberSwarms(String resourceId) throws IOException;
 
 	/**
 	 * Get the list of resources for the user.

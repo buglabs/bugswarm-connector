@@ -1,10 +1,17 @@
 package com.buglabs.bug.swarm.restclient.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.touge.restclient.ReSTClient;
+import org.touge.restclient.ReSTClient.Response;
+import org.touge.restclient.ReSTClient.ResponseDeserializer;
 
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient;
 import com.buglabs.bug.swarm.restclient.SwarmWSResponse;
@@ -35,8 +42,31 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 	public List<SwarmResourceModel> list(final String swarmId, final MemberType type) throws IOException {
 		validateParams(swarmId, type);
 
-		return httpClient.callGet(swarmHostUrl.copy("swarms/", swarmId, "/resources?type=" + type), 
-				SwarmResourceModel.LIST_DESERIALIZER).getContent();
+		Response<List<SwarmResourceModel>> response = httpClient.callGet(
+				swarmHostUrl.copy(
+						"swarms/",
+						swarmId, 
+						"/resources?type=" + type), 
+				new ResponseDeserializer<List<SwarmResourceModel>>() {
+
+					@Override
+					public List<SwarmResourceModel> deserialize(InputStream input, int responseCode, Map<String, List<String>> headers)
+							throws IOException {
+						if (responseCode == 404)
+							return Collections.emptyList();
+						
+						List<SwarmResourceModel> srml= new ArrayList<SwarmResourceModel>();
+						ObjectMapper objectMapper = new ObjectMapper();
+						JsonNode jtree = objectMapper.readTree(input);
+						
+						for (JsonNode jn : jtree)
+							srml.add(SwarmResourceModel.deserialize(swarmId, jn));
+						
+						return srml;		
+					}
+				});
+		
+		return response.getContent();
 	}
 
 	@Override

@@ -102,6 +102,18 @@ public class SwarmResourceWSAPITests extends TestCase {
 		assertNotNull(inviteResponse);
 		assertTrue(inviteResponse.getStatus() == InvitationState.ACCEPTED);
 		
+		// At this point the client2 resource should be a member of our test swarm.  Confirm...
+		List<SwarmResourceModel> resources = client.getSwarmResourceClient().list(AccountConfig.testSwarmId, DEFAULT_MEMBER_TYPE);
+		assertNotNull(resources);
+		assertTrue(resources.size() > 0);
+		boolean user2listed = false;
+		for (SwarmResourceModel m : resources)
+			if (m.getUserId().equals(AccountConfig.getConfiguration2().getUsername()))
+				user2listed = true;
+		
+		assertTrue(user2listed);
+		/*
+		
 		SwarmWSResponse rc = client.getSwarmResourceClient().add(
 				AccountConfig.testSwarmId, 
 				DEFAULT_MEMBER_TYPE, 
@@ -110,7 +122,7 @@ public class SwarmResourceWSAPITests extends TestCase {
 		if (rc.isError()) {
 			System.err.println(rc.getMessage());
 		}
-		assertTrue(!rc.isError());
+		assertTrue(!rc.isError());*/
 		
 		//TODO: This test is failing, and am not sure why.
 	}
@@ -144,13 +156,32 @@ public class SwarmResourceWSAPITests extends TestCase {
 		//Create WS client for 2nd user.
 		ISwarmClient client2 = new SwarmWSClient(AccountConfig.getConfiguration2());
 		ISwarmResourcesClient membersClient2 = ((SwarmWSClient) client2).getSwarmResourceClient();
+		UserResourceModel client2resource = null;
+		if (client2.getUserResourceClient().list().size() == 0) {
+			client2resource = client2.getUserResourceClient().add("test_resource", "test resource desc", "pc", 0, 0);			
+		} else {
+			client2resource = client2.getUserResourceClient().list().get(0);
+		}
+		assertNotNull(client2resource);
 		
-		//Now add a producer
-		assertNotNull(membersClient2.add(
+		//Now add a producer by inviting
+		Invitation invite = client.getSwarmInviteClient().send(
 				AccountConfig.testSwarmId, 
-				MemberType.PRODUCER, 				
-				AccountConfig.getConfiguration2().getResource()));
+				AccountConfig.getConfiguration2().getUsername(), 
+				client2resource.getResourceId(), 
+				MemberType.PRODUCER, 
+				"test desc");
 		
+		assertNotNull(invite);
+		assertTrue(invite.getStatus() == InvitationState.NEW);
+		
+		//And accept the invitation as user2
+		List<Invitation> invitiations = client2.getSwarmInviteClient().getRecievedInvitations(client2resource.getResourceId());
+		for (Invitation inv : invitiations)
+			client2.getSwarmInviteClient().respond(
+					client2resource.getResourceId(), inv.getId(), InvitationResponse.ACCEPT);
+		
+		//We have accepted the invitation.  The original swarm should now list us as a producer of the swarm.
 		list = membersClient.list(AccountConfig.testSwarmId, MemberType.PRODUCER);
 		assertNotNull(list);
 		//There should be one PRODUCER now

@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.touge.restclient.ReSTClient;
+import org.touge.restclient.ReSTClient.Response;
 
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.restclient.IUserResourceClient;
 import com.buglabs.bug.swarm.restclient.SwarmWSResponse;
+import com.buglabs.bug.swarm.restclient.model.SwarmModel;
 import com.buglabs.bug.swarm.restclient.model.SwarmResourceModel;
 import com.buglabs.bug.swarm.restclient.model.UserResourceModel;
 
@@ -91,11 +93,14 @@ public class UserResourceWSClient extends AbstractSwarmWSClient implements IUser
 	}
 
 	@Override
-	public List<SwarmResourceModel> getMemberSwarms(String resourceId) throws IOException {
+	public List<SwarmModel> getMemberSwarms(String resourceId) throws IOException {
 		validateParams(resourceId);
 
-		return httpClient.callGet(swarmHostUrl.copy("resources/", resourceId, "/swarms"), 
-				SwarmResourceModel.LIST_DESERIALIZER).getContent();
+		Response<List<SwarmModel>> response = httpClient.callGet(
+				swarmHostUrl.copy("resources/", resourceId, "/swarms"), 
+				SwarmModel.LIST_DESERIALIZER);
+		
+		return response.getContent();
 	}
 
 	@Override

@@ -28,10 +28,10 @@ public class SwarmResourceModel extends ModelBase {
 	private final String userId;
 	private final String resourceId;
 	private final String swarmId;
-	
-	/**
+	/*
+	*//**
 	 * Deserialize to List of SwarmResourceModel.
-	 */
+	 *//*
 	public static final ReSTClient.ResponseDeserializer<SwarmResourceModel> DESERIALIZER = 
 		new ReSTClient.ResponseDeserializer<SwarmResourceModel>() {
 	
@@ -45,9 +45,9 @@ public class SwarmResourceModel extends ModelBase {
 		}
 	};
 	
-	/**
+	*//**
 	 * Deserialize to List of SwarmResourceModel.
-	 */
+	 *//*
 	public static final ReSTClient.ResponseDeserializer<List<SwarmResourceModel>> LIST_DESERIALIZER = 
 		new ReSTClient.ResponseDeserializer<List<SwarmResourceModel>>() {
 	
@@ -58,14 +58,15 @@ public class SwarmResourceModel extends ModelBase {
 				return Collections.emptyList();
 			
 			List<SwarmResourceModel> srml= new ArrayList<SwarmResourceModel>();
+			JsonNode jtree = objectMapper.readTree(input);
 			
-			for (JsonNode jn : objectMapper.readTree(input))
+			for (JsonNode jn : jtree)
 				srml.add(SwarmResourceModel.deserialize(null, jn));
 			
 			return srml;			
 		}
 	};
-	
+	*/
 	//public static List<?> jsonListOf(Input)
 
 	/**

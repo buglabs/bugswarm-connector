@@ -12,6 +12,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.touge.restclient.ReSTClient;
 import org.touge.restclient.ReSTClient.Response;
 import org.touge.restclient.ReSTClient.ResponseDeserializer;
+import org.touge.restclient.ReSTClient.URLBuilder;
 
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient;
 import com.buglabs.bug.swarm.restclient.SwarmWSResponse;
@@ -41,12 +42,15 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 	@Override
 	public List<SwarmResourceModel> list(final String swarmId, final MemberType type) throws IOException {
 		validateParams(swarmId, type);
+		
+		URLBuilder url = swarmHostUrl.copy(
+				"swarms/",
+				swarmId, 
+				"/resources?type=" + type);
 
+		//We cannot use a static deserializer here because the json scope of the deserializer does not contain the swarmid.
 		Response<List<SwarmResourceModel>> response = httpClient.callGet(
-				swarmHostUrl.copy(
-						"swarms/",
-						swarmId, 
-						"/resources?type=" + type), 
+				url, 
 				new ResponseDeserializer<List<SwarmResourceModel>>() {
 
 					@Override
@@ -74,12 +78,18 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 			, final String resource) throws IOException {
 		validateParams(swarmId, type, resource);
 
+		// URL: http://api.bugswarm.net/swarms/SWARM_ID/resources
+		URLBuilder url = swarmHostUrl.copy()
+			.append("swarms")
+			.append(swarmId)
+			.append("resources");
+		
 		Map<String, String> props = toMap(
 				"resource_type", type.toString(),
 				"resource_id", resource);
 
 		return httpClient.callPost(
-				swarmHostUrl.copy("swarms/", swarmId), 
+				url, 
 				createJsonStream(props), 
 				SwarmWSResponse.Deserializer).getContent();
 	}
@@ -87,10 +97,13 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 	@Override
 	public List<SwarmModel> getSwarmsByMember(final String resourceId) throws IOException {
 		validateParams(resourceId);
+		
+		URLBuilder url = swarmHostUrl.copy("resources/", resourceId, "/swarms");
 
-		//TODO, handle case when swarmHostUrl has slash or not has slash.
-		return httpClient.callGet(swarmHostUrl.copy("resources/", resourceId, "/swarms"), 
-				SwarmModel.LIST_DESERIALIZER).getContent();
+		Response<List<SwarmModel>> response = httpClient.callGet(url, 
+				SwarmModel.LIST_DESERIALIZER);
+		
+		return response.getContent();
 	}
 
 	@Override
@@ -99,13 +112,16 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 
 		validateParams(swarmId, type, userId, resourceId);
 
+		URLBuilder url = swarmHostUrl.copy("swarms/", swarmId, "/resources");
+		
 		Map<String, String> props = toMap(
-				"type", type.toString(),
-				"user_id", userId,
-				"resource", resourceId,
+				"resource_type", type.toString(),			
+				"resource_id", resourceId,
 				"X-HTTP-Method-Override", "DELETE");
 
-		return httpClient.callPost(swarmHostUrl.copy("swarms/", swarmId, "/resources"), props, 
+		return httpClient.callPost(
+				url, 
+				createJsonStream(props), 
 				SwarmWSResponse.Deserializer).getContent();
 	}
 }

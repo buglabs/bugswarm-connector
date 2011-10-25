@@ -116,12 +116,17 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 		
 		Map<String, String> props = toMap(
 				"resource_type", type.toString(),			
-				"resource_id", resourceId,
+				"resource_id", resourceId);
+		
+		Map<String, String> headers = toMap(
 				"X-HTTP-Method-Override", "DELETE");
 
-		return httpClient.callPost(
+		Response<SwarmWSResponse> response = httpClient.callPost(
 				url, 
 				createJsonStream(props), 
-				SwarmWSResponse.Deserializer).getContent();
+				headers,
+				SwarmWSResponse.Deserializer);
+		
+		return response.getContent();
 	}
 }

@@ -293,6 +293,6 @@ public class SwarmResourceWSAPITests extends TestCase {
 				AccountConfig.getConfiguration2().getUsername(),
 				AccountConfig.testUserResource1.getResourceId());
 		
-		assertFalse(rc.isError());
+		assertTrue(rc.isError());
 	}
 }

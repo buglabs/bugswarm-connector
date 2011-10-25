@@ -61,12 +61,11 @@ public interface ISwarmResourcesClient {
 	 *            consumer or producer
 	 * @param userId
 	 *            user id
-	 * @param resource
-	 *            XMPP resource
+	 * @param resource resource id
 	 * @return HTTP response of operation
-	 * @throws IOException
+	 * @throws IOException on I/O error
 	 */
-	SwarmWSResponse add(String swarmId, ISwarmResourcesClient.MemberType type, String resource) throws IOException;
+	SwarmWSResponse add(String swarmId, ISwarmResourcesClient.MemberType type, String resourceId) throws IOException;
 
 	/**
 	 * @param swarmId
@@ -75,18 +74,16 @@ public interface ISwarmResourcesClient {
 	 *            consumer or producer
 	 * @param userId
 	 *            user id
-	 * @param resource
-	 *            XMPP resource
+	 * @param resourceId id of resource
 	 * @return HTTP response of operation
-	 * @throws IOException
+	 * @throws IOException on I/O error
 	 */
-	SwarmWSResponse remove(String swarmId, ISwarmResourcesClient.MemberType type, String userId, String resource) throws IOException;
+	SwarmWSResponse remove(String swarmId, ISwarmResourcesClient.MemberType type, String userId, String resourceId) throws IOException;
 
 	/**
-	 * @param resource
-	 *            XMPP resource
+	 * @param resource id of resource
 	 * @return list of SwarmModel or emtpy list
-	 * @throws IOException
+	 * @throws IOException on I/O error
 	 */
-	List<SwarmModel> getSwarmsByMember(String resource) throws IOException;
+	List<SwarmModel> getSwarmsByMember(String resourceiD) throws IOException;
 }

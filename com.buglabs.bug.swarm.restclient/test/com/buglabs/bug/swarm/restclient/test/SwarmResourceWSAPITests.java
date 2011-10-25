@@ -2,6 +2,7 @@ package com.buglabs.bug.swarm.restclient.test;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Random;
 
 import junit.framework.TestCase;
 
@@ -82,11 +83,44 @@ public class SwarmResourceWSAPITests extends TestCase {
 	 */
 	public void testAddSwarmMember() throws IOException {
 		ISwarmClient client = new SwarmWSClient(AccountConfig.getConfiguration());
-		ISwarmResourcesClient membersClient = ((SwarmWSClient) client).getSwarmResourceClient();
+
 		assertNotNull(AccountConfig.testUserResource2);
-		String inviteTarget = AccountConfig.getConfiguration2().getUsername();
+		
+		//Create a new swarm
+		Random r = new Random();
+		String swarmName = "swarm-" + r.nextFloat();
+		String newSwarm = client.create(swarmName, true, "desc " + swarmName);
+		assertNotNull(newSwarm);
+		assertTrue(newSwarm.length() > 0);
+		AccountConfig.testSwarmId = newSwarm;
+		//Verify we can get the new swarm from the server
+		SwarmModel swarmModel = client.get(newSwarm);
+		assertNotNull(swarmModel);
+		assertTrue(swarmModel.getId().equals(newSwarm));
+		
+		//Create a new resource
+		String rn = "resource-" + r.nextFloat();
+		UserResourceModel urm = client.getUserResourceClient().add(
+				rn, "desc " + rn, "pc", r.nextFloat(), r.nextFloat());
+		assertNotNull(urm);
+		AccountConfig.testUserResource1 = null;
+		
+		//Confirm that the resource is listed
+		for (UserResourceModel res : client.getUserResourceClient().list()) {
+			if (res.getName().equals(rn))
+				AccountConfig.testUserResource1 = res;
+		}
+		assertNotNull(AccountConfig.testUserResource1);
+		
+		//Associate the resource to the swarm as a consumer.
+		SwarmWSResponse response = client.getSwarmResourceClient().add(
+				newSwarm, MemberType.CONSUMER, AccountConfig.testUserResource1.getResourceId());
+		
+		// I am receiving 404 Not Found Cannot POST /swarms/315d61ae... here, not sure why.
+		assertFalse(response.isError());
 		
 		//Send invitation
+		String inviteTarget = AccountConfig.getConfiguration2().getUsername();
 		Invitation invite = client.getSwarmInviteClient().send(
 				AccountConfig.testSwarmId, inviteTarget, 
 				AccountConfig.testUserResource2.getResourceId(), 
@@ -178,8 +212,9 @@ public class SwarmResourceWSAPITests extends TestCase {
 		//And accept the invitation as user2
 		List<Invitation> invitiations = client2.getSwarmInviteClient().getRecievedInvitations(client2resource.getResourceId());
 		for (Invitation inv : invitiations)
-			client2.getSwarmInviteClient().respond(
-					client2resource.getResourceId(), inv.getId(), InvitationResponse.ACCEPT);
+			if (inv.getStatus() == InvitationState.NEW)
+				client2.getSwarmInviteClient().respond(
+						client2resource.getResourceId(), inv.getId(), InvitationResponse.ACCEPT);
 		
 		//We have accepted the invitation.  The original swarm should now list us as a producer of the swarm.
 		list = membersClient.list(AccountConfig.testSwarmId, MemberType.PRODUCER);
@@ -199,19 +234,29 @@ public class SwarmResourceWSAPITests extends TestCase {
 		
 		testAddSwarmMember();
 		
-		List<SwarmModel> members = membersClient.getSwarmsByMember(AccountConfig.getConfiguration().getResource());
+		List<UserResourceModel> resources = client.getUserResourceClient().get();
 		
-		assertNotNull(members);
-		assertTrue(members.size() > 0);
-		
+		for (UserResourceModel resource : resources) {
+			List<SwarmModel> members = membersClient.getSwarmsByMember(resource.getResourceId());
+			
+			assertNotNull(members);
+			assertTrue(members.size() > 0);
+		}
+			
 		//Create client for second user.
 		client = new SwarmWSClient(AccountConfig.getConfiguration2());
-		membersClient = ((SwarmWSClient) client).getSwarmResourceClient();
+		membersClient = client.getSwarmResourceClient();
 		
-		members = membersClient.getSwarmsByMember(AccountConfig.getConfiguration2().getResource());
+		testAddSwarmMember();
 		
-		assertNotNull(members);
-		assertTrue(members.size() > 0);
+		resources = client.getUserResourceClient().get();
+		
+		for (UserResourceModel resource : resources) {
+			List<SwarmModel> members = membersClient.getSwarmsByMember(resource.getResourceId());
+			
+			assertNotNull(members);
+			assertTrue(members.size() > 0);
+		}
 	}
 	
 	/**

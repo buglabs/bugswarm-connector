@@ -85,24 +85,24 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 	}
 
 	@Override
-	public List<SwarmModel> getSwarmsByMember(final String resource) throws IOException {
-		validateParams(resource);
+	public List<SwarmModel> getSwarmsByMember(final String resourceId) throws IOException {
+		validateParams(resourceId);
 
 		//TODO, handle case when swarmHostUrl has slash or not has slash.
-		return httpClient.callGet(swarmHostUrl.copy("resources/", resource, "/swarms"), 
+		return httpClient.callGet(swarmHostUrl.copy("resources/", resourceId, "/swarms"), 
 				SwarmModel.LIST_DESERIALIZER).getContent();
 	}
 
 	@Override
-	public SwarmWSResponse remove(final String swarmId, final MemberType type, final String userId, final String resource)
+	public SwarmWSResponse remove(final String swarmId, final MemberType type, final String userId, final String resourceId)
 			throws IOException {
 
-		validateParams(swarmId, type, userId, resource);
+		validateParams(swarmId, type, userId, resourceId);
 
 		Map<String, String> props = toMap(
 				"type", type.toString(),
 				"user_id", userId,
-				"resource", resource,
+				"resource", resourceId,
 				"X-HTTP-Method-Override", "DELETE");
 
 		return httpClient.callPost(swarmHostUrl.copy("swarms/", swarmId, "/resources"), props, 

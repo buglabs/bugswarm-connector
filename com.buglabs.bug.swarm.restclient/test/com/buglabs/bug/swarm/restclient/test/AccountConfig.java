@@ -24,6 +24,7 @@ public final class AccountConfig {
 	private static Configuration config2;
 	public static UserResourceModel testUserResource2;
 	public static String testInviteId;
+	public static UserResourceModel testUserResource1;
 	
 	protected static final int CONNECTOR_INIT_SLEEP_MILLIS = 10000;
 	public static final long CONNECTOR_FEED_CHANGE_SLEEP_MILLIS = 1000;

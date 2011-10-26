@@ -63,6 +63,10 @@ public final class OSGiHelper implements ServiceListener {
 	 */
 	private OSGiHelper() throws Exception {
 		context = Activator.getContext();
+		
+		if (context == null)
+			throw new IllegalStateException("Unable to get OSGi BundleContext.");
+		
 		feedServiceMap = new HashMap<Object, Feed>();
 		feedNameMap = new HashMap<String, Feed>();
 
@@ -115,13 +119,7 @@ public final class OSGiHelper implements ServiceListener {
 	 */
 	public static OSGiHelper getRef() throws Exception {
 		if (ref == null)
-			ref = new OSGiHelper();
-
-		// Here we are checking to see if the context is null. If so we are not
-		// running in OSGi and need to provide
-		// some fake data for test execution. This should likely be disabled in
-		// production code, or when
-		// osgi-based junits are available.
+			ref = new OSGiHelper();		
 
 		return ref;
 	}

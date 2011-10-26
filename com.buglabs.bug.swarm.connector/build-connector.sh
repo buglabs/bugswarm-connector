@@ -54,6 +54,15 @@ if [ ! -f $DEPS_DIR/commons-io-2.1.jar ]; then
 	rm -Rf /tmp/commons-io-2.1*
 fi
 
+if [ ! -f $DEPS_DIR/jackson-core-asl-1.9.1.jar ]; then
+	wget --no-check-certificate -nc -O $DEPS_DIR/jackson-core-asl-1.9.1.jar "http://repository.codehaus.org/org/codehaus/jackson/jackson-core-asl/1.9.1/jackson-core-asl-1.9.1.jar"
+fi
+
+if [ ! -f $DEPS_DIR/jackson-mapper-asl-1.9.1.jar ]; then
+	wget --no-check-certificate -nc -O $DEPS_DIR/jackson-mapper-asl-1.9.1.jar "http://repository.codehaus.org/org/codehaus/jackson/jackson-mapper-asl/1.9.1/jackson-mapper-asl-1.9.1.jar"
+fi
+
+
 ###### Clean old checkouts
 rm -Rf com.buglabs.common
 rm -Rf com.buglabs.bug.dragonfly

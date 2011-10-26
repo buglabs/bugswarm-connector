@@ -119,18 +119,19 @@ ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE
 # touge restclient
 ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -Ddeps=$DEPS_DIR -DdistDirectory=$DIST_DIR -Ddist=$DIST_DIR  -f $WORKSPACE/org.touge.restclient/build.xml clean jar
 
-# bugswarm-restclient
-ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.bug.swarm.restclient/build.xml clean create_dirs build build.jars
-
 # bugswarm-devicestats
 ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.bug.swarm.devicestats/build.xml clean create_dirs build build.jars
 
 ###### Build com.buglabs.bug.swarm.connector
 if [ ! -z $TEST_HOST ]; then
 	echo "Building and testing com.buglabs.bug.swarm.connector"
+	# bugswarm-restclient
+	ant -Dreport.src=$WORKSPACE/com.buglabs.bug.swarm.connector/test -Dreport.dir=$REPORT_DIR -Dgenerate.docs=true -Dbugswarm_test_host=$TEST_HOST -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.bug.swarm.restclient/build.xml clean create_dirs build document build.jars test	
 	ant -Dreport.src=$WORKSPACE/com.buglabs.bug.swarm.connector/test -Dreport.dir=$REPORT_DIR -Dgenerate.docs=true -Dbugswarm_test_host=$TEST_HOST -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.bug.swarm.connector/build.xml clean create_dirs build document build.jars test
 else
 	echo "Building com.buglabs.bug.swarm.connector.  To also run tests, TEST_HOST variable must be defined."
+	# bugswarm-restclient
+	ant -Dgenerate.docs=true -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.bug.swarm.restclient/build.xml clean create_dirs build build.jars
 	ant -Dgenerate.docs=true -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.bug.swarm.connector/build.xml clean create_dirs build document build.jars
 fi
 

@@ -75,6 +75,10 @@ mv bug-osgi/com.buglabs.osgi.build $WORKSPACE
 mv bug-osgi/com.buglabs.util.shell $WORKSPACE
 rm -Rf bug-osgi
 
+git clone git://github.com/kgilmer/touge.git
+mv touge/org.touge.restclient $WORKSPACE
+rm -Rf touge
+
 git clone git://github.com/buglabs/smack-smackx-osgi.git
 cd smack-smackx-osgi
 git checkout $BUILD_BRANCH
@@ -103,9 +107,11 @@ ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE
 # com.buglabs.util.shell
 ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.util.shell/build.xml clean create_dirs build.jars
 
+# touge restclient
+ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -Ddeps=$DEPS_DIR -DdistDirectory=$DIST_DIR -DdistDirectory=dist -f $WORKSPACE/org.touge.restclient/build.xml clean jar
+
 # bugswarm-restclient
 ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.bug.swarm.restclient/build.xml clean create_dirs build build.jars
-
 
 # bugswarm-devicestats
 ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.bug.swarm.devicestats/build.xml clean create_dirs build build.jars

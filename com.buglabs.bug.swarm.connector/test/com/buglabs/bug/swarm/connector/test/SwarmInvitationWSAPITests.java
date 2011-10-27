@@ -1,15 +1,16 @@
-package com.buglabs.bug.swarm.restclient.test;
+package com.buglabs.bug.swarm.connector.test;
 
 import java.io.IOException;
 import java.util.List;
 
 import junit.framework.TestCase;
 
+import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.restclient.ISwarmClient;
+import com.buglabs.bug.swarm.restclient.SwarmClientFactory;
 import com.buglabs.bug.swarm.restclient.ISwarmInviteClient.InvitationResponse;
 import com.buglabs.bug.swarm.restclient.ISwarmInviteClient.InvitationState;
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
-import com.buglabs.bug.swarm.restclient.impl.SwarmWSClient;
 import com.buglabs.bug.swarm.restclient.model.Invitation;
 import com.buglabs.bug.swarm.restclient.model.SwarmModel;
 import com.buglabs.bug.swarm.restclient.model.UserResourceModel;
@@ -29,11 +30,10 @@ public class SwarmInvitationWSAPITests extends TestCase {
 		assertNotNull(AccountConfig.getConfiguration());
 		assertNotNull(AccountConfig.getConfiguration2());
 		
-		assertFalse(
-				AccountConfig.getConfiguration().getAPIKey().equals(
-						AccountConfig.getConfiguration2().getAPIKey()));
 		
-		ISwarmClient client = new SwarmWSClient(AccountConfig.getConfiguration());
+		ISwarmClient client = SwarmClientFactory.getSwarmClient(
+				AccountConfig.getConfiguration().getHostname(Protocol.HTTP),
+				AccountConfig.getConfiguration().getConfingurationAPIKey());
 		
 		//Delete all pre-existing swarms owned by test user.
 		List<SwarmModel> swarms = client.list();
@@ -48,7 +48,9 @@ public class SwarmInvitationWSAPITests extends TestCase {
 		AccountConfig.testSwarmId = id;
 		
 		//Determine that 2nd user can connect and delete any existing swarms.
-		SwarmWSClient client2 = new SwarmWSClient(AccountConfig.getConfiguration2());
+		ISwarmClient client2 = SwarmClientFactory.getSwarmClient(
+				AccountConfig.getConfiguration2().getHostname(Protocol.HTTP),
+				AccountConfig.getConfiguration2().getConfingurationAPIKey());
 		
 		//Delete all pre-existing swarms owned by test user.	
 		for (SwarmModel sm : client2.list()) {
@@ -68,7 +70,9 @@ public class SwarmInvitationWSAPITests extends TestCase {
 	}
 	
 	public void testSendInvite() throws IOException {
-		ISwarmClient client = new SwarmWSClient(AccountConfig.getConfiguration());
+		ISwarmClient client = SwarmClientFactory.getSwarmClient(
+				AccountConfig.getConfiguration().getHostname(Protocol.HTTP),
+				AccountConfig.getConfiguration().getConfingurationAPIKey());
 		assertNotNull(client);
 		assertNotNull(client.getSwarmInviteClient());
 		assertNotNull(AccountConfig.testSwarmId);
@@ -94,7 +98,10 @@ public class SwarmInvitationWSAPITests extends TestCase {
 	}
 	
 	public void testListSentInvitations() throws IOException {
-		ISwarmClient client = new SwarmWSClient(AccountConfig.getConfiguration());
+		ISwarmClient client = SwarmClientFactory.getSwarmClient(
+				AccountConfig.getConfiguration().getHostname(Protocol.HTTP),
+				AccountConfig.getConfiguration().getConfingurationAPIKey());
+		
 		assertNotNull(client);
 		assertNotNull(client.getSwarmInviteClient());
 		assertNotNull(AccountConfig.testSwarmId);
@@ -126,7 +133,9 @@ public class SwarmInvitationWSAPITests extends TestCase {
 	}
 	
 	public void testListRecievedInvitations() throws IOException {
-		ISwarmClient client2 = new SwarmWSClient(AccountConfig.getConfiguration2());
+		ISwarmClient client2 = SwarmClientFactory.getSwarmClient(
+				AccountConfig.getConfiguration2().getHostname(Protocol.HTTP),
+				AccountConfig.getConfiguration2().getConfingurationAPIKey());
 		assertNotNull(client2);
 		assertNotNull(client2.getSwarmInviteClient());
 		assertNotNull(AccountConfig.testSwarmId);
@@ -155,7 +164,9 @@ public class SwarmInvitationWSAPITests extends TestCase {
 	}
 	
 	public void testListRecievedInvitations2() throws IOException {
-		ISwarmClient client2 = new SwarmWSClient(AccountConfig.getConfiguration2());
+		ISwarmClient client2 = SwarmClientFactory.getSwarmClient(
+				AccountConfig.getConfiguration2().getHostname(Protocol.HTTP),
+				AccountConfig.getConfiguration2().getConfingurationAPIKey());
 		assertNotNull(client2);
 		assertNotNull(client2.getSwarmInviteClient());
 		assertNotNull(AccountConfig.testSwarmId);
@@ -184,7 +195,9 @@ public class SwarmInvitationWSAPITests extends TestCase {
 	}
 	
 	public void testAcceptInvitation() throws IOException {
-		ISwarmClient client2 = new SwarmWSClient(AccountConfig.getConfiguration2());
+		ISwarmClient client2 = SwarmClientFactory.getSwarmClient(
+				AccountConfig.getConfiguration2().getHostname(Protocol.HTTP),
+				AccountConfig.getConfiguration2().getConfingurationAPIKey());
 		assertNotNull(client2);
 		assertNotNull(client2.getSwarmInviteClient());
 		assertNotNull(AccountConfig.testSwarmId);
@@ -219,7 +232,9 @@ public class SwarmInvitationWSAPITests extends TestCase {
 	}
 	
 	public void testRejectInvitation() throws IOException {
-		ISwarmClient client2 = new SwarmWSClient(AccountConfig.getConfiguration2());
+		ISwarmClient client2 = SwarmClientFactory.getSwarmClient(
+				AccountConfig.getConfiguration2().getHostname(Protocol.HTTP),
+				AccountConfig.getConfiguration2().getConfingurationAPIKey());
 		assertNotNull(client2);
 		assertNotNull(client2.getSwarmInviteClient());
 		assertNotNull(AccountConfig.testSwarmId);

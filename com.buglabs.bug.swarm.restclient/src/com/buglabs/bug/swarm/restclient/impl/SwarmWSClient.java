@@ -15,8 +15,6 @@ import com.buglabs.bug.swarm.restclient.IUserResourceClient;
 import com.buglabs.bug.swarm.restclient.SwarmWSResponse;
 import com.buglabs.bug.swarm.restclient.model.ModelBase;
 import com.buglabs.bug.swarm.restclient.model.SwarmModel;
-import com.buglabs.bug.swarm.restclient.test.Configuration;
-import com.buglabs.bug.swarm.restclient.test.Configuration.Protocol;
 
 /**
  * A Swarm WS Client implementation using json.simple and simplerestclient.
@@ -40,16 +38,6 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 	 */
 	public SwarmWSClient(final String swarmHostUrl, final String apiKey) {
 		super(swarmHostUrl, apiKey);
-	}
-
-	/**
-	 * Create a client from a Configuration.
-	 * 
-	 * @param config
-	 *            client configuration
-	 */
-	public SwarmWSClient(final Configuration config) {
-		super(config.getHostname(Protocol.HTTP), config.getAPIKey());
 	}
 
 	/**

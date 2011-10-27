@@ -25,6 +25,10 @@ public final class AccountConfig {
 	private static Configuration config;
 	private static Random r;
 	public static UserResourceModel testUserResource;
+	public static UserResourceModel testUserResource2;
+	public static UserResourceModel testUserResource1;
+	private static Configuration config2;
+	public static String testInviteId;
 	
 	protected static final int CONNECTOR_INIT_SLEEP_MILLIS = 10000;
 	public static final long CONNECTOR_FEED_CHANGE_SLEEP_MILLIS = 1000;
@@ -49,8 +53,8 @@ public final class AccountConfig {
 	 * @return
 	 */
 	protected static Configuration getConfiguration2() {
-		if (config == null) {
-			config = new Configuration(getHostSystemProperty(), 
+		if (config2 == null) {
+			config2 = new Configuration(getHostSystemProperty(), 
 					getConfigurationAPIKeySystemProperty2(), 
 					getProducerAPIKeySystemProperty2(),
 					getUsernameProperty2(), 
@@ -58,7 +62,7 @@ public final class AccountConfig {
 					DEFAULT_XMPP_SERVER_PORT);
 		}
 		
-		return config;
+		return config2;
 	}
 	
 	private static String getHostSystemProperty() {

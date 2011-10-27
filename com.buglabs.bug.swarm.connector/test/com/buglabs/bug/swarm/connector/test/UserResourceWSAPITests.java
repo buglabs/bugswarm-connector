@@ -1,15 +1,16 @@
-package com.buglabs.bug.swarm.restclient.test;
+package com.buglabs.bug.swarm.connector.test;
 
 import java.io.IOException;
 import java.util.List;
 
 import junit.framework.TestCase;
 
+import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.restclient.ISwarmClient;
-import com.buglabs.bug.swarm.restclient.IUserResourceClient;
-import com.buglabs.bug.swarm.restclient.SwarmWSResponse;
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
-import com.buglabs.bug.swarm.restclient.impl.SwarmWSClient;
+import com.buglabs.bug.swarm.restclient.IUserResourceClient;
+import com.buglabs.bug.swarm.restclient.SwarmClientFactory;
+import com.buglabs.bug.swarm.restclient.SwarmWSResponse;
 import com.buglabs.bug.swarm.restclient.model.SwarmModel;
 import com.buglabs.bug.swarm.restclient.model.UserResourceModel;
 
@@ -29,8 +30,9 @@ public class UserResourceWSAPITests extends TestCase {
 	
 	@Override
 	protected void setUp() throws Exception {
-		ISwarmClient client = new SwarmWSClient(AccountConfig.getConfiguration());
-		
+		ISwarmClient client = SwarmClientFactory.getSwarmClient(
+				AccountConfig.getConfiguration().getHostname(Protocol.HTTP),
+				AccountConfig.getConfiguration().getConfingurationAPIKey());
 		//Delete all pre-existing swarms owned by test user.
 		List<SwarmModel> swarms = client.list();
 		
@@ -58,7 +60,9 @@ public class UserResourceWSAPITests extends TestCase {
 	@Override
 	protected void tearDown() throws Exception {
 		if (AccountConfig.testSwarmId != null) {
-			ISwarmClient client = new SwarmWSClient(AccountConfig.getConfiguration());
+			ISwarmClient client = SwarmClientFactory.getSwarmClient(
+					AccountConfig.getConfiguration().getHostname(Protocol.HTTP),
+					AccountConfig.getConfiguration().getConfingurationAPIKey());
 			client.destroy(AccountConfig.testSwarmId);
 		}
 	}
@@ -67,7 +71,10 @@ public class UserResourceWSAPITests extends TestCase {
 	 * @throws IOException 
 	 */
 	public void testAddResource() throws IOException {
-		ISwarmClient client = new SwarmWSClient(AccountConfig.getConfiguration());
+		ISwarmClient client = SwarmClientFactory.getSwarmClient(
+				AccountConfig.getConfiguration().getHostname(Protocol.HTTP),
+				AccountConfig.getConfiguration().getConfingurationAPIKey());
+		
 		IUserResourceClient rclient = client.getUserResourceClient();
 		
 		UserResourceModel urm = rclient.add(				
@@ -95,7 +102,9 @@ public class UserResourceWSAPITests extends TestCase {
 	 * @throws IOException
 	 */
 	public void testDeleteResources() throws IOException {
-		ISwarmClient client = new SwarmWSClient(AccountConfig.getConfiguration());
+		ISwarmClient client = SwarmClientFactory.getSwarmClient(
+				AccountConfig.getConfiguration().getHostname(Protocol.HTTP),
+				AccountConfig.getConfiguration().getConfingurationAPIKey());
 		IUserResourceClient rclient = client.getUserResourceClient();
 		
 		testAddResource();

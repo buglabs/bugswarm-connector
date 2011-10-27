@@ -12,6 +12,7 @@ import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.restclient.SwarmClientFactory;
 import com.buglabs.bug.swarm.restclient.SwarmWSResponse;
 import com.buglabs.bug.swarm.restclient.model.SwarmModel;
+import com.buglabs.bug.swarm.restclient.model.UserResourceModel;
 import com.buglabs.util.simplerestclient.HTTPException;
 
 /**
@@ -86,20 +87,17 @@ public class BUGSwarmConnectorNotificationTests extends TestCase {
 		assertTrue(connector.getMemberSwarms().size() == 0);
 		
 		AccountConfig.testSwarmId = c.create(AccountConfig.generateRandomSwarmName(), false, "A test swarm for user " + AccountConfig.getConfiguration().getUsername());
-
+		
+		UserResourceModel userResource = c.getUserResourceClient().add(AccountConfig.generateRandomResourceName(), "test resource", "pc", 0, 0);
+		assertNotNull(userResource);
+		AccountConfig.testUserResource = userResource;
+		
 		SwarmWSResponse response = c.getSwarmResourceClient().add(
 				AccountConfig.testSwarmId, 
 				MemberType.PRODUCER,
-				 AccountConfig.getConfiguration().getResource());
+				userResource.getResourceId());
 		
-		assertFalse(response.isError());
-		// Resource 'web' is required so that http streaming will work
-		response = c.getSwarmResourceClient().add(
-				AccountConfig.testSwarmId, 
-				MemberType.CONSUMER, 
-				"web");
-		
-		assertFalse(response.isError());
+		assertFalse(response.isError());		
 		
 		Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
 		

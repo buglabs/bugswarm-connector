@@ -1,26 +1,6 @@
 package com.buglabs.bug.swarm.connector.test;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import junit.framework.TestCase;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-
-import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
-import com.buglabs.bug.swarm.connector.Configuration.Protocol;
-import com.buglabs.bug.swarm.restclient.ISwarmClient;
-import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
-import com.buglabs.bug.swarm.restclient.SwarmClientFactory;
-import com.buglabs.bug.swarm.restclient.SwarmWSResponse;
-import com.buglabs.bug.swarm.restclient.model.SwarmModel;
-import com.buglabs.util.simplerestclient.HTTPException;
-import com.buglabs.util.simplerestclient.HTTPRequest;
-import com.buglabs.util.simplerestclient.HTTPResponse;
 
 /**
  * Tests the high-level BUGSwarmConnector class in regards to feeds.
@@ -29,7 +9,16 @@ import com.buglabs.util.simplerestclient.HTTPResponse;
  * 
  */
 public class BUGSwarmConnectorFeedTests extends TestCase {
-
+	
+	/**
+	 * As of 0.3 (?) the feed api has been removed, and there is
+	 * nothing currently to replace it.  Since unable to query 
+	 * feeds am removing these tests.
+	 * 
+	 * TODO: When/if there is a way to access feeds via an API the tests
+	 * should be changed to use that new API.
+	 */
+/*
 	@Override
 	protected void setUp() throws Exception {
 		System.out.println("setUp()");
@@ -80,10 +69,10 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 		assertFalse(response.isError());
 	}
 
-	/**
+	*//**
 	 * Test initializing the connector.  
 	 * @throws InterruptedException
-	 */
+	 *//*
 	public void testInitializeConnector() throws InterruptedException {
 		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
 
@@ -98,14 +87,14 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 		Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
 	}
 
-	/**
+	*//**
 	 * https://github.com/buglabs/bugswarm/wiki/Swarm-Feeds-API.
 	 * 
 	 * Test 'Querying available Feeds in a Swarm'
 	 * 
 	 * @throws IOException on I/O error
 	 * @throws InterruptedException if interrupted
-	 */
+	 *//*
 	public void testGetFeedsGlobal() throws IOException, InterruptedException {
 		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
 
@@ -145,14 +134,14 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 		connector.shutdown();
 	}
 
-	/**
+	*//**
 	 * https://github.com/buglabs/bugswarm/wiki/Swarm-Feeds-API.
 	 * 
 	 * Test 'Querying available Feeds in a Swarm Resource'
 	 * 
 	 * @throws IOException
 	 * @throws InterruptedException
-	 */
+	 *//*
 	public void testGetFeedsResource() throws IOException, InterruptedException {
 		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
 
@@ -192,14 +181,14 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 		connector.shutdown();
 	}
 
-	/**
+	*//**
 	 * https://github.com/buglabs/bugswarm/wiki/Swarm-Feeds-API
 	 * 
 	 * Test 'Querying a Swarm Feed'
 	 * 
 	 * @throws IOException
 	 * @throws InterruptedException
-	 */
+	 *//*
 	public void testGetSpecificFeed() throws IOException, InterruptedException {
 		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
 
@@ -272,14 +261,14 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 		connector.shutdown();
 	}
 
-	/**
+	*//**
 	 * https://github.com/buglabs/bugswarm/wiki/Swarm-Feeds-API
 	 * 
 	 * Test 'Querying a feed from a specific Swarm Resource of type producer'
 	 * 
 	 * @throws IOException
 	 * @throws InterruptedException
-	 */
+	 *//*
 	public void testGetSpecificFeedFromResource() throws IOException, InterruptedException {
 		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
 
@@ -351,4 +340,4 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 		connector.interrupt();
 		connector.shutdown();
 	}
-}
+*/}

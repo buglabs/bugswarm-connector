@@ -8,7 +8,7 @@ import junit.framework.TestCase;
  * @author kgilmer
  * 
  */
-public class BUGSwarmConnectorFeedTests extends TestCase {
+public class BUGSwarmConnectorFeedT3sts extends TestCase {
 	
 	/**
 	 * As of 0.3 (?) the feed api has been removed, and there is

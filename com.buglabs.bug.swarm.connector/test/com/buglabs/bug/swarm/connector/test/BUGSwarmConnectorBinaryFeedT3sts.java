@@ -26,7 +26,7 @@ import com.buglabs.util.simplerestclient.HTTPResponse;
  * @author kgilmer
  * 
  */
-public class BUGSwarmConnectorBinaryFeedTests extends TestCase {
+public class BUGSwarmConnectorBinaryFeedT3sts extends TestCase {
 
 	/**
 	 * Test input parameters:

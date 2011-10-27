@@ -8,7 +8,7 @@ import junit.framework.TestCase;
  * @author kgilmer
  * 
  */
-public class BUGSwarmConnectorStreamingFeedTests extends TestCase {
+public class BUGSwarmConnectorStreamingFeedT3sts extends TestCase {
 /*
 	
 	@Override

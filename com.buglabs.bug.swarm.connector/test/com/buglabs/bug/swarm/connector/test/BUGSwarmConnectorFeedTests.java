@@ -35,7 +35,7 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 		System.out.println("setUp()");
 		ISwarmClient c =  SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration().getHostname(Protocol.HTTP), 
-				AccountConfig.getConfiguration().getAPIKey());
+				AccountConfig.getConfiguration().getConsumerAPIKey());
 		
 		// Delete all pre-existing swarms owned by test user.
 		try {
@@ -74,7 +74,7 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 		System.out.println("tearDown()");
 		ISwarmClient c =  SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration().getHostname(Protocol.HTTP), 
-				AccountConfig.getConfiguration().getAPIKey());
+				AccountConfig.getConfiguration().getConsumerAPIKey());
 		
 		SwarmWSResponse response = c.destroy(AccountConfig.testSwarmId);
 		assertFalse(response.isError());
@@ -117,7 +117,7 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 
 		HTTPRequest request = new HTTPRequest();
 		Map<String, String> headers = new HashMap<String, String>();
-		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getAPIKey());
+		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getConsumerAPIKey());
 
 		HTTPResponse response = request.get(AccountConfig.getConfiguration().getHostname(Protocol.HTTP) 
 				+ "/swarms/" + AccountConfig.testSwarmId + "/feeds?stream=true", headers);
@@ -164,7 +164,7 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 
 		HTTPRequest request = new HTTPRequest();
 		Map<String, String> headers = new HashMap<String, String>();
-		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getAPIKey());
+		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getConsumerAPIKey());
 
 		HTTPResponse response = request.get(AccountConfig.getConfiguration().getHostname(Protocol.HTTP) + "/swarms/" + AccountConfig.testSwarmId + "/resources/"
 				+ AccountConfig.getConfiguration().getResource() + "/feeds?stream=true", headers);
@@ -211,7 +211,7 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 
 		HTTPRequest request = new HTTPRequest();
 		Map<String, String> headers = new HashMap<String, String>();
-		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getAPIKey());
+		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getConsumerAPIKey());
 
 		HTTPResponse response = request.get(AccountConfig.getConfiguration().getHostname(Protocol.HTTP) + 
 				"/swarms/" + AccountConfig.testSwarmId + "/resources/"
@@ -291,7 +291,7 @@ public class BUGSwarmConnectorFeedTests extends TestCase {
 
 		HTTPRequest request = new HTTPRequest();
 		Map<String, String> headers = new HashMap<String, String>();
-		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getAPIKey());
+		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getConsumerAPIKey());
 
 		HTTPResponse response = request.get(AccountConfig.getConfiguration().getHostname(Protocol.HTTP) + "/swarms/" + AccountConfig.testSwarmId + "/resources/"
 				+ AccountConfig.getConfiguration().getResource() + "/feeds?stream=true", headers);

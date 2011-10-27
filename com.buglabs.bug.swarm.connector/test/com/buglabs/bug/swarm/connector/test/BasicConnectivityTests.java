@@ -46,7 +46,7 @@ public class BasicConnectivityTests extends TestCase {
 		System.out.println("setUp()");
 		wsClient = SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration().getHostname(Protocol.HTTP), 
-				AccountConfig.getConfiguration().getAPIKey());
+				AccountConfig.getConfiguration().getConsumerAPIKey());
 		
 		//Delete all pre-existing swarms owned by test user.
 		try {
@@ -76,7 +76,7 @@ public class BasicConnectivityTests extends TestCase {
 		
 		AccountConfig.testSwarmId = id;
 		
-		xmppClient = new SwarmXMPPClient(AccountConfig.getXmppConfiguration());
+		xmppClient = new SwarmXMPPClient(AccountConfig.getConfiguration());
 		xmppClient.connect(new SwarmRequestListener());
 		
 		Thread.sleep(5000);

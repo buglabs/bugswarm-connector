@@ -170,7 +170,7 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 				}
 
 				root.put("user_name", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME));
-				root.put("api_key", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY));
+				root.put("api_key", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PRODUCER_APIKEY));
 
 				root.put("message", new SimpleScalar(msg));
 			} catch (IOException e) {
@@ -199,7 +199,7 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 		}
 
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME, username);
-		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY, apiKey);
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PRODUCER_APIKEY, apiKey);
 
 		config.update(d);
 	}

@@ -55,9 +55,14 @@ public final class SwarmConfigKeys {
 	public static final String CONFIG_KEY_BUGSWARM_SERVER = "com.buglabs.bugswarm.hostname";
 
 	/**
-	 * The API key is the password for the web service layer.
+	 * The API key is the password for the web service and xmpp layers.
 	 */
-	public static final String CONFIG_KEY_BUGSWARM_APIKEY = "com.buglabs.bugswarm.apikey";
+	public static final String CONFIG_KEY_BUGSWARM_PRODUCER_APIKEY = "com.buglabs.bugswarm.apikey.producer";
+
+	/**
+	 * The API key is the password for the web service and xmpp layers.
+	 */
+	public static final String CONFIG_KEY_BUGSWARM_CONSUMER_APIKEY = "com.buglabs.bugswarm.apikey.consumer";
 
 	/**
 	 * The username used in the XMPP server.

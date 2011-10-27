@@ -61,17 +61,19 @@ public class Configuration {
 	 * @param xmppPort port of messaging server
 	 * 
 	 */
-	public Configuration(final String hostname, final String apiKey, final String username, final int httpPort, final int xmppPort) {
+	public Configuration(final String hostname, final String consumerApiKey, final String producerApiKey, final String username, final int httpPort, final int xmppPort) {
 		if (hostname.contains("://"))
 			throw new IllegalArgumentException("Hostname must note include a scheme.");
 
 		config = new Hashtable<String, Object>();
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, hostname);
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME, username);
-		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY, apiKey);
+		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONSUMER_APIKEY, consumerApiKey);
+		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PRODUCER_APIKEY, producerApiKey);
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_ENABLED, Boolean.toString(true));
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_HTTP_PORT, httpPort);
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_XMPP_PORT, xmppPort);
+		
 		resource = getMachineResource();
 	}
 
@@ -177,8 +179,15 @@ public class Configuration {
 	/**
 	 * @return the client API_KEY
 	 */
-	public String getAPIKey() {
-		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY).toString();
+	public String getConsumerAPIKey() {
+		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONSUMER_APIKEY).toString();
+	}
+	
+	/**
+	 * @return the producer API_KEY
+	 */
+	public String getProducerAPIKey() {
+		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PRODUCER_APIKEY).toString();
 	}
 
 	/**
@@ -192,7 +201,7 @@ public class Configuration {
 	public String toString() {
 		return this.getClass().getSimpleName() + " (" 
 				+ config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER) + ", " + getUsername()
-				+ ", " + getAPIKey() + ", " + getResource() + ")";
+				+ ", " + getConsumerAPIKey() + ", " + getProducerAPIKey() + ", " + getResource() + ")";
 	}
 
 	/**
@@ -215,7 +224,7 @@ public class Configuration {
 			return false;
 
 		if (!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_ENABLED)
-				|| !hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_APIKEY)
+				|| (!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONSUMER_APIKEY) || !hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PRODUCER_APIKEY))
 				|| !hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME))
 			return false;
 

@@ -20,7 +20,6 @@ public final class AccountConfig {
 	protected static String testSwarmId;
 	
 	private static Configuration config;
-	private static Configuration xmppconfig;
 	
 	protected static final int CONNECTOR_INIT_SLEEP_MILLIS = 10000;
 	public static final long CONNECTOR_FEED_CHANGE_SLEEP_MILLIS = 1000;
@@ -30,7 +29,8 @@ public final class AccountConfig {
 	 */
 	protected static Configuration getConfiguration() {
 		if (config == null) {
-			config = new Configuration(getHostSystemProperty(), getAPIKeySystemProperty(), 
+			config = new Configuration(getHostSystemProperty(), getConfigurationAPIKeySystemProperty(), 
+					getProducerAPIKeySystemProperty(), 
 					XMPP_USERNAME, DEFAULT_HTTP_SERVER_PORT, DEFAULT_XMPP_SERVER_PORT);
 		}
 		
@@ -40,21 +40,10 @@ public final class AccountConfig {
 	/**
 	 * @return
 	 */
-	protected static Configuration getXmppConfiguration() {
-		if (xmppconfig == null) {
-			xmppconfig = new Configuration(getHostSystemProperty(), getAPIKeySystemProperty(), 
-					XMPP_USERNAME, DEFAULT_HTTP_SERVER_PORT, DEFAULT_XMPP_SERVER_PORT);
-		}
-		
-		return xmppconfig;
-	}
-	
-	/**
-	 * @return
-	 */
 	protected static Configuration getConfiguration2() {
 		if (config == null) {
-			config = new Configuration(getHostSystemProperty(), getAPIKey2SystemProperty(), 
+			config = new Configuration(getHostSystemProperty2(), getConfigurationAPIKeySystemProperty2(), 
+					getProducerAPIKeySystemProperty2(),
 					XMPP_USERNAME2, DEFAULT_HTTP_SERVER_PORT, DEFAULT_XMPP_SERVER_PORT);
 		}
 		
@@ -68,18 +57,39 @@ public final class AccountConfig {
 		return System.getProperty(SWARM_TEST_HOSTNAME_KEY).split(",")[0];
 	}
 	
-	private static String getAPIKeySystemProperty() {
+	private static String getConfigurationAPIKeySystemProperty() {
 		if (System.getProperty(SWARM_TEST_HOSTNAME_KEY) == null)
 			throw new RuntimeException("Test API Key must be defined to execute tests: " + SWARM_TEST_HOSTNAME_KEY);
 		
 		return System.getProperty(SWARM_TEST_HOSTNAME_KEY).split(",")[1];
 	}
 
-	private static String getAPIKey2SystemProperty() {
+	private static String getProducerAPIKeySystemProperty() {
 		if (System.getProperty(SWARM_TEST_HOSTNAME_KEY) == null)
 			throw new RuntimeException("Test API Key must be defined to execute tests: " + SWARM_TEST_HOSTNAME_KEY);
 		
 		return System.getProperty(SWARM_TEST_HOSTNAME_KEY).split(",")[2];
+	}
+	
+	private static String getHostSystemProperty2() {
+		if (System.getProperty(SWARM_TEST_HOSTNAME_KEY) == null)
+			throw new RuntimeException("Test host must be defined to execute tests: " + SWARM_TEST_HOSTNAME_KEY);
+		
+		return System.getProperty(SWARM_TEST_HOSTNAME_KEY).split(",")[3];
+	}
+	
+	private static String getConfigurationAPIKeySystemProperty2() {
+		if (System.getProperty(SWARM_TEST_HOSTNAME_KEY) == null)
+			throw new RuntimeException("Test API Key must be defined to execute tests: " + SWARM_TEST_HOSTNAME_KEY);
+		
+		return System.getProperty(SWARM_TEST_HOSTNAME_KEY).split(",")[4];
+	}
+
+	private static String getProducerAPIKeySystemProperty2() {
+		if (System.getProperty(SWARM_TEST_HOSTNAME_KEY) == null)
+			throw new RuntimeException("Test API Key must be defined to execute tests: " + SWARM_TEST_HOSTNAME_KEY);
+		
+		return System.getProperty(SWARM_TEST_HOSTNAME_KEY).split(",")[5];
 	}
 
 	/**

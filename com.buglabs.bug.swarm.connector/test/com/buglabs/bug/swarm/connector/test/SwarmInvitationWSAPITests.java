@@ -25,6 +25,21 @@ public class SwarmInvitationWSAPITests extends TestCase {
 	
 	private static final String description = "invite test description";
 
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#setUp()
+	 * 
+	 * For user 1:
+	 * - Delete all existing swarms
+	 * - Delete all existing resources
+	 * - Create swarm, store id
+	 * - Create resource, store id
+	 * 
+	 * For user 2:
+	 * - Delete all existing swarms
+	 * - Delete all existing resources
+	 * - Create new resource, store id
+	 * 
+	 */
 	@Override
 	protected void setUp() throws Exception {
 		assertNotNull(AccountConfig.getConfiguration());
@@ -69,6 +84,11 @@ public class SwarmInvitationWSAPITests extends TestCase {
 		assertTrue(client.list().size() == 1);
 	}
 	
+	/**
+	 * Test sending an invite.  Only confirms that server returns invite object as specified in documentation.
+	 * 
+	 * @throws IOException
+	 */
 	public void testSendInvite() throws IOException {
 		ISwarmClient client = SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration().getHostname(Protocol.HTTP),
@@ -97,6 +117,12 @@ public class SwarmInvitationWSAPITests extends TestCase {
 		AccountConfig.testInviteId = invite.getId();
 	}
 	
+	/**
+	 * Test sending invitations.  Check that listing existing invites changes appropriately when
+	 * we create new invitations.
+	 * 
+	 * @throws IOException
+	 */
 	public void testListSentInvitations() throws IOException {
 		ISwarmClient client = SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration().getHostname(Protocol.HTTP),
@@ -132,6 +158,11 @@ public class SwarmInvitationWSAPITests extends TestCase {
 		assertTrue(invite.getDescription().equals(description));
 	}
 	
+	/**
+	 * Test recieving invitations.  Confirm that target of invitation properly receives invite.
+	 * 
+	 * @throws IOException
+	 */
 	public void testListRecievedInvitations() throws IOException {
 		ISwarmClient client2 = SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration2().getHostname(Protocol.HTTP),
@@ -163,37 +194,10 @@ public class SwarmInvitationWSAPITests extends TestCase {
 		assertTrue(invite.getDescription().equals(description));
 	}
 	
-	public void testListRecievedInvitations2() throws IOException {
-		ISwarmClient client2 = SwarmClientFactory.getSwarmClient(
-				AccountConfig.getConfiguration2().getHostname(Protocol.HTTP),
-				AccountConfig.getConfiguration2().getConfingurationAPIKey());
-		assertNotNull(client2);
-		assertNotNull(client2.getSwarmInviteClient());
-		assertNotNull(AccountConfig.testSwarmId);
-		assertNotNull(AccountConfig.testInviteId);
-		
-		testSendInvite();
-		List<Invitation> receivedInvites = client2.getSwarmInviteClient().getRecievedInvitations(AccountConfig.testUserResource2.getResourceId());
-		
-		assertNotNull(receivedInvites);
-		assertTrue(receivedInvites.isEmpty() == false);
-		Invitation invite = null;
-		
-		for (Invitation i : receivedInvites)
-			if (i.getId().equals(AccountConfig.testInviteId))
-				invite = i;
-		
-		assertNotNull(invite);
-		assertNotNull(invite.getId());
-		assertNotNull(invite.getFromUser());
-		assertNotNull(invite.getToUser());
-		assertNotNull(invite.getResourceId());
-		assertNotNull(invite.getStatus());
-		assertTrue(invite.getStatus().equals(InvitationState.NEW));
-		assertNotNull(invite.getDescription());
-		assertTrue(invite.getDescription().equals(description));
-	}
-	
+	/**
+	 * Test accepting an invitation.  
+	 * @throws IOException
+	 */
 	public void testAcceptInvitation() throws IOException {
 		ISwarmClient client2 = SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration2().getHostname(Protocol.HTTP),
@@ -231,6 +235,11 @@ public class SwarmInvitationWSAPITests extends TestCase {
 		assertNotNull(acceptInvite.getAcceptedAt());
 	}
 	
+	/**
+	 * Test rejecting an invitation.
+	 * 
+	 * @throws IOException
+	 */
 	public void testRejectInvitation() throws IOException {
 		ISwarmClient client2 = SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration2().getHostname(Protocol.HTTP),

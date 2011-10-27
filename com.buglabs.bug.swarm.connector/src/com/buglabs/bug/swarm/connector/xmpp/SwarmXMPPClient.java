@@ -93,7 +93,7 @@ public class SwarmXMPPClient {
 		// String clientId = ClientIdentity.getRef().getId();
 		if (connection == null) {
 			connection = createConnection(config.getHostname(Protocol.XMPP), config.getXMPPPort());
-			login(connection, config.getUsername(), config.getProducerAPIKey(), config.getResource());
+			login(connection, config.getUsername(), config.getParticipationAPIKey(), config.getResource());
 			disposed = false;
 		}
 

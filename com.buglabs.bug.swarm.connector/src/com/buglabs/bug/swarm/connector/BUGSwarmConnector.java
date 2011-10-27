@@ -205,7 +205,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	private boolean initialize() throws Exception {
 		log.log(LogService.LOG_DEBUG, "Initializing " + BUGSwarmConnector.class.getSimpleName());
 		wsClient = SwarmClientFactory.getSwarmClient(
-				config.getHostname(Protocol.HTTP), config.getConsumerAPIKey());
+				config.getHostname(Protocol.HTTP), config.getConfingurationAPIKey());
 
 		xmppClient = new SwarmXMPPClient(config);
 		xmppClient.connect(this);

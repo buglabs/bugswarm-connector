@@ -44,7 +44,7 @@ public class BUGSwarmConnectorBinaryFeedTests extends TestCase {
 		System.out.println("setUp()");
 		ISwarmClient c =  SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration().getHostname(Protocol.HTTP), 
-				AccountConfig.getConfiguration().getConsumerAPIKey());
+				AccountConfig.getConfiguration().getConfingurationAPIKey());
 		
 		// Delete all pre-existing swarms owned by test user.
 		try {
@@ -82,7 +82,7 @@ public class BUGSwarmConnectorBinaryFeedTests extends TestCase {
 		System.out.println("tearDown()");
 		ISwarmClient c =  SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration().getHostname(Protocol.HTTP), 
-				AccountConfig.getConfiguration().getConsumerAPIKey());
+				AccountConfig.getConfiguration().getConfingurationAPIKey());
 		SwarmWSResponse response = c.destroy(AccountConfig.testSwarmId);
 		assertFalse(response.isError());
 	}
@@ -116,7 +116,7 @@ public class BUGSwarmConnectorBinaryFeedTests extends TestCase {
 
 		HTTPRequest request = new HTTPRequest();
 		Map<String, String> headers = new HashMap<String, String>();
-		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getConsumerAPIKey());
+		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getConfingurationAPIKey());
 		
 		String url = 
 			AccountConfig.getConfiguration().getHostname(Protocol.HTTP)

@@ -68,8 +68,8 @@ public class Configuration {
 		config = new Hashtable<String, Object>();
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, hostname);
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME, username);
-		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONSUMER_APIKEY, consumerApiKey);
-		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PRODUCER_APIKEY, producerApiKey);
+		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY, consumerApiKey);
+		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY, producerApiKey);
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_ENABLED, Boolean.toString(true));
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_HTTP_PORT, httpPort);
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_XMPP_PORT, xmppPort);
@@ -179,15 +179,15 @@ public class Configuration {
 	/**
 	 * @return the client API_KEY
 	 */
-	public String getConsumerAPIKey() {
-		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONSUMER_APIKEY).toString();
+	public String getConfingurationAPIKey() {
+		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY).toString();
 	}
 	
 	/**
 	 * @return the producer API_KEY
 	 */
-	public String getProducerAPIKey() {
-		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PRODUCER_APIKEY).toString();
+	public String getParticipationAPIKey() {
+		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY).toString();
 	}
 
 	/**
@@ -201,7 +201,7 @@ public class Configuration {
 	public String toString() {
 		return this.getClass().getSimpleName() + " (" 
 				+ config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER) + ", " + getUsername()
-				+ ", " + getConsumerAPIKey() + ", " + getProducerAPIKey() + ", " + getResource() + ")";
+				+ ", " + getConfingurationAPIKey() + ", " + getParticipationAPIKey() + ", " + getResource() + ")";
 	}
 
 	/**
@@ -224,7 +224,7 @@ public class Configuration {
 			return false;
 
 		if (!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_ENABLED)
-				|| (!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONSUMER_APIKEY) || !hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PRODUCER_APIKEY))
+				|| (!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY) || !hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY))
 				|| !hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME))
 			return false;
 

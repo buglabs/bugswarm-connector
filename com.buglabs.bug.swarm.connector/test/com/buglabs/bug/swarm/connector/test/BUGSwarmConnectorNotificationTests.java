@@ -28,7 +28,7 @@ public class BUGSwarmConnectorNotificationTests extends TestCase {
 		System.out.println("setUp()");
 		ISwarmClient c = SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration().getHostname(Protocol.HTTP), 
-				AccountConfig.getConfiguration().getConsumerAPIKey());
+				AccountConfig.getConfiguration().getConfingurationAPIKey());
 
 		// Delete all pre-existing swarms owned by test user.
 		try {
@@ -53,7 +53,7 @@ public class BUGSwarmConnectorNotificationTests extends TestCase {
 		System.out.println("tearDown()");
 		ISwarmClient c =  SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration().getHostname(Protocol.HTTP), 
-				AccountConfig.getConfiguration().getConsumerAPIKey());
+				AccountConfig.getConfiguration().getConfingurationAPIKey());
 		
 		SwarmWSResponse response = c.destroy(AccountConfig.testSwarmId);
 		assertFalse(response.isError());
@@ -71,7 +71,7 @@ public class BUGSwarmConnectorNotificationTests extends TestCase {
 	public void testGetNotificationAfterFirstSwarmJoin() throws IOException, InterruptedException {
 		ISwarmClient c =  SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration().getHostname(Protocol.HTTP), 
-				AccountConfig.getConfiguration().getConsumerAPIKey());
+				AccountConfig.getConfiguration().getConfingurationAPIKey());
 		
 		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
 

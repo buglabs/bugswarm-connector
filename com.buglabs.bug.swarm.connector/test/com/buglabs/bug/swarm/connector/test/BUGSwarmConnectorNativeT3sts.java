@@ -60,6 +60,6 @@ public class BUGSwarmConnectorNativeT3sts extends TestCase {
 		String apikey = System.getProperty("com.buglabs.bugswarm.apikey");
 		ISwarmClient wsClient = SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration().getHostname(Protocol.HTTP), 
-				AccountConfig.getConfiguration().getConsumerAPIKey());
+				AccountConfig.getConfiguration().getConfingurationAPIKey());
 	}
 }

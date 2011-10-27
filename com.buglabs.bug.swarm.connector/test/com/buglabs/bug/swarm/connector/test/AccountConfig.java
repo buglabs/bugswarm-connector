@@ -3,6 +3,7 @@ package com.buglabs.bug.swarm.connector.test;
 import java.util.Random;
 
 import com.buglabs.bug.swarm.connector.Configuration;
+import com.buglabs.bug.swarm.restclient.model.UserResourceModel;
 
 /**
  * Unit tests for ISwarmWSClient implementation.
@@ -22,6 +23,8 @@ public final class AccountConfig {
 	protected static String testSwarmId;
 	
 	private static Configuration config;
+	private static Random r;
+	public static UserResourceModel testUserResource;
 	
 	protected static final int CONNECTOR_INIT_SLEEP_MILLIS = 10000;
 	public static final long CONNECTOR_FEED_CHANGE_SLEEP_MILLIS = 1000;
@@ -111,8 +114,20 @@ public final class AccountConfig {
 	 * @return
 	 */
 	protected static String generateRandomSwarmName() {		
-		Random r = new Random();
+		if (r == null)
+			r = new Random();
+		
 		return "TestSwarm-" + AccountConfig.class.getSimpleName() + r.nextFloat();					
+	}
+	
+	/**
+	 * @return
+	 */
+	protected static String generateRandomResourceName() {		
+		if (r == null)
+			r = new Random();
+		
+		return "TestResource-" + r.nextFloat();					
 	}
 
 	protected static String getTestSwarmDescription() {

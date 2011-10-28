@@ -209,10 +209,12 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		osgiHelper = OSGiHelper.getRef();
 		
 		UserResourceModel resource = null;
-		if (config.hasResource())
+		if (config.hasResource()) {
+			Activator.getLog().log(LogService.LOG_DEBUG, "Using stored resource id: " + config.getResource());
 			resource = wsClient.getUserResourceClient().get(
-					config.getResource());
-		else {
+					config.getResource());			
+		} else {
+			Activator.getLog().log(LogService.LOG_DEBUG, "Creating a new resource on the server.");
 			resource = wsClient.getUserResourceClient().add(
 					"bug-" + System.currentTimeMillis(), 
 					"BUG device", 
@@ -221,6 +223,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			config.setResourceId(resource.getResourceId());
 			//Save resourceId in CA
 			osgiHelper.setResourceId(resource.getResourceId());
+			Activator.getLog().log(LogService.LOG_DEBUG, "New resource id: " + config.getResource());
 		}
 		
 		if (resource == null) {

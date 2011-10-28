@@ -171,10 +171,13 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 
 				root.put("user_name", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME));
 				root.put("api_key", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY));
+				
+				root.put("user-name", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME));
+				root.put("api-key", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY));
 
 				root.put("message", new SimpleScalar(msg));
 			} catch (IOException e) {
-				e.printStackTrace();
+				Activator.getLog().log(LogService.LOG_ERROR, "Failed to load swarm info.", e);
 			}
 
 			return root;

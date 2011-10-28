@@ -34,7 +34,9 @@ public class Activator implements BundleActivator, ManagedService {
 	/**
 	 * Services required for BUGswarm to be configured.
 	 */
-	private String[] configurationServices = new String[] { ConfigurationAdmin.class.getName(), ISewingService.class.getName() };
+	private String[] configurationServices = new String[] { 
+			ConfigurationAdmin.class.getName(), 
+			ISewingService.class.getName() };
 
 	private static BundleContext context;
 	private static LogService log;
@@ -103,8 +105,6 @@ public class Activator implements BundleActivator, ManagedService {
 
 	@Override
 	public void updated(final Dictionary config) throws ConfigurationException {
-		log.log(LogService.LOG_DEBUG, this.getClass().getSimpleName() + " configuration updated.");
-
 		if (config == null || (cachedConfig != null && configsIdentical(cachedConfig, config))) {
 			log.log(LogService.LOG_DEBUG, this.getClass().getSimpleName() + " configuration updated.");
 			return;
@@ -128,7 +128,11 @@ public class Activator implements BundleActivator, ManagedService {
 			return;
 		}
 
-		log.log(LogService.LOG_WARNING, this.getClass().getSimpleName() + " configuration changed but no action performed.");
+		String state = "inactive";
+		if (connector != null)
+			state = "active";		
+		log.log(LogService.LOG_WARNING, this.getClass().getSimpleName() + " configuration changed but no action performed.  Connector is " + state);
+		log.log(LogService.LOG_DEBUG, "Config: " + config.toString());
 	}
 
 	/**

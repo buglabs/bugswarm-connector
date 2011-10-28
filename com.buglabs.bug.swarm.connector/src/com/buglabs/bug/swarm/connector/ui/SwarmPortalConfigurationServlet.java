@@ -94,7 +94,7 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 		@Override
 		public TemplateModelRoot post(final RequestParameters params, final HttpServletRequest req, final HttpServletResponse resp) {
 			// Validate input
-			String missingKey = missingParameter(params, "p-api-key", "a-api-key", "user-name");
+			String missingKey = missingParameter(params, "p-api-key", "c-api-key", "user-name");
 			if (missingKey != null)
 				throw new RuntimeException("Missing expected key: " + missingKey);
 

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8">
+  <title>Example.java</title>
+  <link rel="stylesheet" href="pycco.css">
+</head>
+<body>
+<div id="background"></div>
+<div id='container'>
+  
+  <div class='section'>
+    <div class='docs'><h1>Example.java</h1></div>
+  </div>
+  <div class='clearall'>
+  <div class='section' id='section-0'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-0'>#</a>
+      </div>
+      
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">import</span> <span class="n">java</span><span class="p">.</span><span class="n">io</span><span class="p">.</span><span class="n">IOException</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">Random</span><span class="p">;</span>
+
+<span class="n">import</span> <span class="n">com</span><span class="p">.</span><span class="n">buglabs</span><span class="p">.</span><span class="n">bug</span><span class="p">.</span><span class="n">swarm</span><span class="p">.</span><span class="n">restclient</span><span class="p">.</span><span class="n">ISwarmClient</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">com</span><span class="p">.</span><span class="n">buglabs</span><span class="p">.</span><span class="n">bug</span><span class="p">.</span><span class="n">swarm</span><span class="p">.</span><span class="n">restclient</span><span class="p">.</span><span class="n">ISwarmInviteClient</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">com</span><span class="p">.</span><span class="n">buglabs</span><span class="p">.</span><span class="n">bug</span><span class="p">.</span><span class="n">swarm</span><span class="p">.</span><span class="n">restclient</span><span class="p">.</span><span class="n">ISwarmInviteClient</span><span class="p">.</span><span class="n">InvitationResponse</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">com</span><span class="p">.</span><span class="n">buglabs</span><span class="p">.</span><span class="n">bug</span><span class="p">.</span><span class="n">swarm</span><span class="p">.</span><span class="n">restclient</span><span class="p">.</span><span class="n">ISwarmResourcesClient</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">com</span><span class="p">.</span><span class="n">buglabs</span><span class="p">.</span><span class="n">bug</span><span class="p">.</span><span class="n">swarm</span><span class="p">.</span><span class="n">restclient</span><span class="p">.</span><span class="n">ISwarmResourcesClient</span><span class="p">.</span><span class="n">MemberType</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">com</span><span class="p">.</span><span class="n">buglabs</span><span class="p">.</span><span class="n">bug</span><span class="p">.</span><span class="n">swarm</span><span class="p">.</span><span class="n">restclient</span><span class="p">.</span><span class="n">IUserResourceClient</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">com</span><span class="p">.</span><span class="n">buglabs</span><span class="p">.</span><span class="n">bug</span><span class="p">.</span><span class="n">swarm</span><span class="p">.</span><span class="n">restclient</span><span class="p">.</span><span class="n">SwarmClientFactory</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">com</span><span class="p">.</span><span class="n">buglabs</span><span class="p">.</span><span class="n">bug</span><span class="p">.</span><span class="n">swarm</span><span class="p">.</span><span class="n">restclient</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="n">Invitation</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">com</span><span class="p">.</span><span class="n">buglabs</span><span class="p">.</span><span class="n">bug</span><span class="p">.</span><span class="n">swarm</span><span class="p">.</span><span class="n">restclient</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="n">SwarmModel</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">com</span><span class="p">.</span><span class="n">buglabs</span><span class="p">.</span><span class="n">bug</span><span class="p">.</span><span class="n">swarm</span><span class="p">.</span><span class="n">restclient</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="n">SwarmResourceModel</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">com</span><span class="p">.</span><span class="n">buglabs</span><span class="p">.</span><span class="n">bug</span><span class="p">.</span><span class="n">swarm</span><span class="p">.</span><span class="n">restclient</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="n">UserResourceModel</span><span class="p">;</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div><div class='section' id='section-1'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-1'>#</a>
+      </div>
+      <h2>This file illustrates how to use the swarm.restclient library for the configuration side of BUGswarm</h2>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre><span class="n">public</span> <span class="n">class</span> <span class="n">Example</span> <span class="p">{</span>
+
+	<span class="n">public</span> <span class="k">static</span> <span class="kt">void</span> <span class="n">main</span><span class="p">(</span><span class="n">String</span><span class="p">[]</span> <span class="n">args</span><span class="p">)</span> <span class="n">throws</span> <span class="n">IOException</span> <span class="p">{</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div><div class='section' id='section-2'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-2'>#</a>
+      </div>
+      <h2>Get an instance of the root client using the factory:</h2>
+<p>A default error handler is set that will throw IOException on any non-application HTTP error.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>		<span class="n">ISwarmClient</span> <span class="n">client</span> <span class="o">=</span> <span class="n">SwarmClientFactory</span><span class="p">.</span><span class="n">getSwarmClient</span><span class="p">(</span><span class="s">&quot;api.test.bugswarm.net&quot;</span><span class="p">,</span> <span class="s">&quot;3077514aa9aa5a5826cfd9d04ee059db1a18057d&quot;</span><span class="p">);</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div><div class='section' id='section-3'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-3'>#</a>
+      </div>
+      <h2>Create a new swarm:</h2>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>		<span class="n">String</span> <span class="n">id</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="n">create</span><span class="p">(</span><span class="s">&quot;my sweet swarm&quot;</span><span class="p">,</span> <span class="nb">true</span><span class="p">,</span> <span class="s">&quot;my swarm description&quot;</span><span class="p">);</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div><div class='section' id='section-4'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-4'>#</a>
+      </div>
+      <h2>Get the details of my new swarm:</h2>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>		<span class="n">SwarmModel</span> <span class="n">swarm</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">id</span><span class="p">);</span>
+		<span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="n">swarm</span><span class="p">.</span><span class="n">getCreatedAt</span><span class="p">());</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div><div class='section' id='section-5'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-5'>#</a>
+      </div>
+      <h2>Get a list of my member swarms:</h2>
+<p>By convention, the client will never return null to list operations but rather empty lists.  So, checking for null is not required.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>		<span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;I belong to...&quot;</span><span class="p">);</span>
+		<span class="k">for</span> <span class="p">(</span><span class="n">SwarmModel</span> <span class="n">sm</span> <span class="o">:</span> <span class="n">client</span><span class="p">.</span><span class="n">list</span><span class="p">())</span>
+			<span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="n">sm</span><span class="p">.</span><span class="n">getId</span><span class="p">());</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div><div class='section' id='section-6'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-6'>#</a>
+      </div>
+      <h2>Create a new resource:</h2>
+<p>Note that the clients are partitioned along the logical separations of the API specification.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>		<span class="n">IUserResourceClient</span> <span class="n">resourceClient</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="n">getUserResourceClient</span><span class="p">();</span>
+		<span class="n">UserResourceModel</span> <span class="n">resource</span> <span class="o">=</span> <span class="n">resourceClient</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="s">&quot;my-resource&quot;</span><span class="p">,</span> <span class="s">&quot;a sweet swarm resource.&quot;</span><span class="p">,</span> <span class="s">&quot;pc&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+		
+		<span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;My new resource id is &quot;</span> <span class="o">+</span> <span class="n">resource</span><span class="p">.</span><span class="n">getResourceId</span><span class="p">());</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div><div class='section' id='section-7'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-7'>#</a>
+      </div>
+      <h2>List all of my resources</h2>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>		<span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;I have these resources...&quot;</span><span class="p">);</span>
+		<span class="k">for</span> <span class="p">(</span><span class="n">UserResourceModel</span> <span class="n">urm</span> <span class="o">:</span> <span class="n">resourceClient</span><span class="p">.</span><span class="n">list</span><span class="p">())</span>
+			<span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="n">urm</span><span class="p">.</span><span class="n">getName</span><span class="p">()</span> <span class="o">+</span> <span class="s">&quot; - &quot;</span> <span class="o">+</span> <span class="n">urm</span><span class="p">.</span><span class="n">getDescription</span><span class="p">());</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div><div class='section' id='section-8'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-8'>#</a>
+      </div>
+      <h2>Invite someone to my swarm:</h2>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>		<span class="n">ISwarmInviteClient</span> <span class="n">inviteClient</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="n">getSwarmInviteClient</span><span class="p">();</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div><div class='section' id='section-9'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-9'>#</a>
+      </div>
+      <p>Note this will fail if run since the supplied user and resource are not valid.</p>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>		<span class="n">Invitation</span> <span class="n">invite</span> <span class="o">=</span> <span class="n">inviteClient</span><span class="p">.</span><span class="n">send</span><span class="p">(</span><span class="n">swarm</span><span class="p">.</span><span class="n">getId</span><span class="p">(),</span> <span class="s">&quot;some-user&quot;</span><span class="p">,</span> <span class="s">&quot;some-resource&quot;</span><span class="p">,</span> <span class="n">MemberType</span><span class="p">.</span><span class="n">CONSUMER</span><span class="p">,</span> <span class="s">&quot;hey man join my sweet swarm.&quot;</span><span class="p">);</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div><div class='section' id='section-10'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-10'>#</a>
+      </div>
+      <h2>List my invitations:</h2>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>		<span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;I have invited these users...&quot;</span><span class="p">);</span>
+		<span class="k">for</span> <span class="p">(</span><span class="n">Invitation</span> <span class="n">i</span> <span class="o">:</span> <span class="n">inviteClient</span><span class="p">.</span><span class="n">getSentInvitations</span><span class="p">(</span><span class="n">swarm</span><span class="p">.</span><span class="n">getId</span><span class="p">()))</span>
+			<span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="n">i</span><span class="p">.</span><span class="n">getToUser</span><span class="p">());</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div><div class='section' id='section-11'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-11'>#</a>
+      </div>
+      <h2>Check to see if anyone wants me in their swarms:</h2>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>		<span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;I will randomly accept and reject my invites...&quot;</span><span class="p">);</span>
+		<span class="n">Random</span> <span class="n">r</span> <span class="o">=</span> <span class="n">new</span> <span class="n">Random</span><span class="p">();</span>
+		
+		<span class="k">for</span> <span class="p">(</span><span class="n">Invitation</span> <span class="n">i</span> <span class="o">:</span> <span class="n">inviteClient</span><span class="p">.</span><span class="n">getRecievedInvitations</span><span class="p">())</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">nextBoolean</span><span class="p">())</span>
+				<span class="n">inviteClient</span><span class="p">.</span><span class="n">respond</span><span class="p">(</span><span class="n">i</span><span class="p">.</span><span class="n">getResourceId</span><span class="p">(),</span> <span class="n">i</span><span class="p">.</span><span class="n">getId</span><span class="p">(),</span> <span class="n">InvitationResponse</span><span class="p">.</span><span class="n">ACCEPT</span><span class="p">);</span>
+			<span class="k">else</span>
+				<span class="n">inviteClient</span><span class="p">.</span><span class="n">respond</span><span class="p">(</span><span class="n">i</span><span class="p">.</span><span class="n">getResourceId</span><span class="p">(),</span> <span class="n">i</span><span class="p">.</span><span class="n">getId</span><span class="p">(),</span> <span class="n">InvitationResponse</span><span class="p">.</span><span class="n">REJECT</span><span class="p">);</span></pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div><div class='section' id='section-12'>
+    <div class='docs'>
+      <div class='octowrap'>
+        <a class='octothorpe' href='#section-12'>#</a>
+      </div>
+      <h2>Show what resources are in my swarm:</h2>
+    </div>
+    <div class='code'>
+      <div class="highlight"><pre>		<span class="n">ISwarmResourcesClient</span> <span class="n">swarmResourceClient</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="n">getSwarmResourceClient</span><span class="p">();</span>
+		
+		<span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;Here is who is in my swarms...&quot;</span><span class="p">);</span>
+		<span class="k">for</span> <span class="p">(</span><span class="n">SwarmResourceModel</span> <span class="n">srm</span> <span class="o">:</span> <span class="n">swarmResourceClient</span><span class="p">.</span><span class="n">list</span><span class="p">(</span><span class="n">swarm</span><span class="p">.</span><span class="n">getId</span><span class="p">(),</span> <span class="n">MemberType</span><span class="p">.</span><span class="n">CONSUMER</span><span class="p">))</span>
+			<span class="n">System</span><span class="p">.</span><span class="n">out</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="n">srm</span><span class="p">.</span><span class="n">getUserId</span><span class="p">()</span> <span class="o">+</span> <span class="s">&quot; - &quot;</span> <span class="o">+</span> <span class="n">srm</span><span class="p">.</span><span class="n">getResourceId</span><span class="p">());</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+</pre></div>
+    </div>
+  </div>
+  <div class='clearall'></div>
+</div>
+</body>

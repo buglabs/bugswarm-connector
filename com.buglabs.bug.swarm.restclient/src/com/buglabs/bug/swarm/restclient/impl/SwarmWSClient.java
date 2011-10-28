@@ -77,13 +77,15 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 				"description", description,
 				"public", new Boolean(isPublic)));
 		
-		JsonNode response = httpClient.callPost(
+		Response<JsonNode> response = httpClient.callPost(
 				swarmHostUrl.copy("swarms"), 
 				body,
-				ModelBase.JSON_DESERIALIZER).getContent();
+				ModelBase.JSON_DESERIALIZER);
 		
+		if (!response.isError())
+			return response.getContent().get("id").getTextValue();
 		
-		return response.get("id").getTextValue();
+		throw new IOException("Unable to create swarm: " + response.getErrorMessage());
 	}
 
 	@Override

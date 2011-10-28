@@ -48,7 +48,8 @@ public class BUGSwarmConnectorNativeT3sts extends TestCase {
 	 */
 	public void testSystemBUGSwarmPropertiesAvailable() {
 		assertNotNull(System.getProperty("com.buglabs.bugswarm.hostname"));
-		assertNotNull(System.getProperty("com.buglabs.bugswarm.apikey"));
+		assertNotNull(System.getProperty("com.buglabs.bugswarm.apikey.consumer"));
+		assertNotNull(System.getProperty("com.buglabs.bugswarm.apikey.producer"));
 		assertNotNull(System.getProperty("com.buglabs.bugswarm.username"));
 	}
 	
@@ -57,7 +58,7 @@ public class BUGSwarmConnectorNativeT3sts extends TestCase {
 	 */
 	public void testCreateAssociateSwarmToBUG() {
 		String host = System.getProperty("com.buglabs.bugswarm.hostname");
-		String apikey = System.getProperty("com.buglabs.bugswarm.apikey");
+		String apikey = System.getProperty("com.buglabs.bugswarm.apikey.consumer");
 		ISwarmClient wsClient = SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration().getHostname(Protocol.HTTP), 
 				AccountConfig.getConfiguration().getConfingurationAPIKey());

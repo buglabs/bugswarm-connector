@@ -231,6 +231,7 @@ public class Configuration {
 
 		if (!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_ENABLED)
 				|| !hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY)
+				|| !hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY)
 				|| !hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME))
 			return false;
 

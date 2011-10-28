@@ -94,7 +94,7 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 		@Override
 		public TemplateModelRoot post(final RequestParameters params, final HttpServletRequest req, final HttpServletResponse resp) {
 			// Validate input
-			String missingKey = missingParameter(params, "api-key", "user-name");
+			String missingKey = missingParameter(params, "p-api-key", "a-api-key", "user-name");
 			if (missingKey != null)
 				throw new RuntimeException("Missing expected key: " + missingKey);
 
@@ -102,12 +102,13 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 			String msg = null;
 
 			if (action.equals("activate")) {
-				String apiKey = params.get("api-key");
+				String pApiKey = params.get("p-api-key");
+				String cApiKey = params.get("c-api-key");
 				String username = params.get("user-name");
 
-				if (apiKey != null && username != null) {
+				if (pApiKey != null && username != null) {
 					try {
-						saveConfiguration(username, apiKey);
+						saveConfiguration(username, pApiKey, cApiKey);
 
 						setEnabled(true);
 						msg = "BugSwarm has been activated";
@@ -170,10 +171,12 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 				}
 
 				root.put("user_name", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME));
-				root.put("api_key", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY));
+				root.put("p_api_key", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY));
+				root.put("c_api_key", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY));
 				
 				root.put("user-name", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME));
-				root.put("api-key", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY));
+				root.put("p-api-key", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY));
+				root.put("c-api-key", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY));
 
 				root.put("message", new SimpleScalar(msg));
 			} catch (IOException e) {
@@ -190,11 +193,11 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 	 * @param username
 	 *            username
 	 * @param apiKey
-	 *            API_KEY
+	 *            p_api_key
 	 * @throws IOException
 	 *             on file I/O error
 	 */
-	private void saveConfiguration(final String username, final String apiKey) throws IOException {
+	private void saveConfiguration(final String username, final String partApiKey, final String confApiKei) throws IOException {
 		Dictionary d = config.getProperties();
 
 		if (d == null) {
@@ -202,7 +205,8 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 		}
 
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME, username);
-		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY, apiKey);
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY, partApiKey);
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY, confApiKei);
 
 		config.update(d);
 	}

@@ -180,6 +180,9 @@ public class Configuration {
 	 * @return the client API_KEY
 	 */
 	public String getConfingurationAPIKey() {
+		if (config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY) == null)
+			return "[NONE]";
+		
 		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY).toString();
 	}
 	
@@ -187,6 +190,9 @@ public class Configuration {
 	 * @return the producer API_KEY
 	 */
 	public String getParticipationAPIKey() {
+		if (config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY) == null) 
+			return "[NONE]";
+		
 		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY).toString();
 	}
 

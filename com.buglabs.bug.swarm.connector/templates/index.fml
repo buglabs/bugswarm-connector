@@ -173,11 +173,11 @@
 						<input type="text" name="user-name" value="${user_name}"></input>
 					</li>		
 					<li>
-						<label for="p-api-key">Participation API Key</label>
+						<label for="p-api-key">Participation Key</label>
 						<input type="text" name="p-api-key" value="${p_api_key}"></input>
 					</li>			
 					<li>
-						<label for="c-api-key">Configuration API Key</label>
+						<label for="c-api-key">Configuration Key</label>
 						<input type="text" name="c-api-key" value="${c_api_key}"></input>
 					</li>	
 				</ol>

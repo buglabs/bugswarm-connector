@@ -78,4 +78,9 @@ public final class SwarmConfigKeys {
 	 * The port for XMPP API access.
 	 */
 	public static final String CONFIG_KEY_BUGSWARM_XMPP_PORT = "com.buglabs.bugswarm.xmpp.port";
+
+	/**
+	 * The swarm-server created resource id associated with the device.
+	 */
+	public static final String CONFIG_KEY_BUGSWARM_RESOURCE_ID = "com.buglabs.bugswarm.resourceId";
 }

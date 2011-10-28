@@ -38,7 +38,8 @@ public final class AccountConfig {
 	 */
 	protected static Configuration getConfiguration() {
 		if (config == null) {
-			config = new Configuration(getHostSystemProperty(), 
+			config = new Configuration(null, 
+					getHostSystemProperty(), 
 					getConfigurationAPIKeySystemProperty(), 
 					getProducerAPIKeySystemProperty(), 
 					getUsernameProperty(),
@@ -54,7 +55,9 @@ public final class AccountConfig {
 	 */
 	protected static Configuration getConfiguration2() {
 		if (config2 == null) {
-			config2 = new Configuration(getHostSystemProperty(), 
+			config2 = new Configuration(
+					null,
+					getHostSystemProperty(), 
 					getConfigurationAPIKeySystemProperty2(), 
 					getProducerAPIKeySystemProperty2(),
 					getUsernameProperty2(), 

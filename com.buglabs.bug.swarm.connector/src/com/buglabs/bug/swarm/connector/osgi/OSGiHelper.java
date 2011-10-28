@@ -1,5 +1,6 @@
 package com.buglabs.bug.swarm.connector.osgi;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
@@ -15,10 +16,13 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.dragonfly.module.IModuleControl;
 import com.buglabs.bug.swarm.connector.test.OSGiHelperTester;
+import com.buglabs.bug.swarm.connector.ui.SwarmConfigKeys;
 import com.buglabs.services.ws.PublicWSProvider;
 import com.buglabs.util.osgi.FilterUtil;
 import com.buglabs.util.osgi.OSGiServiceLoader;
@@ -56,6 +60,7 @@ public final class OSGiHelper implements ServiceListener {
 	private List<EntityChangeListener> listeners;
 	private ModulesFeed modulesFeed;
 	private CapabilitiesFeed capabilitiesFeed;
+	private ConfigurationAdmin configAdmin;
 
 	/**
 	 * @throws Exception
@@ -392,5 +397,48 @@ public final class OSGiHelper implements ServiceListener {
 		}
 
 		return m;
+	}
+
+	/**
+	 * Set the resource id that's created by the server for the device.
+	 * @param resourceId resource id or null to unset the resource id.
+	 * @throws IOException on ConfigAdmin error
+	 */
+	public void setResourceId(String resourceId) throws IOException {
+		if (configAdmin == null)
+			configAdmin = getConfigAdmin();
+		
+		Configuration config = configAdmin.getConfiguration(SwarmConfigKeys.CONFIG_PID_BUGSWARM);
+		
+		if (config == null) //This should not happen, since the webui will create the configuration for us.
+			throw new IllegalStateException("Configuration for connector does not exist.");
+		
+		Dictionary properties = config.getProperties();
+		if (resourceId != null)
+			properties.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE_ID, resourceId);
+		else
+			properties.remove(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE_ID);
+		
+		config.update(properties);
+	}	
+
+	/**
+	 * @return reference to ConfigurationAdmin or throw IllegalStateException if unavailable.
+	 */
+	private ConfigurationAdmin getConfigAdmin() {
+		if (context == null)
+			throw new IllegalStateException("BundleContext is not available.");
+		
+		ServiceReference casr = context.getServiceReference(ConfigurationAdmin.class.getName());
+		
+		if (casr == null)
+			throw new IllegalStateException(ConfigurationAdmin.class.getName() + " is not in the service registry.");
+		
+		ConfigurationAdmin ca = (ConfigurationAdmin) context.getService(casr);
+		
+		if (ca == null)
+			throw new IllegalStateException(ConfigurationAdmin.class.getName() + " cannot be referenced.");
+		
+		return ca;
 	}
 }

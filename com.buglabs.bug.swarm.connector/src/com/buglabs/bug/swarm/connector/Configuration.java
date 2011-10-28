@@ -1,13 +1,7 @@
 package com.buglabs.bug.swarm.connector;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.InetAddress;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.Random;
 
 import com.buglabs.bug.swarm.connector.osgi.Activator;
 import com.buglabs.bug.swarm.connector.ui.SwarmConfigKeys;
@@ -36,16 +30,13 @@ public class Configuration {
 	private static final String HTTP_SCHEME = "HTTP://";
 	//Per converstaion with Camilo there is no longer a prefix to the XMPP server.
 	private static final String XMPP_PREFIX = "";
-	private static final String HTTP_PREFIX = "api.";
-	private static final String BUG20_SYSFS_MACADDR_FILE = 
-		"/sys/devices/platform/ehci-omap.0/usb1/1-2/1-2.4/1-2.4:1.0/net/eth0/address";
+	private static final String HTTP_PREFIX = "api.";	
 	private static final int DEFAULT_XMPP_SERVER_PORT = 5222;
 	private static final int DEFAULT_HTTP_SERVER_PORT = 80;
 	/**
 	 * Stores the configuration.
 	 */
 	private Dictionary<String, Object> config;
-	private final String resource;
 
 	/**
 	 * Create a configuration from discrete parameters.
@@ -61,7 +52,7 @@ public class Configuration {
 	 * @param xmppPort port of messaging server
 	 * 
 	 */
-	public Configuration(final String hostname, final String consumerApiKey, final String producerApiKey, final String username, final int httpPort, final int xmppPort) {
+	public Configuration(final String resourceId, final String hostname, final String consumerApiKey, final String producerApiKey, final String username, final int httpPort, final int xmppPort) {
 		if (hostname.contains("://"))
 			throw new IllegalArgumentException("Hostname must note include a scheme.");
 
@@ -73,8 +64,7 @@ public class Configuration {
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_ENABLED, Boolean.toString(true));
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_HTTP_PORT, httpPort);
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_XMPP_PORT, xmppPort);
-		
-		resource = getMachineResource();
+		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE_ID, resourceId);
 	}
 
 	/**
@@ -83,7 +73,6 @@ public class Configuration {
 	 */
 	public Configuration(final Dictionary<String, Object> config) {
 		this.config = config;
-		resource = getMachineResource();
 
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, 
 				Activator.getBundleContextProperty(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, DEFAULT_HOSTNAME));
@@ -91,41 +80,6 @@ public class Configuration {
 				getBundleContextProperty(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_HTTP_PORT, DEFAULT_HTTP_SERVER_PORT));
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_XMPP_PORT, Activator.
 				getBundleContextProperty(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_XMPP_PORT, DEFAULT_XMPP_SERVER_PORT));
-	}
-
-	/**
-	 * Determine some string that can be used to identify the client, Preferably
-	 * across OS updates, etc..
-	 * 
-	 * @return the resource name for this device.
-	 */
-	private static String getMachineResource() {
-		try {
-			File f = new File(BUG20_SYSFS_MACADDR_FILE);
-			if (f.exists() && f.isFile())
-				return readFirstLine(f);
-			return InetAddress.getLocalHost().getHostName();
-		} catch (Exception e) {
-			Random r = new Random();
-			return "UNKNOWNHOST-" + r.nextDouble();
-		}
-	}
-
-	/**
-	 * Return the first line of a file as a String.
-	 * 
-	 * @param file
-	 *            file to be read
-	 * @return first line as String
-	 * @throws IOException
-	 *             if there is an IO error
-	 */
-	private static String readFirstLine(final File file) throws IOException {
-		BufferedReader br = new BufferedReader(new FileReader(file));
-		String line = br.readLine();
-		br.close();
-
-		return line;
 	}
 
 	/**
@@ -196,11 +150,23 @@ public class Configuration {
 		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY).toString();
 	}
 
+	public boolean hasResource() {
+		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE_ID) != null;
+	}
+	
 	/**
 	 * @return The resource associated with device.
 	 */
 	public String getResource() {
-		return resource;
+		if (!hasResource())
+			return null;
+		
+		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE_ID).toString();
+	}
+	
+	public void setResourceId(String resourceId) {
+		//TODO: consider making this only settable once.
+		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE_ID, resourceId);
 	}
 
 	@Override

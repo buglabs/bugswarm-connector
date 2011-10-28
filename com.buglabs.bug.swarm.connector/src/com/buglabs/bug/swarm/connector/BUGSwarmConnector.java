@@ -29,7 +29,6 @@ import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
 import com.buglabs.bug.swarm.restclient.ISwarmClient;
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.restclient.SwarmClientFactory;
-import com.buglabs.bug.swarm.restclient.SwarmWSResponse;
 import com.buglabs.bug.swarm.restclient.model.SwarmModel;
 import com.buglabs.bug.swarm.restclient.model.SwarmResourceModel;
 import com.buglabs.bug.swarm.restclient.model.UserResourceModel;
@@ -207,44 +206,31 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		wsClient = SwarmClientFactory.getSwarmClient(
 				config.getHostname(Protocol.HTTP), config.getConfingurationAPIKey());
 
-		xmppClient = new SwarmXMPPClient(config);
-		xmppClient.connect(this);
-
 		osgiHelper = OSGiHelper.getRef();
-		if (osgiHelper == null) {
-			throw new IOException("Unable to get an OSGi context.");				
-		}			
 		
-		SwarmWSResponse response = null;
-		
-		//See if the resource already exists on the server.
-		UserResourceModel resource = wsClient.getUserResourceClient().get(xmppClient.getResource());
-		
-		//If it does exist, update the existing record, otherwise add.
-		if (resource == null)
-			resource = wsClient.getUserResourceClient().add( 
-					"bug", 
-					"A connector-enabled BUG device", 
-					"bug", 0, 0);					
-			if (resource == null) 
-				log.log(LogService.LOG_WARNING, 
-						"Server returned an error when adding device resource: " + response.getMessage());
+		UserResourceModel resource = null;
+		if (config.hasResource())
+			resource = wsClient.getUserResourceClient().get(
+					config.getResource());
 		else {
-			response = wsClient.getUserResourceClient().update(
-					xmppClient.getResource(),  
-					"BUG-Connector-Device", "A connector-enabled BUG device", 
-					MemberType.PRODUCER, "BUG");
-		
-			if (response.isError()) 
-				log.log(LogService.LOG_WARNING, 
-						"Server returned an error when updating device resource: " + response.getMessage());
+			resource = wsClient.getUserResourceClient().add(
+					"bug-" + System.currentTimeMillis(), 
+					"BUG device", 
+					"bug", 
+					0, 0);
+			config.setResourceId(resource.getResourceId());
+			//Save resourceId in CA
+			osgiHelper.setResourceId(resource.getResourceId());
 		}
 		
-		if (response.isError() && response.getCode() != 409)
-			throw new IOException(response.getMessage());
-		else if (response.isError() && response.getCode() == 409)
-			log.log(LogService.LOG_WARNING, 
-					"Ignoring error 409 on add/update resource.");
+		if (resource == null) {
+			//Set the persisted resourceid to null in the case of an invalid or deleted resource.  This will cause the connector to ask the server for a new one upon next start.
+			osgiHelper.setResourceId(null);
+			throw new IOException("Unable to get or create resource for device.");
+		}
+		
+		xmppClient = new SwarmXMPPClient(config);
+		xmppClient.connect(this);
 						
 		initialized = true;
 		return true;		

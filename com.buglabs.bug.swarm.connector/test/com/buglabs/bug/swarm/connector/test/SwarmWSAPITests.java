@@ -47,7 +47,7 @@ public class SwarmWSAPITests extends TestCase {
 				AccountConfig.getConfiguration().getConfingurationAPIKey());
 		
 		assertNotNull(client.getSwarmResourceClient());
-		assertNotNull(AccountConfig.getConfiguration().getResource());
+		assertNull(AccountConfig.getConfiguration().getResource());
 		
 		//Delete all pre-existing resources owned by the test user.
 		for (UserResourceModel ur : client.getUserResourceClient().list())
@@ -93,11 +93,13 @@ public class SwarmWSAPITests extends TestCase {
 		    }
 		 */
 		UserResourceModel userResource = client.getUserResourceClient().add(
-				AccountConfig.getConfiguration().getResource(),
-				"My resource",
+				AccountConfig.generateRandomResourceName(),
+				"Test resource",
 				"pc", 0, 0);				
 		
 		assertNotNull(userResource);	
+		AccountConfig.getConfiguration().setResourceId(userResource.getResourceId());
+		assertNotNull(AccountConfig.getConfiguration().getResource());
 		
 		//Make sure user resource is now present in list.
 		boolean userResourceFound = false;

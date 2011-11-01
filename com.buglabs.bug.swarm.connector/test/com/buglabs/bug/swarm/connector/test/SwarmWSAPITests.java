@@ -47,7 +47,6 @@ public class SwarmWSAPITests extends TestCase {
 				AccountConfig.getConfiguration().getConfingurationAPIKey());
 		
 		assertNotNull(client.getSwarmResourceClient());
-		assertNull(AccountConfig.getConfiguration().getResource());
 		
 		//Delete all pre-existing resources owned by the test user.
 		for (UserResourceModel ur : client.getUserResourceClient().list())

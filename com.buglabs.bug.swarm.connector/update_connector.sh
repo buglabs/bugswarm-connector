@@ -6,15 +6,16 @@ SWARM_HOSTNAME="test.bugswarm.net"
 BUILD_SERVER="192.168.20.16:8085"
 BUNDLE_DIR=/usr/share/osgi/bundle
 APP_DIR=/usr/share/osgi/apps
+SWARM_BRANCH=master
 
 echo "Updating connector and dependencies to latest jars available from $BUILD_SERVER."
 
 if [ ! -f $BUNDLE_DIR/com.buglabs.common.jar ]; then 
-  wget -P $BUNDLE_DIR/ http://$BUILD_SERVER/job/bugswarm-connector-master/lastSuccessfulBuild/artifact/dist/com.buglabs.common.jar
+  wget -P $BUNDLE_DIR/ http://$BUILD_SERVER/job/bugswarm-connector-$SWARM_BRANCH/lastSuccessfulBuild/artifact/dist/com.buglabs.common.jar
 fi
 
 if [ ! -f $BUNDLE_DIR/smack-smackx-osgi.jar ]; then
-	wget -P $BUNDLE_DIR/ http://$BUILD_SERVER/job/bugswarm-connector-master/lastSuccessfulBuild/artifact/dist/smack-smackx-osgi.jar
+	wget -P $BUNDLE_DIR/ http://$BUILD_SERVER/job/bugswarm-connector-$SWARM_BRANCH/lastSuccessfulBuild/artifact/dist/smack-smackx-osgi.jar
 fi
 
 wget -nc -P $BUNDLE_DIR "http://repository.codehaus.org/org/codehaus/jackson/jackson-core-asl/1.9.1/jackson-core-asl-1.9.1.jar"
@@ -28,16 +29,16 @@ if [ ! -f $BUNDLE_DIR/commons-io-2.1.jar ]; then
 fi
 
 rm $BUNDLE_DIR/bugswarm-connector.jar
-wget -P $BUNDLE_DIR/ http://$BUILD_SERVER/job/bugswarm-connector-master/lastSuccessfulBuild/artifact/dist/bugswarm-connector.jar
+wget -P $BUNDLE_DIR/ http://$BUILD_SERVER/job/bugswarm-connector-$SWARM_BRANCH/lastSuccessfulBuild/artifact/dist/bugswarm-connector.jar
 
 rm $APP_DIR/bugswarm-devicestats.jar
-wget -P $APP_DIR/ http://$BUILD_SERVER/job/bugswarm-connector-master/lastSuccessfulBuild/artifact/dist/bugswarm-devicestats.jar
+wget -P $APP_DIR/ http://$BUILD_SERVER/job/bugswarm-connector-$SWARM_BRANCH/lastSuccessfulBuild/artifact/dist/bugswarm-devicestats.jar
 
 rm $BUNDLE_DIR/com.buglabs.bug.swarm.restclient.jar
-wget -P $BUNDLE_DIR/ http://$BUILD_SERVER/job/bugswarm-connector-master/lastSuccessfulBuild/artifact/dist/com.buglabs.bug.swarm.restclient.jar
+wget -P $BUNDLE_DIR/ http://$BUILD_SERVER/job/bugswarm-connector-$SWARM_BRANCH/lastSuccessfulBuild/artifact/dist/com.buglabs.bug.swarm.restclient.jar
 
 rm $BUNDLE_DIR/org.touge.restclient.jar
-wget -P $BUNDLE_DIR/ http://$BUILD_SERVER/job/bugswarm-connector-master/lastSuccessfulBuild/artifact/dist/org.touge.restclient.jar
+wget -P $BUNDLE_DIR/ http://$BUILD_SERVER/job/bugswarm-connector-$SWARM_BRANCH/lastSuccessfulBuild/artifact/dist/org.touge.restclient.jar
 
 chmod u+x $BUNDLE_DIR/bugswarm-connector.jar
 chmod u+x $APP_DIR/bugswarm-devicestats.jar

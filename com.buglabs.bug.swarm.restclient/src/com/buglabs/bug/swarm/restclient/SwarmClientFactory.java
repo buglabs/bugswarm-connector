@@ -20,4 +20,14 @@ public class SwarmClientFactory {
 	public static ISwarmClient getSwarmClient(String hostname, String apiKey) {
 		return new SwarmWSClient(hostname, apiKey);
 	}
+	
+	/**
+	 * Get a new instance of ISwarmClient
+	 * @param hostname of swarm server
+	 * @param apiKey of user
+	 * @return new instance of ISwarmClient
+	 */
+	public static ISwarmConfiguration getSwarmConfigurationClient(String hostname, String apiKey) {
+		return new SwarmWSClient(hostname, apiKey);
+	}
 }

@@ -7,10 +7,10 @@ import junit.framework.TestCase;
 
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.restclient.ISwarmClient;
-import com.buglabs.bug.swarm.restclient.SwarmClientFactory;
 import com.buglabs.bug.swarm.restclient.ISwarmInviteClient.InvitationResponse;
 import com.buglabs.bug.swarm.restclient.ISwarmInviteClient.InvitationState;
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
+import com.buglabs.bug.swarm.restclient.SwarmClientFactory;
 import com.buglabs.bug.swarm.restclient.model.Invitation;
 import com.buglabs.bug.swarm.restclient.model.SwarmModel;
 import com.buglabs.bug.swarm.restclient.model.UserResourceModel;
@@ -115,6 +115,28 @@ public class SwarmInvitationWSAPITests extends TestCase {
 		assertTrue(invite.getDescription().equals(description));
 		
 		AccountConfig.testInviteId = invite.getId();
+	}
+	
+
+	/**
+	 * Test accepting an invitation.  
+	 * @throws IOException
+	 */
+	public void testStreamingTester() throws IOException {
+		testAcceptInvitation();
+		ISwarmClient client = SwarmClientFactory.getSwarmClient(
+				AccountConfig.getConfiguration().getHostname(Protocol.HTTP),
+				AccountConfig.getConfiguration().getConfingurationAPIKey());
+		
+		UserResourceModel urc = client.getUserResourceClient().add("stream_resource", "stream resource desc", "pc", 0, 0);
+		
+		StreamingTester.test(
+				"test.bugswarm.net", 
+				AccountConfig.getConfiguration().getParticipationAPIKey(), 
+				AccountConfig.testSwarmId, 
+				urc.getResourceId());
+		
+		System.out.println("boo");
 	}
 	
 	/**

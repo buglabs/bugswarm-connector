@@ -22,7 +22,7 @@ import com.buglabs.util.simplerestclient.HTTPException;
  * @author kgilmer
  * 
  */
-public class BUGSwarmConnectorNotificationTests extends TestCase {
+public class BUGSwarmConnectorNotificationT3sts extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {

@@ -9,12 +9,18 @@ import org.touge.restclient.ReSTClient.Response;
 
 import com.buglabs.bug.swarm.restclient.ISwarmBinaryUploadClient;
 import com.buglabs.bug.swarm.restclient.ISwarmClient;
+import com.buglabs.bug.swarm.restclient.ISwarmConfiguration;
 import com.buglabs.bug.swarm.restclient.ISwarmInviteClient;
+import com.buglabs.bug.swarm.restclient.ISwarmInviteClient.InvitationResponse;
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient;
+import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.restclient.IUserResourceClient;
 import com.buglabs.bug.swarm.restclient.SwarmWSResponse;
+import com.buglabs.bug.swarm.restclient.model.Invitation;
 import com.buglabs.bug.swarm.restclient.model.ModelBase;
 import com.buglabs.bug.swarm.restclient.model.SwarmModel;
+import com.buglabs.bug.swarm.restclient.model.SwarmResourceModel;
+import com.buglabs.bug.swarm.restclient.model.UserResourceModel;
 
 /**
  * A Swarm WS Client implementation using json.simple and simplerestclient.
@@ -22,7 +28,7 @@ import com.buglabs.bug.swarm.restclient.model.SwarmModel;
  * @author kgilmer
  * 
  */
-public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient {
+public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient, ISwarmConfiguration {
 	private SwarmResourceWSClient membersClient;
 	private SwarmBinaryUploadWSClient uploadClient;
 	private UserResourceWSClient resourceClient;
@@ -43,6 +49,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 	/**
 	 * @return Swarm Members API
 	 */
+	@Override
 	public ISwarmResourcesClient getSwarmResourceClient() {
 		if (membersClient == null)
 			membersClient = new SwarmResourceWSClient(swarmHostUrl.toString(), apiKey, httpClient);
@@ -61,6 +68,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 	/**
 	 * @return Swarm Members API
 	 */
+	@Override
 	public ISwarmBinaryUploadClient getSwarmBinaryUploadClient() {
 		if (uploadClient == null)
 			uploadClient = new SwarmBinaryUploadWSClient(swarmHostUrl.toString(), apiKey, httpClient);
@@ -141,5 +149,111 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 			inviteClient = new SwarmInviteWSClient(swarmHostUrl.toString(), apiKey, httpClient);
 
 		return inviteClient;		
+	}
+
+	@Override
+	public SwarmWSResponse upload(String userId, String resourceId, String filename, byte[] payload) throws IOException {	
+		return getSwarmBinaryUploadClient().upload(userId, resourceId, filename, payload);
+	}
+
+	@Override
+	public String createSwarm(String name, boolean isPublic, String description) throws IOException {		
+		return create(name, isPublic, description);
+	}
+
+	@Override
+	public SwarmWSResponse updateSwarm(String swarmId, boolean isPublic, String description) throws IOException {		
+		return update(swarmId, isPublic, description);
+	}
+
+	@Override
+	public SwarmWSResponse destroySwarm(String swarmId) throws IOException {
+		return destroy(swarmId);
+	}
+
+	@Override
+	public List<SwarmModel> listSwarms() throws IOException {
+		return list();
+	}
+
+	@Override
+	public SwarmModel getSwarm(String swarmId) throws IOException {
+		return get(swarmId);
+	}
+
+	@Override
+	public Invitation send(String swarmId, String user, String resourceId, MemberType resourceType, String description) throws IOException {
+		return getSwarmInviteClient().send(swarmId, user, resourceId, resourceType, description);
+	}
+
+	@Override
+	public List<Invitation> getSentInvitations(String swarmId) throws IOException {
+		return getSwarmInviteClient().getSentInvitations(swarmId);
+	}
+
+	@Override
+	public List<Invitation> getRecievedInvitations() throws IOException {		
+		return getSwarmInviteClient().getRecievedInvitations();
+	}
+
+	@Override
+	public List<Invitation> getRecievedInvitations(String resourceId) throws IOException {	
+		return getSwarmInviteClient().getRecievedInvitations(resourceId);
+	}
+
+	@Override
+	public Invitation respond(String resourceId, String invitationId, InvitationResponse action) throws IOException {	
+		return getSwarmInviteClient().respond(resourceId, invitationId, action);
+	}
+
+	@Override
+	public List<SwarmResourceModel> listResources(String swarmId, ISwarmResourcesClient.MemberType type) throws IOException {
+		return getSwarmResourceClient().list(swarmId, type);
+	}
+
+	@Override
+	public SwarmWSResponse addResource(String swarmId, ISwarmResourcesClient.MemberType type, String resourceId) throws IOException {
+		return getSwarmResourceClient().add(swarmId, type, resourceId);
+	}
+
+	@Override
+	public SwarmWSResponse removeResource(String swarmId, ISwarmResourcesClient.MemberType type, String userId, String resourceId)
+			throws IOException {
+		return getSwarmResourceClient().remove(swarmId, type, userId, resourceId);
+	}
+
+	@Override
+	public UserResourceModel createResource(String resourceName, String description, String machineType, float longitude, float latitude) throws IOException {
+		return getUserResourceClient().add(resourceName, description, machineType, longitude, latitude);
+	}
+
+	@Override
+	public SwarmWSResponse updateResource(String resourceId, String resourceName, String resourceDescription, MemberType type, String machineType) throws IOException {
+		return getUserResourceClient().update(resourceId, resourceName, resourceDescription, type, machineType);
+	}
+
+	@Override
+	public List<UserResourceModel> getResources() throws IOException {
+		return getUserResourceClient().get();
+	}
+
+	@Override
+	public UserResourceModel getResource(String resourceId) throws IOException {
+		return getUserResourceClient().get(resourceId);
+	}
+
+	@Override
+	public SwarmWSResponse removeResource(String resourceId) throws IOException {
+		return getUserResourceClient().remove(resourceId);
+	}
+
+	@Override
+	public List<SwarmModel> getMemberSwarms(String resourceId) throws IOException {
+		return getUserResourceClient().getMemberSwarms(resourceId);
+	}
+
+	@Override
+	public List<UserResourceModel> listResource() throws IOException {
+		return getUserResourceClient().list();
 	}
 }

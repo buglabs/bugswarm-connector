@@ -1,5 +1,6 @@
 package com.buglabs.bug.swarm.restclient;
 
+import com.buglabs.bug.swarm.restclient.impl.SwarmParticipationClient;
 import com.buglabs.bug.swarm.restclient.impl.SwarmWSClient;
 
 /**
@@ -9,6 +10,10 @@ import com.buglabs.bug.swarm.restclient.impl.SwarmWSClient;
  *
  */
 public class SwarmClientFactory {
+	
+	private SwarmClientFactory() {
+		
+	}
 
 	/**
 	 * Get a new instance of ISwarmClient
@@ -28,5 +33,9 @@ public class SwarmClientFactory {
 	 */
 	public static ISwarmConfiguration getSwarmConfigurationClient(String hostname, String apiKey) {
 		return new SwarmWSClient(hostname, apiKey);
+	}
+	
+	public static ISwarmParticipation getParticipationClient(String hostname, String apiKey) {
+		return new SwarmParticipationClient(hostname, apiKey);
 	}
 }

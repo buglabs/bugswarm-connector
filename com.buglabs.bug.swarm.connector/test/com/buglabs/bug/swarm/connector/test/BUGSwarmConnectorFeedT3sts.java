@@ -1,6 +1,16 @@
 package com.buglabs.bug.swarm.connector.test;
 
+import java.util.List;
+
 import junit.framework.TestCase;
+
+import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
+import com.buglabs.bug.swarm.connector.Configuration.Protocol;
+import com.buglabs.bug.swarm.restclient.ISwarmClient;
+import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
+import com.buglabs.bug.swarm.restclient.SwarmClientFactory;
+import com.buglabs.bug.swarm.restclient.SwarmWSResponse;
+import com.buglabs.bug.swarm.restclient.model.SwarmModel;
 
 /**
  * Tests the high-level BUGSwarmConnector class in regards to feeds.
@@ -18,7 +28,6 @@ public class BUGSwarmConnectorFeedT3sts extends TestCase {
 	 * TODO: When/if there is a way to access feeds via an API the tests
 	 * should be changed to use that new API.
 	 */
-/*
 	@Override
 	protected void setUp() throws Exception {
 		System.out.println("setUp()");
@@ -26,23 +35,15 @@ public class BUGSwarmConnectorFeedT3sts extends TestCase {
 				AccountConfig.getConfiguration().getHostname(Protocol.HTTP), 
 				AccountConfig.getConfiguration().getConfingurationAPIKey());
 		
-		// Delete all pre-existing swarms owned by test user.
-		try {
-			List<SwarmModel> swarms = c.list();
+	
+		List<SwarmModel> swarms = c.list();
 
-			for (SwarmModel sm : swarms) {
-				if (sm.getUserId().equals(AccountConfig.getConfiguration().getUsername())) {
-					c.destroy(sm.getId());
-				}
+		for (SwarmModel sm : swarms) {
+			if (sm.getUserId().equals(AccountConfig.getConfiguration().getUsername())) {
+				c.destroy(sm.getId());
 			}
-		} catch (HTTPException e) {
-			// Ignore 404s. They are not errors. But unfortunately they have to
-			// be handled as errors since this is the REST way according to
-			// Camilo.
-			if (e.getErrorCode() != 404)
-				throw e;
 		}
-
+	
 		AccountConfig.testSwarmId = c.create(AccountConfig.generateRandomSwarmName(), false, "A test swarm.");
 
 		SwarmWSResponse response = c.getSwarmResourceClient().add(
@@ -69,10 +70,10 @@ public class BUGSwarmConnectorFeedT3sts extends TestCase {
 		assertFalse(response.isError());
 	}
 
-	*//**
+	/*
 	 * Test initializing the connector.  
 	 * @throws InterruptedException
-	 *//*
+	 */
 	public void testInitializeConnector() throws InterruptedException {
 		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
 
@@ -86,7 +87,7 @@ public class BUGSwarmConnectorFeedT3sts extends TestCase {
 
 		Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
 	}
-
+ /*
 	*//**
 	 * https://github.com/buglabs/bugswarm/wiki/Swarm-Feeds-API.
 	 * 

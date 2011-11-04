@@ -2,14 +2,19 @@ package com.buglabs.bug.swarm.connector.test;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
+
+import org.touge.restclient.ReSTClient;
 
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.restclient.ISwarmClient;
 import com.buglabs.bug.swarm.restclient.ISwarmInviteClient.InvitationResponse;
 import com.buglabs.bug.swarm.restclient.ISwarmInviteClient.InvitationState;
+import com.buglabs.bug.swarm.restclient.ISwarmMessageListener;
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
+import com.buglabs.bug.swarm.restclient.ISwarmSession;
 import com.buglabs.bug.swarm.restclient.SwarmClientFactory;
 import com.buglabs.bug.swarm.restclient.model.Invitation;
 import com.buglabs.bug.swarm.restclient.model.SwarmModel;
@@ -62,6 +67,9 @@ public class SwarmInvitationWSAPITests extends TestCase {
 		String id = client.create(AccountConfig.generateRandomSwarmName(), true, AccountConfig.getTestSwarmDescription());
 		AccountConfig.testSwarmId = id;
 		
+		UserResourceModel urc = client.getUserResourceClient().add(AccountConfig.generateRandomResourceName(), "user resource desc", "pc", 0, 0);
+		AccountConfig.testUserResource = urc;
+		
 		//Determine that 2nd user can connect and delete any existing swarms.
 		ISwarmClient client2 = SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration2().getHostname(Protocol.HTTP),
@@ -77,7 +85,7 @@ public class SwarmInvitationWSAPITests extends TestCase {
 		for (UserResourceModel ur : client2.getUserResourceClient().list())
 			client2.getUserResourceClient().remove(ur.getResourceId());
 		
-		UserResourceModel urc = client2.getUserResourceClient().add("3rd_resource", "user resource desc", "pc", 0, 0);
+		urc = client2.getUserResourceClient().add(AccountConfig.generateRandomResourceName(), "user resource desc", "pc", 0, 0);
 		AccountConfig.testUserResource2 = urc;
 		
 		//Confirm that original user still has swarm.
@@ -122,7 +130,7 @@ public class SwarmInvitationWSAPITests extends TestCase {
 	 * Test accepting an invitation.  
 	 * @throws IOException
 	 */
-	public void testStreamingTester() throws IOException {
+	private void testStreamingTester() throws IOException {
 		testAcceptInvitation();
 		ISwarmClient client = SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration().getHostname(Protocol.HTTP),
@@ -255,6 +263,78 @@ public class SwarmInvitationWSAPITests extends TestCase {
 		assertNotNull(acceptInvite);
 		assertTrue(acceptInvite.getStatus().equals(InvitationState.ACCEPTED));
 		assertNotNull(acceptInvite.getAcceptedAt());
+	}
+	
+	/**
+	 * Test accepting an invitation.  
+	 * @throws IOException
+	 */
+	public void testAcceptInvitationWithParticipation() throws IOException {
+		ISwarmClient client2 = SwarmClientFactory.getSwarmClient(
+				AccountConfig.getConfiguration2().getHostname(Protocol.HTTP),
+				AccountConfig.getConfiguration2().getConfingurationAPIKey());
+		
+		assertNotNull(client2);
+		assertNotNull(client2.getSwarmInviteClient());
+		assertNotNull(AccountConfig.testSwarmId);
+		assertNotNull(AccountConfig.testInviteId);
+		testSendInvite();
+		
+		ISwarmSession psession2 = SwarmClientFactory.getParticipationClient(
+				AccountConfig.getConfiguration2().getHostname(Protocol.HTTP),
+				AccountConfig.getConfiguration2().getConfingurationAPIKey())
+				.createSession(AccountConfig.testUserResource2.getResourceId(), AccountConfig.testSwarmId);
+		
+		ISwarmSession psession1 = SwarmClientFactory.getParticipationClient(
+				AccountConfig.getConfiguration().getHostname(Protocol.HTTP),
+				AccountConfig.getConfiguration().getConfingurationAPIKey())
+				.createSession(AccountConfig.testUserResource.getResourceId(), AccountConfig.testSwarmId);
+		
+		psession2.addListener(new ISwarmMessageListener() {
+			
+			@Override
+			public void messageRecieved(Map<String, ?> payload, String fromSwarm, String fromResource, boolean isPublic) {
+				System.out.println(payload);
+			}
+		});
+		
+		psession1.addListener(new ISwarmMessageListener() {
+			
+			@Override
+			public void messageRecieved(Map<String, ?> payload, String fromSwarm, String fromResource, boolean isPublic) {
+				System.out.println(payload);
+			}
+		});
+		
+		List<Invitation> receivedInvites = client2.getSwarmInviteClient().getRecievedInvitations(AccountConfig.testUserResource2.getResourceId());
+		
+		assertNotNull(receivedInvites);
+		assertTrue(receivedInvites.isEmpty() == false);
+		Invitation invite = null;
+		
+		for (Invitation i : receivedInvites)
+			if (i.getId().equals(AccountConfig.testInviteId))
+				invite = i;
+		
+		assertNotNull(invite);
+		assertNotNull(invite.getId());
+		assertNotNull(invite.getFromUser());
+		assertNotNull(invite.getToUser());
+		assertNotNull(invite.getResourceId());
+		assertNotNull(invite.getStatus());
+		assertTrue(invite.getStatus().equals(InvitationState.NEW));
+		assertNotNull(invite.getDescription());
+		assertTrue(invite.getDescription().equals(description));
+		
+		Invitation acceptInvite = client2.getSwarmInviteClient().respond(invite.getResourceId(), invite.getId(), InvitationResponse.ACCEPT);
+		
+		assertNotNull(acceptInvite);
+		assertTrue(acceptInvite.getStatus().equals(InvitationState.ACCEPTED));
+		assertNotNull(acceptInvite.getAcceptedAt());
+		
+		psession2.send(ReSTClient.toMap("x", "asdf"));
+		
+		System.out.println("boo");
 	}
 	
 	/**

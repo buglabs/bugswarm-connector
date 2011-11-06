@@ -203,6 +203,9 @@ public class ParticipationAPITests extends TestCase {
 		psession2.send(AccountConfig.generateRandomPayload());
 		
 		System.out.println("boo");
+		
+		psession1.close();
+		psession2.close();
 	}
 
 	/**

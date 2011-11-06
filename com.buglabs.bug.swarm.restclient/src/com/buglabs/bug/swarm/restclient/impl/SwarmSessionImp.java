@@ -1,11 +1,7 @@
 package com.buglabs.bug.swarm.restclient.impl;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -23,15 +19,13 @@ import com.buglabs.bug.swarm.restclient.ISwarmMessageListener;
 import com.buglabs.bug.swarm.restclient.ISwarmSession;
 
 public class SwarmSessionImp implements ISwarmSession {
-
-	private volatile boolean running = false;
 	private final Socket socket;
 	private final String apiKey;
 	private static final String CRLF = "\r\n";
 	private final String hostname;
 	private final OutputStream soutput;
-	private List<ISwarmMessageListener> listeners;
-	private final SocketReader readerThread;
+	private final List<ISwarmMessageListener> listeners;
+	private final SwarmParticipationReader readerThread;
 	private final static ObjectMapper mapper = new ObjectMapper();
 	private final String[] swarmIds;
 	private final String resourceId;
@@ -43,16 +37,15 @@ public class SwarmSessionImp implements ISwarmSession {
 		this.swarmIds = swarmIds;		
 		this.socket = new Socket(hostname, 80);
 		this.soutput = socket.getOutputStream();
+		this.listeners = new CopyOnWriteArrayList<ISwarmMessageListener>();
+		this.readerThread = new SwarmParticipationReader(socket.getInputStream(), apiKey, listeners);
+		this.readerThread.start();	
 
-		initialize();
-		
-		this.readerThread = new SocketReader(socket.getInputStream());
-		this.readerThread.start();
-		
+		sendHeader();	
 	}
 
 
-	private void initialize() throws IOException {
+	private void sendHeader() throws IOException {
 		StringBuilder header = new StringBuilder();
 		header.append("POST ");
 		header.append(createStreamUrl());
@@ -70,8 +63,8 @@ public class SwarmSessionImp implements ISwarmSession {
 		header.append("Content-Type: application/json ;charset=UTF-8").append(CRLF);
 		header.append(CRLF);
 		
-		running = true;
-		writeOut(header.toString().getBytes());		
+		soutput.write(header.toString().getBytes());
+		soutput.flush();
 	}
 
 	private String createStreamUrl() {
@@ -130,76 +123,96 @@ public class SwarmSessionImp implements ISwarmSession {
 	}
 
 	@Override
-	public void send(Map<String, ?> payload) throws IOException {		
-		Map<String, Object> message = new HashMap<String, Object>();
+	public void send(Map<String, ?> payload) throws IOException {					
+		writeOut(mapper.writeValueAsString(createPayloadMap(payload)));		
+	}
+
+
+	@Override
+	public void send(Map<String, ?> payload, String... swarmIds) throws IOException {
+		Map<String, Object> map = createPayloadMap(payload);
+		map.put("to", Arrays.asList(swarmIds));
+
+		writeOut(mapper.writeValueAsString(map));
+	}
+
+	@Override
+	public void send(Map<String, ?> payload, List<Map.Entry<String, String>> swarmAndResource) throws IOException {
 		
-		message.put("message", toMap("payload", payload));
-		
-		String ms = mapper.writeValueAsString(message);
-		String ml = Integer.toHexString(ms.length());
-		
-		StringBuilder sb = new StringBuilder(); //staticHeader.toString());
-		sb.append(ml).append(CRLF);
-		sb.append(ms).append(CRLF);
-		
-		System.out.println(sb.toString());
-		writeOut(sb.toString().getBytes());		
 	}
 	
 	@Override
 	public void join(String swarmId, String resourceId) throws IOException {
-		StringBuilder buffer = new StringBuilder(); // StringBuilder(staticHeader.toString());
+		StringBuilder buffer = new StringBuilder();
 		String ps = generatePresence(true, true, swarmIds, hostname, resourceId);
 		
 		buffer.append(Integer.toHexString(ps.getBytes().length)).append(CRLF);
 		buffer.append(ps).append(CRLF);
 		
-		System.out.println(buffer.toString());
+		debugOut(buffer.toString(), true);
 		soutput.write(buffer.toString().getBytes());
 		soutput.flush();
 	}
 	
-	private void writeOut(byte[] bytes) throws IOException {
-		if (!running  || bytes == null || soutput == null)
+	private void debugOut(String message, boolean out) {
+		System.out.print(apiKey.substring(0, 4));
+		if (out)
+			System.out.print(" --> ");
+		else
+			System.out.print(" <-- ");
+		
+		System.out.println(message);
+	}
+	
+	private Map<String, Object> createPayloadMap(Map<String, ?> payload) {
+		Map<String, Object> map =new HashMap<String, Object>();
+		
+		map.put("message", toMap("payload", payload));
+		
+		return map;
+	}
+	
+	private void writeOut(String message) throws IOException {
+		if (!isConnected())
 			throw new IOException("Connection has closed");
 		
-		soutput.write(bytes);
+		debugOut(message, true);
+		
+		soutput.write(Integer.toHexString(message.length()).getBytes());
+		soutput.write(CRLF.getBytes());
+		soutput.write(message.getBytes());
+		soutput.write(CRLF.getBytes());
 		soutput.flush();
 	}
 
 	@Override
-	public void send(Map<String, ?> payload, String... swarmIds) throws IOException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void send(Map<String, ?> payload, String swarmId, String resourceId) throws IOException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	synchronized public void addListener(ISwarmMessageListener listener) {
-		if (listeners == null)
-			listeners = new CopyOnWriteArrayList<ISwarmMessageListener>();
-		
+	public void addListener(ISwarmMessageListener listener) {		
 		listeners.add(listener);
 	}
 
 	@Override
 	public void removeListener(ISwarmMessageListener listener) {
-		if (listeners != null)
-			listeners.remove(listener);
+		listeners.remove(listener);
 	}
 
 	@Override
 	public void close() {
 		try {
+			StringBuilder buffer = new StringBuilder(); // StringBuilder(staticHeader.toString());
+			String ps = generatePresence(true, false, swarmIds, hostname, resourceId);
+			
+			buffer.append(Integer.toHexString(ps.getBytes().length)).append(CRLF);
+			buffer.append(ps).append(CRLF);
+			
+			debugOut(buffer.toString(), true);
+			soutput.write(buffer.toString().getBytes());
+			soutput.flush();
+		} catch (IOException e) {			
+		}
+		
+		try {
 			socket.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (IOException e) {			
 		}
 		
 		if (readerThread != null) {
@@ -207,53 +220,8 @@ public class SwarmSessionImp implements ISwarmSession {
 		}
 	}
 	
-	private class SocketReader extends Thread {
-		
-		private final BufferedReader reader;
-		public SocketReader(InputStream is) throws UnsupportedEncodingException {
-			reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-		}
-		@Override
-		public void run() {
-			String line = null;
-			try {
-				//Here rather than reading the line as a string, 
-				//Create (via jsonfactory) a jsonparser and call nextToken() for same effect
-				while ((line = reader.readLine().trim()) != null) {
-					if (line.length() == 0 || isNumeric(line))
-						continue;
-					
-					System.out.println(apiKey.substring(0, 4) + ": " + line);
-					if (listeners != null) {
-						//Here we parse the json message, extract payload, fromSwarm, fromResource, isPublic
-						Map<String, ?> payload = null;
-						String fromSwarm = null;
-						String fromResource = null;
-						boolean isPublic = true;
-						/*for (ISwarmMessageListener listener : listeners)
-							listener.messageRecieved(payload, fromSwarm, fromResource, isPublic);*/
-					}
-					
-					Thread.sleep(100);
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InterruptedException e) {
-				return;
-			} finally {
-				running = false;
-				System.out.println(apiKey.substring(0, 4) + ": Reader exited");
-			}
-		}
-		
-		private boolean isNumeric(String line) {
-			try {
-				Long.parseLong(line, 16);
-				return true;
-			} catch (NumberFormatException e) {				
-			}
-			return false;
-		}
+	@Override
+	public boolean isConnected() {
+		return readerThread.isRunning() && socket.isConnected();
 	}
 }

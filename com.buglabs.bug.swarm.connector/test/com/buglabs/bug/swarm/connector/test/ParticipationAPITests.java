@@ -166,7 +166,7 @@ public class ParticipationAPITests extends TestCase {
 		
 		UserResourceModel urc = client.getUserResourceClient().add("stream_resource", "stream resource desc", "pc", 0, 0);
 		
-		System.out.println("User 1 Key: " + AccountConfig.getConfiguration().getParticipationAPIKey());
+		System.out.println("User 1 Key: " + AccountConfig.getConfiguration().getParticipationAPIKey().substring(0, 4));
  		ISwarmSession psession1 = SwarmClientFactory.getParticipationClient(
 				AccountConfig.getConfiguration().getHostname(Protocol.HTTP),
 				AccountConfig.getConfiguration().getParticipationAPIKey())
@@ -180,11 +180,11 @@ public class ParticipationAPITests extends TestCase {
 			}
 		});
 		
-		//psession1.join(AccountConfig.testSwarmId, urc.getResourceId());
+		psession1.join(AccountConfig.testSwarmId, urc.getResourceId());
 		
 		//Setup the second user.
 		assertNotNull(AccountConfig.testUserResource2.getResourceId());
-		System.out.println("User 2 Key: " + AccountConfig.getConfiguration2().getParticipationAPIKey());
+		System.out.println("User 2 Key: " + AccountConfig.getConfiguration2().getParticipationAPIKey().substring(0, 4));
 		
 		ISwarmSession psession2 = SwarmClientFactory.getParticipationClient(
 				AccountConfig.getConfiguration2().getHostname(Protocol.HTTP),
@@ -199,6 +199,7 @@ public class ParticipationAPITests extends TestCase {
 			}
 		});
 		
+		psession2.join(AccountConfig.testSwarmId, AccountConfig.testUserResource2.getResourceId());
 		psession2.send(AccountConfig.generateRandomPayload());
 		
 		System.out.println("boo");

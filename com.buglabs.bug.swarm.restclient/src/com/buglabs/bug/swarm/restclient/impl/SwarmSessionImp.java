@@ -8,7 +8,6 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,6 +43,7 @@ public class SwarmSessionImp implements ISwarmSession {
 		this.swarmIds = swarmIds;		
 		this.socket = new Socket(hostname, 80);
 		this.soutput = socket.getOutputStream();
+
 		initialize();
 		
 		this.readerThread = new SocketReader(socket.getInputStream());
@@ -51,10 +51,11 @@ public class SwarmSessionImp implements ISwarmSession {
 		
 	}
 
+
 	private void initialize() throws IOException {
 		StringBuilder header = new StringBuilder();
 		header.append("POST ");
-		header.append("/stream");
+		header.append(createStreamUrl());
 		header.append(" HTTP/1.1").append(CRLF);
 		header.append("Host: ");
 		header.append(hostname).append(CRLF);
@@ -69,14 +70,26 @@ public class SwarmSessionImp implements ISwarmSession {
 		header.append("Content-Type: application/json ;charset=UTF-8").append(CRLF);
 		header.append(CRLF);
 		
-		String ps = generatePresence(true, true, swarmIds, hostname, resourceId);
-		
-		header.append(Integer.toHexString(ps.getBytes().length)).append(CRLF);
-		header.append(ps).append(CRLF);
-		
-		System.out.println(header.toString());
 		running = true;
 		writeOut(header.toString().getBytes());		
+	}
+
+	private String createStreamUrl() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("/stream?resource_id=");
+		sb.append(resourceId);
+		
+		if (swarmIds != null && swarmIds.length > 0)
+			sb.append('&');
+		
+		for (Iterator<String> i = Arrays.asList(swarmIds).iterator(); i.hasNext();) {
+			sb.append("swarm_id=");
+			sb.append(i.next());
+			if (i.hasNext())
+				sb.append('&');
+		}
+		
+		return sb.toString();
 	}
 
 	private static String generatePresence(boolean outgoing, boolean available, String[] swarmIds2, String hostname, String resourceId) throws JsonGenerationException, JsonMappingException, IOException {
@@ -84,13 +97,8 @@ public class SwarmSessionImp implements ISwarmSession {
 		if (!outgoing)
 			direction = "from";
 		
-		List<String> destinationSwarms = new ArrayList<String>();
-		
-		for (String swarmId : swarmIds2)
-			destinationSwarms.add(swarmId + "@" + hostname + "/" + resourceId);
-		
 		Map<String, Object> m = toMap("presence", 
-				toMap(direction, destinationSwarms));
+				toMap(direction, swarmIds2));
 		
 		if (!available)
 			m.put("type", "unavailable");
@@ -123,7 +131,6 @@ public class SwarmSessionImp implements ISwarmSession {
 
 	@Override
 	public void send(Map<String, ?> payload) throws IOException {		
-		
 		Map<String, Object> message = new HashMap<String, Object>();
 		
 		message.put("message", toMap("payload", payload));
@@ -131,12 +138,25 @@ public class SwarmSessionImp implements ISwarmSession {
 		String ms = mapper.writeValueAsString(message);
 		String ml = Integer.toHexString(ms.length());
 		
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder(); //staticHeader.toString());
 		sb.append(ml).append(CRLF);
 		sb.append(ms).append(CRLF);
 		
 		System.out.println(sb.toString());
 		writeOut(sb.toString().getBytes());		
+	}
+	
+	@Override
+	public void join(String swarmId, String resourceId) throws IOException {
+		StringBuilder buffer = new StringBuilder(); // StringBuilder(staticHeader.toString());
+		String ps = generatePresence(true, true, swarmIds, hostname, resourceId);
+		
+		buffer.append(Integer.toHexString(ps.getBytes().length)).append(CRLF);
+		buffer.append(ps).append(CRLF);
+		
+		System.out.println(buffer.toString());
+		soutput.write(buffer.toString().getBytes());
+		soutput.flush();
 	}
 	
 	private void writeOut(byte[] bytes) throws IOException {
@@ -199,8 +219,11 @@ public class SwarmSessionImp implements ISwarmSession {
 			try {
 				//Here rather than reading the line as a string, 
 				//Create (via jsonfactory) a jsonparser and call nextToken() for same effect
-				while ((line = reader.readLine()) != null) {
-					System.out.println(apiKey + ": " + line);
+				while ((line = reader.readLine().trim()) != null) {
+					if (line.length() == 0 || isNumeric(line))
+						continue;
+					
+					System.out.println(apiKey.substring(0, 4) + ": " + line);
 					if (listeners != null) {
 						//Here we parse the json message, extract payload, fromSwarm, fromResource, isPublic
 						Map<String, ?> payload = null;
@@ -220,21 +243,17 @@ public class SwarmSessionImp implements ISwarmSession {
 				return;
 			} finally {
 				running = false;
-				System.out.println(apiKey + " Reader exited");
+				System.out.println(apiKey.substring(0, 4) + ": Reader exited");
 			}
 		}
-	}
-
-	@Override
-	public void join(String swarmId, String resourceId) throws IOException {
-		StringBuilder buffer = new StringBuilder();
-		String ps = generatePresence(true, true, swarmIds, hostname, resourceId);
 		
-		buffer.append(Integer.toHexString(ps.getBytes().length)).append(CRLF);
-		buffer.append(ps).append(CRLF);
-		
-		System.out.println(buffer.toString());
-		soutput.write(buffer.toString().getBytes());
-		soutput.flush();
+		private boolean isNumeric(String line) {
+			try {
+				Long.parseLong(line, 16);
+				return true;
+			} catch (NumberFormatException e) {				
+			}
+			return false;
+		}
 	}
 }

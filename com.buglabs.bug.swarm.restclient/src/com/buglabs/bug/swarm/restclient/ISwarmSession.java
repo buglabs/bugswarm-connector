@@ -16,6 +16,8 @@ public interface ISwarmSession {
 	
 	void send(Map<String, ?> payload, String swarmId, String resourceId) throws IOException;
 	
+	void join(String swarmId, String resourceId) throws IOException;
+	
 	void addListener(ISwarmMessageListener listener);
 	
 	void removeListener(ISwarmMessageListener listener);

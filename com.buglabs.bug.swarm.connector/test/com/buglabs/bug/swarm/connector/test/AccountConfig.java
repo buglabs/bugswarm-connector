@@ -1,5 +1,7 @@
 package com.buglabs.bug.swarm.connector.test;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import com.buglabs.bug.swarm.connector.Configuration;
@@ -140,6 +142,18 @@ public final class AccountConfig {
 	protected static String getTestSwarmDescription() {
 		return "TestSwarmDescription-" + AccountConfig.class.getSimpleName();
 	}
-	
-	
+
+	public static Map<String, ?> generateRandomPayload() {
+		Map<String, String> m = new HashMap<String, String>();
+		
+		if (r == null)
+			r = new Random();
+		
+		int kc = r.nextInt(10) + 5;
+		
+		for (int i = 0; i < kc; ++i)
+			m.put("key-" + Float.toHexString(r.nextFloat()), Float.toHexString(r.nextFloat()));
+		
+		return m;
+	}
 }

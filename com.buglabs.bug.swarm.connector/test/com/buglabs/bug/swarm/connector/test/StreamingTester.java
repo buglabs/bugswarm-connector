@@ -84,7 +84,7 @@ public class StreamingTester {
 				//channel.write(ByteBuffer.wrap(chunk.toString().getBytes()));
 
 				//message chunk
-				String feed = "{\"message\":{\"to\":\"" + swarmId + "@" + swarmHost + "\",\"type\":\"groupchat\",\"body\":{ \"$t\": \"{\"feed\":\"mpg\"}\"}}}";
+				String feed = "{\"message\":{\"to\":\"" + swarmId + "@" + swarmHost + "\",\"type\":\"groupchat\",\"body\":{ \"payload\": \"{\"feed\":\"mpg\"}\"}}}";
 				String msglength = Integer.toHexString(CharBuffer.wrap(feed).length());
 
 				StringBuilder chunk = new StringBuilder();

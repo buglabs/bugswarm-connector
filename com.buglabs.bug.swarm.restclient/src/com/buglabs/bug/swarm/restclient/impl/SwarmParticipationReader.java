@@ -29,7 +29,7 @@ public class SwarmParticipationReader extends Thread {
 	private static final String TYPE_VALUE_AVAILABLE = "available";
 	private static final String TYPE_KEY = "type";
 	private static final String FROM_KEY = "from";
-	private static final String PRESENSE_KEY = "presense";
+	private static final String PRESENCE_KEY = "presence";
 	private final BufferedReader reader;
 	private volatile boolean running = false;
 	private final String apiKey;
@@ -55,15 +55,17 @@ public class SwarmParticipationReader extends Thread {
 		running = true;
 		String line = null;
 		try {
-			//Here rather than reading the line as a string, 
-			//Create (via jsonfactory) a jsonparser and call nextToken() for same effect
-			while ((line = reader.readLine().trim()) != null) {
+			while ((line = reader.readLine()) != null) {
+				line = line.trim();
 				//Filter empty lines and line length lines.
 				if (line.length() == 0 || isNumeric(line))
 					continue;
 				
 				//Quick check on line to make sure it looks like json.
 				if (!looksLikeJson(line)) {
+					if (isHTTPHeader(line))
+						continue;
+					
 					for (ISwarmMessageListener listener : listeners)
 						listener.exceptionOccurred(ExceptionType.SERVER_MESSAGE_PARSE_ERROR, "Unparsable message: " + line);
 					continue;
@@ -76,22 +78,21 @@ public class SwarmParticipationReader extends Thread {
 
 				//TODO: optimize by moving message parsing code out of the listener loop.
 				for (ISwarmMessageListener listener : listeners) {
-					if (jmessage.has(PRESENSE_KEY)) {
+					if (jmessage.has(PRESENCE_KEY)) {
 						if (!isValidPresenceMessage(jmessage)) {
 							listener.exceptionOccurred(ExceptionType.INVALID_MESSAGE, "Presense did not have expected values.");
 						} else {
-							boolean avail = pv(jmessage.get(PRESENSE_KEY).get(TYPE_KEY)) != null && pv(jmessage.get(PRESENSE_KEY).get(TYPE_KEY)).equals(TYPE_VALUE_AVAILABLE);
+							boolean avail = pv(jmessage.get(PRESENCE_KEY).get(TYPE_KEY)) != null && pv(jmessage.get(PRESENCE_KEY).get(TYPE_KEY)).equals(TYPE_VALUE_AVAILABLE);
 							listener.presenceEvent(
-									pv(jmessage.get(PRESENSE_KEY).get(FROM_KEY).get(SWARM_KEY)), 
-									pv(jmessage.get(PRESENSE_KEY).get(FROM_KEY).get(RESOURCE_KEY)), 
+									pv(jmessage.get(PRESENCE_KEY).get(FROM_KEY).get(SWARM_KEY)), 
+									pv(jmessage.get(PRESENCE_KEY).get(FROM_KEY).get(RESOURCE_KEY)), 
 									avail);
 						}
 					} else if (jmessage.has(MESSAGE_KEY)) {
 						if (!isValidMessageMessage(jmessage)) {
 							listener.exceptionOccurred(ExceptionType.INVALID_MESSAGE, "Message did not have expected values.");
 						} else {
-							//TODO: revisit Jackson API to determine best way of specifying map must contain string keys.
-							Map<String, ?> payload = mapper.readValue(jmessage.get("message").get("payload"), Map.class);
+							//TODO: revisit Jackson API to determine best way of specifying map must contain string keys.							
 							String swarmId = null;
 							String resourceId = null;
 							boolean isPublic = false;
@@ -104,21 +105,20 @@ public class SwarmParticipationReader extends Thread {
 							if (jmessage.get("message").has("public"))
 								isPublic = jmessage.get("message").get("public").asBoolean();
 							
-							listener.messageRecieved(payload, swarmId, resourceId, isPublic);
+							JsonNode payloadJson = jmessage.get("message").get("payload");
+							if (payloadJson.isArray()) {
+								List<Map<String, Object>> nodes = mapper.readValue(payloadJson, List.class);
+								for (Map<String, Object> n : nodes) {
+									listener.messageRecieved(n, swarmId, resourceId, isPublic);
+								}
+							} else {
+								Map<String, Object> payload = mapper.readValue(payloadJson, Map.class);
+								listener.messageRecieved(payload, swarmId, resourceId, isPublic);
+							}
 						}
 					} else {
 						listener.exceptionOccurred(ExceptionType.INVALID_MESSAGE, "JSon did not have expected value ['presence' | 'message']");
 					}						
-				}
-				
-				if (listeners != null) {
-					//Here we parse the json message, extract payload, fromSwarm, fromResource, isPublic
-					Map<String, ?> payload = null;
-					String fromSwarm = null;
-					String fromResource = null;
-					boolean isPublic = true;
-					/*for (ISwarmMessageListener listener : listeners)
-						listener.messageRecieved(payload, fromSwarm, fromResource, isPublic);*/
 				}
 				
 				Thread.sleep(100);
@@ -135,6 +135,20 @@ public class SwarmParticipationReader extends Thread {
 	}
 	
 	/**
+	 * @param line
+	 * @return true if input line looks like an HTTP header
+	 */
+	private boolean isHTTPHeader(String line) {
+		if (line.startsWith("HTTP"))
+			return true;
+		
+		if (line.indexOf(':') > -1)
+			return true;
+		
+		return false;
+	}
+
+	/**
 	 * @param jmessage
 	 * @return  if message has minimum structure required for a 'message' message
 	 */
@@ -150,7 +164,7 @@ public class SwarmParticipationReader extends Thread {
 	 * @return true if message has minimum structure required for a presence message
 	 */
 	private boolean isValidPresenceMessage(JsonNode jmessage) {
-		if (jmessage.has(PRESENSE_KEY) && jmessage.get(PRESENSE_KEY).has(FROM_KEY))
+		if (jmessage.has(PRESENCE_KEY) && jmessage.get(PRESENCE_KEY).has(FROM_KEY))
 			return true;
 		
 		return false;

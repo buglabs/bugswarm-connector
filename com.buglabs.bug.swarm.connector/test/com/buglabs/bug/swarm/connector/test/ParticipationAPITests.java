@@ -176,7 +176,11 @@ public class ParticipationAPITests extends TestCase {
 			
 			@Override
 			public void messageRecieved(Map<String, ?> payload, String fromSwarm, String fromResource, boolean isPublic) {
-				System.out.println(fromSwarm);
+				System.out.print(fromSwarm);
+				System.out.print(" ");
+				System.out.print(fromResource);
+				System.out.print(" ");
+				System.out.println(payload);
 			}
 
 			@Override
@@ -206,7 +210,11 @@ public class ParticipationAPITests extends TestCase {
 			
 			@Override
 			public void messageRecieved(Map<String, ?> payload, String fromSwarm, String fromResource, boolean isPublic) {
-				System.out.println(fromSwarm);
+				System.out.print(fromSwarm);
+				System.out.print(" ");
+				System.out.print(fromResource);
+				System.out.print(" ");
+				System.out.println(payload);
 			}
 
 			@Override

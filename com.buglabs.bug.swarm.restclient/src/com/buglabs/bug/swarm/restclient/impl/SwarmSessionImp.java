@@ -31,17 +31,26 @@ public class SwarmSessionImp implements ISwarmSession {
 	private final String hostname;
 	private final OutputStream soutput;
 	private final List<ISwarmMessageListener> listeners;
-	private final SwarmParticipationReader readerThread;
+	private SwarmParticipationReader readerThread;
 	private final static ObjectMapper mapper = new ObjectMapper();
 	private final String[] swarmIds;
 	private final String resourceId;
 
-	public SwarmSessionImp(String hostname, String apiKey, String resourceId, String ... swarmIds) throws UnknownHostException, IOException {		
+	/**
+	 * @param hostname host of server
+	 * @param port port on server 
+	 * @param apiKey api key
+	 * @param resourceId resource id
+	 * @param swarmIds list of swarms to join
+	 * @throws UnknownHostException on host resolution error
+	 * @throws IOException on I/O error
+	 */
+	public SwarmSessionImp(String hostname, int port, String apiKey, String resourceId, String ... swarmIds) throws UnknownHostException, IOException {		
 		this.hostname = hostname;
 		this.apiKey = apiKey;
 		this.resourceId = resourceId;
 		this.swarmIds = swarmIds;		
-		this.socket = new Socket(hostname, 80);
+		this.socket = new Socket(hostname, port);
 		this.soutput = socket.getOutputStream();
 		this.listeners = new CopyOnWriteArrayList<ISwarmMessageListener>();
 		
@@ -150,13 +159,13 @@ public class SwarmSessionImp implements ISwarmSession {
 
 	@Override
 	public void send(Map<String, ?> payload) throws IOException {					
-		writeOut(mapper.writeValueAsString(createPayloadMap(payload)));		
+		writeOut(mapper.writeValueAsString(createPayloadMap(resourceId, payload)));		
 	}
 
 
 	@Override
 	public void send(Map<String, ?> payload, String... swarmIds) throws IOException {
-		Map<String, Object> map = createPayloadMap(payload);
+		Map<String, Object> map = createPayloadMap(resourceId, payload);
 		map.put("to", Arrays.asList(swarmIds));
 
 		writeOut(mapper.writeValueAsString(map));
@@ -202,10 +211,11 @@ public class SwarmSessionImp implements ISwarmSession {
 	 * @param payload
 	 * @return
 	 */
-	private Map<String, Object> createPayloadMap(Map<String, ?> payload) {
+	private Map<String, Object> createPayloadMap(String resourceId, Map<String, ?> payload) {
 		Map<String, Object> map =new HashMap<String, Object>();
 		
 		map.put("message", toMap("payload", payload));
+		map.put("from", toMap("resource", resourceId));
 		
 		return map;
 	}
@@ -241,6 +251,9 @@ public class SwarmSessionImp implements ISwarmSession {
 
 	@Override
 	public void close() {
+		if (readerThread != null)
+			readerThread.shuttingDown();
+		
 		//Attempt to send presence message.
 		try {
 			StringBuilder buffer = new StringBuilder(); // StringBuilder(staticHeader.toString());
@@ -264,6 +277,7 @@ public class SwarmSessionImp implements ISwarmSession {
 		//Attempt to interrupt reader.
 		if (readerThread != null) {
 			readerThread.interrupt();
+			readerThread = null;
 		}
 	}
 	

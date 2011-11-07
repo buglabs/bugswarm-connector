@@ -30,8 +30,11 @@ public class SwarmParticipationReader extends Thread {
 	private static final String TYPE_KEY = "type";
 	private static final String FROM_KEY = "from";
 	private static final String PRESENCE_KEY = "presence";
+	private static final String CODE_KEY = "code";
+	
 	private final BufferedReader reader;
 	private volatile boolean running = false;
+	private volatile boolean shuttingDown = false;
 	private final String apiKey;
 	private final List<ISwarmMessageListener> listeners;
 	private final static ObjectMapper mapper = new ObjectMapper();
@@ -115,6 +118,8 @@ public class SwarmParticipationReader extends Thread {
 								listener.messageRecieved(payload, swarmId, resourceId, isPublic);
 							}
 						}
+					} else if (jmessage.has(CODE_KEY)) {
+						listener.exceptionOccurred(ExceptionType.SERVER_ERROR, jmessage.toString());
 					} else {
 						listener.exceptionOccurred(ExceptionType.INVALID_MESSAGE, "JSon did not have expected value ['presence' | 'message']");
 					}						
@@ -123,8 +128,9 @@ public class SwarmParticipationReader extends Thread {
 				Thread.sleep(100);
 			}
 		} catch (IOException e) {
-			for (ISwarmMessageListener listener : listeners)
-				listener.exceptionOccurred(ExceptionType.SERVER_UNEXPECTED_DISCONNECT, e.getMessage());
+			if (!shuttingDown)
+				for (ISwarmMessageListener listener : listeners)
+					listener.exceptionOccurred(ExceptionType.SERVER_UNEXPECTED_DISCONNECT, e.getMessage());
 		} catch (InterruptedException e) {
 			return;
 		} finally {
@@ -225,5 +231,12 @@ public class SwarmParticipationReader extends Thread {
 	 */
 	public boolean isRunning() {
 		return running;
+	}
+	
+	/**
+	 * This is set when client explicitly closes session.  Once set, socket I/O errors are not passed back to client in listener. 
+	 */
+	protected void shuttingDown() {
+		shuttingDown = true;
 	}
 }

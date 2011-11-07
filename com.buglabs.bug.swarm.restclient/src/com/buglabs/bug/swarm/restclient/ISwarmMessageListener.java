@@ -24,7 +24,12 @@ public interface ISwarmMessageListener {
 		/**
 		 * The server sent a valid message but without fields that were expected and required.
 		 */
-		INVALID_MESSAGE;
+		INVALID_MESSAGE,
+		
+		/**
+		 * The server has sent an error message
+		 */
+		SERVER_ERROR;
 	}
 	/**
 	 * A server-based message was received.

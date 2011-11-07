@@ -6,8 +6,6 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.touge.restclient.ReSTClient;
-
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.restclient.ISwarmClient;
 import com.buglabs.bug.swarm.restclient.ISwarmInviteClient.InvitationResponse;
@@ -30,6 +28,13 @@ import com.buglabs.bug.swarm.restclient.model.UserResourceModel;
 public class ParticipationAPITests extends TestCase {
 	
 	private static final String description = "invite test description";
+	
+	boolean psession1MessageRecieved = false;
+	boolean psession2MessageRecieved = false;
+	boolean psession1PresenceMessageRecieved = false;
+	boolean psession2PresenceMessageRecieved = false;
+	boolean psession1ExceptionRecieved = false;
+	boolean psession2ExceptionRecieved = false;
 
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
@@ -130,34 +135,12 @@ public class ParticipationAPITests extends TestCase {
 		AccountConfig.testInviteId = invite.getId();
 	}
 	
-
 	/**
 	 * Test accepting an invitation.  
 	 * @throws IOException
+	 * @throws InterruptedException 
 	 */
-	private void testStreamingTester() throws IOException {
-		sendInvite();
-		acceptInvitation();
-		ISwarmClient client = SwarmClientFactory.getSwarmClient(
-				AccountConfig.getConfiguration().getHostname(Protocol.HTTP),
-				AccountConfig.getConfiguration().getConfingurationAPIKey());
-		
-		UserResourceModel urc = client.getUserResourceClient().add("stream_resource", "stream resource desc", "pc", 0, 0);
-		
-		StreamingTester.test(
-				"test.bugswarm.net", 
-				AccountConfig.getConfiguration().getParticipationAPIKey(), 
-				AccountConfig.testSwarmId, 
-				urc.getResourceId());
-		
-		System.out.println("boo");
-	}
-	
-	/**
-	 * Test accepting an invitation.  
-	 * @throws IOException
-	 */
-	public void testSwarmParticipationAPI() throws IOException {
+	public void testSwarmParticipationAPI() throws IOException, InterruptedException {
 		sendInvite();
 		acceptInvitation();
 		ISwarmClient client = SwarmClientFactory.getSwarmClient(
@@ -172,6 +155,13 @@ public class ParticipationAPITests extends TestCase {
 				AccountConfig.getConfiguration().getParticipationAPIKey(),
 				urc.getResourceId(), 
 				AccountConfig.testSwarmId);
+ 		
+ 		psession1MessageRecieved = false;
+		psession2MessageRecieved = false;
+		psession1PresenceMessageRecieved = false;
+		psession2PresenceMessageRecieved = false;
+		psession1ExceptionRecieved = false;
+		psession2ExceptionRecieved = false;
 		
 		psession1.addListener(new ISwarmMessageListener() {
 			
@@ -182,17 +172,23 @@ public class ParticipationAPITests extends TestCase {
 				System.out.print(fromResource);
 				System.out.print(" ");
 				System.out.println(payload);
+				psession1MessageRecieved = true;
 			}
 
 			@Override
 			public void exceptionOccurred(ExceptionType type, String message) {
-				System.out.println(message);
+				System.out.print(message);
+				System.out.print(" ");
+				System.out.println(type.toString());
+				psession1ExceptionRecieved = true;
 			}
 
 			@Override
 			public void presenceEvent(String fromSwarm, String fromResource, boolean isAvailable) {
-				System.out.println(fromSwarm);
+				System.out.print(fromSwarm);
+				System.out.print(" ");
 				System.out.println(fromResource);
+				psession1PresenceMessageRecieved = true;
 			}
 		});
 		
@@ -216,29 +212,45 @@ public class ParticipationAPITests extends TestCase {
 				System.out.print(fromResource);
 				System.out.print(" ");
 				System.out.println(payload);
+				psession2MessageRecieved = true;
 			}
 
 			@Override
 			public void exceptionOccurred(ExceptionType type, String message) {
-				System.out.println(message);
+				System.out.print(message);
+				System.out.print(" ");
+				System.out.println(type.toString());
+				psession2ExceptionRecieved = true;
 			}
 
 			@Override
 			public void presenceEvent(String fromSwarm, String fromResource, boolean isAvailable) {
-				System.out.println(fromSwarm);
+				System.out.print(fromSwarm);
+				System.out.print(" ");
 				System.out.println(fromResource);
+				psession2PresenceMessageRecieved = true;
 			}
 		});
 		
 		psession2.join(AccountConfig.testSwarmId, AccountConfig.testUserResource2.getResourceId());
 		psession2.send(AccountConfig.generateRandomPayload());
 		
-		System.out.println("boo");
+		Thread.sleep(5000);
+		
+		assertTrue(psession1PresenceMessageRecieved);
+		assertTrue(psession1MessageRecieved);
+		assertFalse(psession1ExceptionRecieved);
+		
+		assertTrue(psession2PresenceMessageRecieved);
+		assertTrue(psession2MessageRecieved);
+		assertFalse(psession2ExceptionRecieved);
 		
 		psession1.close();
 		psession2.close();
 		
-		System.out.println("boo2");
+		Thread.sleep(2000);
+		assertFalse(psession1ExceptionRecieved);
+		assertFalse(psession2ExceptionRecieved);
 	}
 
 	/**
@@ -280,103 +292,5 @@ public class ParticipationAPITests extends TestCase {
 		assertNotNull(acceptInvite);
 		assertTrue(acceptInvite.getStatus().equals(InvitationState.ACCEPTED));
 		assertNotNull(acceptInvite.getAcceptedAt());
-	}
-	
-	/**
-	 * Test accepting an invitation.  
-	 * @throws IOException
-	 */
-	private void testAcceptInvitationWithParticipation() throws IOException {			
-		sendInvite();
-		acceptInvitation();
-		
-		ISwarmClient client2 = SwarmClientFactory.getSwarmClient(
-				AccountConfig.getConfiguration2().getHostname(Protocol.HTTP),
-				AccountConfig.getConfiguration2().getConfingurationAPIKey());
-		
-		assertNotNull(client2);
-		assertNotNull(client2.getSwarmInviteClient());
-		assertNotNull(AccountConfig.testSwarmId);
-		assertNotNull(AccountConfig.testInviteId);
-		
-		ISwarmSession psession2 = SwarmClientFactory.createSwarmSession(
-				AccountConfig.getConfiguration2().getHostname(Protocol.HTTP),
-				AccountConfig.getConfiguration2().getParticipationAPIKey(),
-				AccountConfig.testUserResource2.getResourceId(),
-				AccountConfig.testSwarmId);
-		
-		ISwarmSession psession1 = SwarmClientFactory.createSwarmSession(
-				AccountConfig.getConfiguration().getHostname(Protocol.HTTP),
-				AccountConfig.getConfiguration().getParticipationAPIKey(),
-				AccountConfig.testUserResource.getResourceId(), 
-				AccountConfig.testSwarmId);
-		
-		psession2.addListener(new ISwarmMessageListener() {
-			
-			@Override
-			public void messageRecieved(Map<String, ?> payload, String fromSwarm, String fromResource, boolean isPublic) {
-				System.out.println(payload);
-			}
-
-			@Override
-			public void exceptionOccurred(ExceptionType type, String message) {
-				System.out.println(message);
-			}
-
-			@Override
-			public void presenceEvent(String fromSwarm, String fromResource, boolean isAvailable) {
-				System.out.println(fromSwarm);
-				System.out.println(fromResource);
-			}
-		});
-		
-		psession1.addListener(new ISwarmMessageListener() {
-			
-			@Override
-			public void messageRecieved(Map<String, ?> payload, String fromSwarm, String fromResource, boolean isPublic) {
-				System.out.println(payload);
-			}
-
-			@Override
-			public void exceptionOccurred(ExceptionType type, String message) {
-				System.out.println(message);
-			}
-
-			@Override
-			public void presenceEvent(String fromSwarm, String fromResource, boolean isAvailable) {
-				System.out.println(fromSwarm);
-				System.out.println(fromResource);
-			}
-		});
-		
-		List<Invitation> receivedInvites = client2.getSwarmInviteClient().getRecievedInvitations(AccountConfig.testUserResource2.getResourceId());
-		
-		assertNotNull(receivedInvites);
-		assertTrue(receivedInvites.isEmpty() == false);
-		Invitation invite = null;
-		
-		for (Invitation i : receivedInvites)
-			if (i.getId().equals(AccountConfig.testInviteId))
-				invite = i;
-		
-		assertNotNull(invite);
-		assertNotNull(invite.getId());
-		assertNotNull(invite.getFromUser());
-		assertNotNull(invite.getToUser());
-		assertNotNull(invite.getResourceId());
-		assertNotNull(invite.getStatus());
-		assertTrue(invite.getStatus().equals(InvitationState.NEW));
-		assertNotNull(invite.getDescription());
-		assertTrue(invite.getDescription().equals(description));
-		
-		Invitation acceptInvite = client2.getSwarmInviteClient().respond(invite.getResourceId(), invite.getId(), InvitationResponse.ACCEPT);
-		
-		assertNotNull(acceptInvite);
-		assertTrue(acceptInvite.getStatus().equals(InvitationState.ACCEPTED));
-		assertNotNull(acceptInvite.getAcceptedAt());
-		
-		psession2.send(ReSTClient.toMap("x", "asdf"));
-		
-		System.out.println("boo");
 	}
 }

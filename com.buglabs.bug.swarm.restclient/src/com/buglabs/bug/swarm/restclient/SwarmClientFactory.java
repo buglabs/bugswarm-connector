@@ -14,8 +14,13 @@ import com.buglabs.bug.swarm.restclient.impl.SwarmWSClient;
  */
 public class SwarmClientFactory {
 	
+	/**
+	 * Default port of swarm server participation API.
+	 */
+	private static final int DEFAULT_SWARM_SERVER_PORT = 80;
+
 	private SwarmClientFactory() {
-		
+		//Static utility class.
 	}
 
 	/**
@@ -50,6 +55,15 @@ public class SwarmClientFactory {
 	 * @throws IOException on I/O error
 	 */
 	public static ISwarmSession createSwarmSession(String hostname, String apiKey, String resourceId, String ... swarmIds) throws UnknownHostException, IOException {
-		return new SwarmSessionImp(hostname, apiKey, hostname, apiKey);
+		if (hostname.toLowerCase().startsWith("http://"))
+			hostname = hostname.substring("http://".length());
+		
+		int port = DEFAULT_SWARM_SERVER_PORT;
+		
+		if (hostname.indexOf(':') > 0) {
+			port = Integer.parseInt(hostname.split(":")[1]);
+			hostname = hostname.split(":")[0];
+		}
+		return new SwarmSessionImp(hostname, port, apiKey, resourceId, swarmIds);
 	}
 }

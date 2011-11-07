@@ -177,9 +177,9 @@ public class ParticipationAPITests extends TestCase {
 
 			@Override
 			public void exceptionOccurred(ExceptionType type, String message) {
-				System.out.print(message);
-				System.out.print(" ");
-				System.out.println(type.toString());
+				System.err.print(type.toString());
+				System.err.print(" ");
+				System.err.print(message);
 				psession1ExceptionRecieved = true;
 			}
 
@@ -217,9 +217,10 @@ public class ParticipationAPITests extends TestCase {
 
 			@Override
 			public void exceptionOccurred(ExceptionType type, String message) {
-				System.out.print(message);
-				System.out.print(" ");
-				System.out.println(type.toString());
+				System.err.print(type.toString());
+				System.err.print(" ");
+				System.err.print(message);
+				
 				psession2ExceptionRecieved = true;
 			}
 

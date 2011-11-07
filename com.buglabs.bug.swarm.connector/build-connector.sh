@@ -23,6 +23,7 @@ DIST_DIR=$WORKSPACE/dist
 DEPS_DIR=$WORKSPACE/deps
 
 ###### Create build dir layout
+rm -Rf $DIST_DIR
 mkdir $DIST_DIR
 mkdir $DEPS_DIR
 
@@ -76,6 +77,12 @@ git clone git@github.com:buglabs/bug-osgi.git
 cd bug-osgi
 git checkout $BUILD_BRANCH
 cd ..
+rm -Rf $WORKSPACE/com.buglabs.common
+rm -Rf $WORKSPACE/com.buglabs.bug.dragonfly
+rm -Rf $WORKSPACE/com.buglabs.osgi.sewing
+rm -Rf $WORKSPACE/com.buglabs.osgi.tester
+rm -Rf $WORKSPACE/com.buglabs.osgi.build
+rm -Rf $WORKSPACE/com.buglabs.util.shell
 mv bug-osgi/com.buglabs.common $WORKSPACE
 mv bug-osgi/com.buglabs.bug.dragonfly $WORKSPACE
 mv bug-osgi/com.buglabs.osgi.sewing $WORKSPACE
@@ -84,6 +91,7 @@ mv bug-osgi/com.buglabs.osgi.build $WORKSPACE
 mv bug-osgi/com.buglabs.util.shell $WORKSPACE
 rm -Rf bug-osgi
 
+rm -Rf $WORKSPACE/org.touge.restclient
 git clone git://github.com/kgilmer/touge.git
 mv touge/org.touge.restclient $WORKSPACE
 rm -Rf touge

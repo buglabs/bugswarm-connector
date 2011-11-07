@@ -18,6 +18,12 @@ import org.codehaus.jackson.map.ObjectMapper;
 import com.buglabs.bug.swarm.restclient.ISwarmMessageListener;
 import com.buglabs.bug.swarm.restclient.ISwarmSession;
 
+/**
+ * Implementation of ISwarmSession.
+ * 
+ * @author kgilmer
+ *
+ */
 public class SwarmSessionImp implements ISwarmSession {
 	private final Socket socket;
 	private final String apiKey;
@@ -38,6 +44,9 @@ public class SwarmSessionImp implements ISwarmSession {
 		this.socket = new Socket(hostname, 80);
 		this.soutput = socket.getOutputStream();
 		this.listeners = new CopyOnWriteArrayList<ISwarmMessageListener>();
+		
+		//TODO: server seems to disconnect after some amount of time.  Rather than create one socket connection here,
+		//create a thread that will reconnect to the server when it disconnects, up until the client explicitly closes the session.
 		this.readerThread = new SwarmParticipationReader(socket.getInputStream(), apiKey, listeners);
 		this.readerThread.start();	
 
@@ -45,6 +54,13 @@ public class SwarmSessionImp implements ISwarmSession {
 	}
 
 
+	/**
+	 * Send the session initialization header to the server.  This is copied from other example code.
+	 * 
+	 * See https://github.com/buglabs/bugswarm-api/blob/master/java/Swarm/src/test/com/buglabs/swarm/NIOSockets.java
+	 * 
+	 * @throws IOException
+	 */
 	private void sendHeader() throws IOException {
 		StringBuilder header = new StringBuilder();
 		header.append("POST ");
@@ -67,6 +83,9 @@ public class SwarmSessionImp implements ISwarmSession {
 		soutput.flush();
 	}
 
+	/**
+	 * @return the host-less url of the server with swarm and resource ids.
+	 */
 	private String createStreamUrl() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("/stream?resource_id=");
@@ -85,13 +104,20 @@ public class SwarmSessionImp implements ISwarmSession {
 		return sb.toString();
 	}
 
-	private static String generatePresence(boolean outgoing, boolean available, String[] swarmIds2, String hostname, String resourceId) throws JsonGenerationException, JsonMappingException, IOException {
-		String direction = "to";
-		if (!outgoing)
-			direction = "from";
-		
-		Map<String, Object> m = toMap("presence", 
-				toMap(direction, swarmIds2));
+	/**
+	 * Generate the Json message as string for presence to server.
+	 * 
+	 * @param available if false, add type:unavailable to message
+	 * @param swarmIds array of swarm ids that are being joined.
+	 * @return String of json message for outgoing presence.
+	 * @throws JsonGenerationException on JSon error
+	 * @throws JsonMappingException on JSon error
+	 * @throws IOException on I/O error
+	 */
+	private static String generateOutgoingPresenceMessage(boolean available, String ... swarmIds) throws JsonGenerationException, JsonMappingException, IOException {
+		Map<String, Object> m = toMap(
+				"presence", 
+					toMap("to", swarmIds));
 		
 		if (!available)
 			m.put("type", "unavailable");
@@ -138,13 +164,14 @@ public class SwarmSessionImp implements ISwarmSession {
 
 	@Override
 	public void send(Map<String, ?> payload, List<Map.Entry<String, String>> swarmAndResource) throws IOException {
-		
+		//TODO: implement this.
+		throw new RuntimeException("Unimplemented.");
 	}
 	
 	@Override
 	public void join(String swarmId, String resourceId) throws IOException {
 		StringBuilder buffer = new StringBuilder();
-		String ps = generatePresence(true, true, swarmIds, hostname, resourceId);
+		String ps = generateOutgoingPresenceMessage(true, swarmId);
 		
 		buffer.append(Integer.toHexString(ps.getBytes().length)).append(CRLF);
 		buffer.append(ps).append(CRLF);
@@ -154,6 +181,12 @@ public class SwarmSessionImp implements ISwarmSession {
 		soutput.flush();
 	}
 	
+	/**
+	 * Print debug messages to system console.
+	 * TODO: remove once code is stable.
+	 * @param message
+	 * @param out
+	 */
 	private void debugOut(String message, boolean out) {
 		System.out.print(apiKey.substring(0, 4));
 		if (out)
@@ -164,6 +197,11 @@ public class SwarmSessionImp implements ISwarmSession {
 		System.out.println(message);
 	}
 	
+	/**
+	 * Create a Map of payload.
+	 * @param payload
+	 * @return
+	 */
 	private Map<String, Object> createPayloadMap(Map<String, ?> payload) {
 		Map<String, Object> map =new HashMap<String, Object>();
 		
@@ -172,6 +210,12 @@ public class SwarmSessionImp implements ISwarmSession {
 		return map;
 	}
 	
+	/**
+	 * Send message to server.  Handles calculating the message length.
+	 * 
+	 * @param message input message
+	 * @throws IOException on socket I/O error
+	 */
 	private void writeOut(String message) throws IOException {
 		if (!isConnected())
 			throw new IOException("Connection has closed");
@@ -197,9 +241,10 @@ public class SwarmSessionImp implements ISwarmSession {
 
 	@Override
 	public void close() {
+		//Attempt to send presence message.
 		try {
 			StringBuilder buffer = new StringBuilder(); // StringBuilder(staticHeader.toString());
-			String ps = generatePresence(true, false, swarmIds, hostname, resourceId);
+			String ps = generateOutgoingPresenceMessage(false, swarmIds);
 			
 			buffer.append(Integer.toHexString(ps.getBytes().length)).append(CRLF);
 			buffer.append(ps).append(CRLF);
@@ -210,11 +255,13 @@ public class SwarmSessionImp implements ISwarmSession {
 		} catch (IOException e) {			
 		}
 		
+		//Attempt to close socket.
 		try {
 			socket.close();
 		} catch (IOException e) {			
 		}
 		
+		//Attempt to interrupt reader.
 		if (readerThread != null) {
 			readerThread.interrupt();
 		}
@@ -222,6 +269,7 @@ public class SwarmSessionImp implements ISwarmSession {
 	
 	@Override
 	public boolean isConnected() {
+		//TODO: Fix the connected state such that if the reader disconnects, it is rebound until the client explicitly closes the connection.
 		return readerThread.isRunning() && socket.isConnected();
 	}
 }

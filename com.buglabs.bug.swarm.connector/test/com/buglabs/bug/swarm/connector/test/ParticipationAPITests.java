@@ -167,10 +167,11 @@ public class ParticipationAPITests extends TestCase {
 		UserResourceModel urc = client.getUserResourceClient().add("stream_resource", "stream resource desc", "pc", 0, 0);
 		
 		System.out.println("User 1 Key: " + AccountConfig.getConfiguration().getParticipationAPIKey().substring(0, 4));
- 		ISwarmSession psession1 = SwarmClientFactory.getParticipationClient(
+ 		ISwarmSession psession1 = SwarmClientFactory.createSwarmSession(
 				AccountConfig.getConfiguration().getHostname(Protocol.HTTP),
-				AccountConfig.getConfiguration().getParticipationAPIKey())
-				.createSession(urc.getResourceId(), AccountConfig.testSwarmId);
+				AccountConfig.getConfiguration().getParticipationAPIKey(),
+				urc.getResourceId(), 
+				AccountConfig.testSwarmId);
 		
 		psession1.addListener(new ISwarmMessageListener() {
 			
@@ -201,10 +202,10 @@ public class ParticipationAPITests extends TestCase {
 		assertNotNull(AccountConfig.testUserResource2.getResourceId());
 		System.out.println("User 2 Key: " + AccountConfig.getConfiguration2().getParticipationAPIKey().substring(0, 4));
 		
-		ISwarmSession psession2 = SwarmClientFactory.getParticipationClient(
+		ISwarmSession psession2 = SwarmClientFactory.createSwarmSession(
 				AccountConfig.getConfiguration2().getHostname(Protocol.HTTP),
-				AccountConfig.getConfiguration2().getParticipationAPIKey())
-				.createSession(AccountConfig.testUserResource2.getResourceId(), AccountConfig.testSwarmId);
+				AccountConfig.getConfiguration2().getParticipationAPIKey(),
+				AccountConfig.testUserResource2.getResourceId(), AccountConfig.testSwarmId);
 		
 		psession2.addListener(new ISwarmMessageListener() {
 			
@@ -298,15 +299,17 @@ public class ParticipationAPITests extends TestCase {
 		assertNotNull(AccountConfig.testSwarmId);
 		assertNotNull(AccountConfig.testInviteId);
 		
-		ISwarmSession psession2 = SwarmClientFactory.getParticipationClient(
+		ISwarmSession psession2 = SwarmClientFactory.createSwarmSession(
 				AccountConfig.getConfiguration2().getHostname(Protocol.HTTP),
-				AccountConfig.getConfiguration2().getParticipationAPIKey())
-				.createSession(AccountConfig.testUserResource2.getResourceId(), AccountConfig.testSwarmId);
+				AccountConfig.getConfiguration2().getParticipationAPIKey(),
+				AccountConfig.testUserResource2.getResourceId(),
+				AccountConfig.testSwarmId);
 		
-		ISwarmSession psession1 = SwarmClientFactory.getParticipationClient(
+		ISwarmSession psession1 = SwarmClientFactory.createSwarmSession(
 				AccountConfig.getConfiguration().getHostname(Protocol.HTTP),
-				AccountConfig.getConfiguration().getParticipationAPIKey())
-				.createSession(AccountConfig.testUserResource.getResourceId(), AccountConfig.testSwarmId);
+				AccountConfig.getConfiguration().getParticipationAPIKey(),
+				AccountConfig.testUserResource.getResourceId(), 
+				AccountConfig.testSwarmId);
 		
 		psession2.addListener(new ISwarmMessageListener() {
 			

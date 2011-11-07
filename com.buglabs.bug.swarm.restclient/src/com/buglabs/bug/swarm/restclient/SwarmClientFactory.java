@@ -1,6 +1,9 @@
 package com.buglabs.bug.swarm.restclient;
 
-import com.buglabs.bug.swarm.restclient.impl.SwarmParticipationClient;
+import java.io.IOException;
+import java.net.UnknownHostException;
+
+import com.buglabs.bug.swarm.restclient.impl.SwarmSessionImp;
 import com.buglabs.bug.swarm.restclient.impl.SwarmWSClient;
 
 /**
@@ -35,7 +38,18 @@ public class SwarmClientFactory {
 		return new SwarmWSClient(hostname, apiKey);
 	}
 	
-	public static ISwarmParticipation getParticipationClient(String hostname, String apiKey) {
-		return new SwarmParticipationClient(hostname, apiKey);
+	/**
+	 * Create a session with a swarm server.  This session allows for participation (presence, messages) among swarm clients.
+	 * 
+	 * @param hostname of swarm server
+	 * @param apiKey of user
+	 * @param resourceId associated with session
+	 * @param swarmIds swarms to connect with
+	 * @return a swarm session
+	 * @throws UnknownHostException if unable to resolve hostname
+	 * @throws IOException on I/O error
+	 */
+	public static ISwarmSession createSwarmSession(String hostname, String apiKey, String resourceId, String ... swarmIds) throws UnknownHostException, IOException {
+		return new SwarmSessionImp(hostname, apiKey, hostname, apiKey);
 	}
 }

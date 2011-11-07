@@ -91,8 +91,7 @@ public class SwarmParticipationReader extends Thread {
 					} else if (jmessage.has(MESSAGE_KEY)) {
 						if (!isValidMessageMessage(jmessage)) {
 							listener.exceptionOccurred(ExceptionType.INVALID_MESSAGE, "Message did not have expected values.");
-						} else {
-							//TODO: revisit Jackson API to determine best way of specifying map must contain string keys.							
+						} else {				
 							String swarmId = null;
 							String resourceId = null;
 							boolean isPublic = false;
@@ -221,6 +220,9 @@ public class SwarmParticipationReader extends Thread {
 		System.out.println(message);
 	}
 
+	/**
+	 * @return true if socket is reading.
+	 */
 	public boolean isRunning() {
 		return running;
 	}

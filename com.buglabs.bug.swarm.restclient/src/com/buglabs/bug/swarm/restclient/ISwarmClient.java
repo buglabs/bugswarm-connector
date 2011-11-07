@@ -17,6 +17,11 @@ import com.buglabs.bug.swarm.restclient.model.SwarmModel;
  */
 public interface ISwarmClient {
 	/**
+	 * The character encoding for all messages in swarm protocol.
+	 */
+	public String SWARM_CHARACTER_ENCODING = "UTF-8";
+
+	/**
 	 * Create a swarm.
 	 * 
 	 * @param name

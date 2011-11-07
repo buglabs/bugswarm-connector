@@ -8,19 +8,46 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 
-import com.buglabs.bug.swarm.restclient.ISwarmMessageListener;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 
+import com.buglabs.bug.swarm.restclient.ISwarmClient;
+import com.buglabs.bug.swarm.restclient.ISwarmMessageListener;
+import com.buglabs.bug.swarm.restclient.ISwarmMessageListener.ExceptionType;
+
+/**
+ * Reads from the HTTP-like input stream for a swarm participation session and sends events to listeners when they occur.
+ * 
+ * @author kgilmer
+ *
+ */
 public class SwarmParticipationReader extends Thread {
 	
+	private static final String MESSAGE_KEY = "message";
+	private static final String RESOURCE_KEY = "resource";
+	private static final String SWARM_KEY = "swarm";
+	private static final String TYPE_VALUE_AVAILABLE = "available";
+	private static final String TYPE_KEY = "type";
+	private static final String FROM_KEY = "from";
+	private static final String PRESENSE_KEY = "presense";
 	private final BufferedReader reader;
 	private volatile boolean running = false;
 	private final String apiKey;
 	private final List<ISwarmMessageListener> listeners;
+	private final static ObjectMapper mapper = new ObjectMapper();
 	
-	public SwarmParticipationReader(InputStream is, String apiKey, List<ISwarmMessageListener> listeners) throws UnsupportedEncodingException {
+	/**
+	 * @param is inputstream, must not be null.
+	 * @param apiKey api key, must not be null.
+	 * @param listeners List of ISwarmMessageListener.  Must not be null.
+	 * @throws UnsupportedEncodingException
+	 */
+	protected SwarmParticipationReader(InputStream is, String apiKey, List<ISwarmMessageListener> listeners) throws UnsupportedEncodingException {
+		AbstractSwarmWSClient.validateParams(is, apiKey, listeners);
+		
 		this.apiKey = apiKey;
 		this.listeners = listeners;
-		this.reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+		this.reader = new BufferedReader(new InputStreamReader(is, ISwarmClient.SWARM_CHARACTER_ENCODING));
 	}
 	
 	@Override
@@ -31,10 +58,59 @@ public class SwarmParticipationReader extends Thread {
 			//Here rather than reading the line as a string, 
 			//Create (via jsonfactory) a jsonparser and call nextToken() for same effect
 			while ((line = reader.readLine().trim()) != null) {
+				//Filter empty lines and line length lines.
 				if (line.length() == 0 || isNumeric(line))
 					continue;
 				
+				//Quick check on line to make sure it looks like json.
+				if (!looksLikeJson(line)) {
+					for (ISwarmMessageListener listener : listeners)
+						listener.exceptionOccurred(ExceptionType.SERVER_MESSAGE_PARSE_ERROR, "Unparsable message: " + line);
+					continue;
+				}
+				
 				debugOut(line, false);
+				
+				//Parse the message string into a JsonNode.
+				JsonNode jmessage = mapper.readTree(line);
+
+				//TODO: optimize by moving message parsing code out of the listener loop.
+				for (ISwarmMessageListener listener : listeners) {
+					if (jmessage.has(PRESENSE_KEY)) {
+						if (!isValidPresenceMessage(jmessage)) {
+							listener.exceptionOccurred(ExceptionType.INVALID_MESSAGE, "Presense did not have expected values.");
+						} else {
+							boolean avail = pv(jmessage.get(PRESENSE_KEY).get(TYPE_KEY)) != null && pv(jmessage.get(PRESENSE_KEY).get(TYPE_KEY)).equals(TYPE_VALUE_AVAILABLE);
+							listener.presenceEvent(
+									pv(jmessage.get(PRESENSE_KEY).get(FROM_KEY).get(SWARM_KEY)), 
+									pv(jmessage.get(PRESENSE_KEY).get(FROM_KEY).get(RESOURCE_KEY)), 
+									avail);
+						}
+					} else if (jmessage.has(MESSAGE_KEY)) {
+						if (!isValidMessageMessage(jmessage)) {
+							listener.exceptionOccurred(ExceptionType.INVALID_MESSAGE, "Message did not have expected values.");
+						} else {
+							//TODO: revisit Jackson API to determine best way of specifying map must contain string keys.
+							Map<String, ?> payload = mapper.readValue(jmessage.get("message").get("payload"), Map.class);
+							String swarmId = null;
+							String resourceId = null;
+							boolean isPublic = false;
+							
+							if (jmessage.get("message").has("from")) {
+								swarmId = pv(jmessage.get("message").get("from").get("swarm"));
+								resourceId = pv(jmessage.get("message").get("from").get("resource"));
+							}
+							
+							if (jmessage.get("message").has("public"))
+								isPublic = jmessage.get("message").get("public").asBoolean();
+							
+							listener.messageRecieved(payload, swarmId, resourceId, isPublic);
+						}
+					} else {
+						listener.exceptionOccurred(ExceptionType.INVALID_MESSAGE, "JSon did not have expected value ['presence' | 'message']");
+					}						
+				}
+				
 				if (listeners != null) {
 					//Here we parse the json message, extract payload, fromSwarm, fromResource, isPublic
 					Map<String, ?> payload = null;
@@ -48,8 +124,8 @@ public class SwarmParticipationReader extends Thread {
 				Thread.sleep(100);
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			for (ISwarmMessageListener listener : listeners)
+				listener.exceptionOccurred(ExceptionType.SERVER_UNEXPECTED_DISCONNECT, e.getMessage());
 		} catch (InterruptedException e) {
 			return;
 		} finally {
@@ -58,9 +134,63 @@ public class SwarmParticipationReader extends Thread {
 		}
 	}
 	
-	private boolean isNumeric(String line) {
+	/**
+	 * @param jmessage
+	 * @return  if message has minimum structure required for a 'message' message
+	 */
+	private boolean isValidMessageMessage(JsonNode jmessage) {
+		if (jmessage.has("message") && jmessage.get("message").has("payload"))
+			return true;
+		
+		return false;
+	}
+
+	/**
+	 * @param jmessage
+	 * @return true if message has minimum structure required for a presence message
+	 */
+	private boolean isValidPresenceMessage(JsonNode jmessage) {
+		if (jmessage.has(PRESENSE_KEY) && jmessage.get(PRESENSE_KEY).has(FROM_KEY))
+			return true;
+		
+		return false;
+	}
+
+	/**
+	 * Avoid NPEs by only calling getTextValue() on non-null references.
+	 * 
+	 * @param jsonNode
+	 * @return text value of node or null if node is null.
+	 */
+	private String pv(JsonNode jsonNode) {
+		if (jsonNode == null)
+			return null;
+		
+		return jsonNode.getTextValue();
+	}
+
+	/**
+	 * Scan first and last characters of string to see if they are json-like.
+	 * @param line input string
+	 * @return true if looks like json, false otherwise.
+	 */
+	private boolean looksLikeJson(String line) {
+		if (line.startsWith("{") && line.endsWith("}"))
+			return true;
+		
+		if (line.startsWith("[") && line.endsWith("]"))
+			return true;
+		
+		return false;
+	}
+
+	/**
+	 * @param in input string
+	 * @return true if input line can be parsed as a Long
+	 */
+	private boolean isNumeric(String in) {
 		try {
-			Long.parseLong(line, 16);
+			Long.parseLong(in, 16);
 			return true;
 		} catch (NumberFormatException e) {				
 		}

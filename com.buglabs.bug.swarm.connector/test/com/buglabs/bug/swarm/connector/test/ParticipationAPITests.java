@@ -178,6 +178,17 @@ public class ParticipationAPITests extends TestCase {
 			public void messageRecieved(Map<String, ?> payload, String fromSwarm, String fromResource, boolean isPublic) {
 				System.out.println(fromSwarm);
 			}
+
+			@Override
+			public void exceptionOccurred(ExceptionType type, String message) {
+				System.out.println(message);
+			}
+
+			@Override
+			public void presenceEvent(String fromSwarm, String fromResource, boolean isAvailable) {
+				System.out.println(fromSwarm);
+				System.out.println(fromResource);
+			}
 		});
 		
 		psession1.join(AccountConfig.testSwarmId, urc.getResourceId());
@@ -197,6 +208,17 @@ public class ParticipationAPITests extends TestCase {
 			public void messageRecieved(Map<String, ?> payload, String fromSwarm, String fromResource, boolean isPublic) {
 				System.out.println(fromSwarm);
 			}
+
+			@Override
+			public void exceptionOccurred(ExceptionType type, String message) {
+				System.out.println(message);
+			}
+
+			@Override
+			public void presenceEvent(String fromSwarm, String fromResource, boolean isAvailable) {
+				System.out.println(fromSwarm);
+				System.out.println(fromResource);
+			}
 		});
 		
 		psession2.join(AccountConfig.testSwarmId, AccountConfig.testUserResource2.getResourceId());
@@ -206,6 +228,8 @@ public class ParticipationAPITests extends TestCase {
 		
 		psession1.close();
 		psession2.close();
+		
+		System.out.println("boo2");
 	}
 
 	/**
@@ -282,6 +306,17 @@ public class ParticipationAPITests extends TestCase {
 			public void messageRecieved(Map<String, ?> payload, String fromSwarm, String fromResource, boolean isPublic) {
 				System.out.println(payload);
 			}
+
+			@Override
+			public void exceptionOccurred(ExceptionType type, String message) {
+				System.out.println(message);
+			}
+
+			@Override
+			public void presenceEvent(String fromSwarm, String fromResource, boolean isAvailable) {
+				System.out.println(fromSwarm);
+				System.out.println(fromResource);
+			}
 		});
 		
 		psession1.addListener(new ISwarmMessageListener() {
@@ -289,6 +324,17 @@ public class ParticipationAPITests extends TestCase {
 			@Override
 			public void messageRecieved(Map<String, ?> payload, String fromSwarm, String fromResource, boolean isPublic) {
 				System.out.println(payload);
+			}
+
+			@Override
+			public void exceptionOccurred(ExceptionType type, String message) {
+				System.out.println(message);
+			}
+
+			@Override
+			public void presenceEvent(String fromSwarm, String fromResource, boolean isAvailable) {
+				System.out.println(fromSwarm);
+				System.out.println(fromResource);
 			}
 		});
 		

@@ -47,7 +47,7 @@ public enum SwarmWSResponse {
 			SwarmWSResponse response = SwarmWSResponse.fromCode(responseCode);
 			
 			if (input != null) {
-				String serverMessage = new String(ReSTClient.readStream(input), "UTF-8");
+				String serverMessage = new String(ReSTClient.readStream(input), ISwarmClient.SWARM_CHARACTER_ENCODING);
 				
 				if (serverMessage.length() > 0)
 					response.setMessage(serverMessage);

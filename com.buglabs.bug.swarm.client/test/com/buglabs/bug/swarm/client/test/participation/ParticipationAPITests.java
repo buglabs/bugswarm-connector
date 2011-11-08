@@ -8,19 +8,18 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import com.buglabs.bug.swarm.client.ISwarmClient;
+import com.buglabs.bug.swarm.client.ISwarmInviteClient.InvitationResponse;
+import com.buglabs.bug.swarm.client.ISwarmInviteClient.InvitationState;
 import com.buglabs.bug.swarm.client.ISwarmMessageListener;
+import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.client.ISwarmSession;
 import com.buglabs.bug.swarm.client.SwarmClientFactory;
 import com.buglabs.bug.swarm.client.SwarmWSResponse;
-import com.buglabs.bug.swarm.client.ISwarmInviteClient.InvitationResponse;
-import com.buglabs.bug.swarm.client.ISwarmInviteClient.InvitationState;
-import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.client.model.Invitation;
 import com.buglabs.bug.swarm.client.model.SwarmModel;
 import com.buglabs.bug.swarm.client.model.UserResourceModel;
 import com.buglabs.bug.swarm.client.test.AccountConfig;
 import com.buglabs.bug.swarm.client.test.Configuration;
-import com.buglabs.bug.swarm.client.test.Configuration.Protocol;
 
 /**
  * Unit tests for ISwarmParticipationClient implementation.
@@ -39,12 +38,6 @@ public class ParticipationAPITests extends TestCase {
 	boolean psession1ExceptionRecieved = false;
 	boolean psession2ExceptionRecieved = false;
 
-	public static void main(String[] args) throws IOException, InterruptedException {
-		ParticipationAPITests t = new ParticipationAPITests();
-		
-		t.testSwarmParticipationAPI();
-	}
-	
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
 	 * 

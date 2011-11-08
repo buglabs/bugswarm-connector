@@ -1,4 +1,4 @@
-package com.buglabs.bug.swarm.client.test;
+package com.buglabs.bug.swarm.client.test.configuration;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -11,6 +11,7 @@ import com.buglabs.bug.swarm.client.SwarmClientFactory;
 import com.buglabs.bug.swarm.client.SwarmWSResponse;
 import com.buglabs.bug.swarm.client.model.SwarmModel;
 import com.buglabs.bug.swarm.client.model.UserResourceModel;
+import com.buglabs.bug.swarm.client.test.AccountConfig;
 import com.buglabs.bug.swarm.client.test.Configuration.Protocol;
 
 /**

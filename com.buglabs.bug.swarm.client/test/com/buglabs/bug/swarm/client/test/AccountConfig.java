@@ -23,7 +23,7 @@ public final class AccountConfig {
 	private static final int DEFAULT_XMPP_SERVER_PORT = 5222;
 	private static final int DEFAULT_HTTP_SERVER_PORT = 80;
 	
-	protected static String testSwarmId;
+	public static String testSwarmId;
 	
 	private static Configuration config;
 	private static Random r;
@@ -33,13 +33,13 @@ public final class AccountConfig {
 	private static Configuration config2;
 	public static String testInviteId;
 	
-	protected static final int CONNECTOR_INIT_SLEEP_MILLIS = 10000;
+	public static final int CONNECTOR_INIT_SLEEP_MILLIS = 10000;
 	public static final long CONNECTOR_FEED_CHANGE_SLEEP_MILLIS = 1000;
 	
 	/**
 	 * @return
 	 */
-	protected static Configuration getConfiguration() {
+	public static Configuration getConfiguration() {
 		if (config == null) {
 			config = new Configuration(null, 
 					getHostSystemProperty(), 
@@ -56,7 +56,7 @@ public final class AccountConfig {
 	/**
 	 * @return
 	 */
-	protected static Configuration getConfiguration2() {
+	public static Configuration getConfiguration2() {
 		if (config2 == null) {
 			config2 = new Configuration(
 					null,
@@ -123,7 +123,7 @@ public final class AccountConfig {
 	/**
 	 * @return
 	 */
-	protected static String generateRandomSwarmName() {		
+	public static String generateRandomSwarmName() {		
 		if (r == null)
 			r = new Random();
 		
@@ -133,14 +133,14 @@ public final class AccountConfig {
 	/**
 	 * @return
 	 */
-	protected static String generateRandomResourceName() {		
+	public static String generateRandomResourceName() {		
 		if (r == null)
 			r = new Random();
 		
 		return "TestResource-" + r.nextFloat();					
 	}
 
-	protected static String getTestSwarmDescription() {
+	public static String getTestSwarmDescription() {
 		return "TestSwarmDescription-" + AccountConfig.class.getSimpleName();
 	}
 

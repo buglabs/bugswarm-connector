@@ -1,4 +1,4 @@
-package com.buglabs.bug.swarm.client.test;
+package com.buglabs.bug.swarm.client.test.participation;
 
 
 import java.io.IOException;
@@ -18,6 +18,9 @@ import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.client.model.Invitation;
 import com.buglabs.bug.swarm.client.model.SwarmModel;
 import com.buglabs.bug.swarm.client.model.UserResourceModel;
+import com.buglabs.bug.swarm.client.test.AccountConfig;
+import com.buglabs.bug.swarm.client.test.Configuration;
+import com.buglabs.bug.swarm.client.test.Configuration.Protocol;
 
 /**
  * Unit tests for ISwarmParticipationClient implementation.

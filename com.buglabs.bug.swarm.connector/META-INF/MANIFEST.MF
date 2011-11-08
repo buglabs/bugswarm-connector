@@ -8,8 +8,8 @@ Bundle-Vendor: Bug Labs, Inc.
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: 
  com.buglabs.bug.dragonfly.module,
- com.buglabs.bug.swarm.restclient,
- com.buglabs.bug.swarm.restclient.model,
+ com.buglabs.bug.swarm.client,
+ com.buglabs.bug.swarm.client.model,
  com.buglabs.osgi.sewing.pub,
  com.buglabs.osgi.sewing.pub.util,
  com.buglabs.services.ws,

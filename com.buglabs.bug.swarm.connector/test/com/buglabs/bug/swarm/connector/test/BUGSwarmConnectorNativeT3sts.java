@@ -7,9 +7,9 @@ import junit.framework.TestCase;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
+import com.buglabs.bug.swarm.client.ISwarmClient;
+import com.buglabs.bug.swarm.client.SwarmClientFactory;
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
-import com.buglabs.bug.swarm.restclient.ISwarmClient;
-import com.buglabs.bug.swarm.restclient.SwarmClientFactory;
 
 /**
  * Tests the high-level BUGSwarmConnector class in regards to feeds.

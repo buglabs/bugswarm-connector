@@ -5,9 +5,9 @@ import java.util.TimerTask;
 
 import org.osgi.service.log.LogService;
 
+import com.buglabs.bug.swarm.client.ISwarmClient;
 import com.buglabs.bug.swarm.connector.model.Jid;
 import com.buglabs.bug.swarm.connector.osgi.BinaryFeed;
-import com.buglabs.bug.swarm.restclient.ISwarmClient;
 
 /**
  * A TimerTask that handles responding to a feed request for binary data.

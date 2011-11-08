@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import com.buglabs.bug.swarm.client.model.UserResourceModel;
 import com.buglabs.bug.swarm.connector.Configuration;
-import com.buglabs.bug.swarm.restclient.model.UserResourceModel;
 
 /**
  * Unit tests for ISwarmWSClient implementation.

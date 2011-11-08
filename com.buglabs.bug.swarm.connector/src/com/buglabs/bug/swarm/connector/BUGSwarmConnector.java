@@ -15,6 +15,12 @@ import org.json.simple.JSONArray;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.service.log.LogService;
 
+import com.buglabs.bug.swarm.client.ISwarmClient;
+import com.buglabs.bug.swarm.client.SwarmClientFactory;
+import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
+import com.buglabs.bug.swarm.client.model.SwarmModel;
+import com.buglabs.bug.swarm.client.model.SwarmResourceModel;
+import com.buglabs.bug.swarm.client.model.UserResourceModel;
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.connector.model.FeedRequest;
 import com.buglabs.bug.swarm.connector.model.Jid;
@@ -26,12 +32,6 @@ import com.buglabs.bug.swarm.connector.osgi.OSGiHelper.EntityChangeListener;
 import com.buglabs.bug.swarm.connector.xmpp.ISwarmServerRequestListener;
 import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
-import com.buglabs.bug.swarm.restclient.ISwarmClient;
-import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
-import com.buglabs.bug.swarm.restclient.SwarmClientFactory;
-import com.buglabs.bug.swarm.restclient.model.SwarmModel;
-import com.buglabs.bug.swarm.restclient.model.SwarmResourceModel;
-import com.buglabs.bug.swarm.restclient.model.UserResourceModel;
 import com.buglabs.util.simplerestclient.HTTPException;
 
 /**

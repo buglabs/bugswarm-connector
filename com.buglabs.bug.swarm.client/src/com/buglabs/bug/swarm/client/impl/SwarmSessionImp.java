@@ -284,6 +284,6 @@ public class SwarmSessionImp implements ISwarmSession {
 	@Override
 	public boolean isConnected() {
 		//TODO: Fix the connected state such that if the reader disconnects, it is rebound until the client explicitly closes the connection.
-		return readerThread.isRunning() && socket.isConnected();
+		return readerThread != null && socket != null && readerThread.isRunning() && socket.isConnected();
 	}
 }

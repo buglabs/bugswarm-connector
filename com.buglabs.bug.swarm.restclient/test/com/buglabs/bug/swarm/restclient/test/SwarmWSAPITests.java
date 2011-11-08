@@ -1,4 +1,4 @@
-package com.buglabs.bug.swarm.connector.test;
+package com.buglabs.bug.swarm.restclient.test;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -6,14 +6,12 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.restclient.ISwarmClient;
 import com.buglabs.bug.swarm.restclient.SwarmClientFactory;
 import com.buglabs.bug.swarm.restclient.SwarmWSResponse;
-import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.restclient.model.SwarmModel;
-import com.buglabs.bug.swarm.restclient.model.SwarmResourceModel;
 import com.buglabs.bug.swarm.restclient.model.UserResourceModel;
+import com.buglabs.bug.swarm.restclient.test.Configuration.Protocol;
 
 /**
  * Unit tests for ISwarmWSClient implementation.

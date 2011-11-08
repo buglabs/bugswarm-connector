@@ -1,4 +1,4 @@
-package com.buglabs.bug.swarm.connector.test;
+package com.buglabs.bug.swarm.restclient.test;
 
 import java.io.IOException;
 import java.util.List;
@@ -6,18 +6,18 @@ import java.util.Random;
 
 import junit.framework.TestCase;
 
-import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.restclient.ISwarmClient;
-import com.buglabs.bug.swarm.restclient.SwarmClientFactory;
 import com.buglabs.bug.swarm.restclient.ISwarmInviteClient.InvitationResponse;
 import com.buglabs.bug.swarm.restclient.ISwarmInviteClient.InvitationState;
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient;
 import com.buglabs.bug.swarm.restclient.ISwarmResourcesClient.MemberType;
+import com.buglabs.bug.swarm.restclient.SwarmClientFactory;
 import com.buglabs.bug.swarm.restclient.SwarmWSResponse;
 import com.buglabs.bug.swarm.restclient.model.Invitation;
 import com.buglabs.bug.swarm.restclient.model.SwarmModel;
 import com.buglabs.bug.swarm.restclient.model.SwarmResourceModel;
 import com.buglabs.bug.swarm.restclient.model.UserResourceModel;
+import com.buglabs.bug.swarm.restclient.test.Configuration.Protocol;
 
 
 /**
@@ -178,7 +178,7 @@ public class SwarmResourceWSAPITests extends TestCase {
 		ISwarmClient client = SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration().getHostname(Protocol.HTTP),
 				AccountConfig.getConfiguration().getConfingurationAPIKey());
-		ISwarmResourcesClient membersClient = ((ISwarmClient) client).getSwarmResourceClient();
+		ISwarmResourcesClient membersClient = client.getSwarmResourceClient();
 		
 		testAddSwarmMember();
 		
@@ -195,7 +195,7 @@ public class SwarmResourceWSAPITests extends TestCase {
 				AccountConfig.getConfiguration().getHostname(Protocol.HTTP),
 				AccountConfig.getConfiguration().getConfingurationAPIKey());
 		
-		ISwarmResourcesClient membersClient = ((ISwarmClient) client).getSwarmResourceClient();
+		ISwarmResourcesClient membersClient = client.getSwarmResourceClient();
 		
 		testAddSwarmMember();
 		
@@ -209,7 +209,7 @@ public class SwarmResourceWSAPITests extends TestCase {
 		ISwarmClient client2 = SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration2().getHostname(Protocol.HTTP),
 				AccountConfig.getConfiguration2().getConfingurationAPIKey());
-		ISwarmResourcesClient membersClient2 = ((ISwarmClient) client2).getSwarmResourceClient();
+		ISwarmResourcesClient membersClient2 = client2.getSwarmResourceClient();
 		UserResourceModel client2resource = null;
 		if (client2.getUserResourceClient().list().size() == 0) {
 			client2resource = client2.getUserResourceClient().add("test_resource", "test resource desc", "pc", 0, 0);			
@@ -252,7 +252,7 @@ public class SwarmResourceWSAPITests extends TestCase {
 		ISwarmClient client = SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration().getHostname(Protocol.HTTP),
 				AccountConfig.getConfiguration().getConfingurationAPIKey());
-		ISwarmResourcesClient membersClient = ((ISwarmClient) client).getSwarmResourceClient();
+		ISwarmResourcesClient membersClient = client.getSwarmResourceClient();
 		
 		testAddSwarmMember();
 		
@@ -291,7 +291,7 @@ public class SwarmResourceWSAPITests extends TestCase {
 		ISwarmClient client = SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration().getHostname(Protocol.HTTP),
 				AccountConfig.getConfiguration().getConfingurationAPIKey());
-		ISwarmResourcesClient membersClient = ((ISwarmClient) client).getSwarmResourceClient();
+		ISwarmResourcesClient membersClient = client.getSwarmResourceClient();
 		
 		testAddSwarmMember();
 		
@@ -314,7 +314,7 @@ public class SwarmResourceWSAPITests extends TestCase {
 		client = SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration2().getHostname(Protocol.HTTP),
 				AccountConfig.getConfiguration2().getConfingurationAPIKey());
-		membersClient = ((ISwarmClient) client).getSwarmResourceClient();
+		membersClient = client.getSwarmResourceClient();
 		rc = membersClient.remove(
 				AccountConfig.testSwarmId, 
 				DEFAULT_MEMBER_TYPE, 

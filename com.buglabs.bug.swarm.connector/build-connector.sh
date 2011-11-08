@@ -134,7 +134,7 @@ ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE
 if [ ! -z $TEST_HOST ]; then
 	echo "Building and testing com.buglabs.bug.swarm.connector"
 	# bugswarm-restclient
-	ant -Dreport.src=$WORKSPACE/com.buglabs.bug.swarm.connector/test -Dreport.dir=$REPORT_DIR -Dgenerate.docs=true -Dbugswarm_test_host=$TEST_HOST -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.bug.swarm.restclient/build.xml clean create_dirs build document build.jars test	
+	ant -Dreport.src=$WORKSPACE/com.buglabs.bug.swarm.restclient/test -Dreport.dir=$REPORT_DIR -Dgenerate.docs=true -Dbugswarm_test_host=$TEST_HOST -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.bug.swarm.restclient/build.xml clean create_dirs build document build.jars test	
 	ant -Dreport.src=$WORKSPACE/com.buglabs.bug.swarm.connector/test -Dreport.dir=$REPORT_DIR -Dgenerate.docs=true -Dbugswarm_test_host=$TEST_HOST -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.bug.swarm.connector/build.xml clean create_dirs build document build.jars test
 else
 	echo "Building com.buglabs.bug.swarm.connector.  To also run tests, TEST_HOST variable must be defined."

@@ -18,6 +18,38 @@
 			<fileset dir="${basedir}" includes="images/**,includes/**,javascripts/**,stylesheets/**,templates/**" />
 		</jar>
 	</target>
+	
+	<!-- target: test   Run JUnit tests -->
+	<target name="test">
+		<echo message="## PROJECT: ${ant.project.name} ## TARGET: test" />
+		<fail unless="report.dir" message="Ant variable report.dir must be defined." />
+		<echo message="Generating test result output in ${report.dir}..." />
+		<junit printsummary="yes">
+			<classpath refid="bin.classpath" />
+			<sysproperty key="report.misc" value="${report.misc}" />
+			<formatter type="xml" />
+			<batchtest todir="${report.dir}">
+				<fileset dir="${report.src}">
+					<include name="**/*Test*.java" />
+					<exclude name="**/*OSGiTest*.java" />
+				</fileset>
+			</batchtest>
+		</junit>
+	</target>
+	
+	<!-- JUnit tests -->
+	<property environment="env" />
+	<property name="report.misc" value="${env.TEST_HOST}" />
+	<echo message="report.misc is ${report.misc}">
+	</echo>
+	<property name="report.dir" location="junit-reports" />
+	<property name="report.src" location="test/" />
+
+	<!-- Checkstyle -->
+	<property name="checkstyle.config" location="${base.build.dir}/toolbox/checkstyle/buglabs_checks.xml" />
+	<property name="checkstyle.dir" location="checkstyle-reports" />
+	<property name="checkstyle.src" location="src/" />
+	
 
 	<!-- PROJECT IMPORTS -->
 	<exec executable="/usr/bin/wget">

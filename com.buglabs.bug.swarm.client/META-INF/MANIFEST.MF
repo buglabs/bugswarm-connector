@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: BUGswarm ReST Client
-Bundle-SymbolicName: com.buglabs.bug.swarm.restclient
+Bundle-SymbolicName: com.buglabs.bug.swarm.client
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Bug Labs, Inc.
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
@@ -10,5 +10,5 @@ Import-Package:
  org.codehaus.jackson,
  org.codehaus.jackson.map,
  org.touge.restclient;version="1.0"
-Export-Package: com.buglabs.bug.swarm.restclient;version="0.3.0",
- com.buglabs.bug.swarm.restclient.model;version="0.3.0"
+Export-Package: com.buglabs.bug.swarm.client;version="0.3.0",
+ com.buglabs.bug.swarm.client.model;version="0.3.0"

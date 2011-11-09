@@ -1,24 +1,17 @@
 package com.buglabs.bug.swarm.connector.test;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.json.simple.JSONValue;
-
 import com.buglabs.bug.swarm.client.ISwarmClient;
+import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.client.SwarmClientFactory;
 import com.buglabs.bug.swarm.client.SwarmWSResponse;
-import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.client.model.SwarmModel;
 import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.util.simplerestclient.HTTPException;
-import com.buglabs.util.simplerestclient.HTTPRequest;
-import com.buglabs.util.simplerestclient.HTTPResponse;
 
 /**
  * Tests the BUGSwarmConnector class in regards to binary feeds.
@@ -103,56 +96,5 @@ public class BUGSwarmConnectorBinaryFeedT3sts extends TestCase {
 		connector.shutdown();
 
 		Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
-	}
-
-	public void testGetPictureFeed() throws IOException, InterruptedException {
-		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
-
-		// Start the connector
-		connector.start();
-
-		// Wait for the feeds to initialize
-		Thread.sleep(AccountConfig.CONNECTOR_INIT_SLEEP_MILLIS);
-
-		HTTPRequest request = new HTTPRequest();
-		Map<String, String> headers = new HashMap<String, String>();
-		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getConfingurationAPIKey());
-		
-		String url = 
-			AccountConfig.getConfiguration().getHostname(Protocol.HTTP)
-			+ "/swarms/" + AccountConfig.testSwarmId + "/resources/" 
-			+ AccountConfig.getConfiguration().getResource() +  "/feeds/" 
-			+ OSGiHelperTester.TEST_BINARY_FEED_NAME;
-		
-		System.out.println("Getting binary data for feed " + OSGiHelperTester.TEST_BINARY_FEED_NAME + " sending to " + url);
-
-		try {
-			HTTPResponse response = request.get(url,
-					headers);
-			System.out.println(response.getString());
-		
-		
-			System.out.println("boo");
-			
-			StreamScanner scanner = new StreamScanner(response.getStream());
-			scanner.start();
-	
-			Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
-	
-			assertTrue(scanner.hasInputBeenRecieved());
-	
-			for (String r : scanner.getResponses()) {
-				Object o = JSONValue.parse(r);
-	
-				assertNotNull(o);
-				System.out.println(o);
-			}
-	
-			scanner.interrupt();
-			connector.interrupt();
-			connector.shutdown();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 }

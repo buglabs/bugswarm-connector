@@ -21,7 +21,6 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.dragonfly.module.IModuleControl;
-import com.buglabs.bug.swarm.connector.test.OSGiHelperTester;
 import com.buglabs.bug.swarm.connector.ui.SwarmConfigKeys;
 import com.buglabs.services.ws.PublicWSProvider;
 import com.buglabs.util.osgi.FilterUtil;
@@ -54,11 +53,11 @@ public final class OSGiHelper implements ServiceListener {
 
 	private static BundleContext context;
 	private static OSGiHelper ref;
-	private Map<Object, Feed> feedServiceMap;
-	private Map<String, Feed> feedNameMap;
+	private final Map<Object, Feed> feedServiceMap;
+	private final Map<String, Feed> feedNameMap;
 
-	private List<EntityChangeListener> listeners;
-	private ModulesFeed modulesFeed;
+	private final List<EntityChangeListener> listeners;
+	private final ModulesFeed modulesFeed;
 	private CapabilitiesFeed capabilitiesFeed;
 	private ConfigurationAdmin configAdmin;
 
@@ -175,31 +174,29 @@ public final class OSGiHelper implements ServiceListener {
 	 *             should not be thrown
 	 */
 	private void initializeModuleProviders() throws Exception {
-		if (context != null) {
-			synchronized (feedServiceMap) {
-				OSGiServiceLoader.loadServices(
-						context, IModuleControl.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
-					public void load(final Object service) throws Exception {
-						if (!feedServiceMap.containsKey(service)) {
-							feedServiceMap.put(service, Feed.createForType(service));
-						}
+		synchronized (feedServiceMap) {
+			OSGiServiceLoader.loadServices(
+					context, IModuleControl.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
+				@Override
+				public void load(final Object service) throws Exception {
+					if (!feedServiceMap.containsKey(service)) {
+						feedServiceMap.put(service, Feed.createForType(service));
 					}
-				});
-			}
-			synchronized (feedNameMap) {
-				OSGiServiceLoader.loadServices(
-						context, IModuleControl.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
-					public void load(final Object service) throws Exception {
-						Feed f = Feed.createForType(service);
-						if (!feedNameMap.containsKey(f.getName())) {
-							feedNameMap.put(f.getName(), f);
-						}
-					}
-				});
-			}
-		} else {
-			OSGiHelperTester.loadMockIModuleControls(feedServiceMap, feedNameMap);
+				}
+			});
 		}
+		synchronized (feedNameMap) {
+			OSGiServiceLoader.loadServices(
+					context, IModuleControl.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
+				@Override
+				public void load(final Object service) throws Exception {
+					Feed f = Feed.createForType(service);
+					if (f != null && !feedNameMap.containsKey(f.getName())) {
+						feedNameMap.put(f.getName(), f);
+					}
+				}
+			});
+		}		
 	}
 
 	/**
@@ -210,32 +207,30 @@ public final class OSGiHelper implements ServiceListener {
 	 *             should not be thrown
 	 */
 	private void initializeWSProviders() throws Exception {
-		if (context != null) {
-			synchronized (feedServiceMap) {
-				OSGiServiceLoader.loadServices(
-						context, PublicWSProvider.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
-					public void load(final Object service) throws Exception {
-						if (!feedServiceMap.containsKey(service)) {
-							feedServiceMap.put(service, Feed.createForType(service));
-						}
+		synchronized (feedServiceMap) {
+			OSGiServiceLoader.loadServices(
+					context, PublicWSProvider.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
+				@Override
+				public void load(final Object service) throws Exception {
+					if (!feedServiceMap.containsKey(service)) {
+						feedServiceMap.put(service, Feed.createForType(service));
 					}
-				});
-			}
-			synchronized (feedNameMap) {
-				OSGiServiceLoader.loadServices(
-						context, PublicWSProvider.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
-					public void load(final Object service) throws Exception {
-						Feed f = Feed.createForType(service);
-
-						if (f != null && !feedNameMap.containsKey(f.getName()))
-							feedNameMap.put(f.getName(), f);
-
-					}
-				});
-			}
-		} else {
-			OSGiHelperTester.loadMockPublicWSProviders(feedServiceMap, feedNameMap);
+				}
+			});
 		}
+		synchronized (feedNameMap) {
+			OSGiServiceLoader.loadServices(
+					context, PublicWSProvider.class.getName(), null, new OSGiServiceLoader.IServiceLoader() {
+				@Override
+				public void load(final Object service) throws Exception {
+					Feed f = Feed.createForType(service);
+
+					if (f != null && !feedNameMap.containsKey(f.getName()))
+						feedNameMap.put(f.getName(), f);
+
+				}
+			});
+		}		
 	}
 
 	/**
@@ -246,42 +241,38 @@ public final class OSGiHelper implements ServiceListener {
 	 *             should not be thrown
 	 */
 	private void initializeFeedProviders() throws Exception {
-		if (context != null) {
-			synchronized (feedServiceMap) {
-				// TODO: Optimize by specifying a proper filter rather than
-				// filter in code.
-				ServiceReference[] srs = context.getAllServiceReferences(Map.class.getName(), null);
-				if (srs != null)
-					for (ServiceReference sr : srs) {
-						Feed feed = Feed.createForType(sr);
+		synchronized (feedServiceMap) {
+			// TODO: Optimize by specifying a proper filter rather than
+			// filter in code.
+			ServiceReference[] srs = context.getAllServiceReferences(Map.class.getName(), null);
+			if (srs != null)
+				for (ServiceReference sr : srs) {
+					Feed feed = Feed.createForType(sr);
 
-						if (feed != null && !feedServiceMap.entrySet().contains(feed)) {
-							feedServiceMap.put(context.getService(sr), feed);
-						} else {
-							Activator.getLog().log(LogService.LOG_WARNING,
-									Map.class.getName() + " ignored: " + Feed.FEED_SERVICE_NAME_PROPERTY + " is not a property.");
-						}
+					if (feed != null && !feedServiceMap.entrySet().contains(feed)) {
+						feedServiceMap.put(context.getService(sr), feed);
+					} else {
+						Activator.getLog().log(LogService.LOG_WARNING,
+								Map.class.getName() + " ignored: " + Feed.FEED_SERVICE_NAME_PROPERTY + " is not a property.");
 					}
-			}
-			synchronized (feedNameMap) {
-				// TODO: Optimize by specifying a proper filter rather than
-				// filter in code.
-				ServiceReference[] srs = context.getAllServiceReferences(Map.class.getName(), null);
-				if (srs != null)
-					for (ServiceReference sr : srs) {
-						Feed feed = Feed.createForType(sr);
-
-						if (feed != null && !feedNameMap.entrySet().contains(feed)) {
-							feedNameMap.put(feed.getName(), feed);
-						} else {
-							Activator.getLog().log(LogService.LOG_WARNING,
-									Map.class.getName() + " ignored: " + Feed.FEED_SERVICE_NAME_PROPERTY + " is not a property.");
-						}
-					}
-			}
-		} else {
-			OSGiHelperTester.loadMockFeedProviders(feedServiceMap, feedNameMap);
+				}
 		}
+		synchronized (feedNameMap) {
+			// TODO: Optimize by specifying a proper filter rather than
+			// filter in code.
+			ServiceReference[] srs = context.getAllServiceReferences(Map.class.getName(), null);
+			if (srs != null)
+				for (ServiceReference sr : srs) {
+					Feed feed = Feed.createForType(sr);
+
+					if (feed != null && !feedNameMap.entrySet().contains(feed)) {
+						feedNameMap.put(feed.getName(), feed);
+					} else {
+						Activator.getLog().log(LogService.LOG_WARNING,
+								Map.class.getName() + " ignored: " + Feed.FEED_SERVICE_NAME_PROPERTY + " is not a property.");
+					}
+				}
+		}		
 	}
 
 	/**

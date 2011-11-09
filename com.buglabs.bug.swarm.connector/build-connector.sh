@@ -73,7 +73,7 @@ rm -Rf com.buglabs.osgi.build
 rm -Rf smack-smackx-osgi
 
 ###### Get source dependencies that will be compiled
-git clone git@github.com:buglabs/bug-osgi.git 
+git clone git://github.com/buglabs/bug-osgi.git
 cd bug-osgi
 git checkout $BUILD_BRANCH
 cd ..

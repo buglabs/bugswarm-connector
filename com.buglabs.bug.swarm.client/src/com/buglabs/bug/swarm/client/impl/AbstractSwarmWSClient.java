@@ -73,7 +73,7 @@ public abstract class AbstractSwarmWSClient {
 				//Return 5xx errors, and 4xx errors except for 404 (resource does not exist) and 409 (resource conflict)
 				//as these errors typically require something to be handled in the code that makes the initial request.
 				
-				if (code >= 400 && code < 600 && code != 404 && code != 409)
+				if (code >= 400 && code < 600 && code != 409)
 					throw new IOException("Server returned HTTP error " + code + ": " + message);
 			}
 		});

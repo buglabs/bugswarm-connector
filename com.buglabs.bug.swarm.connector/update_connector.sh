@@ -7,7 +7,7 @@ BUILD_SERVER="192.168.20.16:8085"
 BUNDLE_DIR=/usr/share/osgi/bundle
 APP_DIR=/usr/share/osgi/apps
 
-SWARM_BRANCH=master
+SWARM_BRANCH=0.3
 
 echo "Updating connector and dependencies to latest jars available from $BUILD_SERVER."
 

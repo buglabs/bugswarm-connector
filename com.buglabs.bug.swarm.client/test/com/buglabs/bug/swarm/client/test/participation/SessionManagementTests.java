@@ -18,6 +18,10 @@ import com.buglabs.bug.swarm.client.model.UserResourceModel;
 import com.buglabs.bug.swarm.client.test.AccountConfig;
 import com.buglabs.bug.swarm.client.test.Configuration;
 
+/**
+ * Tests for session management between swarm.client and the server.
+ *
+ */
 public class SessionManagementTests extends TestCase {
 
 	@Override

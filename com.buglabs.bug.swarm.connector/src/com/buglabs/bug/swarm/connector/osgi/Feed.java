@@ -6,6 +6,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
+import com.buglabs.bug.dragonfly.module.IModuleControl;
 import com.buglabs.services.ws.PublicWSProvider;
 
 /**
@@ -33,7 +34,7 @@ public class Feed {
 	/**
 	 * Name of feed.
 	 */
-	private String feedName;
+	private final String feedName;
 
 	/**
 	 * Name/value pairs of Feed.
@@ -132,7 +133,10 @@ public class Feed {
 				}
 			}
 		}
+		
+		if (input instanceof IModuleControl)
+			return new ModulesFeed(Activator.getContext());
 
-		return null;
+		throw new IllegalArgumentException("Unable to create Feed for type " + input.getClass().getName());
 	}
 }

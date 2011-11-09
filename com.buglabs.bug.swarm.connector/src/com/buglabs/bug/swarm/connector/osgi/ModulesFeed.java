@@ -9,6 +9,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.log.LogService;
 import org.sprinkles.Applier;
 import org.sprinkles.Mapper;
 
@@ -20,13 +21,13 @@ import com.buglabs.bug.dragonfly.module.IModuleControl;
  * 
  * Example:
  * {
-		    "modules": {
-		        "slot1": "gps",
-		        "slot3": "lcd",
-		        "slot4": "video",
-		        "stinger": ["4gmodem", "3gmodem", "keyboard"]
-		    }
-		}
+	    "modules": {
+	        "slot1": "gps",
+	        "slot3": "lcd",
+	        "slot4": "video",
+	        "stinger": ["4gmodem", "3gmodem", "keyboard"]
+	    }
+	}
  * @author kgilmer
  *
  */
@@ -36,7 +37,6 @@ public class ModulesFeed extends Feed implements ServiceListener {
 
 	/**
 	 * @param context BundleContext
-	 * @param feedName Feed name
 	 */
 	public ModulesFeed(BundleContext context) {
 		super("modules", Collections.EMPTY_MAP);
@@ -56,6 +56,10 @@ public class ModulesFeed extends Feed implements ServiceListener {
 					
 					feedMap.put("slot" + imc.getSlotId(), imc.getModuleName().toLowerCase());
 					
+					Activator.getLog().log(
+							LogService.LOG_DEBUG, 
+								ModulesFeed.class.getSimpleName() + " updated with " + imc.getModuleName().toLowerCase() + " in slot " + imc.getSlotId());
+					
 					return imc;
 				}
 				
@@ -63,7 +67,8 @@ public class ModulesFeed extends Feed implements ServiceListener {
 			
 			update(feedMap);
 		} catch (InvalidSyntaxException e) {
-			//Should not be thrown
+			//Should never be thrown since filter is static.
+			e.printStackTrace();
 		}
 	}
 

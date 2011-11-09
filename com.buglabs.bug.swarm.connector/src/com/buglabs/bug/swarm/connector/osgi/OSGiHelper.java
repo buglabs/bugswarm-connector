@@ -108,6 +108,7 @@ public final class OSGiHelper implements ServiceListener {
 			
 		ModulesFeed feed = new ModulesFeed(context);
 		
+		// The feed will actively update itself with the state of the BUG modules via the following lines.
 		feed.register(context);
 		context.addServiceListener(
 				feed, 

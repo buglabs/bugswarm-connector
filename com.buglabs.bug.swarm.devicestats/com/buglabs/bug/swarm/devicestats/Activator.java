@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -19,13 +18,14 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-
+import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.devicestats.providers.RAMStatProvider;
 import com.buglabs.bug.swarm.devicestats.providers.StorageStatProvider;
 import com.buglabs.bug.swarm.devicestats.providers.WifiStatProvider;
 import com.buglabs.bug.swarm.devicestats.pub.DeviceStatProviderService;
 import com.buglabs.util.osgi.FilterUtil;
+import com.buglabs.util.osgi.LogServiceUtil;
 import com.buglabs.util.shell.pub.ShellSession;
 
 
@@ -63,8 +63,12 @@ public class Activator implements BundleActivator, ServiceListener {
 	private BundleContext context;
 	private StatsUpdateTask updateTask;
 
+	private static LogService log;
+
+	@Override
 	public void start(BundleContext context) throws Exception {
 		this.context = context;
+		this.log = LogServiceUtil.getLogService(context);
 		int updateInterval = getUpdateInterval(context);
 		
 		registerInternalProviders(context);
@@ -85,6 +89,7 @@ public class Activator implements BundleActivator, ServiceListener {
 		timer.schedule(updateTask, 0, updateInterval);
 	}	
 
+	@Override
 	public void stop(BundleContext context) throws Exception {
 		if (timer != null)
 			timer.cancel();
@@ -151,6 +156,13 @@ public class Activator implements BundleActivator, ServiceListener {
 		return DEFAULT_UPDATE_INTERVAL;
 	}
 
+	/**
+	 * @return instance of LogService
+	 */
+	public static LogService getLog() {
+		return log;
+	}
+	
 	@Override
 	public void serviceChanged(ServiceEvent event) {
 		Object svc = context.getService(event.getServiceReference());

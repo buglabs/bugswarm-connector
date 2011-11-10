@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.osgi.service.log.LogService;
+
+import com.buglabs.bug.swarm.devicestats.Activator;
 import com.buglabs.bug.swarm.devicestats.pub.DeviceStatProviderService;
 
 
@@ -34,7 +37,7 @@ public class WifiStatProvider implements DeviceStatProviderService {
 			addFileToMap(propertyMap, "wifi.packets.rx", wifiRxPackets);
 			addFileToMap(propertyMap, "wifi.packets.tx", wifiTxPackets);
 		} catch (IOException e) {
-			logError("I/O error occurred: " + e.getMessage());
+			Activator.getLog().log(LogService.LOG_ERROR, "Failed to add wifi stats.", e);
 		}
 	}
 
@@ -42,17 +45,8 @@ public class WifiStatProvider implements DeviceStatProviderService {
 		if (wifiState.exists()) {
 			propertyMap.put(name, readFile(wifiState));
 		} else {
-			logError("Unable to load file " + wifiState);
+			Activator.getLog().log(LogService.LOG_ERROR, "Failed to find wifi stats.");
 		}
-	}
-
-	/**
-	 * TODO: Tie into logging
-	 * 
-	 * @param error
-	 */
-	private void logError(String error) {
-		System.err.println(error);
 	}
 
 	private Serializable readFile(File f) throws IOException {

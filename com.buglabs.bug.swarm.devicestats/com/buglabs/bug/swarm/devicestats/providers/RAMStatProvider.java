@@ -6,6 +6,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.osgi.service.log.LogService;
+
+import com.buglabs.bug.swarm.devicestats.Activator;
 import com.buglabs.bug.swarm.devicestats.pub.DeviceStatProviderService;
 import com.buglabs.util.shell.pub.ShellSession;
 
@@ -46,8 +49,7 @@ public class RAMStatProvider implements DeviceStatProviderService {
 				}
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Activator.getLog().log(LogService.LOG_ERROR, "Failed to add ram stats.", e);
 		}
 		
 	}

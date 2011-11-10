@@ -1,6 +1,5 @@
 package com.buglabs.bug.swarm.connector.osgi;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,18 +37,22 @@ public class ModulesFeed extends Feed implements ServiceListener {
 	/**
 	 * @param context BundleContext
 	 */
-	public ModulesFeed(BundleContext context) {
-		super("modules", Collections.EMPTY_MAP);
+	public ModulesFeed(BundleContext context) {		
+		super("modules", getModules(context, new HashMap<String, Object>()));
 		this.context = context;		
 	}
 
 	@Override
 	public void serviceChanged(ServiceEvent event) {
-		final Map<String, String> feedMap = new HashMap<String, String>();
+		update(getModules(context, super.getFeed()));
+	}
+
+	protected static Map<String, Object> getModules(final BundleContext context, final Map<String, Object> feedMap) {
+		feedMap.clear();
 		
 		try {
 			Mapper.map(new Applier.Fn<ServiceReference, Object>() {
-
+	
 				@Override
 				public Object apply(ServiceReference input) {
 					IModuleControl imc = (IModuleControl) context.getService(input);
@@ -64,12 +67,10 @@ public class ModulesFeed extends Feed implements ServiceListener {
 				}
 				
 			}, context.getServiceReferences(IModuleControl.class.getName(), null));
-			
-			update(feedMap);
 		} catch (InvalidSyntaxException e) {
-			//Should never be thrown since filter is static.
-			e.printStackTrace();
+			throw new IllegalStateException(e);
 		}
+		
+		return feedMap;
 	}
-
 }

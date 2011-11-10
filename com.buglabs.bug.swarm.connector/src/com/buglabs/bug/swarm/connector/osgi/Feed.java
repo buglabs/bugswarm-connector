@@ -39,7 +39,7 @@ public class Feed {
 	/**
 	 * Name/value pairs of Feed.
 	 */
-	private Map<?, ?> feed;
+	private Map<String, Object> feed;
 
 	private ServiceRegistration serviceRegistration;
 
@@ -49,7 +49,7 @@ public class Feed {
 	 * @param feed
 	 *            feed contents
 	 */
-	public Feed(final String feedName, final Map<?, ?> feed) {
+	public Feed(final String feedName, final Map<String, Object> feed) {
 		//The server specifies the feed name as "feeds" if it wants
 		//a list of all available feeds.
 		if (feedName.equalsIgnoreCase("feeds")) 
@@ -69,7 +69,7 @@ public class Feed {
 	/**
 	 * @return Feed contents
 	 */
-	public Map<?, ?> getFeed() {
+	public Map<String, Object> getFeed() {
 		return feed;
 	}
 
@@ -98,7 +98,7 @@ public class Feed {
 		}			
 	}
 	
-	public void update(Map<?, ?> feed) {
+	public void update(Map<String, Object> feed) {
 		this.feed = feed;
 		
 		if (serviceRegistration != null)
@@ -125,10 +125,10 @@ public class Feed {
 
 				if (sr.getProperty(Feed.FEED_SERVICE_BINARY_PROPERTY) == null
 						|| !Boolean.parseBoolean(sr.getProperty(Feed.FEED_SERVICE_BINARY_PROPERTY).toString())) {
-					return new Feed((String) sr.getProperty(Feed.FEED_SERVICE_NAME_PROPERTY), (Map<?, ?>) Activator.getContext()
+					return new Feed((String) sr.getProperty(Feed.FEED_SERVICE_NAME_PROPERTY), (Map<String, Object>) Activator.getContext()
 							.getService(sr));
 				} else {
-					return new BinaryFeed((String) sr.getProperty(Feed.FEED_SERVICE_NAME_PROPERTY), (Map<?, ?>) Activator.getContext()
+					return new BinaryFeed((String) sr.getProperty(Feed.FEED_SERVICE_NAME_PROPERTY), (Map<String, Object>) Activator.getContext()
 							.getService(sr));
 				}
 			}

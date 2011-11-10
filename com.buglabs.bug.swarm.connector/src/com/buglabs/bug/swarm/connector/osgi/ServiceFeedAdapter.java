@@ -27,7 +27,7 @@ public class ServiceFeedAdapter extends Feed {
 	 *            ws provider to create feed from
 	 * @return feed as Map of service
 	 */
-	public static Map<?, ?> adaptServiceToFeedMap(final PublicWSProvider service) {
+	public static Map<String, Object> adaptServiceToFeedMap(final PublicWSProvider service) {
 		Map<String, Object> sm = new HashMap<String, Object>();
 		PublicWSDefinition def = service.discover(PublicWSProvider.GET);
 

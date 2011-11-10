@@ -51,7 +51,7 @@ public class CapabilitiesFeed extends Feed {
 
 	
 	@Override
-	public Map<?, ?> getFeed() {
+	public Map<String, Object> getFeed() {
 		
 		try {
 			Map<String, Object> cfeed = new HashMap<String, Object>();

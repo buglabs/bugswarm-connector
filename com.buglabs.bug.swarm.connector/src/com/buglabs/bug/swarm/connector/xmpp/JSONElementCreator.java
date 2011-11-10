@@ -42,7 +42,7 @@ public final class JSONElementCreator {
 			throw new IllegalStateException("Feeds do not contain minimal set for management web ui.");
 		
 		JSONObject root = new JSONObject();
-		root.put("capabilities", feedMap.get("capabilities"));
+		root.put("capabilities", feedMap.get("capabilities").getFeed());
 
 		return root.toJSONString();
 	}

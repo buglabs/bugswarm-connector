@@ -40,7 +40,7 @@ public class UptimeStatProvider implements DeviceStatProviderService {
 			if (rawResponse != null && rawResponse.trim().length() > 0) {
 				String [] elems = StorageStatProvider.filterWhitespace(rawResponse.split(","));
 				
-				if (elems != null && elems.length < 4) {
+				if (elems != null && elems.length > 4) {
 					propertyMap.put("uptime", elems[0]);
 					propertyMap.put("load", elems[4]);
 					propertyMap.put("users", elems[1]);

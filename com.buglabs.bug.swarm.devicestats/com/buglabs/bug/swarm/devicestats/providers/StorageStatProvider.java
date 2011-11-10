@@ -2,6 +2,7 @@ package com.buglabs.bug.swarm.devicestats.providers;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class StorageStatProvider implements DeviceStatProviderService {
 				List<String> lines = Arrays.asList(rawResponse.split(lineSeperator));
 				
 				for (String line : lines) {
-					String [] elems = line.split(" ");
+					String [] elems = filterWhitespace(line.split(" "));
 					
 					if (elems[0].equals("rootfs")) {
 						addDfData(propertyMap, "rootfs", elems);
@@ -52,6 +53,16 @@ public class StorageStatProvider implements DeviceStatProviderService {
 			Activator.getLog().log(LogService.LOG_ERROR, "Failed to add storage stats.", e);
 		}
 		
+	}
+
+	protected static String[] filterWhitespace(String[] elems) {
+		List<String> nl = new ArrayList<String>();
+		
+		for (int i = 0; i < elems.length; ++i)
+			if (elems[i].trim().length() > 0)
+				nl.add(elems[i]);
+		
+		return nl.toArray(new String[nl.size()]);
 	}
 
 	/**

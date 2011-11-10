@@ -39,7 +39,7 @@ public class RAMStatProvider implements DeviceStatProviderService {
 				List<String> lines = Arrays.asList(rawResponse.split(lineSeperator));
 				
 				for (String line : lines) {
-					String [] elems = line.split(" ");
+					String [] elems = StorageStatProvider.filterWhitespace(line.split(" "));
 					
 					if (elems[0].equals("Mem:")) {
 						addFreeData(propertyMap, "ram", elems);

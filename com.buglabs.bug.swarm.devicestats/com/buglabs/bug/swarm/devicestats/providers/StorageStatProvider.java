@@ -45,7 +45,7 @@ public class StorageStatProvider implements DeviceStatProviderService {
 					if (elems[0].equals("rootfs")) {
 						addDfData(propertyMap, "rootfs", elems);
 					} else if (elems[0].contains("mmcblk1")) {
-						addDfData(propertyMap, elems[0], elems);
+						addDfData(propertyMap, "mmcblk1", elems);
 					}
 				}
 			}

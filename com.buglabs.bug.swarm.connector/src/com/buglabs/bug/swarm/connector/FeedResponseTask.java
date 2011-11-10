@@ -3,7 +3,6 @@ package com.buglabs.bug.swarm.connector;
 import java.util.TimerTask;
 
 import org.jivesoftware.smack.XMPPException;
-import org.json.simple.JSONObject;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.model.Jid;
@@ -22,7 +21,7 @@ public class FeedResponseTask extends TimerTask {
 	private final SwarmXMPPClient xmppClient;
 	private final Jid jid;
 	private final String swarmId;
-	private Feed feed;
+	private final Feed feed;
 	private final LogService log;
 	
 	/**
@@ -42,7 +41,7 @@ public class FeedResponseTask extends TimerTask {
 	
 	@Override
 	public void run() {
-		JSONObject document = JSONElementCreator.createFeedElement(feed);
+		String document = JSONElementCreator.createFeedElement(feed);
 		
 		try {
 			xmppClient.sendFeedToUser(jid, swarmId, document);

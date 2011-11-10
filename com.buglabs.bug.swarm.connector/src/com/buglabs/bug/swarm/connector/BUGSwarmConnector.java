@@ -11,13 +11,12 @@ import java.util.TimerTask;
 
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.XMPPException;
-import org.json.simple.JSONArray;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.client.ISwarmClient;
-import com.buglabs.bug.swarm.client.SwarmClientFactory;
 import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
+import com.buglabs.bug.swarm.client.SwarmClientFactory;
 import com.buglabs.bug.swarm.client.model.SwarmModel;
 import com.buglabs.bug.swarm.client.model.SwarmResourceModel;
 import com.buglabs.bug.swarm.client.model.UserResourceModel;
@@ -77,7 +76,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	/**
 	 * List of all member swarms.
 	 */
-	private List<SwarmModel> memberSwarms;
+	private final List<SwarmModel> memberSwarms;
 	/**
 	 * Timer that manages all the active streaming feeds.
 	 */
@@ -162,9 +161,9 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	private void announceState(final List<SwarmModel> allSwarms, Feed source) throws XMPPException {
 		String document = null;
 		if (source == null)
-			document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds()).toJSONString();
+			document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
 		else 
-			document = JSONElementCreator.createFeedElement(source).toJSONString();
+			document = JSONElementCreator.createFeedElement(source);
 		
 		//Notify all consumer-members of swarms of services, feeds, and modules.
 		for (SwarmModel swarm : allSwarms) {
@@ -182,7 +181,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	 *             upon XMPP failure
 	 */
 	private void broadcastState(final List<SwarmModel> allSwarms) throws XMPPException {
-		JSONArray document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
+		String document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
 
 		// Notify all consumer-members of swarms of services, feeds, and
 		// modules.
@@ -308,7 +307,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 
 	@Override
 	public void feedListRequest(final Jid requestJid, final String swarmId) {
-		JSONArray document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
+		String document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
 
 		try {
 			xmppClient.sendAllFeedsToUser(requestJid, swarmId, document);
@@ -319,15 +318,15 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 
 	@Override
 	public void feedListRequest(final Chat chat, final String swarmId) {
-		JSONArray document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
+		String document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
 
 		try {
-			chat.sendMessage(document.toJSONString());
+			chat.sendMessage(document);
 		} catch (XMPPException e) {
 			log.log(LogService.LOG_ERROR, "Failed to send private message to " + chat.getParticipant(), e);
 		}
 
-		log.log(LogService.LOG_DEBUG, "Sent " + document.toJSONString() + " to " + chat.getParticipant());
+		log.log(LogService.LOG_DEBUG, "Sent " + document + " to " + chat.getParticipant());
 	}
 
 	/**

@@ -2,7 +2,6 @@ package com.buglabs.bug.swarm.connector.xmpp;
 
 import java.util.List;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import com.buglabs.bug.swarm.connector.osgi.Feed;
@@ -30,13 +29,13 @@ public final class JSONElementCreator {
 	 *            list of feeds
 	 * @return JSON array
 	 */
-	public static JSONArray createFeedArray(final List<Feed> feeds) {
-		JSONArray array = new JSONArray();
+	public static String createFeedArray(final List<Feed> feeds) {
+		JSONObject jobj = new JSONObject();
 
 		for (Feed feed : feeds)
-			array.add(createFeedElement(feed));
+			jobj.put(feed.getName(), feed.getFeed());
 
-		return array;
+		return jobj.toJSONString();
 	}
 
 	/**
@@ -46,10 +45,10 @@ public final class JSONElementCreator {
 	 *            feed to be converted
 	 * @return JSON representation of feed
 	 */
-	public static JSONObject createFeedElement(final Feed feed) {
+	public static String createFeedElement(final Feed feed) {
 		JSONObject jobj = new JSONObject();
 		jobj.put(feed.getName(), feed.getFeed());
 
-		return jobj;
+		return jobj.toJSONString();
 	}
 }

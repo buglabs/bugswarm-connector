@@ -8,6 +8,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import com.buglabs.bug.swarm.connector.osgi.Feed;
+import com.buglabs.bug.swarm.connector.osgi.ModulesFeed;
 
 /**
  * This stateless class handles all JSON message creation for
@@ -24,7 +25,7 @@ public final class JSONElementCreator {
 	private JSONElementCreator() {
 
 	}
-
+	
 	/**
 	 * For a list of BUGSwarmFeed create a JSON array.
 	 * 
@@ -41,9 +42,12 @@ public final class JSONElementCreator {
 		if (!feedMap.containsKey("capabilities"))
 			throw new IllegalStateException("Feeds do not contain minimal set for management web ui.");
 		
+		ModulesFeed modules = (ModulesFeed) feedMap.get("capabilities").getFeed().get("modules");
+		List<String> feedNames = (List<String>) feedMap.get("capabilities").getFeed().get("feeds");
+		
 		JSONObject capabilities = new JSONObject();
-		capabilities.put("feeds", feedMap.get("capabilities").getFeed().get("feeds"));
-		capabilities.put("modules", feedMap.get("capabilities").getFeed().get("modules"));
+		capabilities.put("feeds", feedNames);
+		capabilities.put("modules", modules.getFeed());
 		JSONObject root = new JSONObject();
 		root.put("capabilities", capabilities);
 

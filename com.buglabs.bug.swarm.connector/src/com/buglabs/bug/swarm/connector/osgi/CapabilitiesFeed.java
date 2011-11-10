@@ -2,8 +2,6 @@ package com.buglabs.bug.swarm.connector.osgi;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,34 +34,14 @@ import org.sprinkles.Mapper;
  */
 public class CapabilitiesFeed extends Feed {
 
-	private final ModulesFeed modulesFeed;
-	private final BundleContext context;
-
 	/**
 	 * @param context BundleContext
 	 * @param modulesFeed ModulesFeed
 	 */
 	public CapabilitiesFeed(BundleContext context, ModulesFeed modulesFeed) {
-		super("capabilities", Collections.EMPTY_MAP);
-		this.context = context;	
-		this.modulesFeed = modulesFeed;
-	}
-
-	
-	@Override
-	public Map<String, Object> getFeed() {
-		
-		try {
-			Map<String, Object> cfeed = new HashMap<String, Object>();
-			
-			cfeed.put("modules", modulesFeed);
-			
-			cfeed.put("feeds", getNonSpecialFeeds());
-			
-			return cfeed;
-		} catch (InvalidSyntaxException e) {
-			throw new RuntimeException(e);
-		}		
+		super("capabilities", toMap(
+					"modules", modulesFeed, 
+					"feeds", getNonSpecialFeeds(context)));	
 	}
 
 
@@ -72,21 +50,25 @@ public class CapabilitiesFeed extends Feed {
 	 * 
 	 * @throws InvalidSyntaxException should never be thrown
 	 */
-	private List<String> getNonSpecialFeeds() throws InvalidSyntaxException {
-		Collection<String> feedNames = Mapper.map(new Fn<ServiceReference, String>() {
-
-			@Override
-			public String apply(ServiceReference input) {				
-				String name = (String) input.getProperty(Feed.FEED_SERVICE_NAME_PROPERTY);
+	public static List<String> getNonSpecialFeeds(BundleContext context) {
+		try {
+			Collection<String> feedNames = Mapper.map(new Fn<ServiceReference, String>() {
+	
+				@Override
+				public String apply(ServiceReference input) {				
+					String name = (String) input.getProperty(Feed.FEED_SERVICE_NAME_PROPERTY);
+					
+					if (name.equals("modules") || name.equals("capabilities"))
+						return null;
+					
+					return name;
+				}
 				
-				if (name.equals("modules") || name.equals("capabilities"))
-					return null;
+			}, context.getServiceReferences(Map.class.getName(), null));
 				
-				return name;
-			}
-			
-		}, context.getServiceReferences(Map.class.getName(), null));
-			
-		return new ArrayList<String>(feedNames);
+			return new ArrayList<String>(feedNames);
+		} catch (InvalidSyntaxException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 }

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import com.buglabs.bug.swarm.connector.osgi.Feed;
@@ -32,7 +33,7 @@ public final class JSONElementCreator {
 	 *            list of feeds
 	 * @return JSON array
 	 */
-	public static String createFeedArray(final List<Feed> feeds) {
+	public static String createCapabilitiesJson(final List<Feed> feeds) {
 		Map<String, Feed> feedMap = new HashMap<String, Feed>();
 		
 		for (Feed f : feeds)
@@ -70,5 +71,20 @@ public final class JSONElementCreator {
 		jobj.put(feed.getName(), feed.getFeed());
 
 		return jobj.toJSONString();
+	}
+
+	/**
+	 * Create a list of the names of available feeds.
+	 * @param bugFeeds List of feeds.
+	 * @return String of json of feed names.
+	 */
+	public static String createFeedListJson(List<Feed> bugFeeds) {
+		JSONArray ja = new JSONArray();
+		
+		for (Feed f : bugFeeds)
+			if (!f.getName().equals("modules") && !f.getName().equals("capabilities"))
+				ja.add(f.getName());
+		
+		return ja.toJSONString();
 	}
 }

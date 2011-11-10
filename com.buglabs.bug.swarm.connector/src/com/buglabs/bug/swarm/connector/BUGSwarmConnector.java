@@ -161,7 +161,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	private void announceState(final List<SwarmModel> allSwarms, Feed source) throws XMPPException {
 		String document = null;
 		if (source == null)
-			document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
+			document = JSONElementCreator.createCapabilitiesJson(osgiHelper.getBUGFeeds());
 		else 
 			document = JSONElementCreator.createFeedElement(source);
 		
@@ -181,7 +181,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	 *             upon XMPP failure
 	 */
 	private void broadcastState(final List<SwarmModel> allSwarms) throws XMPPException {
-		String document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
+		String document = JSONElementCreator.createCapabilitiesJson(osgiHelper.getBUGFeeds());
 
 		// Notify all consumer-members of swarms of services, feeds, and
 		// modules.
@@ -307,7 +307,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 
 	@Override
 	public void feedListRequest(final Jid requestJid, final String swarmId) {
-		String document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
+		String document = JSONElementCreator.createCapabilitiesJson(osgiHelper.getBUGFeeds());
 
 		try {
 			xmppClient.sendAllFeedsToUser(requestJid, swarmId, document);
@@ -318,7 +318,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 
 	@Override
 	public void feedListRequest(final Chat chat, final String swarmId) {
-		String document = JSONElementCreator.createFeedArray(osgiHelper.getBUGFeeds());
+		String document = JSONElementCreator.createCapabilitiesJson(osgiHelper.getBUGFeeds());
 
 		try {
 			chat.sendMessage(document);

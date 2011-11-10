@@ -1,5 +1,8 @@
 package com.buglabs.bug.swarm.connector.osgi;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.osgi.framework.BundleContext;
@@ -138,5 +141,28 @@ public class Feed {
 			return new ModulesFeed(Activator.getContext());
 
 		throw new IllegalArgumentException("Unable to create Feed for type " + input.getClass().getName());
+	}
+	
+	/**
+	 * Given a variable number of <String, Object> pairs, construct a Map and
+	 * return it with values loaded.
+	 * 
+	 * @param elements
+	 *            name1, value1, name2, value2...
+	 * @return a Map and return it with values loaded.
+	 */
+	protected static Map<String, Object> toMap(Object... elements) {
+		if (elements.length % 2 != 0) {
+			throw new IllegalStateException("Input parameters must be even.");
+		}
+
+		Iterator<Object> i = Arrays.asList(elements).iterator();
+		Map<String, Object> m = new HashMap<String, Object>();
+
+		while (i.hasNext()) {
+			m.put(i.next().toString(), i.next());
+		}
+
+		return m;
 	}
 }

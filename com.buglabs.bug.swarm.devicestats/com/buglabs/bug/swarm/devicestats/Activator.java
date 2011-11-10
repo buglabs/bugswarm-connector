@@ -23,6 +23,7 @@ import org.osgi.service.log.LogService;
 import com.buglabs.bug.swarm.devicestats.providers.BatteryStatProvider;
 import com.buglabs.bug.swarm.devicestats.providers.RAMStatProvider;
 import com.buglabs.bug.swarm.devicestats.providers.StorageStatProvider;
+import com.buglabs.bug.swarm.devicestats.providers.UptimeStatProvider;
 import com.buglabs.bug.swarm.devicestats.providers.WifiStatProvider;
 import com.buglabs.bug.swarm.devicestats.pub.DeviceStatProviderService;
 import com.buglabs.util.osgi.FilterUtil;
@@ -120,6 +121,7 @@ public class Activator implements BundleActivator, ServiceListener {
 		context.registerService(DeviceStatProviderService.class.getName(), new RAMStatProvider(session), sp);
 		context.registerService(DeviceStatProviderService.class.getName(), new WifiStatProvider(), sp);
 		context.registerService(DeviceStatProviderService.class.getName(), new BatteryStatProvider(), sp);
+		context.registerService(DeviceStatProviderService.class.getName(), new UptimeStatProvider(session), sp);
 	}
 
 	/**

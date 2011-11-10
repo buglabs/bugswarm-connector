@@ -21,6 +21,7 @@ import com.buglabs.util.shell.pub.ShellSession;
  */
 public class RAMStatProvider implements DeviceStatProviderService {
 
+	private static final String COMMAND = "free -b";
 	private final ShellSession session;
 	private final String lineSeperator;
 
@@ -33,7 +34,7 @@ public class RAMStatProvider implements DeviceStatProviderService {
 	public void addStats(Map<String, Serializable> propertyMap) {
 		String rawResponse;
 		try {
-			rawResponse = session.execute("free -b");			
+			rawResponse = session.execute(COMMAND);			
 
 			if (rawResponse != null && rawResponse.trim().length() > 0) {
 				List<String> lines = Arrays.asList(rawResponse.split(lineSeperator));
@@ -47,6 +48,8 @@ public class RAMStatProvider implements DeviceStatProviderService {
 						addFreeData(propertyMap, "swap", elems);
 					}
 				}
+			} else {
+				Activator.getLog().log(LogService.LOG_WARNING, "Command returned no usable data:" + COMMAND);
 			}
 		} catch (IOException e) {
 			Activator.getLog().log(LogService.LOG_ERROR, "Failed to add ram stats.", e);

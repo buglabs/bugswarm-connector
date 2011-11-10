@@ -41,8 +41,11 @@ public final class JSONElementCreator {
 		if (!feedMap.containsKey("capabilities"))
 			throw new IllegalStateException("Feeds do not contain minimal set for management web ui.");
 		
+		JSONObject capabilities = new JSONObject();
+		capabilities.put("feeds", feedMap.get("capabilities").getFeed().get("feeds"));
+		capabilities.put("modules", feedMap.get("capabilities").getFeed().get("modules"));
 		JSONObject root = new JSONObject();
-		root.put("capabilities", feedMap.get("capabilities").getFeed());
+		root.put("capabilities", capabilities);
 
 		return root.toJSONString();
 	}

@@ -20,6 +20,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.log.LogService;
 
+import com.buglabs.bug.swarm.devicestats.providers.BatteryStatProvider;
 import com.buglabs.bug.swarm.devicestats.providers.RAMStatProvider;
 import com.buglabs.bug.swarm.devicestats.providers.StorageStatProvider;
 import com.buglabs.bug.swarm.devicestats.providers.WifiStatProvider;
@@ -54,7 +55,7 @@ public class Activator implements BundleActivator, ServiceListener {
 	/**
 	 * Default interval to update device statistics.
 	 */
-	private static final int DEFAULT_UPDATE_INTERVAL = 30 * 1000;
+	private static final int DEFAULT_UPDATE_INTERVAL = 60 * 1000;
 	/**
 	 * System property key used to define the update interval.
 	 */
@@ -118,6 +119,7 @@ public class Activator implements BundleActivator, ServiceListener {
 		context.registerService(DeviceStatProviderService.class.getName(), new StorageStatProvider(session), sp);
 		context.registerService(DeviceStatProviderService.class.getName(), new RAMStatProvider(session), sp);
 		context.registerService(DeviceStatProviderService.class.getName(), new WifiStatProvider(), sp);
+		context.registerService(DeviceStatProviderService.class.getName(), new BatteryStatProvider(), sp);
 	}
 
 	/**

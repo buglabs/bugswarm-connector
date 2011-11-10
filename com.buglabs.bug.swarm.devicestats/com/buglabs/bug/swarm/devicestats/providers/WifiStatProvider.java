@@ -1,8 +1,6 @@
 package com.buglabs.bug.swarm.devicestats.providers;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
@@ -19,7 +17,7 @@ import com.buglabs.bug.swarm.devicestats.pub.DeviceStatProviderService;
  * @author kgilmer
  *
  */
-public class WifiStatProvider implements DeviceStatProviderService {
+public class WifiStatProvider extends SysfsStatProvider implements DeviceStatProviderService {
 
 	@Override
 	public void addStats(Map<String, Serializable> propertyMap) {
@@ -40,25 +38,4 @@ public class WifiStatProvider implements DeviceStatProviderService {
 			Activator.getLog().log(LogService.LOG_ERROR, "Failed to add wifi stats.", e);
 		}
 	}
-
-	private void addFileToMap(Map<String, Serializable> propertyMap, String name, File wifiState) throws IOException {
-		if (wifiState.exists()) {
-			propertyMap.put(name, readFile(wifiState));
-		} else {
-			Activator.getLog().log(LogService.LOG_ERROR, "Failed to find wifi stats.");
-		}
-	}
-
-	private Serializable readFile(File f) throws IOException {
-		StringBuilder sb = new StringBuilder();
-
-		BufferedReader br = new BufferedReader(new FileReader(f));
-
-		sb.append(br.readLine());
-
-		br.close();
-
-		return sb.toString();
-	}
-
 }

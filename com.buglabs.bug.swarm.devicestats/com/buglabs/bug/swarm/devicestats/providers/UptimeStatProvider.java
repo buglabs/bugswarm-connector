@@ -41,9 +41,9 @@ public class UptimeStatProvider implements DeviceStatProviderService {
 				String [] elems = StorageStatProvider.filterWhitespace(rawResponse.split(","));
 				
 				if (elems != null && elems.length > 4) {
-					propertyMap.put("uptime", elems[0]);
-					propertyMap.put("load", elems[4]);
-					propertyMap.put("users", elems[1]);
+					propertyMap.put("uptime", elems[0].trim());
+					propertyMap.put("load", elems[4].trim());
+					propertyMap.put("users", elems[1].trim());
 				}						
 			} else {
 				Activator.getLog().log(LogService.LOG_WARNING, "Command returned no usable data:" + COMMAND);

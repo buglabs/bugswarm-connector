@@ -1,6 +1,5 @@
 package com.buglabs.bug.swarm.connector.xmpp;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,22 +38,11 @@ public final class JSONElementCreator {
 		for (Feed f : feeds)
 			feedMap.put(f.getName(), f);
 		
-		if (!feedMap.containsKey("modules"))
+		if (!feedMap.containsKey("capabilities"))
 			throw new IllegalStateException("Feeds do not contain minimal set for management web ui.");
 		
-		JSONObject capabilites = new JSONObject();
-		capabilites.put("modules", feedMap.get("modules").getFeed());
-		
-		List<String> filteredFeeds = new ArrayList<String>();
-		
-		for (Feed f : feeds)
-			if (!f.getName().equals("modules") && !f.getName().equals("capabilities"))
-				filteredFeeds.add(f.getName());
-		
-		capabilites.put("feeds", filteredFeeds);
 		JSONObject root = new JSONObject();
-
-		root.put("capabilities", capabilites);
+		root.put("capabilities", feedMap.get("capabilities"));
 
 		return root.toJSONString();
 	}

@@ -46,7 +46,7 @@ public final class JSONElementCreator {
 		List<String> feedNames = (List<String>) feedMap.get("capabilities").getFeed().get("feeds");
 		
 		JSONObject capabilities = new JSONObject();
-		capabilities.put("feeds", feedNames);
+		capabilities.put("feeds", createFeedListJson(feeds));
 		capabilities.put("modules", modules.getFeed());
 		JSONObject root = new JSONObject();
 		root.put("capabilities", capabilities);
@@ -73,13 +73,13 @@ public final class JSONElementCreator {
 	 * @param bugFeeds List of feeds.
 	 * @return String of json of feed names.
 	 */
-	public static String createFeedListJson(List<Feed> bugFeeds) {
+	public static JSONArray createFeedListJson(List<Feed> bugFeeds) {
 		JSONArray ja = new JSONArray();
 		
 		for (Feed f : bugFeeds)
-			if (!f.getName().equals("modules") && !f.getName().equals("capabilities"))
+			if (!f.getName().equals("modules") && !f.getName().equals("capabilities") && !f.getName().equals("feeds"))
 				ja.add(f.getName());
 		
-		return ja.toJSONString();
+		return ja;
 	}
 }

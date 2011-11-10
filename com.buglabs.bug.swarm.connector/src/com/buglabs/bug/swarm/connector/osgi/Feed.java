@@ -140,7 +140,7 @@ public class Feed {
 		if (input instanceof IModuleControl)
 			return new ModulesFeed(Activator.getContext());
 
-		throw new IllegalArgumentException("Unable to create Feed for type " + input.getClass().getName());
+		return null;
 	}
 	
 	/**

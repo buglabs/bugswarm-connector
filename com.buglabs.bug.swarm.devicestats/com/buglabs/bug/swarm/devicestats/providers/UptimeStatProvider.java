@@ -38,7 +38,7 @@ public class UptimeStatProvider implements DeviceStatProviderService {
 			rawResponse = session.execute(COMMAND);			
 
 			if (rawResponse != null && rawResponse.trim().length() > 0) {
-				String [] elems = StorageStatProvider.filterWhitespace(rawResponse.split(" "));
+				String [] elems = StorageStatProvider.filterWhitespace(rawResponse.split(","));
 				
 				if (elems != null && elems.length < 4) {
 					propertyMap.put("uptime", elems[0]);

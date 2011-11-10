@@ -21,11 +21,11 @@ import com.buglabs.bug.swarm.devicestats.pub.DeviceStatProviderService;
  */
 public abstract class SysfsStatProvider implements DeviceStatProviderService {
 
-	protected void addFileToMap(Map<String, Serializable> propertyMap, String name, File wifiState) throws IOException {
-		if (wifiState.exists()) {
-			propertyMap.put(name, readFile(wifiState));
+	protected void addFileToMap(Map<String, Serializable> propertyMap, String name, File file) throws IOException {
+		if (file.exists()) {
+			propertyMap.put(name, readFile(file));
 		} else {
-			Activator.getLog().log(LogService.LOG_ERROR, "Failed to find wifi stats.");
+			Activator.getLog().log(LogService.LOG_ERROR, "Sysfs file does not exist: " + file);
 		}
 	}
 

@@ -1,8 +1,10 @@
 package com.buglabs.bug.swarm.connector.osgi;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.buglabs.services.ws.IWSResponse;
 import com.buglabs.services.ws.PublicWSDefinition;
 import com.buglabs.services.ws.PublicWSProvider;
 
@@ -14,12 +16,36 @@ import com.buglabs.services.ws.PublicWSProvider;
  */
 public class ServiceFeedAdapter extends Feed {
 
+	private static final int GET = 1;
+	private static final int PUT = 2;
+	private static final int POST = 3;
+	private static final int DELETE = 4;
+	  
+	private final PublicWSProvider service;
+
 	/**
 	 * @param service
 	 *            ws provider to adapt to a feed
 	 */
 	public ServiceFeedAdapter(final PublicWSProvider service) {
 		super(service.getPublicName(), adaptServiceToFeedMap(service));
+		this.service = service;
+	}
+	
+	/**
+	 * @param parameters parameters for method
+	 * @return contents of the GET method if is text data
+	 * @throws IOException if unable to call method or error in call.
+	 */
+	public String callGet(String parameters) throws IOException {
+		IWSResponse response = service.execute(GET, parameters);
+		
+		if (response.getMimeType().indexOf("text") > -1) {
+			//Response is text.
+			return response.getContent().toString();
+		}
+		
+		throw new IOException("Unable to execute method.");
 	}
 
 	/**

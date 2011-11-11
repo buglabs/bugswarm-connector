@@ -1,5 +1,6 @@
 package com.buglabs.bug.swarm.connector;
 
+import java.io.IOException;
 import java.util.TimerTask;
 
 import org.jivesoftware.smack.XMPPException;
@@ -7,6 +8,7 @@ import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.model.Jid;
 import com.buglabs.bug.swarm.connector.osgi.Feed;
+import com.buglabs.bug.swarm.connector.osgi.ServiceFeedAdapter;
 import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
 
@@ -41,12 +43,20 @@ public class FeedResponseTask extends TimerTask {
 	
 	@Override
 	public void run() {
-		String document = JSONElementCreator.createFeedElement(feed);
+		String document = null;
 		
 		try {
+			if (feed instanceof ServiceFeedAdapter) {
+				document = ((ServiceFeedAdapter) feed).callGet(null);
+			} else {
+				document = JSONElementCreator.createFeedElement(feed);
+			}
+		
 			xmppClient.sendFeedToUser(jid, swarmId, document);
 		} catch (XMPPException e) {
 			log.log(LogService.LOG_ERROR, "Error occurred while sending feeds to " + jid, e);
+		} catch (IOException e) {
+			log.log(LogService.LOG_ERROR, "Error occurred while getting feed data.", e);
 		}
 	}
 

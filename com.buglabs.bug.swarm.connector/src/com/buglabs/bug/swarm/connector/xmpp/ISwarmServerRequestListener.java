@@ -62,4 +62,12 @@ public interface ISwarmServerRequestListener {
 	 * @param swarmId swarm associated with request
 	 */
 	void feedMetaRequest(FeedRequest request, String swarmId);
+
+	/**
+	 * Cancel any/all feed requests going to specific user.
+	 * 
+	 * @param jid user that is receiving feeds
+	 * @param swarmId id of swarm 
+	 */
+	void cancelFeedRequests(Jid jid, String swarmId);
 }

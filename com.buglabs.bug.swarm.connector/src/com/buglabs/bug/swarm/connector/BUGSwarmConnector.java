@@ -456,4 +456,16 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		log.log(LogService.LOG_ERROR, "Unhandled Meta Request: " + request.toString());
 		
 	}
+
+	@Override
+	public void cancelFeedRequests(Jid jid, String swarmId) {
+		if (activeTasks == null)
+			return;
+		
+		//Cancel any tasks associated within a specific swarm to a specific resource.
+		for (String taskKey : activeTasks.keySet()) {
+			if (taskKey.contains(jid.getResource()) && taskKey.contains(jid.getUsername()))
+				activeTasks.get(taskKey).cancel();		
+		}
+	}
 }

@@ -38,4 +38,9 @@ public class SwarmRequestListener implements ISwarmServerRequestListener {
 	public void feedMetaRequest(FeedRequest request, String swarmId) {
 		System.out.println("swarmMetaRequest() " + request + " " + swarmId);
 	}
+
+	@Override
+	public void cancelFeedRequests(Jid jid, String swarmId) {
+		System.out.println("cancelFeedRequests() " + jid + " " + swarmId);
+	}
 }

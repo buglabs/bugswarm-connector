@@ -163,6 +163,14 @@ public class GroupChatMessageRequestHandler implements PacketListener, MessageLi
 	@Override
 	public void left(String participant) {
 		Activator.getLog().log(LogService.LOG_WARNING, "Participant " + participant + " left " + swarmId);
+		
+		for (ISwarmServerRequestListener listener : requestListeners) {
+			try {
+				listener.cancelFeedRequests(new Jid(participant), swarmId);
+			} catch (ParseException e) {
+				Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
+			}
+		}
 	}
 
 	@Override

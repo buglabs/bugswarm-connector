@@ -246,6 +246,9 @@ public class SwarmXMPPClient {
 	 */
 	public void advertise(final String swarmId, final String userId, final String feedDocument) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
+		
+		if (muc == null)
+			throw new IllegalStateException("Unable to access MUC " + swarmId);
 
 		Chat pchat = muc.createPrivateChat(userId, new NullMessageListener());
 		pchat.sendMessage(feedDocument);
@@ -264,8 +267,11 @@ public class SwarmXMPPClient {
 	public void announce(final String swarmId, final String feedDocument) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
 		
+		if (muc == null)
+			throw new IllegalStateException("Unable to access MUC " + swarmId);
+		
 		//Only send feed to swarms that have other members joined.
-		if (muc != null && muc.getMembers().size() > 1) {			
+		if (muc != null && muc.getOccupantsCount() > 1) {			
 				muc.sendMessage(feedDocument);
 		}
 	}
@@ -283,7 +289,6 @@ public class SwarmXMPPClient {
 	private static void login(final XMPPConnection connection, final String user, final String pass, final String resource)
 			throws XMPPException {
 		connection.connect();
-		// TODO break out resource into property.
 		connection.login(user, pass, resource);
 	}
 

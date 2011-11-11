@@ -263,7 +263,9 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 								config.getResource()), Feed.createForType(source));
 				break;
 			case ServiceEvent.UNREGISTERING:
-				// TODO: determine if message is required when feed is no longer available.
+				announceState(
+						wsClient.getSwarmResourceClient().getSwarmsByMember(
+								config.getResource()), null);
 			default:
 			}			
 		} catch (Exception e) {

@@ -263,7 +263,11 @@ public class SwarmXMPPClient {
 	 */
 	public void announce(final String swarmId, final String feedDocument) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
-		muc.sendMessage(feedDocument);
+		
+		//Only send feed to swarms that have other members joined.
+		if (muc != null && muc.getMembers().size() > 1) {			
+				muc.sendMessage(feedDocument);
+		}
 	}
 
 	/**

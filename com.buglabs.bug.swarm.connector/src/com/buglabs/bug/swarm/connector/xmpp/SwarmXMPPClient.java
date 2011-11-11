@@ -256,7 +256,7 @@ public class SwarmXMPPClient {
 		
 		Chat pchat = chatCache.get(userId + swarmId);
 		if (pchat == null) {
-			pchat = muc.createPrivateChat(userId, null);
+			pchat = muc.createPrivateChat(userId, requestHandlers.get(swarmId));
 			chatCache.put(userId + swarmId, pchat);
 		}
 	
@@ -391,7 +391,7 @@ public class SwarmXMPPClient {
 
 		Chat pchat = chatCache.get(requestJid + swarmId);
 		if (pchat == null) {
-			pchat = muc.createPrivateChat(requestJid.toString(), null);
+			pchat = muc.createPrivateChat(requestJid.toString(), requestHandlers.get(swarmId));
 			chatCache.put(requestJid + swarmId, pchat);
 		}
 		
@@ -424,15 +424,17 @@ public class SwarmXMPPClient {
 		if (muc == null)
 			throw new XMPPException("Connector is not attached to room " + swarmId);
 		
-		Chat pchat = chatCache.get(requestJid + swarmId);
-		if (pchat == null) {
-			pchat = muc.createPrivateChat(requestJid.toString(), null);
-			chatCache.put(requestJid + swarmId, pchat);
+		if (muc.getOccupant(requestJid.toString()) !=  null) {
+			Chat pchat = chatCache.get(requestJid + swarmId);
+			if (pchat == null) {
+				pchat = muc.createPrivateChat(requestJid.toString(), requestHandlers.get(swarmId));
+				chatCache.put(requestJid + swarmId, pchat);
+			}
+			
+			Activator.getLog().log(
+					LogService.LOG_DEBUG, "Sending " + document + " to " + requestJid.toString());
+			pchat.sendMessage(document);
 		}
-		
-		Activator.getLog().log(
-				LogService.LOG_DEBUG, "Sending " + document + " to " + requestJid.toString());
-		pchat.sendMessage(document);
 	}
 
 	/**

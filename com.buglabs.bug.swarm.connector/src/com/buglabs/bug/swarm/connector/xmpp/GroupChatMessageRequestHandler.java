@@ -64,7 +64,7 @@ public class GroupChatMessageRequestHandler implements PacketListener, MessageLi
 		
 		if (freq == null) {
 			Activator.getLog().log(LogService.LOG_ERROR, 
-					"Unhandled message received from swarm " + swarmId + " message: " + rawMessage);
+					"Unhandled private message received from user " + sender + " swarm " + swarmId + " message: " + rawMessage);
 			return;
 		}
 

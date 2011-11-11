@@ -171,7 +171,10 @@ public class SwarmXMPPClient {
 				muc.addParticipantListener(requestHandler);
 				muc.addParticipantStatusListener(requestHandler);
 				requestHandlers.put(swarmId, requestHandler);
-			} 			
+			} else {
+				Activator.getLog().log(
+						LogService.LOG_WARNING, "Swarm " + swarmId + " already has a GroupChatMessageRequestHandler.");
+			}
 		}
 	}
 

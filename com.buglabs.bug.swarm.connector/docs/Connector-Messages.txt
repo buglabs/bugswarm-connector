@@ -16,11 +16,7 @@ Example of feed request that causes connector to send the location every 20 seco
     "type": "get",
     "feed": "Location",
     "params": {
-        "frequency": 20,
-        "foo": [
-            "val1",
-            "val2"
-        ]
+        "frequency": 20
     }
 }
 ````

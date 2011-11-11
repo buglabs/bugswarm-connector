@@ -66,6 +66,7 @@ public class SwarmXMPPClient {
 	private final Jid jid;
 	private final List<ISwarmServerRequestListener> requestListeners;
 	private RootMessageRequestHandler rootRequestHandler;
+	private final HashMap<String, GroupChatMessageRequestHandler> requestHandlers;
 
 	/**
 	 * @param config
@@ -74,7 +75,8 @@ public class SwarmXMPPClient {
 	public SwarmXMPPClient(final Configuration config) {
 		this.config = config;
 		this.jid = new Jid(config.getUsername(), config.getHostname(Protocol.XMPP), config.getResource());
-		requestListeners = new ArrayList<ISwarmServerRequestListener>();
+		this.requestListeners = new ArrayList<ISwarmServerRequestListener>();
+		this.requestHandlers = new HashMap<String, GroupChatMessageRequestHandler>();
 	}
 
 	/**
@@ -161,12 +163,15 @@ public class SwarmXMPPClient {
 				requestListeners.add(listener);
 
 			muc.join(getResource());
-			GroupChatMessageRequestHandler requestHandler = new GroupChatMessageRequestHandler(jid, swarmId, requestListeners);
-			// TODO: Verify it is correct to not execute the following line.
-			connection.getChatManager().addChatListener(requestHandler);
-			muc.addMessageListener(requestHandler);
-			muc.addParticipantListener(requestHandler);
 			
+			if (!requestHandlers.containsKey(swarmId)) {
+				GroupChatMessageRequestHandler requestHandler = new GroupChatMessageRequestHandler(jid, swarmId, requestListeners);
+				connection.getChatManager().addChatListener(requestHandler);
+				muc.addMessageListener(requestHandler);
+				muc.addParticipantListener(requestHandler);
+				muc.addParticipantStatusListener(requestHandler);
+				requestHandlers.put(swarmId, requestHandler);
+			} 			
 		}
 	}
 
@@ -179,8 +184,20 @@ public class SwarmXMPPClient {
 	public void leaveSwarm(final String swarmId) {
 		MultiUserChat muc = swarmMap.get(swarmId);
 
-		if (muc != null && muc.isJoined())
+		if (muc != null && muc.isJoined()) {
+			if (requestHandlers.containsKey(swarmId)) {
+				GroupChatMessageRequestHandler listener = requestHandlers.get(swarmId);
+				connection.getChatManager().removeChatListener(listener);
+				muc.removeMessageListener(listener);
+				muc.removeParticipantListener(listener);
+				muc.removeParticipantStatusListener(listener);
+				requestHandlers.remove(swarmId);
+			}
 			muc.leave();
+		} else {
+			Activator.getLog().log(
+					LogService.LOG_WARNING, "leaveSwarm() called with a swarm not currently joined: " + swarmId);
+		}
 	}
 
 	/**

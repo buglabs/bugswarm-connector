@@ -10,6 +10,7 @@ import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smackx.muc.ParticipantStatusListener;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.model.FeedRequest;
@@ -23,7 +24,7 @@ import com.buglabs.bug.swarm.connector.osgi.Activator;
  * @author kgilmer
  * 
  */
-public class GroupChatMessageRequestHandler implements PacketListener, MessageListener, ChatManagerListener {
+public class GroupChatMessageRequestHandler implements PacketListener, MessageListener, ChatManagerListener, ParticipantStatusListener {
 
 	private final Jid jid;
 	private final String swarmId;
@@ -151,5 +152,94 @@ public class GroupChatMessageRequestHandler implements PacketListener, MessageLi
 
 		// TODO: figure out how to handle when clients close chat connections
 		// for proper cleanup.
+	}
+
+	@Override
+	public void joined(String participant) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void left(String participant) {
+		Activator.getLog().log(LogService.LOG_WARNING, "Participant " + participant + " left " + swarmId);
+	}
+
+	@Override
+	public void kicked(String participant, String actor, String reason) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void voiceGranted(String participant) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void voiceRevoked(String participant) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void banned(String participant, String actor, String reason) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void membershipGranted(String participant) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void membershipRevoked(String participant) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void moderatorGranted(String participant) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void moderatorRevoked(String participant) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void ownershipGranted(String participant) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void ownershipRevoked(String participant) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void adminGranted(String participant) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void adminRevoked(String participant) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void nicknameChanged(String participant, String newNickname) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -1,0 +1,28 @@
+# Connector Messages
+
+## Server to Connector
+
+Example of a feed request for the Location feed.
+````
+{
+    "type": "get",
+    "feed": "Location",    
+}
+````
+
+Example of feed request that causes connector to send the location every 20 seconds.
+````
+{
+    "type": "get",
+    "feed": "Location",
+    "params": {
+        "frequency": 20,
+        "foo": [
+            "val1",
+            "val2"
+        ]
+    }
+}
+````
+
+## Connector to Server

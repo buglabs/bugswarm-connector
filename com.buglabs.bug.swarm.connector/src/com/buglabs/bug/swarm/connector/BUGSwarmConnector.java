@@ -454,6 +454,8 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 
 	@Override
 	public void cancelFeedRequests(Jid jid, String swarmId) {
+		xmppClient.clearChatCache(jid.getResource());
+		
 		if (activeTasks == null)
 			return;
 		
@@ -462,7 +464,5 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			if (taskKey.contains(jid.getResource()) && taskKey.contains(jid.getUsername()))
 				activeTasks.get(taskKey).cancel();		
 		}
-		
-		xmppClient.clearChatCache(jid.getResource());
 	}
 }

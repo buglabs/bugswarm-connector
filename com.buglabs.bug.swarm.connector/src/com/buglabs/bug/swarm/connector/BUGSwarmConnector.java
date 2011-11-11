@@ -462,5 +462,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			if (taskKey.contains(jid.getResource()) && taskKey.contains(jid.getUsername()))
 				activeTasks.get(taskKey).cancel();		
 		}
+		
+		xmppClient.clearChatCache(jid.getResource());
 	}
 }

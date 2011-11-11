@@ -66,7 +66,8 @@ public class SwarmXMPPClient {
 	private final Jid jid;
 	private final List<ISwarmServerRequestListener> requestListeners;
 	private RootMessageRequestHandler rootRequestHandler;
-	private final HashMap<String, GroupChatMessageRequestHandler> requestHandlers;
+	private final Map<String, GroupChatMessageRequestHandler> requestHandlers;
+	private final Map<String, Chat> chatCache;
 
 	/**
 	 * @param config
@@ -77,6 +78,7 @@ public class SwarmXMPPClient {
 		this.jid = new Jid(config.getUsername(), config.getHostname(Protocol.XMPP), config.getResource());
 		this.requestListeners = new ArrayList<ISwarmServerRequestListener>();
 		this.requestHandlers = new HashMap<String, GroupChatMessageRequestHandler>();
+		this.chatCache = new HashMap<String, Chat>();
 	}
 
 	/**
@@ -197,6 +199,8 @@ public class SwarmXMPPClient {
 				requestHandlers.remove(swarmId);
 			}
 			muc.leave();
+			
+			clearChatCache(swarmId);
 		} else {
 			Activator.getLog().log(
 					LogService.LOG_WARNING, "leaveSwarm() called with a swarm not currently joined: " + swarmId);
@@ -249,8 +253,13 @@ public class SwarmXMPPClient {
 		
 		if (muc == null)
 			throw new IllegalStateException("Unable to access MUC " + swarmId);
-
-		Chat pchat = muc.createPrivateChat(userId, new NullMessageListener());
+		
+		Chat pchat = chatCache.get(userId + swarmId);
+		if (pchat == null) {
+			pchat = muc.createPrivateChat(userId, null);
+			chatCache.put(userId + swarmId, pchat);
+		}
+	
 		pchat.sendMessage(feedDocument);
 	}
 
@@ -380,10 +389,12 @@ public class SwarmXMPPClient {
 		if (muc == null)
 			throw new XMPPException("Connector is not attached to room " + swarmId);
 
-		Activator.getLog().log(
-				LogService.LOG_DEBUG, "Creating private chat with " + requestJid.toString());
-		Chat pchat = muc.createPrivateChat(requestJid.toString(), null);
-
+		Chat pchat = chatCache.get(requestJid + swarmId);
+		if (pchat == null) {
+			pchat = muc.createPrivateChat(requestJid.toString(), null);
+			chatCache.put(requestJid + swarmId, pchat);
+		}
+		
 		Activator.getLog().log(
 				LogService.LOG_DEBUG, "Sending " + document + " to " + requestJid.toString());
 		
@@ -412,13 +423,26 @@ public class SwarmXMPPClient {
 
 		if (muc == null)
 			throw new XMPPException("Connector is not attached to room " + swarmId);
-
-		Activator.getLog().log(
-				LogService.LOG_DEBUG, "Creating private chat with " + requestJid.toString());
-		Chat pchat = muc.createPrivateChat(requestJid.toString(), null);
-
+		
+		Chat pchat = chatCache.get(requestJid + swarmId);
+		if (pchat == null) {
+			pchat = muc.createPrivateChat(requestJid.toString(), null);
+			chatCache.put(requestJid + swarmId, pchat);
+		}
+		
 		Activator.getLog().log(
 				LogService.LOG_DEBUG, "Sending " + document + " to " + requestJid.toString());
 		pchat.sendMessage(document);
+	}
+
+	/**
+	 * Clear the chat cache based on subset of key.  Intended to be user (resource) or swarm.
+	 * @param identity
+	 */
+	public void clearChatCache(String identity) {
+		List<String> caches = new ArrayList(chatCache.keySet());
+		for (String name : caches)
+			if (name.contains(identity))
+				chatCache.remove(name);	
 	}
 }

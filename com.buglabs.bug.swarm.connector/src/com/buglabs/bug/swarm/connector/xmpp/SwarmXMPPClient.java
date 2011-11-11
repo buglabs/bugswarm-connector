@@ -65,7 +65,7 @@ public class SwarmXMPPClient {
 	private final Configuration config;
 	private final Jid jid;
 	private final List<ISwarmServerRequestListener> requestListeners;
-	private RootMessageRequestHandler rootRequestHandler;
+	//private RootMessageRequestHandler rootRequestHandler;
 	private final Map<String, GroupChatMessageRequestHandler> requestHandlers;
 	private final Map<String, Chat> chatCache;
 
@@ -102,12 +102,12 @@ public class SwarmXMPPClient {
 		if (!requestListeners.contains(listener))
 			requestListeners.add(listener);
 
-		try {
+		/*try {
 			rootRequestHandler = new RootMessageRequestHandler(jid, requestListeners);
 			connection.getChatManager().addChatListener(rootRequestHandler);		
 		} catch (Exception e) {
 			throw new IOException(e);
-		}
+		}*/
 	}
 
 	/**

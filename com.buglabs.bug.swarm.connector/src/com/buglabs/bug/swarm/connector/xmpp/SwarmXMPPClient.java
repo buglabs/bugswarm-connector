@@ -424,7 +424,7 @@ public class SwarmXMPPClient {
 		if (muc == null)
 			throw new XMPPException("Connector is not attached to room " + swarmId);
 		
-		if (muc.getOccupant(requestJid.toString()) !=  null) {
+		if (isPresent(swarmId, requestJid.toString())) {
 			Chat pchat = chatCache.get(requestJid + swarmId);
 			if (pchat == null) {
 				pchat = muc.createPrivateChat(requestJid.toString(), requestHandlers.get(swarmId));

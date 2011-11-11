@@ -120,7 +120,15 @@ public class GroupChatMessageRequestHandler implements PacketListener, MessageLi
 					}
 				}
 			} else {
-				Activator.getLog().log(LogService.LOG_DEBUG, "Ignoring non-standard presense packet from " + p.getFrom());
+				Activator.getLog().log(LogService.LOG_WARNING, "Participant " + p.getFrom() + " left " + swarmId + "  Cleaning up.");
+				
+				for (ISwarmServerRequestListener listener : requestListeners) {
+					try {
+						listener.cancelFeedRequests(new Jid(p.getFrom()), swarmId);
+					} catch (ParseException e) {
+						Activator.getLog().log(LogService.LOG_ERROR, "Parse error with JID.", e);
+					}
+				}
 			}
 		} else {
 			Activator.getLog().log(LogService.LOG_WARNING, "Unhandled packet received from swarm " + swarmId);

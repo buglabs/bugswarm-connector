@@ -346,14 +346,10 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			log.log(LogService.LOG_WARNING, "Request for non-existant feed " + feedRequest.getName() + " from client " + jid);
 			return;
 		}
-		
-		if (timer == null) {
+	
+		if (timer == null) 
 			timer = new Timer();
-		}
-
-		//TODO: there needs to be a way for the swarm server to notify of when 
-		//a feed that is in streaming mode should be shutdown.
-		//When this happens the TimerTask needs to be canceled and the entry in activeTasks removed.
+		
 		TimerTask task = null;
 		
 		if (feed instanceof BinaryFeed) {
@@ -363,9 +359,9 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		}
 		
 		if (feedRequest.hasFrequency() && !containsActiveTask(jid, swarmId, feed)) {
-			if (activeTasks == null) {
+			if (activeTasks == null) 
 				activeTasks = new HashMap<String, TimerTask>();
-			}
+			
 			
 			//TODO: this is not matching up with the blacklist
 			activeTasks.put(jid.toString() + swarmId + feed.getName(), task);

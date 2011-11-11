@@ -273,6 +273,7 @@ public class SwarmXMPPClient {
 		//Only send feed to swarms that have other members joined.
 		if (muc != null && muc.getOccupantsCount() > 1) {			
 				muc.sendMessage(feedDocument);
+				Activator.getLog().log(LogService.LOG_DEBUG, "Sent " + feedDocument + " to swarm " + swarmId);
 		}
 	}
 

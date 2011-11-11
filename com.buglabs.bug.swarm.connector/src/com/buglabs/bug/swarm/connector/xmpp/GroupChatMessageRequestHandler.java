@@ -99,8 +99,7 @@ public class GroupChatMessageRequestHandler implements PacketListener, MessageLi
 
 		Activator.getLog().log(
 				LogService.LOG_INFO,
-				"Swarm " + swarmId + " received new public message " + packet.getPacketID() 
-				+ " from " + packet.getFrom() + " to: "	+ packet.getTo());
+				"Swarm " + swarmId + " received new public message from " + packet.getFrom() + " to: "	+ packet.getTo());
 
 		if (packet instanceof Message) {
 			Message m = (Message) packet;

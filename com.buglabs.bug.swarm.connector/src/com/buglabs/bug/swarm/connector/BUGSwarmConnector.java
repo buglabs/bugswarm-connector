@@ -166,8 +166,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			document = JSONElementCreator.createFeedElement(source);
 		
 		//Notify all consumer-members of swarms of services, feeds, and modules.
-		for (SwarmModel swarm : allSwarms) {
-			Activator.getLog().log(LogService.LOG_DEBUG, "Announcing state " + document + " to swarm " + swarm.getId());
+		for (SwarmModel swarm : allSwarms) {			
 			xmppClient.announce(swarm.getId(), document);
 		}
 	}

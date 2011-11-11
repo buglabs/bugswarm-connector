@@ -296,7 +296,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		
 		if (wsClient != null && resourceId != null) {
 			try {
-				wsClient.getUserResourceClient().remove(resourceId);
+				wsClient.getUserResourceClient().destroy(resourceId);
 			} catch (IOException e) {
 				// Ignore shutdown error.
 			}

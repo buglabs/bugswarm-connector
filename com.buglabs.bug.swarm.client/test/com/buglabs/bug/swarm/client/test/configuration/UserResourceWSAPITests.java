@@ -52,7 +52,7 @@ public class UserResourceWSAPITests extends TestCase {
 	
 		for (UserResourceModel model : resources)
 			if (model.getUserId().equals(AccountConfig.getConfiguration().getUsername()))
-				resourceClient.remove(model.getResourceId());		
+				resourceClient.destroy(model.getResourceId());		
 	
 		String id = client.create(AccountConfig.generateRandomSwarmName(), true, AccountConfig.getTestSwarmDescription());
 		AccountConfig.testSwarmId = id;
@@ -115,7 +115,7 @@ public class UserResourceWSAPITests extends TestCase {
 		assertNotNull(resources);
 		assertTrue(resources.size() == 1);
 		
-		SwarmWSResponse response = rclient.remove(resources.get(0).getResourceId());
+		SwarmWSResponse response = rclient.destroy(resources.get(0).getResourceId());
 		assertFalse(response.isError());
 		
 		resources = rclient.get();

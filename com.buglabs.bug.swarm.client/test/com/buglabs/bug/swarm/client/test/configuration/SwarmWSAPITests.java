@@ -49,7 +49,7 @@ public class SwarmWSAPITests extends TestCase {
 		
 		//Delete all pre-existing resources owned by the test user.
 		for (UserResourceModel ur : client.getUserResourceClient().list())
-			client.getUserResourceClient().remove(ur.getResourceId());
+			client.getUserResourceClient().destroy(ur.getResourceId());
 		
 		assertTrue(client.getUserResourceClient().list().size() == 0);
 		

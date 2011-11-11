@@ -244,7 +244,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 
 	@Override
 	public SwarmWSResponse removeResource(String resourceId) throws IOException {
-		return getUserResourceClient().remove(resourceId);
+		return getUserResourceClient().destroy(resourceId);
 	}
 
 	@Override

@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.client.model.SwarmModel;
-import com.buglabs.bug.swarm.client.model.SwarmResourceModel;
 import com.buglabs.bug.swarm.client.model.UserResourceModel;
 
 /**
@@ -62,12 +61,12 @@ public interface IUserResourceClient {
 	UserResourceModel get(String resourceId) throws IOException;
 	
 	/**
-	*	Remove a resource.
+	 *  Destroy a resource.
 	 * @param resourceId id of resource
 	 * @return WS response code
 	 * @throws IOException on I/O or authentication error.
 	 */
-	SwarmWSResponse remove(String resourceId) throws IOException;
+	SwarmWSResponse destroy(String resourceId) throws IOException;
 	
 	/**
 	 * 

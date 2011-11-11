@@ -79,7 +79,7 @@ public class SwarmInvitationWSAPITests extends TestCase {
 		}
 		
 		for (UserResourceModel ur : client2.getUserResourceClient().list())
-			client2.getUserResourceClient().remove(ur.getResourceId());
+			client2.getUserResourceClient().destroy(ur.getResourceId());
 		
 		urc = client2.getUserResourceClient().add(AccountConfig.generateRandomResourceName(), "user resource desc", "pc", 0, 0);
 		AccountConfig.testUserResource2 = urc;

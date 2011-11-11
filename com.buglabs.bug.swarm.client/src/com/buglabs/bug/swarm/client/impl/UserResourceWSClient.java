@@ -85,7 +85,7 @@ public class UserResourceWSClient extends AbstractSwarmWSClient implements IUser
 	}
 
 	@Override
-	public SwarmWSResponse remove(String resourceId) throws IOException {
+	public SwarmWSResponse destroy(String resourceId) throws IOException {
 		validateParams(resourceId);
 
 		return httpClient.callDelete(swarmHostUrl.copy("resources/", resourceId), 

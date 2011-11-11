@@ -143,9 +143,11 @@ public class GroupChatMessageRequestHandler implements PacketListener, MessageLi
 
 	@Override
 	public void chatCreated(final Chat chat, final boolean createdLocally) {
-		Activator.getLog().log(LogService.LOG_DEBUG, "Private chat created with " + chat.getParticipant());
-
-		chat.addMessageListener(this);
+		if (!createdLocally) {
+			Activator.getLog().log(LogService.LOG_DEBUG, "Private chat created with " + chat.getParticipant());
+	
+			chat.addMessageListener(this);
+		}
 
 		// TODO: figure out how to handle when clients close chat connections
 		// for proper cleanup.

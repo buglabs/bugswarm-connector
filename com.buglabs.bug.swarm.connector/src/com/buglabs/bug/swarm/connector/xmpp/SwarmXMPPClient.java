@@ -28,7 +28,6 @@
 package com.buglabs.bug.swarm.connector.xmpp;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,7 +38,6 @@ import org.jivesoftware.smack.Connection;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smackx.muc.Affiliate;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.osgi.service.log.LogService;
 
@@ -207,34 +205,7 @@ public class SwarmXMPPClient {
 		}
 	}
 
-	/**
-	 * Determines if a given user in the given swarm is currently online.
-	 * 
-	 * @param swarmId
-	 *            id of swarm
-	 * @param userId
-	 *            id of user
-	 * @return true if presence is set
-	 * @throws XMPPException
-	 *             on xmpp error
-	 */
-	public boolean isPresent(final String swarmId, final String userId) throws XMPPException {
-		MultiUserChat muc = getMUC(swarmId);
-		try {
-			Jid userJid = new Jid(userId);
-
-			for (Affiliate aff : muc.getMembers()) {
-				Jid j = new Jid(aff.getJid());
-				if (j.getResource() == userJid.getResource())
-					return true;
-
-			}
-		} catch (ParseException e) {
-			throw new XMPPException("Invalid JID");
-		}
-
-		return false;
-	}
+	
 
 	/**
 	 * Advertise local services to another swarm member.
@@ -423,18 +394,16 @@ public class SwarmXMPPClient {
 
 		if (muc == null)
 			throw new XMPPException("Connector is not attached to room " + swarmId);
-		
-		if (isPresent(swarmId, requestJid.toString())) {
-			Chat pchat = chatCache.get(requestJid + swarmId);
-			if (pchat == null) {
-				pchat = muc.createPrivateChat(requestJid.toString(), requestHandlers.get(swarmId));
-				chatCache.put(requestJid + swarmId, pchat);
-			}
-			
-			Activator.getLog().log(
-					LogService.LOG_DEBUG, "Sending " + document + " to " + requestJid.toString());
-			pchat.sendMessage(document);
+				
+		Chat pchat = chatCache.get(requestJid + swarmId);
+		if (pchat == null) {
+			pchat = muc.createPrivateChat(requestJid.toString(), requestHandlers.get(swarmId));
+			chatCache.put(requestJid + swarmId, pchat);
 		}
+		
+		Activator.getLog().log(
+				LogService.LOG_DEBUG, "Sending " + document + " to " + requestJid.toString());
+		pchat.sendMessage(document);
 	}
 
 	/**

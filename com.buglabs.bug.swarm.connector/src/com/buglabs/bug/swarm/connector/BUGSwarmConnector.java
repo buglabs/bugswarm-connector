@@ -15,10 +15,8 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.client.ISwarmClient;
-import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.client.SwarmClientFactory;
 import com.buglabs.bug.swarm.client.model.SwarmModel;
-import com.buglabs.bug.swarm.client.model.SwarmResourceModel;
 import com.buglabs.bug.swarm.client.model.UserResourceModel;
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.bug.swarm.connector.model.FeedRequest;
@@ -169,28 +167,6 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 		for (SwarmModel swarm : allSwarms) {			
 			xmppClient.announce(swarm.getId(), document);
 		}
-	}
-
-	/**
-	 * Send the state of this device to all interested swarm members as private messages.
-	 * 
-	 * @param allSwarms
-	 *            list of SwarmModel to send state to
-	 * @throws XMPPException
-	 *             upon XMPP failure
-	 */
-	private void broadcastState(final List<SwarmModel> allSwarms) throws XMPPException {
-		String document = JSONElementCreator.createCapabilitiesJson(osgiHelper.getBUGFeeds());
-
-		// Notify all consumer-members of swarms of services, feeds, and
-		// modules.
-		for (SwarmModel swarm : allSwarms)
-			for (SwarmResourceModel member : swarm.getMembers())
-				if (member.getType() == MemberType.CONSUMER && xmppClient.isPresent(swarm.getId(), member.getUserId())) {
-					xmppClient.advertise(swarm.getId(), 
-							(new Jid(member.getUserId(), xmppClient.getHostname(), 
-									member.getResourceId())).toString(), document);
-				}
 	}
 
 	/**

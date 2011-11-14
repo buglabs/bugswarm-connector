@@ -9,7 +9,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -41,14 +40,14 @@ public final class OSGiHelper implements ServiceListener {
 	 * @author kgilmer
 	 * 
 	 */
-	public interface EntityChangeListener {
+	public interface OSGiServiceEventListener {
 		/**
 		 * @param eventType
 		 *            event type
 		 * @param source
 		 *            object source
 		 */
-		void change(int eventType, Object source);
+		void serviceEvent(int eventType, Object source);
 	}
 
 	private static BundleContext context;
@@ -56,7 +55,7 @@ public final class OSGiHelper implements ServiceListener {
 	private final Map<Object, Feed> feedServiceMap;
 	private final Map<String, Feed> feedNameMap;
 
-	private final List<EntityChangeListener> listeners;
+	private OSGiServiceEventListener listener;
 	private final ModulesFeed modulesFeed;
 	private CapabilitiesFeed capabilitiesFeed;
 	private ConfigurationAdmin configAdmin;
@@ -82,7 +81,7 @@ public final class OSGiHelper implements ServiceListener {
 		if (context != null)
 			context.addServiceListener(this);
 
-		listeners = new CopyOnWriteArrayList<OSGiHelper.EntityChangeListener>();
+		//listeners = new CopyOnWriteArrayList<OSGiHelper.EntityChangeListener>();
 	}
 
 	/**
@@ -136,9 +135,8 @@ public final class OSGiHelper implements ServiceListener {
 	 * @param listener
 	 *            listener
 	 */
-	public void addListener(final EntityChangeListener listener) {
-		if (!listeners.contains(listener))
-			listeners.add(listener);
+	public void setListener(final OSGiServiceEventListener listener) {
+		this.listener = listener;
 	}
 
 	/**
@@ -148,10 +146,10 @@ public final class OSGiHelper implements ServiceListener {
 	 * @param listener
 	 *            listener
 	 */
-	public void removeListener(final EntityChangeListener listener) {
+	/*public void removeListener(final EntityChangeListener listener) {
 		if (listeners != null)
 			listeners.remove(listener);
-	}
+	}*/
 
 	/**
 	 * @return List of Feed services available at time of call from OSGi service
@@ -315,15 +313,14 @@ public final class OSGiHelper implements ServiceListener {
 					feedServiceMap.remove(svc);
 					feedNameMap.remove(event.getServiceReference().getProperty("SWARM.FEED.NAME"));
 				}
+				
+				// If we have event listener, send notifications of the change.
+				if (listener != null) {			
+					listener.serviceEvent(event.getType(), event.getServiceReference());
+				}
 			} catch (Exception e) {
 				Activator.getLog().log(LogService.LOG_ERROR, "Failed to update state from OSGi service event.", e);
-			}
-
-			// If we have event listeners, send notifications of the change.
-			if (listeners != null && listeners.size() > 0) {
-				for (EntityChangeListener listener : listeners)
-					listener.change(event.getType(), event.getServiceReference());
-			}
+			}			
 		}
 	}
 

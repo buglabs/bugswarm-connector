@@ -25,7 +25,7 @@ import com.buglabs.bug.swarm.connector.osgi.Activator;
 import com.buglabs.bug.swarm.connector.osgi.BinaryFeed;
 import com.buglabs.bug.swarm.connector.osgi.Feed;
 import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
-import com.buglabs.bug.swarm.connector.osgi.OSGiHelper.EntityChangeListener;
+import com.buglabs.bug.swarm.connector.osgi.OSGiHelper.OSGiServiceEventListener;
 import com.buglabs.bug.swarm.connector.xmpp.ISwarmServerRequestListener;
 import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
@@ -40,7 +40,7 @@ import com.buglabs.util.simplerestclient.HTTPException;
  * @author kgilmer
  * 
  */
-public class BUGSwarmConnector extends Thread implements EntityChangeListener, ISwarmServerRequestListener {
+public class BUGSwarmConnector extends Thread implements OSGiServiceEventListener, ISwarmServerRequestListener {
 
 	/**
 	 * Used to convert seconds to milliseconds.
@@ -141,7 +141,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			}
 
 			// Listen for local changes
-			osgiHelper.addListener(this);
+			osgiHelper.setListener(this);
 			log.log(LogService.LOG_INFO, "Connector initialization complete.");
 
 		} catch (Exception e) {
@@ -156,16 +156,16 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	 * @param source specific feed to announce or null to announce all feeds.
 	 * @throws XMPPException thrown on XMPP error
 	 */
-	private void announceState(final List<SwarmModel> allSwarms, Feed source) throws XMPPException {
-		String document = null;
+	private void announceState(final List<SwarmModel> allSwarms, String message) throws XMPPException {
+		/*String document = null;
 		if (source == null)
 			document = JSONElementCreator.createCapabilitiesJson(osgiHelper.getBUGFeeds());
 		else 
-			document = JSONElementCreator.createFeedElement(source);
+			document = JSONElementCreator.createFeedElement(source);*/
 		
 		//Notify all consumer-members of swarms of services, feeds, and modules.
 		for (SwarmModel swarm : allSwarms) {			
-			xmppClient.announce(swarm.getId(), document);
+			xmppClient.announce(swarm.getId(), message);
 		}
 	}
 
@@ -222,7 +222,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	}
 
 	@Override
-	public void change(final int eventType, final Object source) {
+	public void serviceEvent(final int eventType, final Object source) {
 		// For now, every time a service, module, or feed changes locally, send
 		// the entire state to each interested party.
 		// In the future it may be better to cache and determine delta and send
@@ -232,10 +232,13 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			switch(eventType) {
 			case ServiceEvent.REGISTERED:
 			case ServiceEvent.MODIFIED:
-				// Load data about server configuration and local configuration.
-				announceState(
-						wsClient.getSwarmResourceClient().getSwarmsByMember(
-								config.getResource()), Feed.createForType(source));
+				// A feed has changed.  Send the complete set of feeds to all member swarms.
+				List<SwarmModel> swarms = wsClient.getSwarmResourceClient().getSwarmsByMember(config.getResource());
+				String capabilities = JSONElementCreator.createCapabilitiesJson(osgiHelper.getBUGFeeds());
+				
+				for (SwarmModel swarm : swarms) 	
+					xmppClient.announce(swarm.getId(), capabilities);				
+				
 				break;
 			case ServiceEvent.UNREGISTERING:
 				announceState(
@@ -257,10 +260,12 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 			timer.cancel();
 		}
 				
-		// Stop listening to local events
-		if (osgiHelper != null)
-			osgiHelper.removeListener(this);
-
+		// Stop listening to local service events
+		if (osgiHelper != null) {
+			osgiHelper.setListener(null);
+			osgiHelper.shutdown();
+		}
+			
 		if (xmppClient != null) {
 			for (SwarmModel sm : memberSwarms)
 				xmppClient.leaveSwarm(sm.getId());
@@ -273,26 +278,26 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 
 	@Override
 	public void feedListRequest(final Jid requestJid, final String swarmId) {
-		String document = JSONElementCreator.createCapabilitiesJson(osgiHelper.getBUGFeeds());
-
 		try {
+			String document = JSONElementCreator.createCapabilitiesJson(osgiHelper.getBUGFeeds());
+		
 			xmppClient.sendAllFeedsToUser(requestJid, swarmId, document);
-		} catch (XMPPException e) {
+		} catch (Exception e) {
 			log.log(LogService.LOG_ERROR, "Error occurred while sending feeds to " + requestJid, e);
-		}
+		} 
 	}
 
 	@Override
 	public void feedListRequest(final Chat chat, final String swarmId) {
-		String document = JSONElementCreator.createCapabilitiesJson(osgiHelper.getBUGFeeds());
-
 		try {
+			String document = JSONElementCreator.createCapabilitiesJson(osgiHelper.getBUGFeeds());
+
 			chat.sendMessage(document);
-		} catch (XMPPException e) {
+			log.log(LogService.LOG_DEBUG, "Sent " + document + " to " + chat.getParticipant());
+		} catch (Exception e) {
 			log.log(LogService.LOG_ERROR, "Failed to send private message to " + chat.getParticipant(), e);
 		}
 
-		log.log(LogService.LOG_DEBUG, "Sent " + document + " to " + chat.getParticipant());
 	}
 
 	/**

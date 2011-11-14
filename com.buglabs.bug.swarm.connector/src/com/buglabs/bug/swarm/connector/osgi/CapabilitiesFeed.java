@@ -8,8 +8,9 @@ import java.util.Map;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
-import org.sprinkles.Applier.Fn;
-import org.sprinkles.Mapper;
+
+import com.buglabs.bug.swarm.connector.util.Mapper;
+import com.buglabs.bug.swarm.connector.util.Applier.Fn;
 
 /**
  * Implements the capabilities feed.

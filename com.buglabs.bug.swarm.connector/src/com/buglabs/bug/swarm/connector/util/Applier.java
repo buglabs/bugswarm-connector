@@ -3,7 +3,7 @@
  * Created by Ken Gilmer, July, 2011.  See https://github.com/kgilmer/Sprinkles
  * Released into the public domain.
  */
-package org.sprinkles;
+package com.buglabs.bug.swarm.connector.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;

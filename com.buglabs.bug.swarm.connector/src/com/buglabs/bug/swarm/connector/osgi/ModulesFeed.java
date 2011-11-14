@@ -9,10 +9,10 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogService;
-import org.sprinkles.Applier;
-import org.sprinkles.Mapper;
 
 import com.buglabs.bug.dragonfly.module.IModuleControl;
+import com.buglabs.bug.swarm.connector.util.Applier;
+import com.buglabs.bug.swarm.connector.util.Mapper;
 
 /**
  * A Feed for BUG modules.  Integrates with OSGi service registry to provide

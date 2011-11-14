@@ -1,8 +1,8 @@
-package org.sprinkles;
+package com.buglabs.bug.swarm.connector.util;
 
 import java.util.Collection;
 
-import org.sprinkles.Applier.Fn;
+import com.buglabs.bug.swarm.connector.util.Applier.Fn;
 
 public class Mapper {
 

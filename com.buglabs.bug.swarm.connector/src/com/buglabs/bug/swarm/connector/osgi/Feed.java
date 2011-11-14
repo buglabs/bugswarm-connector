@@ -165,4 +165,9 @@ public class Feed {
 
 		return m;
 	}
+	
+	@Override
+	public String toString() {
+		return feedName + ": " + feed.toString();
+	}
 }

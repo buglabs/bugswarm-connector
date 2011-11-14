@@ -10,7 +10,6 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.buglabs.bug.swarm.connector.osgi.Feed;
-import com.buglabs.bug.swarm.connector.osgi.ModulesFeed;
 
 /**
  * This stateless class handles all JSON message creation for
@@ -50,14 +49,14 @@ public final class JSONElementCreator {
 			throw new IllegalStateException("Feeds do not contain minimal set for management web ui.");
 		
 		//TODO: try just serializing feedMap.get("capabilities").getFeed()
-		ModulesFeed modules = (ModulesFeed) feedMap.get("capabilities").getFeed().get("modules");
+		/*ModulesFeed modules = (ModulesFeed) feedMap.get("capabilities").getFeed().get("modules");
 		List<String> feedNames = (List<String>) feedMap.get("capabilities").getFeed().get("feeds");
 		
 		Map<String, Object> capabilities = new HashMap<String, Object>();
 		capabilities.put("feeds", feedNames);
-		capabilities.put("modules", modules.getFeed());
+		capabilities.put("modules", modules.getFeed());*/
 		
-		return mapper.writeValueAsString(capabilities);
+		return mapper.writeValueAsString(feedMap.get("capabilities").getFeed());
 		
 //		JSONObject capabilities = new JSONObject();
 //		capabilities.put("feeds", createFeedListJson(feeds));

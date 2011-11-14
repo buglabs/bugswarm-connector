@@ -89,7 +89,7 @@ public class Feed {
 		serviceRegistration = context.registerService(
 				Map.class.getName(), 
 				feed, 
-				OSGiHelper.toDictionary(
+				OSGiUtil.toDictionary(
 						FEED_SERVICE_NAME_PROPERTY, feedName,
 						FEED_SERVICE_TIMESTAMP_PROPERTY, Long.toString(System.currentTimeMillis())));
 	}
@@ -105,7 +105,7 @@ public class Feed {
 		this.feed = feed;
 		
 		if (serviceRegistration != null)
-			serviceRegistration.setProperties(OSGiHelper.toDictionary(
+			serviceRegistration.setProperties(OSGiUtil.toDictionary(
 							FEED_SERVICE_NAME_PROPERTY, feedName,
 							FEED_SERVICE_TIMESTAMP_PROPERTY, Long.toString(System.currentTimeMillis())));
 	}

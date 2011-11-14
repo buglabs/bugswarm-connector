@@ -9,8 +9,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 
-import com.buglabs.bug.swarm.connector.util.Mapper;
 import com.buglabs.bug.swarm.connector.util.Applier.Fn;
+import com.buglabs.bug.swarm.connector.util.Mapper;
 
 /**
  * Implements the capabilities feed.

@@ -9,9 +9,13 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.jivesoftware.smack.Chat;
-import org.jivesoftware.smack.XMPPException;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.client.ISwarmClient;
@@ -24,8 +28,9 @@ import com.buglabs.bug.swarm.connector.model.Jid;
 import com.buglabs.bug.swarm.connector.osgi.Activator;
 import com.buglabs.bug.swarm.connector.osgi.BinaryFeed;
 import com.buglabs.bug.swarm.connector.osgi.Feed;
-import com.buglabs.bug.swarm.connector.osgi.OSGiHelper;
-import com.buglabs.bug.swarm.connector.osgi.OSGiHelper.OSGiServiceEventListener;
+import com.buglabs.bug.swarm.connector.osgi.OSGiUtil;
+import com.buglabs.bug.swarm.connector.osgi.OSGiUtil.OSGiServiceException;
+import com.buglabs.bug.swarm.connector.osgi.OSGiUtil.ServiceVisitor;
 import com.buglabs.bug.swarm.connector.xmpp.ISwarmServerRequestListener;
 import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
@@ -40,7 +45,7 @@ import com.buglabs.util.simplerestclient.HTTPException;
  * @author kgilmer
  * 
  */
-public class BUGSwarmConnector extends Thread implements OSGiServiceEventListener, ISwarmServerRequestListener {
+public class BUGSwarmConnector extends Thread implements ISwarmServerRequestListener, ServiceListener {
 
 	/**
 	 * Used to convert seconds to milliseconds.
@@ -67,10 +72,7 @@ public class BUGSwarmConnector extends Thread implements OSGiServiceEventListene
 	 * Instance of XMPP client.
 	 */
 	private SwarmXMPPClient xmppClient;
-	/**
-	 * Instance of OSGiHelper.
-	 */
-	private OSGiHelper osgiHelper;
+	
 	/**
 	 * List of all member swarms.
 	 */
@@ -89,13 +91,16 @@ public class BUGSwarmConnector extends Thread implements OSGiServiceEventListene
 	 * List of feed names that should not be exported from device.
 	 */
 	private List<String> blacklist;
-	private static LogService log;	
+	private static LogService log;
+
+	private final BundleContext context;	
 
 	/**
 	 * @param config
 	 *            Predefined configuration
 	 */
-	public BUGSwarmConnector(final Configuration config) {
+	public BUGSwarmConnector(BundleContext context, final Configuration config) {
+		this.context = context;
 		this.config = config;
 		BUGSwarmConnector.log = Activator.getLog();
 		this.memberSwarms = new ArrayList<SwarmModel>();
@@ -119,56 +124,31 @@ public class BUGSwarmConnector extends Thread implements OSGiServiceEventListene
 				if (allSwarms == null || allSwarms.size() == 0) {
 					log.log(LogService.LOG_INFO, "User does not belong to any swarms.");
 				} else {
+					String capabilities = getCapabilities();
 					// Notify all swarms of presence.
 					for (SwarmModel swarm : allSwarms) {
 						log.log(LogService.LOG_DEBUG, "Joining swarm " + swarm.getId());
+						
 						xmppClient.joinSwarm(swarm.getId(), this);
 						memberSwarms.add(swarm);
-					}
-					
-					// Send feed state to other swarm peers
-					// This is disabled as it's only used by the Web UI which is not
-					// currently available.
-					
-					log.log(LogService.LOG_DEBUG, "Announcing local state to member swarms.");
-					announceState(allSwarms, null);					
+						xmppClient.announce(swarm.getId(), capabilities);
+					}								
 				}
+				
+				//After we broadcast Feeds to all swarms, listen for local service changes so that updates can be sent.
+				context.addServiceListener(this);
 			} catch (HTTPException e) {
 				if (e.getErrorCode() == HTTP_404)
 					log.log(LogService.LOG_WARNING, "Not a member of any swarms, not publishing feeds.");
 				else
 					throw e;
 			}
-
-			// Listen for local changes
-			osgiHelper.setListener(this);
 			log.log(LogService.LOG_INFO, "Connector initialization complete.");
-
 		} catch (Exception e) {
 			log.log(LogService.LOG_ERROR, "Error occurred while initializing swarm client.", e);
 		}
 	}
 	
-	/**
-	 * Send feed information as public message to MUC rooms for all member swarms.
-	 * 
-	 * @param allSwarms list of swarms to announce to
-	 * @param source specific feed to announce or null to announce all feeds.
-	 * @throws XMPPException thrown on XMPP error
-	 */
-	private void announceState(final List<SwarmModel> allSwarms, String message) throws XMPPException {
-		/*String document = null;
-		if (source == null)
-			document = JSONElementCreator.createCapabilitiesJson(osgiHelper.getBUGFeeds());
-		else 
-			document = JSONElementCreator.createFeedElement(source);*/
-		
-		//Notify all consumer-members of swarms of services, feeds, and modules.
-		for (SwarmModel swarm : allSwarms) {			
-			xmppClient.announce(swarm.getId(), message);
-		}
-	}
-
 	/**
 	 * Initialize the connection to the swarm server.
 	 * 
@@ -179,8 +159,6 @@ public class BUGSwarmConnector extends Thread implements OSGiServiceEventListene
 		log.log(LogService.LOG_DEBUG, "Initializing " + BUGSwarmConnector.class.getSimpleName());
 		wsClient = SwarmClientFactory.getSwarmClient(
 				config.getHostname(Protocol.HTTP), config.getConfingurationAPIKey());
-
-		osgiHelper = OSGiHelper.getRef();
 		
 		UserResourceModel resource = null;
 		if (config.hasResource()) {
@@ -195,14 +173,13 @@ public class BUGSwarmConnector extends Thread implements OSGiServiceEventListene
 					"bug", 
 					0, 0);
 			config.setResourceId(resource.getResourceId());
-			//Save resourceId in CA
-			osgiHelper.setResourceId(resource.getResourceId());
+
 			Activator.getLog().log(LogService.LOG_DEBUG, "New resource id: " + config.getResource());
 		}
 		
 		if (resource == null) {
 			//Set the persisted resourceid to null in the case of an invalid or deleted resource.  This will cause the connector to ask the server for a new one upon next start.
-			osgiHelper.setResourceId(null);
+			Activator.setResourceId(null);
 			throw new IOException("Unable to get or create resource for device.");
 		}
 		
@@ -221,50 +198,15 @@ public class BUGSwarmConnector extends Thread implements OSGiServiceEventListene
 		return Collections.unmodifiableList(memberSwarms);
 	}
 
-	@Override
-	public void serviceEvent(final int eventType, final Object source) {
-		// For now, every time a service, module, or feed changes locally, send
-		// the entire state to each interested party.
-		// In the future it may be better to cache and determine delta and send
-		// only that.
-		
-		try {
-			switch(eventType) {
-			case ServiceEvent.REGISTERED:
-			case ServiceEvent.MODIFIED:
-				// A feed has changed.  Send the complete set of feeds to all member swarms.
-				List<SwarmModel> swarms = wsClient.getSwarmResourceClient().getSwarmsByMember(config.getResource());
-				String capabilities = JSONElementCreator.createCapabilitiesJson(osgiHelper.getBUGFeeds());
-				
-				for (SwarmModel swarm : swarms) 	
-					xmppClient.announce(swarm.getId(), capabilities);				
-				
-				break;
-			case ServiceEvent.UNREGISTERING:
-				announceState(
-						wsClient.getSwarmResourceClient().getSwarmsByMember(
-								config.getResource()), null);
-			default:
-			}			
-		} catch (Exception e) {
-			log.log(LogService.LOG_ERROR, "Error occurred while sending updated device state to swarm server.", e);
-		}
-		
-	}
-
 	/**
 	 * Shutdown the connector and free any local and remote resources in use.
 	 */
 	public void shutdown() {
+		context.removeServiceListener(this);
+		
 		if (timer != null) {
 			timer.cancel();
-		}
-				
-		// Stop listening to local service events
-		if (osgiHelper != null) {
-			osgiHelper.setListener(null);
-			osgiHelper.shutdown();
-		}
+		}		
 			
 		if (xmppClient != null) {
 			for (SwarmModel sm : memberSwarms)
@@ -279,7 +221,7 @@ public class BUGSwarmConnector extends Thread implements OSGiServiceEventListene
 	@Override
 	public void feedListRequest(final Jid requestJid, final String swarmId) {
 		try {
-			String document = JSONElementCreator.createCapabilitiesJson(osgiHelper.getBUGFeeds());
+			String document = getCapabilities();
 		
 			xmppClient.sendAllFeedsToUser(requestJid, swarmId, document);
 		} catch (Exception e) {
@@ -287,10 +229,28 @@ public class BUGSwarmConnector extends Thread implements OSGiServiceEventListene
 		} 
 	}
 
+	private String getCapabilities() throws JsonGenerationException, JsonMappingException, IOException {
+		final List<Feed> feeds = new ArrayList<Feed>();
+		
+		OSGiUtil.onServices(context, Map.class.getName(), null, new ServiceVisitor<Map>() {
+
+			@Override
+			public void apply(ServiceReference sr, Map service) {
+				if (sr.getProperty(Feed.FEED_SERVICE_NAME_PROPERTY) != null)
+					feeds.add(new Feed(
+							sr.getProperty(Feed.FEED_SERVICE_NAME_PROPERTY).toString(), 
+							service));
+			}
+			
+		});
+			
+		return JSONElementCreator.createCapabilitiesJson(feeds);
+	}
+
 	@Override
 	public void feedListRequest(final Chat chat, final String swarmId) {
 		try {
-			String document = JSONElementCreator.createCapabilitiesJson(osgiHelper.getBUGFeeds());
+			String document = getCapabilities();
 
 			chat.sendMessage(document);
 			log.log(LogService.LOG_DEBUG, "Sent " + document + " to " + chat.getParticipant());
@@ -309,9 +269,9 @@ public class BUGSwarmConnector extends Thread implements OSGiServiceEventListene
 
 	@Override
 	public void feedRequest(final Jid jid, final String swarmId, final FeedRequest feedRequest) {
-		Feed feed = osgiHelper.getBUGFeed(feedRequest.getName());
-		if (feed == null) {
-			feed = osgiHelper.getBUGFeed(feedRequest.getName());
+		Feed feed = getBUGFeed(feedRequest.getName());
+		
+		if (feed == null) {			
 			log.log(LogService.LOG_WARNING, "Request for non-existant feed " + feedRequest.getName() + " from client " + jid);
 			return;
 		}
@@ -339,6 +299,24 @@ public class BUGSwarmConnector extends Thread implements OSGiServiceEventListene
 		} else {		
 			timer.schedule(task, 0);
 		}
+	}
+
+	/**
+	 * @param name name of feed.
+	 * @return Feed of type name or null if feed does not exist.
+	 */
+	private Feed getBUGFeed(String name) {
+		try {
+			Map feed = (Map) OSGiUtil.getServiceInstance(
+					context, Map.class.getName(), 
+					OSGiUtil.createFilter(Feed.FEED_SERVICE_NAME_PROPERTY, name));
+			
+			if (feed != null)
+				return new Feed(name, feed);
+		} catch (OSGiServiceException e) {						
+		}	
+		
+		return null;
 	}
 
 	/**
@@ -433,6 +411,35 @@ public class BUGSwarmConnector extends Thread implements OSGiServiceEventListene
 		for (String taskKey : activeTasks.keySet()) {
 			if (taskKey.contains(jid.getResource()) && taskKey.contains(jid.getUsername()))
 				activeTasks.get(taskKey).cancel();		
+		}
+	}
+
+	@Override
+	public void serviceChanged(ServiceEvent event) {
+		// For now, every time a service, module, or feed changes locally, send
+		// the entire state to each interested party.
+		// In the future it may be better to cache and determine delta and send
+		// only that.
+		
+		try {
+			switch(event.getType()) {
+			case ServiceEvent.REGISTERED:
+				// A feed has been added.  Send the complete set of feeds to all member swarms.
+			case ServiceEvent.MODIFIED:
+				// A feed has changed.  Send the complete set of feeds to all member swarms.
+			case ServiceEvent.UNREGISTERING:
+				// A feed has been removed.  Send the complete set of feeds to all member swarms.
+				List<SwarmModel> swarms = wsClient.getSwarmResourceClient().getSwarmsByMember(config.getResource());
+				String capabilities = getCapabilities();
+				
+				for (SwarmModel swarm : swarms) 	
+					xmppClient.announce(swarm.getId(), capabilities);				
+				
+				break;			
+			default:
+			}			
+		} catch (Exception e) {
+			log.log(LogService.LOG_ERROR, "Error occurred while sending updated device state to swarm server.", e);
 		}
 	}
 }

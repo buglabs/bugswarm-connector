@@ -85,7 +85,7 @@ public class BUGSwarmConnectorBinaryFeedT3sts extends TestCase {
 	 * @throws InterruptedException
 	 */
 	public void testInitializeConnector() throws InterruptedException {
-		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
+		BUGSwarmConnector connector = new BUGSwarmConnector(Activator.getDefault().getContext(), AccountConfig.getConfiguration());
 
 		connector.start();
 		Thread.sleep(AccountConfig.CONNECTOR_INIT_SLEEP_MILLIS);

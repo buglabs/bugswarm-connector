@@ -1,5 +1,6 @@
 package com.buglabs.bug.swarm.connector.osgi;
 
+import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -16,6 +17,7 @@ import org.osgi.util.tracker.ServiceTracker;
 
 import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
 import com.buglabs.bug.swarm.connector.Configuration;
+import com.buglabs.bug.swarm.connector.osgi.OSGiUtil.OSGiServiceException;
 import com.buglabs.bug.swarm.connector.ui.ConfigInitRunnable;
 import com.buglabs.bug.swarm.connector.ui.SwarmConfigKeys;
 import com.buglabs.osgi.sewing.pub.ISewingService;
@@ -34,12 +36,14 @@ public class Activator implements BundleActivator, ManagedService {
 	/**
 	 * Services required for BUGswarm to be configured.
 	 */
-	private String[] configurationServices = new String[] { 
+	private final String[] configurationServices = new String[] { 
 			ConfigurationAdmin.class.getName(), 
 			ISewingService.class.getName() };
 
 	private static BundleContext context;
 	private static LogService log;
+
+	private static ConfigurationAdmin configAdmin;
 
 	private Dictionary<String, String> cachedConfig;
 	private ServiceRegistration cmSr;
@@ -72,6 +76,7 @@ public class Activator implements BundleActivator, ManagedService {
 	 * org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext
 	 * )
 	 */
+	@Override
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
 		log = LogServiceUtil.getLogService(context);
@@ -85,6 +90,7 @@ public class Activator implements BundleActivator, ManagedService {
 	 * @see
 	 * org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
 	 */
+	@Override
 	public void stop(BundleContext bundleContext) throws Exception {
 		sewingST.close();
 		Activator.context = null;
@@ -115,7 +121,7 @@ public class Activator implements BundleActivator, ManagedService {
 			log.log(LogService.LOG_DEBUG, this.getClass().getSimpleName() + " starting connector.");
 			Configuration nc = new Configuration(config);
 			log.log(LogService.LOG_DEBUG, this.getClass().getSimpleName() + " connector configuration: " + nc);
-			connector = new BUGSwarmConnector(nc);
+			connector = new BUGSwarmConnector(context, nc);
 			connector.start();
 			return;
 		}
@@ -172,6 +178,35 @@ public class Activator implements BundleActivator, ManagedService {
 
 		return true;
 	}
+	
+
+	/**
+	 * Set the resource id that's created by the server for the device.
+	 * @param resourceId resource id or null to unset the resource id.
+	 * @throws IOException on ConfigAdmin error
+	 */
+	public static void setResourceId(String resourceId) throws IOException {
+		if (configAdmin == null) {
+			try {
+				configAdmin = (ConfigurationAdmin) OSGiUtil.getServiceInstance(context, ConfigurationAdmin.class.getName());
+			} catch (OSGiServiceException e) {
+				throw new IOException(e);
+			}
+		}
+		
+		org.osgi.service.cm.Configuration config = configAdmin.getConfiguration(SwarmConfigKeys.CONFIG_PID_BUGSWARM);
+		
+		if (config == null) //This should not happen, since the webui will create the configuration for us.
+			throw new IllegalStateException("Configuration for connector does not exist.");
+		
+		Dictionary properties = config.getProperties();
+		if (resourceId != null)
+			properties.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE_ID, resourceId);
+		else
+			properties.remove(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE_ID);
+		
+		config.update(properties);
+	}	
 
 	/**
 	 * A Logger for cases when a framework logger is unavailable.

@@ -6,9 +6,9 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import com.buglabs.bug.swarm.client.ISwarmClient;
+import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.client.SwarmClientFactory;
 import com.buglabs.bug.swarm.client.SwarmWSResponse;
-import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.client.model.SwarmModel;
 import com.buglabs.bug.swarm.client.model.UserResourceModel;
 import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
@@ -74,7 +74,7 @@ public class BUGSwarmConnectorNotificationT3sts extends TestCase {
 				AccountConfig.getConfiguration().getHostname(Protocol.HTTP), 
 				AccountConfig.getConfiguration().getConfingurationAPIKey());
 		
-		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
+		BUGSwarmConnector connector = new BUGSwarmConnector(Activator.getDefault().getContext(), AccountConfig.getConfiguration());
 
 		// Start the connector
 		connector.start();

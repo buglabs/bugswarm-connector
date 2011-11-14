@@ -48,7 +48,7 @@ public final class JSONElementCreator {
 		if (!feedMap.containsKey("capabilities"))
 			throw new IllegalStateException("Feeds do not contain minimal set for management web ui.");
 		
-		//TODO: try just serializing feedMap.get("capabilities").getFeed()
+		// {"feeds":[],"modules":{"feed":{"slot2":"vonhippel"},"name":"modules"}}
 		/*ModulesFeed modules = (ModulesFeed) feedMap.get("capabilities").getFeed().get("modules");
 		List<String> feedNames = (List<String>) feedMap.get("capabilities").getFeed().get("feeds");
 		

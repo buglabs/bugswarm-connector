@@ -5,9 +5,9 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import com.buglabs.bug.swarm.client.ISwarmClient;
+import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.client.SwarmClientFactory;
 import com.buglabs.bug.swarm.client.SwarmWSResponse;
-import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.client.model.SwarmModel;
 import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
@@ -75,7 +75,7 @@ public class BUGSwarmConnectorFeedT3sts extends TestCase {
 	 * @throws InterruptedException
 	 */
 	public void testInitializeConnector() throws InterruptedException {
-		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
+		BUGSwarmConnector connector = new BUGSwarmConnector(Activator.getDefault().getContext(), AccountConfig.getConfiguration());
 
 		connector.start();
 		Thread.sleep(AccountConfig.CONNECTOR_INIT_SLEEP_MILLIS);

@@ -25,4 +25,6 @@ Import-Package:
  org.osgi.service.cm,
  org.osgi.service.log,
  org.osgi.util.tracker,
- org.touge.restclient
+ org.touge.restclient,
+ org.codehaus.jackson,
+ org.codehaus.jackson.map

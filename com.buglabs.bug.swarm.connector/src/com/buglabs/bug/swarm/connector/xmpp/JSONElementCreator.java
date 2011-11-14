@@ -1,11 +1,13 @@
 package com.buglabs.bug.swarm.connector.xmpp;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import com.buglabs.bug.swarm.connector.osgi.Feed;
 import com.buglabs.bug.swarm.connector.osgi.ModulesFeed;
@@ -18,6 +20,8 @@ import com.buglabs.bug.swarm.connector.osgi.ModulesFeed;
  * 
  */
 public final class JSONElementCreator {
+
+	private static ObjectMapper mapper = new ObjectMapper();
 
 	/**
 	 * No instance allowed.
@@ -32,8 +36,11 @@ public final class JSONElementCreator {
 	 * @param feeds
 	 *            list of feeds
 	 * @return JSON array
+	 * @throws IOException 
+	 * @throws JsonMappingException 
+	 * @throws JsonGenerationException 
 	 */
-	public static String createCapabilitiesJson(final List<Feed> feeds) {
+	public static String createCapabilitiesJson(final List<Feed> feeds) throws JsonGenerationException, JsonMappingException, IOException {
 		Map<String, Feed> feedMap = new HashMap<String, Feed>();
 		
 		for (Feed f : feeds)
@@ -42,16 +49,23 @@ public final class JSONElementCreator {
 		if (!feedMap.containsKey("capabilities"))
 			throw new IllegalStateException("Feeds do not contain minimal set for management web ui.");
 		
+		//TODO: try just serializing feedMap.get("capabilities").getFeed()
 		ModulesFeed modules = (ModulesFeed) feedMap.get("capabilities").getFeed().get("modules");
 		List<String> feedNames = (List<String>) feedMap.get("capabilities").getFeed().get("feeds");
 		
-		JSONObject capabilities = new JSONObject();
-		capabilities.put("feeds", createFeedListJson(feeds));
+		Map<String, Object> capabilities = new HashMap<String, Object>();
+		capabilities.put("feeds", feedNames);
 		capabilities.put("modules", modules.getFeed());
-		JSONObject root = new JSONObject();
-		root.put("capabilities", capabilities);
-
-		return root.toJSONString();
+		
+		return mapper.writeValueAsString(capabilities);
+		
+//		JSONObject capabilities = new JSONObject();
+//		capabilities.put("feeds", createFeedListJson(feeds));
+//		capabilities.put("modules", modules.getFeed());
+//		JSONObject root = new JSONObject();
+//		root.put("capabilities", capabilities);
+//
+//		return root.toJSONString();
 	}
 
 	/**
@@ -60,26 +74,36 @@ public final class JSONElementCreator {
 	 * @param feed
 	 *            feed to be converted
 	 * @return JSON representation of feed
+	 * @throws IOException 
+	 * @throws JsonMappingException 
+	 * @throws JsonGenerationException 
 	 */
-	public static String createFeedElement(final Feed feed) {
-		JSONObject jobj = new JSONObject();
+	public static String createFeedElement(final Feed feed) throws JsonGenerationException, JsonMappingException, IOException {
+		return mapper.writeValueAsString(feed);
+		
+		/*JSONObject jobj = new JSONObject();
 		jobj.put(feed.getName(), feed.getFeed());
 
-		return jobj.toJSONString();
+		return jobj.toJSONString();*/
 	}
 
 	/**
 	 * Create a list of the names of available feeds.
 	 * @param bugFeeds List of feeds.
 	 * @return String of json of feed names.
+	 * @throws IOException 
+	 * @throws JsonMappingException 
+	 * @throws JsonGenerationException 
 	 */
-	public static JSONArray createFeedListJson(List<Feed> bugFeeds) {
-		JSONArray ja = new JSONArray();
+	public static String createFeedListJson(List<Feed> bugFeeds) throws JsonGenerationException, JsonMappingException, IOException {
+		return mapper.writeValueAsString(bugFeeds);
+		
+		/*JSONArray ja = new JSONArray();
 		
 		for (Feed f : bugFeeds)
 			if (!f.getName().equals("modules") && !f.getName().equals("capabilities") && !f.getName().equals("feeds"))
 				ja.add(f.getName());
 		
-		return ja;
+		return ja;*/
 	}
 }

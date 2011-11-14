@@ -2,10 +2,12 @@ package com.buglabs.bug.swarm.connector.model;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * A swarm-server based Feed request.
@@ -22,6 +24,7 @@ public class FeedRequest {
 	public enum FeedType { 
 		get, put, post, delete;		
 	}
+	private static ObjectMapper mapper;
 	private final FeedType type;
 	private final String name;
 	private final Map<String, Object> params;
@@ -116,29 +119,32 @@ public class FeedRequest {
 	 * @return FeedRequest object or null if invalid or incomplete message.
 	 */
 	public static FeedRequest parseJSON(String jsonString) {
-		Object o = JSONValue.parse(jsonString);
-
-		if (o != null && o instanceof JSONObject) {
-			JSONObject jo = (JSONObject) o;
-			Map<String, Object> frp = null;
+		if (mapper == null)
+			mapper = new ObjectMapper();
+		
+		
+		JsonNode jn;
+		try {
+			jn = mapper.readTree(jsonString);
 			
-			String type = jo.get("type").toString();
-			String name = jo.get("feed").toString();
-			JSONObject params = (JSONObject) jo.get("params");
-			
-			if (params != null) {
-				frp = new HashMap<String, Object>();
-				for (Object e : params.entrySet()) {
-					Object key = ((Map.Entry) e).getKey();
-					Object val = ((Map.Entry) e).getValue();
-					
-					frp.put(key.toString(), val);					
+			if (jn.has("type") && jn.has("feed")) {
+				String type = jn.get("type").getTextValue();
+				String name = jn.get("feed").getTextValue();
+				Map<String, Object> frp = new HashMap<String, Object>();
+				if (jn.has("params") && jn.get("params").isArray()) {
+					for (Iterator<Entry<String, JsonNode>> jni = jn.get("params").getFields(); jni.hasNext();) {
+						Entry<String, JsonNode> pn = jni.next();
+						frp.put(pn.getKey(), pn.getValue().getTextValue());
+					}
 				}
+				
+				return new FeedRequest(type, name, frp);
 			}
 			
-			return new FeedRequest(type, name, frp);
-		}
-		
+		} catch (Exception e) {
+			// Squelch parsing error messages.		
+		} 
+				
 		return null;
 	}
 

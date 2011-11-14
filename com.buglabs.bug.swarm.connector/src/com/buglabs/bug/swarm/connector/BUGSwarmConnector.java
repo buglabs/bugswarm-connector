@@ -253,13 +253,10 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 	 * Shutdown the connector and free any local and remote resources in use.
 	 */
 	public void shutdown() {
-		String resourceId = null;
 		if (timer != null) {
 			timer.cancel();
 		}
-		
-		if (xmppClient != null)
-			resourceId = xmppClient.getResource();
+				
 		// Stop listening to local events
 		if (osgiHelper != null)
 			osgiHelper.removeListener(this);
@@ -269,15 +266,7 @@ public class BUGSwarmConnector extends Thread implements EntityChangeListener, I
 				xmppClient.leaveSwarm(sm.getId());
 			// Send unpresence and disconnect from server
 			xmppClient.disconnect();
-		}
-		
-		if (wsClient != null && resourceId != null) {
-			try {
-				wsClient.getUserResourceClient().destroy(resourceId);
-			} catch (IOException e) {
-				// Ignore shutdown error.
-			}
-		}	
+		}		
 		
 		log.log(LogService.LOG_INFO, "Connector shutdown complete.");
 	}

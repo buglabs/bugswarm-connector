@@ -169,7 +169,6 @@ public class SwarmXMPPClient {
 				connection.getChatManager().addChatListener(requestHandler);
 				muc.addMessageListener(requestHandler);
 				muc.addParticipantListener(requestHandler);
-				muc.addParticipantStatusListener(requestHandler);
 				requestHandlers.put(swarmId, requestHandler);
 			} else {
 				Activator.getLog().log(
@@ -193,7 +192,6 @@ public class SwarmXMPPClient {
 				connection.getChatManager().removeChatListener(listener);
 				muc.removeMessageListener(listener);
 				muc.removeParticipantListener(listener);
-				muc.removeParticipantStatusListener(listener);
 				requestHandlers.remove(swarmId);
 			}
 			muc.leave();

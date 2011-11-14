@@ -6,9 +6,9 @@ import java.util.TimerTask;
 import org.jivesoftware.smack.XMPPException;
 import org.osgi.service.log.LogService;
 
+import com.buglabs.bug.swarm.connector.model.Feed;
 import com.buglabs.bug.swarm.connector.model.Jid;
-import com.buglabs.bug.swarm.connector.osgi.Feed;
-import com.buglabs.bug.swarm.connector.osgi.ServiceFeedAdapter;
+import com.buglabs.bug.swarm.connector.model.ServiceFeedAdapter;
 import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
 

@@ -1,4 +1,4 @@
-package com.buglabs.bug.swarm.connector.osgi;
+package com.buglabs.bug.swarm.connector.model;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,6 +10,8 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
 import com.buglabs.bug.dragonfly.module.IModuleControl;
+import com.buglabs.bug.swarm.connector.osgi.Activator;
+import com.buglabs.bug.swarm.connector.osgi.OSGiUtil;
 import com.buglabs.services.ws.PublicWSProvider;
 
 /**

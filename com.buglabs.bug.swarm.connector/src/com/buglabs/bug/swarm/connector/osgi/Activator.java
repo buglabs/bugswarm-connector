@@ -55,7 +55,7 @@ public class Activator implements BundleActivator, ManagedService {
 	/**
 	 * @return BundleContext
 	 */
-	static BundleContext getContext() {
+	public static BundleContext getContext() {
 		return context;
 	}
 

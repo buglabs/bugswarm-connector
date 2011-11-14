@@ -1,4 +1,4 @@
-package com.buglabs.bug.swarm.connector.osgi;
+package com.buglabs.bug.swarm.connector.model;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +11,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.dragonfly.module.IModuleControl;
+import com.buglabs.bug.swarm.connector.osgi.Activator;
 import com.buglabs.bug.swarm.connector.util.Applier;
 import com.buglabs.bug.swarm.connector.util.Mapper;
 

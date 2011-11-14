@@ -9,7 +9,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import com.buglabs.bug.swarm.connector.osgi.Feed;
+import com.buglabs.bug.swarm.connector.model.Feed;
 
 /**
  * This stateless class handles all JSON message creation for

@@ -414,28 +414,31 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.osgi.framework.ServiceListener#serviceChanged(org.osgi.framework.ServiceEvent)
+	 * 
+	 * This method is the primary hook into the OSGi service registry.  Swarm-events that originate on BUG all start with this method.
+	 */
 	@Override
 	public void serviceChanged(ServiceEvent event) {
-		// For now, every time a service, module, or feed changes locally, send
-		// the entire state to each interested party.
-		// In the future it may be better to cache and determine delta and send
-		// only that.
+		// For now, every time a service, module, or feed is created/removed, send
+		// the entire state to each member swarm.
 		
 		try {
 			switch(event.getType()) {
 			case ServiceEvent.REGISTERED:
 				// A feed has been added.  Send the complete set of feeds to all member swarms.
-			case ServiceEvent.MODIFIED:
-				// A feed has changed.  Send the complete set of feeds to all member swarms.
 			case ServiceEvent.UNREGISTERING:
-				// A feed has been removed.  Send the complete set of feeds to all member swarms.
-				List<SwarmModel> swarms = wsClient.getSwarmResourceClient().getSwarmsByMember(config.getResource());
+				// A feed has been removed.  Send the complete set of feeds to all member swarms.				
 				String capabilities = getCapabilities();
 				
-				for (SwarmModel swarm : swarms) 	
+				for (SwarmModel swarm : memberSwarms) 	
 					xmppClient.announce(swarm.getId(), capabilities);				
 				
-				break;			
+				break;	
+			case ServiceEvent.MODIFIED:
+				// A feed's contents has changed.  Currently this has no effect to swarm peers.  Single request or frequency-based "push" is supported only.
+				break;
 			default:
 			}			
 		} catch (Exception e) {

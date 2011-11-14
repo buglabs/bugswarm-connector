@@ -100,6 +100,9 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	 *            Predefined configuration
 	 */
 	public BUGSwarmConnector(BundleContext context, final Configuration config) {
+		if (context == null || config == null)
+			throw new IllegalArgumentException("A constructor input parameter is null.");
+		
 		this.context = context;
 		this.config = config;
 		BUGSwarmConnector.log = Activator.getLog();

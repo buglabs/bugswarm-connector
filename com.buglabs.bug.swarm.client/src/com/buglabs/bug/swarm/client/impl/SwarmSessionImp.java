@@ -93,7 +93,7 @@ public class SwarmSessionImp implements ISwarmSession {
 		//need to write one chunk into the stream before the platform will send data do us
 		//I chose \ because it's the keepalive as well
 		//see https://github.com/buglabs/bugswarm-connector/issues/30
-		writeOut("\\");
+		writeOut("\n");
 	}
 
 	/**

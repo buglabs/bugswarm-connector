@@ -18,6 +18,9 @@ Import-Package:
  freemarker.template,
  javax.servlet.http,
  org.apache.commons.io;version="2.0.1",
+ org.codehaus.jackson,
+ org.codehaus.jackson.map,
+ org.codehaus.jackson.node;version="1.9.1",
  org.jivesoftware.smack,
  org.jivesoftware.smack.packet,
  org.jivesoftware.smackx.muc,
@@ -25,6 +28,4 @@ Import-Package:
  org.osgi.service.cm,
  org.osgi.service.log,
  org.osgi.util.tracker,
- org.touge.restclient,
- org.codehaus.jackson,
- org.codehaus.jackson.map
+ org.touge.restclient

@@ -11,6 +11,7 @@ import java.util.TimerTask;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.jivesoftware.smack.Chat;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
@@ -18,6 +19,7 @@ import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogService;
 
+import com.buglabs.bug.dragonfly.module.IModuleControl;
 import com.buglabs.bug.swarm.client.ISwarmClient;
 import com.buglabs.bug.swarm.client.SwarmClientFactory;
 import com.buglabs.bug.swarm.client.model.SwarmModel;
@@ -32,7 +34,6 @@ import com.buglabs.bug.swarm.connector.osgi.OSGiUtil;
 import com.buglabs.bug.swarm.connector.osgi.OSGiUtil.OSGiServiceException;
 import com.buglabs.bug.swarm.connector.osgi.OSGiUtil.ServiceVisitor;
 import com.buglabs.bug.swarm.connector.xmpp.ISwarmServerRequestListener;
-import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
 import com.buglabs.util.simplerestclient.HTTPException;
 
@@ -81,6 +82,8 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	 * Timer that manages all the active streaming feeds.
 	 */
 	private Timer timer;
+	
+	private static ObjectMapper mapper = new ObjectMapper();
 	/**
 	 * A Map of active "streaming" feeds.  These feeds are running as TimerTasks in a Timer 
 	 * and sending response messages to the swarm server at regular intervals.
@@ -233,21 +236,69 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	}
 
 	private String getCapabilities() throws JsonGenerationException, JsonMappingException, IOException {
-		final List<Feed> feeds = new ArrayList<Feed>();
+		Map<String, Object> root = new HashMap<String, Object>();
+		
+		root.put("feeds", getNativeFeedNameList());
+		root.put("modules", getModuleMap());
+			
+		return mapper.writeValueAsString(root);
+	}
+
+	/**
+	 * @return A map of String String, key being "slot" + slot #, value being the name of the module.
+	 */
+	private Map<String, String> getModuleMap() {
+		final Map<String, String> mm = new HashMap<String, String>();
+		
+		OSGiUtil.onServices(context, IModuleControl.class.getName(), null, new ServiceVisitor<IModuleControl>() {
+
+			@Override
+			public void apply(ServiceReference sr, IModuleControl service) {
+				mm.put("slot" + service.getSlotId(), service.getModuleName());
+			}
+		});
+		
+		return mm;
+	}
+
+	/**
+	 * @return List of Feed instances of native (OSGi) feeds.
+	 */
+	private List<String> getNativeFeedNameList() {
+		final List<String> feedNames = new ArrayList<String>();
 		
 		OSGiUtil.onServices(context, Map.class.getName(), null, new ServiceVisitor<Map>() {
 
 			@Override
 			public void apply(ServiceReference sr, Map service) {
 				if (sr.getProperty(Feed.FEED_SERVICE_NAME_PROPERTY) != null)
-					feeds.add(new Feed(
+					feedNames.add(sr.getProperty(Feed.FEED_SERVICE_NAME_PROPERTY).toString());
+			}
+			
+		});
+		
+		return feedNames;
+	}
+
+	/**
+	 * @return List of Feed instances of native (OSGi) feeds.
+	 */
+	private List<Feed> getNativeFeeds() {
+		final List<Feed> nativeFeeds = new ArrayList<Feed>();
+		
+		OSGiUtil.onServices(context, Map.class.getName(), null, new ServiceVisitor<Map>() {
+
+			@Override
+			public void apply(ServiceReference sr, Map service) {
+				if (sr.getProperty(Feed.FEED_SERVICE_NAME_PROPERTY) != null)
+					nativeFeeds.add(new Feed(
 							sr.getProperty(Feed.FEED_SERVICE_NAME_PROPERTY).toString(), 
 							service));
 			}
 			
 		});
-			
-		return JSONElementCreator.createCapabilitiesJson(feeds);
+		
+		return nativeFeeds;
 	}
 
 	@Override

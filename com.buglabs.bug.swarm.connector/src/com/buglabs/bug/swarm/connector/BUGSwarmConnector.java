@@ -237,9 +237,12 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 
 	private String getCapabilities() throws JsonGenerationException, JsonMappingException, IOException {
 		Map<String, Object> root = new HashMap<String, Object>();
+		Map<String, Object> c = new HashMap<String, Object>();
 		
-		root.put("feeds", getNativeFeedNameList());
-		root.put("modules", getModuleMap());
+		c.put("feeds", getNativeFeedNameList());
+		c.put("modules", getModuleMap());
+		
+		root.put("capabilities", c);
 			
 		return mapper.writeValueAsString(root);
 	}
@@ -344,7 +347,6 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 		if (feedRequest.hasFrequency() && !containsActiveTask(jid, swarmId, feed)) {
 			if (activeTasks == null) 
 				activeTasks = new HashMap<String, TimerTask>();
-			
 			
 			//TODO: this is not matching up with the blacklist
 			activeTasks.put(jid.toString() + swarmId + feed.getName(), task);

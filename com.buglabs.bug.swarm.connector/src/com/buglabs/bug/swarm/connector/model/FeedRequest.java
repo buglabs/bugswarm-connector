@@ -142,6 +142,7 @@ public class FeedRequest {
 			}
 			
 		} catch (Exception e) {
+			e.printStackTrace();
 			// Squelch parsing error messages.		
 		} 
 				

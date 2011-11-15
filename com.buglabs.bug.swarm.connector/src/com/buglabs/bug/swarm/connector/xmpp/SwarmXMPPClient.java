@@ -166,10 +166,10 @@ public class SwarmXMPPClient {
 			
 			if (!requestHandlers.containsKey(swarmId)) {
 				GroupChatMessageRequestHandler requestHandler = new GroupChatMessageRequestHandler(jid, swarmId, requestListeners);
-				connection.getChatManager().addChatListener(requestHandler);
+				//connection.getChatManager().addChatListener(requestHandler);
 				muc.addMessageListener(requestHandler);
-				muc.addParticipantListener(requestHandler);
-				requestHandlers.put(swarmId, requestHandler);
+				muc.addParticipantListener(new PresenseHandler(swarmId, requestListeners));
+				requestHandlers.put(swarmId, requestHandler);				
 			} else {
 				Activator.getLog().log(
 						LogService.LOG_WARNING, "Swarm " + swarmId + " already has a GroupChatMessageRequestHandler.");

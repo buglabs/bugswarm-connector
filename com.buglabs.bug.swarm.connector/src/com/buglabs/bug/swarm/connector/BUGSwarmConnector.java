@@ -29,6 +29,7 @@ import com.buglabs.bug.swarm.connector.model.BinaryFeed;
 import com.buglabs.bug.swarm.connector.model.Feed;
 import com.buglabs.bug.swarm.connector.model.FeedRequest;
 import com.buglabs.bug.swarm.connector.model.Jid;
+import com.buglabs.bug.swarm.connector.model.ServiceFeedAdapter;
 import com.buglabs.bug.swarm.connector.osgi.Activator;
 import com.buglabs.bug.swarm.connector.osgi.OSGiUtil;
 import com.buglabs.bug.swarm.connector.osgi.OSGiUtil.OSGiServiceException;
@@ -96,6 +97,8 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	 */
 	private List<String> blacklist;
 	private static LogService log;
+
+	private static PublicWSProvider webService;
 
 	private final BundleContext context;	
 
@@ -375,7 +378,7 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	 * @param name name of feed.
 	 * @return Feed of type name or null if feed does not exist.
 	 */
-	public static Feed getBUGFeed(BundleContext context, String name) {
+	public static Feed getBUGFeed(BundleContext context, final String name) {
 		try {
 			Map feed = (Map) OSGiUtil.getServiceInstance(
 					context, Map.class.getName(), 
@@ -383,8 +386,25 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 			
 			if (feed != null)
 				return new Feed(name, feed);
-		} catch (OSGiServiceException e) {						
-		}	
+			
+		} catch (OSGiServiceException e) {		
+			e.printStackTrace();
+		}
+			
+		webService = null;
+		
+		OSGiUtil.onServices(context, PublicWSProvider.class.getName(), null, new ServiceVisitor<PublicWSProvider>() {
+
+			@Override
+			public void apply(ServiceReference sr, PublicWSProvider service) {
+				if (service.getPublicName().equals(name))
+					webService = service;
+			}
+		});
+		
+		if (webService != null)
+			return new ServiceFeedAdapter(webService);
+			
 		
 		return null;
 	}

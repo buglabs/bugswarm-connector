@@ -59,6 +59,11 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	 * HTTP 404 response.
 	 */
 	private static final int HTTP_404 = 404;
+
+	/**
+	 * Amount of time to wait before sending device state to swarm peers.
+	 */
+	private static final long LOCAL_CHANGE_DELAY_MILLIS = 1000;
 	/**
 	 * Configuration info for swarm server.
 	 */
@@ -83,7 +88,12 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	/**
 	 * Timer that manages all the active streaming feeds.
 	 */
-	private Timer timer;
+	private final Timer timer = new Timer();
+	
+	/**
+	 * A lock used to filter bursts of OSGi service events and only send the BUG message when events are finished.
+	 */
+	private volatile Boolean localEventUpdate = false;
 	
 	private static ObjectMapper mapper = new ObjectMapper();
 	/**
@@ -333,10 +343,7 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 			log.log(LogService.LOG_WARNING, "Request for non-existant feed " + feedRequest.getName() + " from client " + jid);
 			return;
 		}
-	
-		if (timer == null) 
-			timer = new Timer();
-		
+			
 		TimerTask task = null;
 		
 		if (feed instanceof BinaryFeed) {
@@ -503,11 +510,32 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 			case ServiceEvent.REGISTERED:
 				// A feed has been added.  Send the complete set of feeds to all member swarms.
 			case ServiceEvent.UNREGISTERING:
-				// A feed has been removed.  Send the complete set of feeds to all member swarms.				
-				String capabilities = getCapabilities();
+				// A feed has been removed.  Send the complete set of feeds to all member swarms.		
 				
-				for (SwarmModel swarm : memberSwarms) 	
-					xmppClient.sendPublicMessage(swarm.getId(), capabilities);				
+				// A lock is used to only send one event every LOCAL_CHANGE_DELAY_MILLIS to the server.  A TimerTask is used to update
+				// the swarm peers after the interval, and only one task is created within LOCAL_CHANGE_DELAY_MILLIS.
+				synchronized (localEventUpdate) {
+					if (!localEventUpdate) {
+						localEventUpdate = true;
+					
+						timer.schedule(new TimerTask() {
+							
+							@Override
+							public void run() {
+								try {
+								String capabilities = getCapabilities();
+								
+								for (SwarmModel swarm : memberSwarms) 	
+									xmppClient.sendPublicMessage(swarm.getId(), capabilities);		
+								} catch (Exception e) {
+									Activator.getLog().log(LogService.LOG_ERROR, "Error occurred while sending capabilities to member swarms.", e);
+								} finally {
+									localEventUpdate = false;
+								}
+							}
+						}, LOCAL_CHANGE_DELAY_MILLIS);
+					}
+				}						
 				
 				break;	
 			case ServiceEvent.MODIFIED:

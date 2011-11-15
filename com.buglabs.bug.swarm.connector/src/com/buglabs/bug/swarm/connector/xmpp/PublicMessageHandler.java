@@ -53,7 +53,7 @@ public class PublicMessageHandler extends AbstractMessageHandler implements Pack
 				Message m = (Message) packet;
 				
 				if (m.getError() != null) 
-					handleMessageError(m);
+					handleError(m, m.getFrom());
 				 else 
 					handleSwarmRequest(m.getBody(), m.getFrom());
 			
@@ -65,15 +65,6 @@ public class PublicMessageHandler extends AbstractMessageHandler implements Pack
 		}
 	}
 	
-	/**
-	 * Handle messages with errors sent in XMPP packet from server.
-	 * 
-	 * @param m
-	 */
-	private void handleMessageError(Message m) {
-		Activator.getLog().log(LogService.LOG_ERROR, "Server sent error for message: " + m.getError().toXML());
-	}
-
 	/**
 	 * @param packet
 	 *            XMPP packet

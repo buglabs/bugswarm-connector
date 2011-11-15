@@ -53,6 +53,8 @@ public interface ISwarmResourcesClient {
 	 *             on connection error
 	 */
 	List<SwarmResourceModel> list(String swarmId, ISwarmResourcesClient.MemberType type) throws IOException;
+	
+	List<SwarmResourceModel> list(String swarmId) throws IOException;
 
 	/**
 	 * @param swarmId

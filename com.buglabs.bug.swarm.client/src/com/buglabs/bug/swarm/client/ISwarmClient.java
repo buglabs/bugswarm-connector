@@ -34,6 +34,18 @@ public interface ISwarmClient {
 	 * @throws IOException on I/O error
 	 */
 	String create(String name, boolean isPublic, String description) throws IOException;
+	
+	/**
+	 * Create a swarm.
+	 * 
+	 * @param name
+	 *            name of swarm	 
+	 * @param description
+	 *            textual description of swarm
+	 * @return the id of the newly created swarm
+	 * @throws IOException on I/O error
+	 */
+	String create(String name, String description) throws IOException;
 
 	/**
 	 * Update the description of a swarm.

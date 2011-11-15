@@ -11,11 +11,11 @@ import com.buglabs.bug.swarm.client.ISwarmBinaryUploadClient;
 import com.buglabs.bug.swarm.client.ISwarmClient;
 import com.buglabs.bug.swarm.client.ISwarmConfiguration;
 import com.buglabs.bug.swarm.client.ISwarmInviteClient;
+import com.buglabs.bug.swarm.client.ISwarmInviteClient.InvitationResponse;
 import com.buglabs.bug.swarm.client.ISwarmResourcesClient;
+import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.client.IUserResourceClient;
 import com.buglabs.bug.swarm.client.SwarmWSResponse;
-import com.buglabs.bug.swarm.client.ISwarmInviteClient.InvitationResponse;
-import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.client.model.Invitation;
 import com.buglabs.bug.swarm.client.model.ModelBase;
 import com.buglabs.bug.swarm.client.model.SwarmModel;
@@ -84,6 +84,25 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 				"name", name,
 				"description", description,
 				"public", new Boolean(isPublic)));
+		
+		Response<JsonNode> response = httpClient.callPost(
+				swarmHostUrl.copy("swarms"), 
+				body,
+				ModelBase.JSON_DESERIALIZER);
+		
+		if (!response.isError())
+			return response.getContent().get("id").getTextValue();
+		
+		throw new IOException("Unable to create swarm: " + response.getErrorMessage());
+	}
+	
+	@Override
+	public String create(final String name, final String description) throws IOException {
+		validateParams(name, description);
+				
+		InputStream body = createJsonStream(toMap(
+				"name", name,
+				"description", description));
 		
 		Response<JsonNode> response = httpClient.callPost(
 				swarmHostUrl.copy("swarms"), 

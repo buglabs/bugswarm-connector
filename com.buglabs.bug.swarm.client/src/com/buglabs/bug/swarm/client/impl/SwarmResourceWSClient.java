@@ -72,6 +72,40 @@ public class SwarmResourceWSClient extends AbstractSwarmWSClient implements ISwa
 		
 		return response.getContent();
 	}
+	
+	@Override
+	public List<SwarmResourceModel> list(final String swarmId) throws IOException {
+		validateParams(swarmId);
+		
+		URLBuilder url = swarmHostUrl.copy(
+				"swarms/",
+				swarmId, 
+				"/resources");
+
+		//We cannot use a static deserializer here because the json scope of the deserializer does not contain the swarmid.
+		Response<List<SwarmResourceModel>> response = httpClient.callGet(
+				url, 
+				new ResponseDeserializer<List<SwarmResourceModel>>() {
+
+					@Override
+					public List<SwarmResourceModel> deserialize(InputStream input, int responseCode, Map<String, List<String>> headers)
+							throws IOException {
+						if (responseCode == 404)
+							return Collections.emptyList();
+						
+						List<SwarmResourceModel> srml= new ArrayList<SwarmResourceModel>();
+						ObjectMapper objectMapper = new ObjectMapper();
+						JsonNode jtree = objectMapper.readTree(input);
+						
+						for (JsonNode jn : jtree)
+							srml.add(SwarmResourceModel.deserialize(swarmId, jn));
+						
+						return srml;		
+					}
+				});
+		
+		return response.getContent();
+	}
 
 	@Override
 	public SwarmWSResponse add(final String swarmId, final MemberType type

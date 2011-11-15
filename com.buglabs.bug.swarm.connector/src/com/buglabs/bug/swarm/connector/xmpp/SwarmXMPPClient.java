@@ -353,7 +353,7 @@ public class SwarmXMPPClient {
 	 *             on XMPP error
 	 */
 	public void sendAllFeedsToUser(Jid requestJid, String swarmId, String document) throws XMPPException {
-		sendPublicMessage(swarmId, document);
+		sendPrivateMessage(swarmId, requestJid.toString(), document);
 		
 		//Commented out for temporary restriction on management UI to only be able to use public messages.
 		//TODO: reuse sendPUblic and sendPrivate methods
@@ -392,7 +392,7 @@ public class SwarmXMPPClient {
 	 *             on XMPP error
 	 */
 	public void sendFeedToUser(Jid requestJid, String swarmId, String document) throws XMPPException {
-		sendPublicMessage(swarmId, document);
+		sendPrivateMessage(swarmId, requestJid.toString(), document);
 		
 		//Commented out for temporary restriction on management UI to only be able to use public messages.
 		//TODO: reuse sendPUblic and sendPrivate methods

@@ -212,12 +212,12 @@ public class SwarmXMPPClient {
 	 *            id of swarm
 	 * @param userId
 	 *            id of user
-	 * @param feedDocument
+	 * @param message
 	 *            document that should be sent as advertisement
 	 * @throws XMPPException
 	 *             on XMPP protocol error
 	 */
-	public void advertise(final String swarmId, final String userId, final String feedDocument) throws XMPPException {
+	public void sendPrivateMessage(final String swarmId, final String userId, final String message) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
 		
 		if (muc == null)
@@ -229,7 +229,7 @@ public class SwarmXMPPClient {
 			chatCache.put(userId + swarmId, pchat);
 		}
 	
-		pchat.sendMessage(feedDocument);
+		pchat.sendMessage(message);
 	}
 
 	/**
@@ -237,12 +237,12 @@ public class SwarmXMPPClient {
 	 * 
 	 * @param swarmId
 	 *            id of swarm
-	 * @param feedDocument
+	 * @param message
 	 *            document that should be sent as advertisement
 	 * @throws XMPPException
 	 *             on XMPP protocol error
 	 */
-	public void announce(final String swarmId, final String feedDocument) throws XMPPException {
+	public void sendPublicMessage(final String swarmId, final String message) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
 		
 		if (muc == null)
@@ -250,8 +250,8 @@ public class SwarmXMPPClient {
 		
 		//Only send feed to swarms that have other members joined.
 		if (muc != null && muc.getOccupantsCount() > 1) {			
-				muc.sendMessage(feedDocument);
-				Activator.getLog().log(LogService.LOG_DEBUG, "Sent " + feedDocument + " to swarm " + swarmId);
+				muc.sendMessage(message);
+				Activator.getLog().log(LogService.LOG_DEBUG, "Sent " + message + " to swarm " + swarmId);
 		}
 	}
 
@@ -353,7 +353,11 @@ public class SwarmXMPPClient {
 	 *             on XMPP error
 	 */
 	public void sendAllFeedsToUser(Jid requestJid, String swarmId, String document) throws XMPPException {
-		MultiUserChat muc = getMUC(swarmId);
+		sendPublicMessage(swarmId, document);
+		
+		//Commented out for temporary restriction on management UI to only be able to use public messages.
+		//TODO: reuse sendPUblic and sendPrivate methods
+		/*MultiUserChat muc = getMUC(swarmId);
 
 		if (muc == null)
 			throw new XMPPException("Connector is not attached to room " + swarmId);
@@ -367,7 +371,7 @@ public class SwarmXMPPClient {
 		Activator.getLog().log(
 				LogService.LOG_DEBUG, "Sending " + document + " to " + requestJid.toString());
 		
-		pchat.sendMessage(document);
+		pchat.sendMessage(document);*/
 	}
 
 	/**
@@ -388,7 +392,11 @@ public class SwarmXMPPClient {
 	 *             on XMPP error
 	 */
 	public void sendFeedToUser(Jid requestJid, String swarmId, String document) throws XMPPException {
-		MultiUserChat muc = getMUC(swarmId);
+		sendPublicMessage(swarmId, document);
+		
+		//Commented out for temporary restriction on management UI to only be able to use public messages.
+		//TODO: reuse sendPUblic and sendPrivate methods
+		/*MultiUserChat muc = getMUC(swarmId);
 
 		if (muc == null)
 			throw new XMPPException("Connector is not attached to room " + swarmId);
@@ -401,7 +409,7 @@ public class SwarmXMPPClient {
 		
 		Activator.getLog().log(
 				LogService.LOG_DEBUG, "Sending " + document + " to " + requestJid.toString());
-		pchat.sendMessage(document);
+		pchat.sendMessage(document);*/
 	}
 
 	/**

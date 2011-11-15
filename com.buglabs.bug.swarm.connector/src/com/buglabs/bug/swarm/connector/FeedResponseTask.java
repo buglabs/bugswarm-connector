@@ -3,13 +3,13 @@ package com.buglabs.bug.swarm.connector;
 import java.io.IOException;
 import java.util.TimerTask;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.jivesoftware.smack.XMPPException;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.model.Feed;
 import com.buglabs.bug.swarm.connector.model.Jid;
 import com.buglabs.bug.swarm.connector.model.ServiceFeedAdapter;
-import com.buglabs.bug.swarm.connector.xmpp.JSONElementCreator;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
 
 /**
@@ -25,6 +25,7 @@ public class FeedResponseTask extends TimerTask {
 	private final String swarmId;
 	private final Feed feed;
 	private final LogService log;
+	private static ObjectMapper mapper = new ObjectMapper();
 	
 	/**
 	 * @param xmppClient instance of XMPP client that will be used to send the response.
@@ -48,8 +49,8 @@ public class FeedResponseTask extends TimerTask {
 		try {
 			if (feed instanceof ServiceFeedAdapter) {
 				document = ((ServiceFeedAdapter) feed).callGet(null);
-			} else {
-				document = JSONElementCreator.createFeedElement(feed);
+			} else {				
+				document = mapper.writeValueAsString(feed);
 			}
 		
 			xmppClient.sendFeedToUser(jid, swarmId, document);

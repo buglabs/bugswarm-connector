@@ -137,7 +137,7 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 						
 						xmppClient.joinSwarm(swarm.getId(), this);
 						memberSwarms.add(swarm);
-						xmppClient.announce(swarm.getId(), capabilities);
+						xmppClient.sendPublicMessage(swarm.getId(), capabilities);
 					}								
 				}
 				
@@ -323,7 +323,7 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 
 	@Override
 	public void feedRequest(final Jid jid, final String swarmId, final FeedRequest feedRequest) {
-		Feed feed = getBUGFeed(feedRequest.getName());
+		Feed feed = getBUGFeed(context, feedRequest.getName());
 		
 		if (feed == null) {			
 			log.log(LogService.LOG_WARNING, "Request for non-existant feed " + feedRequest.getName() + " from client " + jid);
@@ -359,7 +359,7 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	 * @param name name of feed.
 	 * @return Feed of type name or null if feed does not exist.
 	 */
-	private Feed getBUGFeed(String name) {
+	public static Feed getBUGFeed(BundleContext context, String name) {
 		try {
 			Map feed = (Map) OSGiUtil.getServiceInstance(
 					context, Map.class.getName(), 
@@ -487,7 +487,7 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 				String capabilities = getCapabilities();
 				
 				for (SwarmModel swarm : memberSwarms) 	
-					xmppClient.announce(swarm.getId(), capabilities);				
+					xmppClient.sendPublicMessage(swarm.getId(), capabilities);				
 				
 				break;	
 			case ServiceEvent.MODIFIED:

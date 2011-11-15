@@ -35,6 +35,7 @@ import com.buglabs.bug.swarm.connector.osgi.OSGiUtil.OSGiServiceException;
 import com.buglabs.bug.swarm.connector.osgi.OSGiUtil.ServiceVisitor;
 import com.buglabs.bug.swarm.connector.xmpp.ISwarmServerRequestListener;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
+import com.buglabs.services.ws.PublicWSProvider;
 import com.buglabs.util.simplerestclient.HTTPException;
 
 /**
@@ -270,10 +271,23 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	private List<String> getNativeFeedNameList() {
 		final List<String> feedNames = new ArrayList<String>();
 		
+		//Native Feeds
 		OSGiUtil.onServices(context, Map.class.getName(), null, new ServiceVisitor<Map>() {
 
 			@Override
 			public void apply(ServiceReference sr, Map service) {
+				if (sr.getProperty(Feed.FEED_SERVICE_NAME_PROPERTY) != null)
+					feedNames.add(sr.getProperty(Feed.FEED_SERVICE_NAME_PROPERTY).toString());
+			}
+			
+		});
+		
+		//BUG Web Services
+		OSGiUtil.onServices(context, PublicWSProvider.class.getName(), null, new ServiceVisitor<PublicWSProvider>() {
+
+			@Override
+			public void apply(ServiceReference sr, PublicWSProvider service) {
+				feedNames.add(service.getPublicName());
 				if (sr.getProperty(Feed.FEED_SERVICE_NAME_PROPERTY) != null)
 					feedNames.add(sr.getProperty(Feed.FEED_SERVICE_NAME_PROPERTY).toString());
 			}

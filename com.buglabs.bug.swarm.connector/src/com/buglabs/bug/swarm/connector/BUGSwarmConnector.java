@@ -32,7 +32,7 @@ import com.buglabs.bug.swarm.connector.model.Jid;
 import com.buglabs.bug.swarm.connector.model.ServiceFeedAdapter;
 import com.buglabs.bug.swarm.connector.osgi.Activator;
 import com.buglabs.bug.swarm.connector.osgi.OSGiUtil;
-import com.buglabs.bug.swarm.connector.osgi.OSGiUtil.OSGiServiceException;
+import com.buglabs.bug.swarm.connector.osgi.OSGiUtil.ServiceMatcher;
 import com.buglabs.bug.swarm.connector.osgi.OSGiUtil.ServiceVisitor;
 import com.buglabs.bug.swarm.connector.xmpp.ISwarmServerRequestListener;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
@@ -97,8 +97,6 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	 */
 	private List<String> blacklist;
 	private static LogService log;
-
-	private static PublicWSProvider webService;
 
 	private final BundleContext context;	
 
@@ -239,11 +237,18 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 		} 
 	}
 
+	/**
+	 * @return A JSon string of the Capabilities message
+	 * 
+	 * @throws JsonGenerationException on Json parsing error
+	 * @throws JsonMappingException on Json parsing error
+	 * @throws IOException on Json parsing error
+	 */
 	private String getCapabilities() throws JsonGenerationException, JsonMappingException, IOException {
 		Map<String, Object> root = new HashMap<String, Object>();
 		Map<String, Object> c = new HashMap<String, Object>();
 		
-		c.put("feeds", getNativeFeedNameList());
+		c.put("feeds", getFeedNames());
 		c.put("modules", getModuleMap());
 		
 		root.put("capabilities", c);
@@ -271,7 +276,7 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	/**
 	 * @return List of Feed instances of native (OSGi) feeds.
 	 */
-	private List<String> getNativeFeedNameList() {
+	private List<String> getFeedNames() {
 		final List<String> feedNames = new ArrayList<String>();
 		
 		//Native Feeds
@@ -298,27 +303,6 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 		});
 		
 		return feedNames;
-	}
-
-	/**
-	 * @return List of Feed instances of native (OSGi) feeds.
-	 */
-	private List<Feed> getNativeFeeds() {
-		final List<Feed> nativeFeeds = new ArrayList<Feed>();
-		
-		OSGiUtil.onServices(context, Map.class.getName(), null, new ServiceVisitor<Map>() {
-
-			@Override
-			public void apply(ServiceReference sr, Map service) {
-				if (sr.getProperty(Feed.FEED_SERVICE_NAME_PROPERTY) != null)
-					nativeFeeds.add(new Feed(
-							sr.getProperty(Feed.FEED_SERVICE_NAME_PROPERTY).toString(), 
-							service));
-			}
-			
-		});
-		
-		return nativeFeeds;
 	}
 
 	@Override
@@ -375,33 +359,30 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	}
 
 	/**
+	 * This method will search for native and service feeds.
+	 * 
 	 * @param name name of feed.
 	 * @return Feed of type name or null if feed does not exist.
 	 */
 	public static Feed getBUGFeed(BundleContext context, final String name) {
-		try {
-			Map feed = (Map) OSGiUtil.getServiceInstance(
-					context, Map.class.getName(), 
-					OSGiUtil.createFilter(Feed.FEED_SERVICE_NAME_PROPERTY, name));
-			
-			if (feed != null)
-				return new Feed(name, feed);
-			
-		} catch (OSGiServiceException e) {		
-			//This just means that the feed is not available.
-		}
-			
-		//TODO: Find a better way of doing this.
-		webService = null;
+		//Look for native feed that matches feed name.
+		Map feed = (Map) OSGiUtil.getServiceInstance(
+				context, Map.class.getName(), 
+				OSGiUtil.createFilter(Feed.FEED_SERVICE_NAME_PROPERTY, name));
 		
-		OSGiUtil.onServices(context, PublicWSProvider.class.getName(), null, new ServiceVisitor<PublicWSProvider>() {
+		if (feed != null)
+			return new Feed(name, feed);
+		
+		//Look for web service that matches the feed name.
+		PublicWSProvider webService = 
+				OSGiUtil.getServiceInstance(context, PublicWSProvider.class.getName(), null, new ServiceMatcher<PublicWSProvider>() {
 
-			@Override
-			public void apply(ServiceReference sr, PublicWSProvider service) {
-				if (service.getPublicName().equals(name))
-					webService = service;
-			}
-		});
+					@Override
+					public boolean match(ServiceReference sr, PublicWSProvider service) {						
+						return service.getPublicName().equals(name);
+					}
+			
+		});		
 		
 		if (webService != null)
 			return new ServiceFeedAdapter(webService);

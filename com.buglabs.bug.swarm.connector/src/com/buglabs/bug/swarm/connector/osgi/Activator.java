@@ -17,7 +17,6 @@ import org.osgi.util.tracker.ServiceTracker;
 
 import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
 import com.buglabs.bug.swarm.connector.Configuration;
-import com.buglabs.bug.swarm.connector.osgi.OSGiUtil.OSGiServiceException;
 import com.buglabs.bug.swarm.connector.ui.ConfigInitRunnable;
 import com.buglabs.bug.swarm.connector.ui.SwarmConfigKeys;
 import com.buglabs.osgi.sewing.pub.ISewingService;
@@ -187,11 +186,10 @@ public class Activator implements BundleActivator, ManagedService {
 	 */
 	public static void setResourceId(String resourceId) throws IOException {
 		if (configAdmin == null) {
-			try {
 				configAdmin = (ConfigurationAdmin) OSGiUtil.getServiceInstance(context, ConfigurationAdmin.class.getName());
-			} catch (OSGiServiceException e) {
-				throw new IOException(e);
-			}
+			
+				if (configAdmin == null)
+					throw new IOException("Unable to get configAdmin.");
 		}
 		
 		org.osgi.service.cm.Configuration config = configAdmin.getConfiguration(SwarmConfigKeys.CONFIG_PID_BUGSWARM);

@@ -191,7 +191,9 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 					"bug", 
 					0, 0);
 			config.setResourceId(resource.getResourceId());
-
+			//Cache resource id.
+			Activator.setResourceId(resource.getResourceId());
+			
 			Activator.getLog().log(LogService.LOG_DEBUG, "New resource id: " + config.getResource());
 		}
 		

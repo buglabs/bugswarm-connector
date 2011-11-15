@@ -264,6 +264,8 @@ public class SwarmXMPPClient {
 		if (muc != null && muc.getOccupantsCount() > 1) {			
 				muc.sendMessage(message);
 				Activator.getLog().log(LogService.LOG_DEBUG, "Sent " + message + " to swarm " + swarmId);
+		} else {
+			Activator.getLog().log(LogService.LOG_DEBUG, "No other participants, did not send message to " + swarmId);
 		}
 	}
 

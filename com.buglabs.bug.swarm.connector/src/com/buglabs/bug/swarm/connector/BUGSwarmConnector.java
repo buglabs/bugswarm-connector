@@ -53,7 +53,7 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	/**
 	 * Used to convert seconds to milliseconds.
 	 */
-	private static final long MILLIS_IN_SECONDS = 1000;
+	private static final long MILLIS_IN_SECONDS = 2000;
 	
 	/**
 	 * HTTP 404 response.
@@ -525,10 +525,10 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 							@Override
 							public void run() {
 								try {
-								String capabilities = getCapabilities();
-								
-								for (SwarmModel swarm : memberSwarms) 	
-									xmppClient.sendPublicMessage(swarm.getId(), capabilities);		
+									String capabilities = getCapabilities();
+									
+									for (SwarmModel swarm : memberSwarms) 	
+										xmppClient.sendPublicMessage(swarm.getId(), capabilities);		
 								} catch (Exception e) {
 									Activator.getLog().log(LogService.LOG_ERROR, "Error occurred while sending capabilities to member swarms.", e);
 								} finally {
@@ -541,7 +541,20 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 				
 				break;	
 			case ServiceEvent.MODIFIED:
-				// A feed's contents has changed.  Currently this has no effect to swarm peers.  Single request or frequency-based "push" is supported only.
+				try {
+					Feed feed = Feed.createForType(event.getServiceReference());
+					
+					if (feed != null) {							
+						String message = mapper.writeValueAsString(feed);
+						
+						for (SwarmModel swarm : memberSwarms) 	
+							xmppClient.sendPublicMessage(swarm.getId(), message);		
+					}
+				} catch (Exception e) {
+					Activator.getLog().log(LogService.LOG_ERROR, "Error occurred while sending feed update to member swarms.", e);
+				} finally {
+					localEventUpdate = false;
+				}
 				break;
 			default:
 			}			

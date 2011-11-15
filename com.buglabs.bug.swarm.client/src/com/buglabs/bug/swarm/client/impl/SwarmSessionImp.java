@@ -90,6 +90,10 @@ public class SwarmSessionImp implements ISwarmSession {
 		
 		soutput.write(header.toString().getBytes());
 		soutput.flush();
+		//need to write one chunk into the stream before the platform will send data do us
+		//I chose \ because it's the keepalive as well
+		//see https://github.com/buglabs/bugswarm-connector/issues/30
+		writeOut("\n");
 	}
 
 	/**

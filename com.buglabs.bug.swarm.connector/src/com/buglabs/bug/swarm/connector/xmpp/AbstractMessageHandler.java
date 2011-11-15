@@ -3,6 +3,7 @@ package com.buglabs.bug.swarm.connector.xmpp;
 import java.text.ParseException;
 import java.util.List;
 
+import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.osgi.service.log.LogService;
 
@@ -101,5 +102,9 @@ public abstract class AbstractMessageHandler {
 		for (ISwarmServerRequestListener listener : requestListeners) {
 				listener.cancelFeedRequests(new Jid(p.getFrom()), swarmId);				
 		}		
+	}
+	
+	protected void handleError(Message message, String participant) {
+		System.out.println("Error message: " + message.getError() + " from: " + participant);
 	}
 }

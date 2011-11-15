@@ -484,6 +484,8 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 			if (taskKey.contains(jid.getResource()) && taskKey.contains(jid.getUsername()))
 				activeTasks.get(taskKey).cancel();		
 		}
+		
+		log.log(LogService.LOG_INFO, "Cancelled active tasks for : " + jid.toString() + " in swarm " + swarmId);
 	}
 
 	/* (non-Javadoc)

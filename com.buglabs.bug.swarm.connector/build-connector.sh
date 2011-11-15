@@ -73,10 +73,18 @@ rm -Rf com.buglabs.osgi.build
 rm -Rf smack-smackx-osgi
 
 ###### Get source dependencies that will be compiled
-git clone git://github.com/buglabs/bug-osgi.git
-cd bug-osgi
-git checkout $BUILD_BRANCH
-cd ..
+if [ -d bug-osgi ]; then
+	cd bug-osgi
+	git reset --hard
+	git pull
+	cd ..
+else
+	git clone git://github.com/buglabs/bug-osgi.git
+	cd bug-osgi
+	git checkout $BUILD_BRANCH
+	cd ..
+fi
+
 rm -Rf $WORKSPACE/com.buglabs.common
 rm -Rf $WORKSPACE/com.buglabs.bug.dragonfly
 rm -Rf $WORKSPACE/com.buglabs.osgi.sewing
@@ -89,7 +97,7 @@ mv bug-osgi/com.buglabs.osgi.sewing $WORKSPACE
 mv bug-osgi/com.buglabs.osgi.tester $WORKSPACE
 mv bug-osgi/com.buglabs.osgi.build $WORKSPACE
 mv bug-osgi/com.buglabs.util.shell $WORKSPACE
-rm -Rf bug-osgi
+# rm -Rf bug-osgi
 
 rm -Rf $WORKSPACE/org.touge.restclient
 git clone git://github.com/kgilmer/touge.git

@@ -56,7 +56,7 @@ import freemarker.template.TemplateModelRoot;
 public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 
 	private static final long serialVersionUID = 6913347882663532246L;
-	private Configuration config;
+	private final Configuration config;
 	private Dictionary confDictionary;
 
 	/**
@@ -207,6 +207,7 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME, username);
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY, partApiKey);
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY, confApiKei);
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE_ID, null);
 
 		config.update(d);
 	}

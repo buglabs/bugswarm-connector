@@ -1,9 +1,14 @@
 package com.buglabs.bug.swarm.client;
 
-import java.util.Map;
 
 /**
- * Listener interface to handle messages from swarm server.
+ * Listener interface to handle messages from swarm server.  This is a base listener and does not 
+ * provide clients a way to get message payload.  Refer to subclassing interfaces that provide
+ * access to the message payload in specific types, such as String or Map.
+ * 
+ * @see ISwarmJsonMessageListener
+ * @see ISwarmStringMessageListener
+ * 
  * @author kgilmer
  *
  */
@@ -31,16 +36,7 @@ public interface ISwarmMessageListener {
 		 */
 		SERVER_ERROR;
 	}
-	/**
-	 * A server-based message was received.
-	 * 
-	 * @param payload of the message or null if no payload.
-	 * @param fromSwarm id of swarm or null of no swarm id was provided.
-	 * @param fromResource id of resource or null if no resource id was provided.
-	 * @param isPublic true by default or false if field set to false by server.
-	 */
-	void messageRecieved(Map<String, ?> payload, String fromSwarm, String fromResource, boolean isPublic);
-	
+		
 	/**
 	 * A server-based presence event was received.
 	 * 

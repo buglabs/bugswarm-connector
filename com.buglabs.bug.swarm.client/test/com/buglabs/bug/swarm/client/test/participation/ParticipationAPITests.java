@@ -10,9 +10,11 @@ import junit.framework.TestCase;
 import com.buglabs.bug.swarm.client.ISwarmClient;
 import com.buglabs.bug.swarm.client.ISwarmInviteClient.InvitationResponse;
 import com.buglabs.bug.swarm.client.ISwarmInviteClient.InvitationState;
-import com.buglabs.bug.swarm.client.ISwarmMessageListener;
+import com.buglabs.bug.swarm.client.ISwarmJsonMessageListener;
+import com.buglabs.bug.swarm.client.ISwarmMessageListener.ExceptionType;
 import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.client.ISwarmSession;
+import com.buglabs.bug.swarm.client.ISwarmStringMessageListener;
 import com.buglabs.bug.swarm.client.SwarmClientFactory;
 import com.buglabs.bug.swarm.client.SwarmWSResponse;
 import com.buglabs.bug.swarm.client.model.Invitation;
@@ -165,10 +167,39 @@ public class ParticipationAPITests extends TestCase {
 		psession1ExceptionRecieved = false;
 		psession2ExceptionRecieved = false;
 		
-		psession1.addListener(new ISwarmMessageListener() {
+		psession1.addListener(new ISwarmJsonMessageListener() {
 			
 			@Override
 			public void messageRecieved(Map<String, ?> payload, String fromSwarm, String fromResource, boolean isPublic) {
+				System.out.print(fromSwarm);
+				System.out.print(" ");
+				System.out.print(fromResource);
+				System.out.print(" ");
+				System.out.println(payload);
+				psession1MessageRecieved = true;
+			}
+
+			@Override
+			public void exceptionOccurred(ExceptionType type, String message) {
+				System.err.print(type.toString());
+				System.err.print(" ");
+				System.err.print(message);
+				psession1ExceptionRecieved = true;
+			}
+
+			@Override
+			public void presenceEvent(String fromSwarm, String fromResource, boolean isAvailable) {
+				System.out.print(fromSwarm);
+				System.out.print(" ");
+				System.out.println(fromResource);
+				psession1PresenceMessageRecieved = true;
+			}
+		});
+		
+		psession1.addListener(new ISwarmStringMessageListener() {
+			
+			@Override
+			public void messageRecieved(String payload, String fromSwarm, String fromResource, boolean isPublic) {
 				System.out.print(fromSwarm);
 				System.out.print(" ");
 				System.out.print(fromResource);
@@ -205,7 +236,7 @@ public class ParticipationAPITests extends TestCase {
 				AccountConfig.getConfiguration2().getParticipationAPIKey(),
 				AccountConfig.testUserResource2.getResourceId(), AccountConfig.testSwarmId);
 		
-		psession2.addListener(new ISwarmMessageListener() {
+		psession2.addListener(new ISwarmJsonMessageListener() {
 			
 			@Override
 			public void messageRecieved(Map<String, ?> payload, String fromSwarm, String fromResource, boolean isPublic) {

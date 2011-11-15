@@ -3,14 +3,14 @@ package com.buglabs.bug.swarm.client.test.participation;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.List;
-import java.util.Map;
 
 import junit.framework.TestCase;
 
 import com.buglabs.bug.swarm.client.ISwarmClient;
-import com.buglabs.bug.swarm.client.ISwarmMessageListener;
+import com.buglabs.bug.swarm.client.ISwarmMessageListener.ExceptionType;
 import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.client.ISwarmSession;
+import com.buglabs.bug.swarm.client.ISwarmStringMessageListener;
 import com.buglabs.bug.swarm.client.SwarmClientFactory;
 import com.buglabs.bug.swarm.client.SwarmWSResponse;
 import com.buglabs.bug.swarm.client.model.SwarmModel;
@@ -134,7 +134,7 @@ public class SessionManagementTests extends TestCase {
 	 * A test listener that captures which messages have been sent from session.
 	 *
 	 */
-	class SessionTestListener implements ISwarmMessageListener {
+	class SessionTestListener implements ISwarmStringMessageListener {
 
 		private boolean presenceReceived;
 		private boolean messageRecieved;
@@ -146,7 +146,7 @@ public class SessionManagementTests extends TestCase {
 			exceptionReceived = false;
 		}
 		@Override
-		public void messageRecieved(Map<String, ?> payload, String fromSwarm, String fromResource, boolean isPublic) {
+		public void messageRecieved(String payload, String fromSwarm, String fromResource, boolean isPublic) {
 			messageRecieved = true;
 		}
 

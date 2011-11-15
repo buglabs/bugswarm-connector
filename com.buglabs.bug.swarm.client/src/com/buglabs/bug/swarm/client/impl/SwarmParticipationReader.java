@@ -12,8 +12,10 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.buglabs.bug.swarm.client.ISwarmClient;
+import com.buglabs.bug.swarm.client.ISwarmJsonMessageListener;
 import com.buglabs.bug.swarm.client.ISwarmMessageListener;
 import com.buglabs.bug.swarm.client.ISwarmMessageListener.ExceptionType;
+import com.buglabs.bug.swarm.client.ISwarmStringMessageListener;
 
 /**
  * Reads from the HTTP-like input stream for a swarm participation session and sends events to listeners when they occur.
@@ -107,15 +109,22 @@ public class SwarmParticipationReader extends Thread {
 							if (jmessage.get("message").has("public"))
 								isPublic = jmessage.get("message").get("public").asBoolean();
 							
-							JsonNode payloadJson = jmessage.get("message").get("payload");
-							if (payloadJson.isArray()) {
-								List<Map<String, Object>> nodes = mapper.readValue(payloadJson, List.class);
-								for (Map<String, Object> n : nodes) {
-									listener.messageRecieved(n, swarmId, resourceId, isPublic);
+							if (listener instanceof ISwarmJsonMessageListener) {
+								JsonNode payloadJson = jmessage.get("message").get("payload");
+								if (payloadJson.isArray()) {
+									List<Map<String, Object>> nodes = mapper.readValue(payloadJson, List.class);
+									for (Map<String, Object> n : nodes) {
+										((ISwarmJsonMessageListener)listener).messageRecieved(n, swarmId, resourceId, isPublic);
+									}
+								} else {
+									Map<String, Object> payload = mapper.readValue(payloadJson, Map.class);
+									((ISwarmJsonMessageListener)listener).messageRecieved(payload, swarmId, resourceId, isPublic);
 								}
+							} else if (listener instanceof ISwarmStringMessageListener) {
+								String payload = jmessage.get("message").get("payload").asText();
+								((ISwarmStringMessageListener)listener).messageRecieved(payload, swarmId, resourceId, isPublic);
 							} else {
-								Map<String, Object> payload = mapper.readValue(payloadJson, Map.class);
-								listener.messageRecieved(payload, swarmId, resourceId, isPublic);
+								throw new IllegalArgumentException("Listener " + listener.getClass().getName() + " is abstract.  Use a concrete listener");
 							}
 						}
 					} else if (jmessage.has(CODE_KEY)) {

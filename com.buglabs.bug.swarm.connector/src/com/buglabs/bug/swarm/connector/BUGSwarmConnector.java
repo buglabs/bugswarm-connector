@@ -388,9 +388,10 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 				return new Feed(name, feed);
 			
 		} catch (OSGiServiceException e) {		
-			e.printStackTrace();
+			//This just means that the feed is not available.
 		}
 			
+		//TODO: Find a better way of doing this.
 		webService = null;
 		
 		OSGiUtil.onServices(context, PublicWSProvider.class.getName(), null, new ServiceVisitor<PublicWSProvider>() {

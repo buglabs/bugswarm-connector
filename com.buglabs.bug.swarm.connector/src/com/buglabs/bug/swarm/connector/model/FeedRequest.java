@@ -131,10 +131,13 @@ public class FeedRequest {
 				String type = jn.get("type").getTextValue();
 				String name = jn.get("feed").getTextValue();
 				Map<String, Object> frp = new HashMap<String, Object>();
-				if (jn.has("params") && jn.get("params").isArray()) {
+				if (jn.has("params")) {
 					for (Iterator<Entry<String, JsonNode>> jni = jn.get("params").getFields(); jni.hasNext();) {
 						Entry<String, JsonNode> pn = jni.next();
-						frp.put(pn.getKey(), pn.getValue().getTextValue());
+						if (pn.getKey().equals("frequency"))
+							frp.put(pn.getKey(), pn.getValue().asInt());
+						else
+							frp.put(pn.getKey(), pn.getValue().asText());
 					}
 				}
 				

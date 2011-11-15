@@ -28,6 +28,7 @@
 package com.buglabs.bug.swarm.connector.xmpp;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +37,7 @@ import java.util.Map;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.Connection;
 import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smackx.muc.MultiUserChat;
@@ -64,7 +66,7 @@ public class SwarmXMPPClient {
 	private final Jid jid;
 	private final List<ISwarmServerRequestListener> requestListeners;
 	//private RootMessageRequestHandler rootRequestHandler;
-	private final Map<String, GroupChatMessageRequestHandler> requestHandlers;
+	private final Map<String, List<PacketListener>> requestHandlers;
 	private final Map<String, Chat> chatCache;
 
 	/**
@@ -75,7 +77,7 @@ public class SwarmXMPPClient {
 		this.config = config;
 		this.jid = new Jid(config.getUsername(), config.getHostname(Protocol.XMPP), config.getResource());
 		this.requestListeners = new ArrayList<ISwarmServerRequestListener>();
-		this.requestHandlers = new HashMap<String, GroupChatMessageRequestHandler>();
+		this.requestHandlers = new HashMap<String, List<PacketListener>>();
 		this.chatCache = new HashMap<String, Chat>();
 	}
 
@@ -165,11 +167,17 @@ public class SwarmXMPPClient {
 			muc.join(getResource());
 			
 			if (!requestHandlers.containsKey(swarmId)) {
-				GroupChatMessageRequestHandler requestHandler = new GroupChatMessageRequestHandler(jid, swarmId, requestListeners);
-				//connection.getChatManager().addChatListener(requestHandler);
+				PublicMessageHandler requestHandler = new PublicMessageHandler(jid, swarmId, requestListeners);
 				muc.addMessageListener(requestHandler);
-				muc.addParticipantListener(new PresenseHandler(swarmId, requestListeners));
-				requestHandlers.put(swarmId, requestHandler);				
+				
+				PresenceHandler presenceHandler = new PresenceHandler(jid, swarmId, requestListeners);
+				muc.addParticipantListener(presenceHandler);
+				
+				if (!requestHandlers.containsKey(swarmId)) 
+					requestHandlers.put(swarmId, new ArrayList<PacketListener>());
+				
+				requestHandlers.get(swarmId).add(requestHandler);	
+				requestHandlers.get(swarmId).add(presenceHandler);
 			} else {
 				Activator.getLog().log(
 						LogService.LOG_WARNING, "Swarm " + swarmId + " already has a GroupChatMessageRequestHandler.");
@@ -188,14 +196,14 @@ public class SwarmXMPPClient {
 
 		if (muc != null && muc.isJoined()) {
 			if (requestHandlers.containsKey(swarmId)) {
-				GroupChatMessageRequestHandler listener = requestHandlers.get(swarmId);
-				connection.getChatManager().removeChatListener(listener);
-				muc.removeMessageListener(listener);
-				muc.removeParticipantListener(listener);
+				for (PacketListener listener : requestHandlers.get(swarmId)) {
+					muc.removeMessageListener(listener);
+					muc.removeParticipantListener(listener);
+				}
+									
 				requestHandlers.remove(swarmId);
 			}
-			muc.leave();
-			
+			muc.leave();			
 			clearChatCache(swarmId);
 		} else {
 			Activator.getLog().log(
@@ -206,7 +214,7 @@ public class SwarmXMPPClient {
 	
 
 	/**
-	 * Advertise local services to another swarm member.
+	 * Send a private message to a swarm peer.
 	 * 
 	 * @param swarmId
 	 *            id of swarm
@@ -215,7 +223,7 @@ public class SwarmXMPPClient {
 	 * @param message
 	 *            document that should be sent as advertisement
 	 * @throws XMPPException
-	 *             on XMPP protocol error
+	 *             on XMPP protocol error	
 	 */
 	public void sendPrivateMessage(final String swarmId, final String userId, final String message) throws XMPPException {
 		MultiUserChat muc = getMUC(swarmId);
@@ -223,17 +231,21 @@ public class SwarmXMPPClient {
 		if (muc == null)
 			throw new IllegalStateException("Unable to access MUC " + swarmId);
 		
-		Chat pchat = chatCache.get(userId + swarmId);
-		if (pchat == null) {
-			pchat = muc.createPrivateChat(userId, requestHandlers.get(swarmId));
-			chatCache.put(userId + swarmId, pchat);
+		try {
+			Chat pchat = chatCache.get(userId + swarmId);
+			if (pchat == null) {
+				pchat = muc.createPrivateChat(userId, new PrivateMessageHandler(new Jid(userId), swarmId, requestListeners));
+				chatCache.put(userId + swarmId, pchat);
+			}
+		
+			pchat.sendMessage(message);
+		} catch (ParseException pe) {
+			throw new XMPPException(pe);
 		}
-	
-		pchat.sendMessage(message);
 	}
 
 	/**
-	 * Announce local services on a swarm.
+	 * Send a public message to a swarm (MUC).
 	 * 
 	 * @param swarmId
 	 *            id of swarm
@@ -353,25 +365,7 @@ public class SwarmXMPPClient {
 	 *             on XMPP error
 	 */
 	public void sendAllFeedsToUser(Jid requestJid, String swarmId, String document) throws XMPPException {
-		sendPrivateMessage(swarmId, requestJid.toString(), document);
-		
-		//Commented out for temporary restriction on management UI to only be able to use public messages.
-		//TODO: reuse sendPUblic and sendPrivate methods
-		/*MultiUserChat muc = getMUC(swarmId);
-
-		if (muc == null)
-			throw new XMPPException("Connector is not attached to room " + swarmId);
-
-		Chat pchat = chatCache.get(requestJid + swarmId);
-		if (pchat == null) {
-			pchat = muc.createPrivateChat(requestJid.toString(), requestHandlers.get(swarmId));
-			chatCache.put(requestJid + swarmId, pchat);
-		}
-		
-		Activator.getLog().log(
-				LogService.LOG_DEBUG, "Sending " + document + " to " + requestJid.toString());
-		
-		pchat.sendMessage(document);*/
+		sendPrivateMessage(swarmId, requestJid.toString(), document);		
 	}
 
 	/**
@@ -392,24 +386,7 @@ public class SwarmXMPPClient {
 	 *             on XMPP error
 	 */
 	public void sendFeedToUser(Jid requestJid, String swarmId, String document) throws XMPPException {
-		sendPrivateMessage(swarmId, requestJid.toString(), document);
-		
-		//Commented out for temporary restriction on management UI to only be able to use public messages.
-		//TODO: reuse sendPUblic and sendPrivate methods
-		/*MultiUserChat muc = getMUC(swarmId);
-
-		if (muc == null)
-			throw new XMPPException("Connector is not attached to room " + swarmId);
-				
-		Chat pchat = chatCache.get(requestJid + swarmId);
-		if (pchat == null) {
-			pchat = muc.createPrivateChat(requestJid.toString(), requestHandlers.get(swarmId));
-			chatCache.put(requestJid + swarmId, pchat);
-		}
-		
-		Activator.getLog().log(
-				LogService.LOG_DEBUG, "Sending " + document + " to " + requestJid.toString());
-		pchat.sendMessage(document);*/
+		sendPrivateMessage(swarmId, requestJid.toString(), document);		
 	}
 
 	/**

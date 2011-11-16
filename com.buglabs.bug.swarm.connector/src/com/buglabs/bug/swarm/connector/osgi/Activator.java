@@ -87,6 +87,10 @@ public class Activator implements BundleActivator, ManagedService {
 	 */
 	@Override
 	public void stop(BundleContext bundleContext) throws Exception {
+		if (connector != null) {
+			connector.shutdown();
+		}
+		
 		sewingST.close();
 		Activator.context = null;
 		log = null;

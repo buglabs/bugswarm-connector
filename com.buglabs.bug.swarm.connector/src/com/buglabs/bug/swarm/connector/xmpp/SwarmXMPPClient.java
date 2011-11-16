@@ -65,9 +65,9 @@ public class SwarmXMPPClient {
 	private final Configuration config;
 	private final Jid jid;
 	private final List<ISwarmServerRequestListener> requestListeners;
-	//private RootMessageRequestHandler rootRequestHandler;
 	private final Map<String, List<PacketListener>> requestHandlers;
 	private final Map<String, Chat> chatCache;
+	private SwarmAssociationHandler swarmAssociationHandler;
 
 	/**
 	 * @param config
@@ -91,8 +91,6 @@ public class SwarmXMPPClient {
 	 *             on XMPP protocol failure
 	 */
 	public void connect(ISwarmServerRequestListener listener) throws IOException, XMPPException {
-		// Get a unique ID for the device software is running on.
-		// String clientId = ClientIdentity.getRef().getId();
 		if (connection == null) {
 			connection = createConnection(config.getHostname(Protocol.XMPP), config.getXMPPPort());
 			login(connection, config.getUsername(), config.getParticipationAPIKey(), config.getResource());
@@ -101,13 +99,9 @@ public class SwarmXMPPClient {
 
 		if (!requestListeners.contains(listener))
 			requestListeners.add(listener);
-
-		/*try {
-			rootRequestHandler = new RootMessageRequestHandler(jid, requestListeners);
-			connection.getChatManager().addChatListener(rootRequestHandler);		
-		} catch (Exception e) {
-			throw new IOException(e);
-		}*/
+		
+		swarmAssociationHandler = new SwarmAssociationHandler(this, listener);
+		connection.getChatManager().addChatListener(swarmAssociationHandler);	
 	}
 
 	/**
@@ -159,30 +153,25 @@ public class SwarmXMPPClient {
 	 */
 	public void joinSwarm(final String swarmId, final ISwarmServerRequestListener listener) throws Exception {
 		MultiUserChat muc = getMUC(swarmId);
+		
+		if (listener != null && !requestListeners.contains(listener))
+			requestListeners.add(listener);
 
-		if (!muc.isJoined()) {
-			if (listener != null && !requestListeners.contains(listener))
-				requestListeners.add(listener);
-
-			muc.join(getResource());
+		muc.join(getResource());
+		
+		if (!requestHandlers.containsKey(swarmId)) {
+			PublicMessageHandler requestHandler = new PublicMessageHandler(jid, swarmId, requestListeners);
+			muc.addMessageListener(requestHandler);
 			
-			if (!requestHandlers.containsKey(swarmId)) {
-				PublicMessageHandler requestHandler = new PublicMessageHandler(jid, swarmId, requestListeners);
-				muc.addMessageListener(requestHandler);
-				
-				PresenceHandler presenceHandler = new PresenceHandler(jid, swarmId, requestListeners);
-				muc.addParticipantListener(presenceHandler);
-				
-				if (!requestHandlers.containsKey(swarmId)) 
-					requestHandlers.put(swarmId, new ArrayList<PacketListener>());
-				
-				requestHandlers.get(swarmId).add(requestHandler);	
-				requestHandlers.get(swarmId).add(presenceHandler);
-			} else {
-				Activator.getLog().log(
-						LogService.LOG_WARNING, "Swarm " + swarmId + " already has a GroupChatMessageRequestHandler.");
-			}
-		}
+			PresenceHandler presenceHandler = new PresenceHandler(jid, swarmId, requestListeners, this);
+			muc.addParticipantListener(presenceHandler);			
+			
+			if (!requestHandlers.containsKey(swarmId)) 
+				requestHandlers.put(swarmId, new ArrayList<PacketListener>());
+			
+			requestHandlers.get(swarmId).add(requestHandler);	
+			requestHandlers.get(swarmId).add(presenceHandler);
+		} 		
 	}
 
 	/**
@@ -343,7 +332,13 @@ public class SwarmXMPPClient {
 			return;
 		}
 
-		connection.disconnect();
+		if (connection != null) {
+			if (swarmAssociationHandler != null) {
+				connection.getChatManager().removeChatListener(swarmAssociationHandler);
+				swarmAssociationHandler = null;
+			}
+			connection.disconnect();
+		}
 		connection = null;
 		disposed = true;
 	}

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.codehaus.jackson.map.ObjectMapper;
+
 import com.buglabs.services.ws.IWSResponse;
 import com.buglabs.services.ws.PublicWSDefinition;
 import com.buglabs.services.ws.PublicWSProvider;
@@ -22,6 +24,8 @@ public class ServiceFeedAdapter extends Feed {
 	private static final int DELETE = 4;
 	  
 	private final PublicWSProvider service;
+	
+	private final static ObjectMapper mapper = new ObjectMapper();
 
 	/**
 	 * @param service
@@ -41,8 +45,11 @@ public class ServiceFeedAdapter extends Feed {
 		IWSResponse response = service.execute(GET, parameters);
 		
 		if (response.getMimeType().indexOf("text") > -1) {
-			//Response is text.
-			return response.getContent().toString();
+			//Response is text.  Wrap it in JSon.
+			Map<String, String> m = new HashMap<String, String>();
+			m.put(service.getPublicName(), response.getContent().toString());
+			
+			return mapper.writeValueAsString(m);
 		}
 		
 		throw new IOException("Unable to execute method.");

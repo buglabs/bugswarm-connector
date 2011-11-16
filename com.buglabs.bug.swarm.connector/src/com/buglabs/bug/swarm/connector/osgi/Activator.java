@@ -7,7 +7,6 @@ import java.util.Hashtable;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
@@ -61,10 +60,7 @@ public class Activator implements BundleActivator, ManagedService {
 	/**
 	 * @return LogService
 	 */
-	public static LogService getLog() {
-		if (log == null)
-			log = new FakeLogService();
-
+	public static LogService getLog() {		
 		return log;
 	}
 
@@ -205,36 +201,4 @@ public class Activator implements BundleActivator, ManagedService {
 		
 		config.update(properties);
 	}	
-
-	/**
-	 * A Logger for cases when a framework logger is unavailable.
-	 * 
-	 * @author kgilmer
-	 * 
-	 */
-	private static class FakeLogService implements LogService {
-
-		@Override
-		public void log(int level, String message) {
-			System.out.println(level + ": " + message);
-		}
-
-		@Override
-		public void log(int level, String message, Throwable exception) {
-			System.out.println(level + ": " + message);
-			exception.printStackTrace();
-		}
-
-		@Override
-		public void log(ServiceReference sr, int level, String message) {
-			System.out.println(level + ": " + message);
-		}
-
-		@Override
-		public void log(ServiceReference sr, int level, String message, Throwable exception) {
-			System.out.println(level + ": " + message);
-			exception.printStackTrace();
-		}
-
-	}
 }

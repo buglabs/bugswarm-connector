@@ -4,7 +4,6 @@ import java.text.ParseException;
 import java.util.List;
 
 import org.jivesoftware.smack.packet.Message;
-import org.jivesoftware.smack.packet.Presence;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.connector.model.FeedRequest;
@@ -53,12 +52,16 @@ public abstract class AbstractMessageHandler {
 	 * @param sender JID of originator of message
 	 * @throws ParseException 
 	 */
-	protected void handleSwarmRequest(String rawMessage, String sender) throws ParseException {				
+	protected void handleSwarmRequest(String rawMessage, String sender) throws ParseException {		
+		//This occurs when multiple connectors are in a swarm.  The message is ignored.
+		if (rawMessage.startsWith("{\"capabilities"))
+			return;
+		
 		FeedRequest freq = FeedRequest.parseJSON(rawMessage);
 		
 		if (freq == null) {
-			Activator.getLog().log(LogService.LOG_ERROR, 
-					"Unhandled private message received from user " + sender + " swarm " + swarmId + " message: " + rawMessage);
+			Activator.getLog().log(LogService.LOG_WARNING, 
+					"Unhandled message received from " + sender + " swarm " + swarmId + " message: " + rawMessage);
 			return;
 		}
 
@@ -75,33 +78,6 @@ public abstract class AbstractMessageHandler {
 				listener.feedMetaRequest(freq, swarmId);					
 			}
 		} 
-	}
-	
-	/**
-	 * Handle case that swarm peer has joined swarm.  This is triggered upon XMPP presence events.
-	 * @param p
-	 * @throws ParseException
-	 */
-	protected void handleMemberJoin(Presence p) throws ParseException {
-		for (ISwarmServerRequestListener listener : requestListeners) {
-				Activator.getLog().log(
-						LogService.LOG_INFO, "On presence event, sending feed list to new swarm member " + p.getFrom());
-				listener.feedListRequest(new Jid(p.getFrom()), swarmId);
-			
-		}		
-	}
-
-	/**
-	 * Handle case that swarm peer has left swarm.  This is triggered upon XMPP presence events.
-	 * @param p
-	 * @throws ParseException
-	 */
-	protected void handleMemberLeave(Presence p) throws ParseException {		
-		Activator.getLog().log(LogService.LOG_DEBUG, "Participant " + p.getFrom() + " left " + swarmId + "  Cleaning up.");
-		
-		for (ISwarmServerRequestListener listener : requestListeners) {
-				listener.cancelFeedRequests(new Jid(p.getFrom()), swarmId);				
-		}		
 	}
 	
 	protected void handleError(Message message, String participant) {

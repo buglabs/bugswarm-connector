@@ -207,7 +207,7 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME, username);
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY, partApiKey);
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY, confApiKei);
-		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE_ID, null);
+		d.remove(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE_ID);
 
 		config.update(d);
 	}

@@ -52,7 +52,7 @@ public class PublicMessageHandler extends AbstractMessageHandler implements Pack
 			if (packet instanceof Message) {
 				Message m = (Message) packet;
 				
-				if (m.getError() != null) 
+				if (m.getError() != null || m.getBody().equals("This room is not anonymous")) 
 					handleError(m, m.getFrom());
 				 else 
 					handleSwarmRequest(m.getBody(), m.getFrom());

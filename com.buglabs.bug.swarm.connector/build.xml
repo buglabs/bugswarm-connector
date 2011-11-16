@@ -1,5 +1,5 @@
 <project name="bugswarm-connector" basedir=".">
-	<property name="package.version" value="2.0" />
+	<property name="package.version" value="0.3" />
 	
 	<!-- This task must be called after bugswarm-connector is built and dist'ed -->
 	<target name="osgi-test-jar">

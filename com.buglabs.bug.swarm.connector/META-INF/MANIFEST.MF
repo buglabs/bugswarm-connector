@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: bugswarm-connector
 Bundle-SymbolicName: com.buglabs.bug.swarm.connector
-Bundle-Version: 2.0.0.qualifier
+Bundle-Version: 0.3.0.qualifier
 Bundle-Activator: com.buglabs.bug.swarm.connector.osgi.Activator
 Bundle-Vendor: Bug Labs, Inc.
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

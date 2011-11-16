@@ -51,8 +51,9 @@ public class PresenceHandler extends AbstractMessageHandler implements PacketLis
 		for (ISwarmServerRequestListener listener : requestListeners) {
 				Activator.getLog().log(
 						LogService.LOG_INFO, "On presence event, sending feed list to new swarm member " + p.getFrom());
-				listener.feedListRequest(new Jid(p.getFrom()), swarmId);
-			
+				listener.addMemberSwarm(swarmId);
+				
+				listener.feedListRequest(new Jid(p.getFrom()), swarmId);		
 		}		
 	}
 	

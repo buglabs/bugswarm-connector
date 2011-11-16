@@ -84,7 +84,7 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	/**
 	 * List of all member swarms.
 	 */
-	private final List<SwarmModel> memberSwarms;
+	private List<SwarmModel> memberSwarms;
 	/**
 	 * Timer that manages all the active streaming feeds.
 	 */
@@ -565,6 +565,24 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 			}			
 		} catch (Exception e) {
 			log.log(LogService.LOG_ERROR, "Error occurred while sending updated device state to swarm server.", e);
+		}
+	}
+
+	@Override
+	public void addMemberSwarm(String swarmId) {
+		boolean member = false;
+		for (SwarmModel sm : memberSwarms)
+			if (sm.getId().equals(swarmId)) {
+				member = true;
+				break;
+			}
+		
+		if (!member) {
+			try {
+				memberSwarms = wsClient.getSwarmResourceClient().getSwarmsByMember(config.getResource());
+			} catch (IOException e) {
+				log.log(LogService.LOG_ERROR, "Error occurred while updating member swarms.", e);
+			}
 		}
 	}
 }

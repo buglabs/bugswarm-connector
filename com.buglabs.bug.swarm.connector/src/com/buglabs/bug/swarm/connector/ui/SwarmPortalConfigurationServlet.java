@@ -162,6 +162,8 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 			String msg = "";
 
 			try {
+				confDictionary = ConfigAdminUtil.getPropertiesSafely(config);
+				
 				if (isEnabled()) {
 					root.put("action_label", "Deactivate");
 					root.put("action", "deactivate");

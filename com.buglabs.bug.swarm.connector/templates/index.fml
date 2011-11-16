@@ -185,24 +185,7 @@
 			<fieldset>
 				<button type="submit">${action_label}</input>
 			</fieldset>
-		</form>
-		<if action_label == "Deactivate">
-			<form id="add-device" method="post">
-				<input type="hidden" name="action" value="join" />
-				<fieldset>
-				<legend>My swarms</legend>
-					<ol>						
-					<if myswarms_size == 0 >
-						<li>None</li>
-					<else>
-						<foreach swarm in myswarms>
-							<li><a href="${swarm.swarm_url}" target="bugswarm">${swarm.name}</a></li>
-						</foreach>
-					</if>
-					</ol>	
-				</fieldset>
-			</form>
-		</if>		
+		</form>		
 		<p><a href="http://www.bugswarm.net">Learn more about BUGSwarm</a></p>			
 	</div>
 	<footer>

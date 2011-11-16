@@ -81,6 +81,15 @@ public abstract class AbstractMessageHandler {
 	}
 	
 	protected void handleError(Message message, String participant) {
-		System.out.println("Error message: " + message.getError() + " from: " + participant);
+		if (message.getError().toString().startsWith("item-not-found(404) Recipient is not in the conference room")) {
+			try {
+				Jid j = new Jid(participant);
+				requestListeners.get(0).cancelFeedRequests(j, swarmId);
+			} catch (ParseException e) {
+				Activator.getLog().log(LogService.LOG_ERROR, "Unable to parse jid");
+			}
+		} else {	
+			System.out.println("Error message: " + message.getError() + " from: " + participant);
+		}
 	}
 }

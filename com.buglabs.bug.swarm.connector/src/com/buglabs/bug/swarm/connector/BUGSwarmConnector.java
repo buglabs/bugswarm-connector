@@ -488,13 +488,18 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 		if (activeTasks == null)
 			return;
 		
+		boolean cancelled = false;
 		//Cancel any tasks associated within a specific swarm to a specific resource.
 		for (String taskKey : activeTasks.keySet()) {
-			if (taskKey.contains(jid.getResource()) && taskKey.contains(jid.getUsername()))
+			if (taskKey.contains(jid.getResource()) && taskKey.contains(jid.getUsername())) {
 				activeTasks.get(taskKey).cancel();		
+				cancelled = true;
+			}
 		}
 		
-		log.log(LogService.LOG_INFO, "Cancelled active tasks for : " + jid.toString() + " in swarm " + swarmId);
+		if (cancelled)
+			log.log(LogService.LOG_INFO, 
+					"Cancelled active tasks for : " + jid.toString() + " in swarm " + swarmId);
 	}
 
 	/* (non-Javadoc)

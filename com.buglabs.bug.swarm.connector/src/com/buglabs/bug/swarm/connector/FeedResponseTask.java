@@ -53,7 +53,7 @@ public class FeedResponseTask extends TimerTask {
 				document = mapper.writeValueAsString(feed);
 			}
 		
-			xmppClient.sendFeedToUser(jid, swarmId, document);
+ 			xmppClient.sendFeedToUser(jid, swarmId, document);
 		} catch (XMPPException e) {
 			log.log(LogService.LOG_ERROR, "Error occurred while sending feeds to " + jid, e);
 		} catch (IOException e) {

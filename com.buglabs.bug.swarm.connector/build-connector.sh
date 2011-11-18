@@ -112,8 +112,8 @@ ant -Dbase.build.dir=$WORKSPACE/bug-osgi/com.buglabs.osgi.build -Dcheckout.dir=$
 # com.buglabs.osgi.sewing
 ant -Dbase.build.dir=$WORKSPACE/bug-osgi/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/bug-osgi/com.buglabs.osgi.sewing/build.xml clean create_dirs build.jars
 
-# com.buglabs.osgi.tester
-ant -Dbase.build.dir=$WORKSPACE/bug-osgi/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/bug-osgi/com.buglabs.osgi.tester/build.xml clean create_dirs build.jars
+# org.touge.test_buddy
+ant -Dproduct.dir=$WORKSPACE/ -Dbase.build.dir=$WORKSPACE/bug-osgi/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -Ddeps=$DEPS_DIR -DdistDirectory=$DIST_DIR -Ddist=$DIST_DIR  -f $WORKSPACE/touge/org.touge.test_buddy/build.xml clean jar
 
 # smack-smackx-osgi
 ant -Dbase.build.dir=$WORKSPACE/bug-osgi/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/smack-smackx-osgi/build.xml clean create_dirs build.jars
@@ -122,7 +122,7 @@ ant -Dbase.build.dir=$WORKSPACE/bug-osgi/com.buglabs.osgi.build -Dcheckout.dir=$
 ant -Dbase.build.dir=$WORKSPACE/bug-osgi/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/bug-osgi/com.buglabs.util.shell/build.xml clean create_dirs build.jars
 
 # touge restclient
-ant -Dbase.build.dir=$WORKSPACE/bug-osgi/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -Ddeps=$DEPS_DIR -DdistDirectory=$DIST_DIR -Ddist=$DIST_DIR  -f $WORKSPACE/touge/org.touge.restclient/build.xml clean jar
+ant -Dproduct.dir=$WORKSPACE/ -Dbase.build.dir=$WORKSPACE/bug-osgi/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -Ddeps=$DEPS_DIR -DdistDirectory=$DIST_DIR -Ddist=$DIST_DIR  -f $WORKSPACE/touge/org.touge.restclient/build.xml clean jar
 
 # bugswarm-devicestats
 ant -Dbase.build.dir=$WORKSPACE/bug-osgi/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.bug.swarm.devicestats/build.xml clean create_dirs build build.jars
@@ -155,6 +155,7 @@ else
 	BLACKBOX_ROOT=$WORKSPACE/blackbox_tests
 	mkdir -p $BLACKBOX_ROOT
 	mkdir -p $BLACKBOX_ROOT/bundle
+	mkdir -p $BLACKBOX_ROOT/properties
 	
 	wget -P $BLACKBOX_ROOT -nc https://leafcutter.ci.cloudbees.com/job/knapsack/lastSuccessfulBuild/artifact/knapsack.jar
 	
@@ -166,7 +167,7 @@ else
 	cp $DIST_DIR/com.buglabs.bug.swarm.client.jar $BLACKBOX_ROOT/bundle
 	cp $DIST_DIR/com.buglabs.common.jar $BLACKBOX_ROOT/bundle
 	cp $DIST_DIR/com.buglabs.osgi.sewing.jar $BLACKBOX_ROOT/bundle
-	cp $DIST_DIR/com.buglabs.osgi.tester.jar $BLACKBOX_ROOT/bundle
+	cp $DIST_DIR/org.touge.testbuddy.jar $BLACKBOX_ROOT/bundle
 	cp $DIST_DIR/org.touge.restclient.jar $BLACKBOX_ROOT/bundle
 	cp $DIST_DIR/smack-smackx-osgi.jar $BLACKBOX_ROOT/bundle
 	
@@ -179,6 +180,17 @@ else
 	cp $DEPS_DIR/jackson-mapper-asl-1.9.1.jar $BLACKBOX_ROOT/bundle        
 	cp $DEPS_DIR/osgi.cmpn.jar $BLACKBOX_ROOT/bundle
 	
+	echo "report.src=$WORKSPACE/com.buglabs.bug.swarm.client/test" > $BLACKBOX_ROOT/properties/test.properties
+	echo "testrunner.report.dir=$REPORT_DIR" >> $BLACKBOX_ROOT/properties/test.properties
+	echo "bugswarm_test_host=$TEST_HOST" >> $BLACKBOX_ROOT/properties/test.properties
+	echo "testrunner.report.dir=$REPORT_DIR" >> $BLACKBOX_ROOT/properties/test.properties
+	echo "report.misc=test.bugswarm.net,connector_test,3077514aa9aa5a5826cfd9d04ee059db1a18057d,7339d4a60c729308086341600d44c6424a4079cb,connector_test2,ddef1fa815d8549fa184e2716405f2cc553b5316,af9c58ce70d031934826bd9662f00420863e752b" >> $BLACKBOX_ROOT/properties/test.properties
+	
 	cd $BLACKBOX_ROOT
-	java -Dreport.src=$WORKSPACE/com.buglabs.bug.swarm.client/test -Dreport.dir=$REPORT_DIR -Dbugswarm_test_host=$TEST_HOST -jar knapsack.jar
+	
+	if [ -z $REMOTE_DEBUG ]; then
+		java -jar knapsack.jar		
+	else
+		java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5000 -jar knapsack.jar
+	fi
 fi

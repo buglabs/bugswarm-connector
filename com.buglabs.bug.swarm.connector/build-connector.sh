@@ -63,15 +63,6 @@ if [ ! -f $DEPS_DIR/jackson-mapper-asl-1.9.1.jar ]; then
 	wget --no-check-certificate -nc -O $DEPS_DIR/jackson-mapper-asl-1.9.1.jar "http://repository.codehaus.org/org/codehaus/jackson/jackson-mapper-asl/1.9.1/jackson-mapper-asl-1.9.1.jar"
 fi
 
-
-###### Clean old checkouts
-rm -Rf com.buglabs.common
-rm -Rf com.buglabs.bug.dragonfly
-rm -Rf com.buglabs.osgi.sewing
-rm -Rf com.buglabs.osgi.tester
-rm -Rf com.buglabs.osgi.build
-rm -Rf smack-smackx-osgi
-
 ###### Get source dependencies that will be compiled
 if [ -d bug-osgi ]; then
 	cd bug-osgi
@@ -85,29 +76,27 @@ else
 	cd ..
 fi
 
-rm -Rf $WORKSPACE/com.buglabs.common
-rm -Rf $WORKSPACE/com.buglabs.bug.dragonfly
-rm -Rf $WORKSPACE/com.buglabs.osgi.sewing
-rm -Rf $WORKSPACE/com.buglabs.osgi.tester
-rm -Rf $WORKSPACE/com.buglabs.osgi.build
-rm -Rf $WORKSPACE/com.buglabs.util.shell
-mv bug-osgi/com.buglabs.common $WORKSPACE
-mv bug-osgi/com.buglabs.bug.dragonfly $WORKSPACE
-mv bug-osgi/com.buglabs.osgi.sewing $WORKSPACE
-mv bug-osgi/com.buglabs.osgi.tester $WORKSPACE
-mv bug-osgi/com.buglabs.osgi.build $WORKSPACE
-mv bug-osgi/com.buglabs.util.shell $WORKSPACE
-# rm -Rf bug-osgi
+if [ -d touge ]; then
+	cd touge
+	git reset --hard
+	git pull
+	cd ..
+else
+	git clone git://github.com/kgilmer/touge.git
+fi	
 
-rm -Rf $WORKSPACE/org.touge.restclient
-git clone git://github.com/kgilmer/touge.git
-mv touge/org.touge.restclient $WORKSPACE
-rm -Rf touge
-
-git clone git://github.com/buglabs/smack-smackx-osgi.git
-cd smack-smackx-osgi
-git checkout $BUILD_BRANCH
-cd ..
+if [ -d smack-smackx-osgi ]; then
+	cd smack-smackx-osgi
+	git reset --hard
+	git checkout $BUILD_BRANCH
+	git pull
+	cd ..
+else
+	git clone git://github.com/buglabs/smack-smackx-osgi.git
+	cd smack-smackx-osgi
+	git checkout $BUILD_BRANCH
+	cd ..
+fi
 # Do not compile and run smack and smackx tests
 rm -Rf smack-smackx-osgi/test
 
@@ -115,28 +104,28 @@ rm -Rf smack-smackx-osgi/test
 set -e
 
 # com.buglabs.common
-ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.common/build.xml clean create_dirs build.jars
+ant -Dbase.build.dir=$WORKSPACE/bug-osgi/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/bug-osgi/com.buglabs.common/build.xml clean create_dirs build.jars
 
 # com.buglabs.common
-ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.bug.dragonfly/build.xml clean create_dirs build.jars
+ant -Dbase.build.dir=$WORKSPACE/bug-osgi/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/bug-osgi/com.buglabs.bug.dragonfly/build.xml clean create_dirs build.jars
 
 # com.buglabs.osgi.sewing
-ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.osgi.sewing/build.xml clean create_dirs build.jars
+ant -Dbase.build.dir=$WORKSPACE/bug-osgi/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/bug-osgi/com.buglabs.osgi.sewing/build.xml clean create_dirs build.jars
 
 # com.buglabs.osgi.tester
-ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.osgi.tester/build.xml clean create_dirs build.jars
+ant -Dbase.build.dir=$WORKSPACE/bug-osgi/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/bug-osgi/com.buglabs.osgi.tester/build.xml clean create_dirs build.jars
 
 # smack-smackx-osgi
-ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/smack-smackx-osgi/build.xml clean create_dirs build.jars
+ant -Dbase.build.dir=$WORKSPACE/bug-osgi/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/smack-smackx-osgi/build.xml clean create_dirs build.jars
 
 # com.buglabs.util.shell
-ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.util.shell/build.xml clean create_dirs build.jars
+ant -Dbase.build.dir=$WORKSPACE/bug-osgi/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/bug-osgi/com.buglabs.util.shell/build.xml clean create_dirs build.jars
 
 # touge restclient
-ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -Ddeps=$DEPS_DIR -DdistDirectory=$DIST_DIR -Ddist=$DIST_DIR  -f $WORKSPACE/org.touge.restclient/build.xml clean jar
+ant -Dbase.build.dir=$WORKSPACE/bug-osgi/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -Ddeps=$DEPS_DIR -DdistDirectory=$DIST_DIR -Ddist=$DIST_DIR  -f $WORKSPACE/touge/org.touge.restclient/build.xml clean jar
 
 # bugswarm-devicestats
-ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.bug.swarm.devicestats/build.xml clean create_dirs build build.jars
+ant -Dbase.build.dir=$WORKSPACE/bug-osgi/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.bug.swarm.devicestats/build.xml clean create_dirs build build.jars
 
 ###### Build com.buglabs.bug.swarm.connector
 if [ ! -z $TEST_HOST ]; then
@@ -154,8 +143,44 @@ else
 fi
 
 echo "Analyzing source"
-ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.bug.swarm.client/build.xml checkstyle cpd
-ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.bug.swarm.connector/build.xml checkstyle cpd
+ant -Dbase.build.dir=$WORKSPACE/bug-osgi/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.bug.swarm.client/build.xml checkstyle cpd
+ant -Dbase.build.dir=$WORKSPACE/bug-osgi/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.bug.swarm.connector/build.xml checkstyle cpd
 
-echo "Building OSGi test bundle"
-ant -Dbase.build.dir=$WORKSPACE/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/com.buglabs.bug.swarm.connector/build.xml osgi-test-jar
+if [ -z $BLACKBOX_TEST ]; then
+	echo "BLACKBOX_TEST is not set, Black box tests will not be run."
+else
+	echo "Building OSGi test bundle"
+	ant -Dbase.build.dir=$WORKSPACE/bug-osgi/com.buglabs.osgi.build -Dcheckout.dir=$WORKSPACE -DexternalDirectory=$DEPS_DIR -DdistDirectory=$DIST_DIR -f $WORKSPACE/bug-osgi/com.buglabs.bug.swarm.connector/build.xml osgi-test-jar
+	
+	BLACKBOX_ROOT=$WORKSPACE/blackbox_tests
+	mkdir -p $BLACKBOX_ROOT
+	mkdir -p $BLACKBOX_ROOT/bundle
+	
+	wget -P $BLACKBOX_ROOT -nc https://leafcutter.ci.cloudbees.com/job/knapsack/lastSuccessfulBuild/artifact/knapsack.jar
+	
+	wget -P $BLACKBOX_ROOT/bundle -nc http://ftp.riken.jp/net/apache//felix/org.apache.felix.http.jetty-2.2.0.jar
+	cp $DIST_DIR/bugswarm-connector-tests.jar $BLACKBOX_ROOT/bundle
+	cp $DIST_DIR/bugswarm-connector.jar $BLACKBOX_ROOT/bundle
+	cp $DIST_DIR/com.buglabs.bug.dragonfly.jar $BLACKBOX_ROOT/bundle
+	cp $DIST_DIR/com.buglabs.bug.swarm.restclient.jar $BLACKBOX_ROOT/bundle
+	cp $DIST_DIR/com.buglabs.common.jar $BLACKBOX_ROOT/bundle
+	cp $DIST_DIR/com.buglabs.osgi.sewing.jar $BLACKBOX_ROOT/bundle
+	cp $DIST_DIR/com.buglabs.osgi.tester.jar $BLACKBOX_ROOT/bundle
+	cp $DIST_DIR/org.touge.restclient.jar $BLACKBOX_ROOT/bundle
+	cp $DIST_DIR/smack-smackx-osgi.jar $BLACKBOX_ROOT/bundle
+	
+	chmod u+x $BLACKBOX_ROOT/bundle/*
+	
+	cp $DEPS_DIR/commons-io-2.1.jar $BLACKBOX_ROOT/bundle      
+	cp $DEPS_DIR/jackson-core-asl-1.9.1.jar $BLACKBOX_ROOT/bundle    
+	cp $DEPS_DIR/javax.servlet_2.3.0.v200806031603.jar $BLACKBOX_ROOT/bundle 
+	cp $DEPS_DIR/junit-dep-4.9b2.jar $BLACKBOX_ROOT/bundle
+	cp $DEPS_DIR/osgi.core.jar $BLACKBOX_ROOT/bundle
+	cp $DEPS_DIR/hamcrest-core-1.3.0RC2.jar $BLACKBOX_ROOT/bundle 
+	cp $DEPS_DIR/jackson-mapper-asl-1.9.1.jar $BLACKBOX_ROOT/bundle
+	cp $DEPS_DIR/junit-4.9.jar $BLACKBOX_ROOT/bundle            
+	cp $DEPS_DIR/osgi.cmpn.jar $BLACKBOX_ROOT/bundle
+	
+	cd $BLACKBOX_ROOT
+	java -Dreport.src=$WORKSPACE/com.buglabs.bug.swarm.client/test -Dreport.dir=$REPORT_DIR -Dbugswarm_test_host=$TEST_HOST -jar knapsack.jar
+fi

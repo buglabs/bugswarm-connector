@@ -9,6 +9,7 @@ import junit.framework.TestCase;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.touge.restclient.ReSTClient;
 
 import com.buglabs.bug.swarm.client.ISwarmClient;
 import com.buglabs.bug.swarm.client.ISwarmConfiguration;
@@ -129,5 +130,23 @@ public class T3stEnvironmentValidationT3sts extends TestCase {
 		
 		assertNotNull(psession);
 		assertTrue(psession.isConnected());
+	}
+	
+	/**
+	 * Can load the web config page.
+	 * @throws IOException
+	 */
+	public void testLocalWebConfigPresent() throws IOException {
+		ReSTClient rc = new ReSTClient();
+		
+		String url = rc.buildURL("http://localhost:8080/bugswarm").toString();
+		
+		assertTrue(url.equals("http://localhost:8080/bugswarm"));
+		
+		String html = rc.callGet(url);
+		
+		assertNotNull(html);
+		
+		assertTrue(html.contains("Device settings"));
 	}
 }

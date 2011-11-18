@@ -1,7 +1,9 @@
 package com.buglabs.bug.swarm.connector;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +66,11 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	 * Amount of time to wait before sending device state to swarm peers.
 	 */
 	private static final long LOCAL_CHANGE_DELAY_MILLIS = 1000;
+
+	/**
+	 * A string value swarm server expects when creating a new resource.
+	 */
+	private static final String SWARM_RESOURCE_TYPE_BUG = "bug";
 	/**
 	 * Configuration info for swarm server.
 	 */
@@ -186,9 +193,9 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 		} else {
 			Activator.getLog().log(LogService.LOG_DEBUG, "Creating a new resource on the server.");
 			resource = wsClient.getUserResourceClient().add(
-					"bug-" + System.currentTimeMillis(), 
-					"BUG device", 
-					"bug", 
+					config.getDeviceLabel(), 
+					getResourceDescription(), 
+					SWARM_RESOURCE_TYPE_BUG, 
 					0, 0);
 			config.setResourceId(resource.getResourceId());
 			//Cache resource id.
@@ -208,6 +215,12 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 						
 		initialized = true;
 		return true;		
+	}
+
+	private String getResourceDescription() {
+		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z");
+		
+		return "BUG device resource created on " + sdf.format(Calendar.getInstance().getTime() + ".");
 	}
 
 	/**

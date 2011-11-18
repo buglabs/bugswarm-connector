@@ -94,7 +94,7 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 		@Override
 		public TemplateModelRoot post(final RequestParameters params, final HttpServletRequest req, final HttpServletResponse resp) {
 			// Validate input
-			String missingKey = missingParameter(params, "p-api-key", "c-api-key", "user-name");
+			String missingKey = missingParameter(params, "p-api-key", "c-api-key", "user-name", "device-label");
 			if (missingKey != null)
 				throw new RuntimeException("Missing expected key: " + missingKey);
 
@@ -105,10 +105,11 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 				String pApiKey = params.get("p-api-key");
 				String cApiKey = params.get("c-api-key");
 				String username = params.get("user-name");
+				String deviceLabel = params.get("device-label");
 
-				if (pApiKey != null && username != null) {
+				if (pApiKey != null && username != null && cApiKey != null && deviceLabel != null) {
 					try {
-						saveConfiguration(username, pApiKey, cApiKey);
+						saveConfiguration(username, pApiKey, cApiKey, deviceLabel);
 
 						setEnabled(true);
 						msg = "BugSwarm has been activated";
@@ -171,14 +172,18 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 					root.put("action_label", "Activate");
 					root.put("action", "activate");
 				}
+				
+				String deviceName = getDeviceName();
 
 				root.put("user_name", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME));
 				root.put("p_api_key", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY));
 				root.put("c_api_key", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY));
+				root.put("device-name", deviceName);
 				
 				root.put("user-name", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME));
 				root.put("p-api-key", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY));
 				root.put("c-api-key", getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY));
+				root.put("device_name", deviceName);
 
 				root.put("message", new SimpleScalar(msg));
 			} catch (IOException e) {
@@ -187,29 +192,49 @@ public class SwarmPortalConfigurationServlet extends SewingHttpServlet {
 
 			return root;
 		}
+
+		/**
+		 * @return the stored device name or a generated one.
+		 * @throws IOException on config admin error
+		 */
+		private String getDeviceName() throws IOException {
+			String name = getValue(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY);
+			
+			if (name.equals(""))				
+				return "BUG-" + Long.toHexString(System.currentTimeMillis());
+			
+			return name;
+		}
 	}
 
 	/**
 	 * Save the configuration as set by the webui user.
 	 * 
-	 * @param username
-	 *            username
-	 * @param apiKey
-	 *            p_api_key
+	 * @param username user name
+	 * @param partApiKey participation API key
+	 * @param confApiKey configuration API key
+	 * @param deviceLabel device label
 	 * @throws IOException
 	 *             on file I/O error
 	 */
-	private void saveConfiguration(final String username, final String partApiKey, final String confApiKei) throws IOException {
+	private void saveConfiguration(final String username, final String partApiKey, final String confApiKei, String deviceLabel) throws IOException {
 		Dictionary d = config.getProperties();
 
 		if (d == null) {
 			d = new Hashtable();
 		}
+		
+		//Reset the resource id if this is first use or the username has changed.
+		boolean resetResourceId = d.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME) == null || 
+									!d.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME).equals(username);
 
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME, username);
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY, partApiKey);
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY, confApiKei);
-		d.remove(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE_ID);
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_DEVICE_LABEL, deviceLabel);
+		
+		if (resetResourceId)
+			d.remove(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE_ID);
 
 		config.update(d);
 	}

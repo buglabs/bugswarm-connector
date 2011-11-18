@@ -28,15 +28,15 @@ public class Configuration {
 	};
 
 	private static final String HTTP_SCHEME = "HTTP://";
-	//Per converstaion with Camilo there is no longer a prefix to the XMPP server.
 	private static final String XMPP_PREFIX = "";
 	private static final String HTTP_PREFIX = "api.";	
 	private static final int DEFAULT_XMPP_SERVER_PORT = 5222;
 	private static final int DEFAULT_HTTP_SERVER_PORT = 80;
+	private static final String DEFAULT_DEVICE_LABEL = "BUG";
 	/**
 	 * Stores the configuration.
 	 */
-	private Dictionary<String, Object> config;
+	private final Dictionary<String, Object> config;
 
 	/**
 	 * Create a configuration from discrete parameters.
@@ -86,6 +86,8 @@ public class Configuration {
 				getBundleContextProperty(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_HTTP_PORT, DEFAULT_HTTP_SERVER_PORT));
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_XMPP_PORT, Activator.
 				getBundleContextProperty(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_XMPP_PORT, DEFAULT_XMPP_SERVER_PORT));
+		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_DEVICE_LABEL, Activator.
+				getBundleContextProperty(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_DEVICE_LABEL, DEFAULT_DEVICE_LABEL));
 	}
 
 	/**
@@ -188,6 +190,13 @@ public class Configuration {
 		return this.getClass().getSimpleName() + " (" 
 				+ config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER) + ", " + getUsername()
 				+ ", " + getConfingurationAPIKey() + ", " + getParticipationAPIKey() + ", " + getResource() + ")";
+	}
+	
+	/**
+	 * @return the device label (nickname) for resource.
+	 */
+	public String getDeviceLabel() {
+		return config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_DEVICE_LABEL).toString();
 	}
 
 	/**

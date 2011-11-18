@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="com.buglabs.bug.swarm.restclient" basedir=".">
+<project name="com.buglabs.bug.swarm.client" basedir=".">
 	<!-- PROJECT CONSTANTS -->
 	
 	<target name="build.jars" description="Package the java class files into a jar.">
@@ -37,6 +37,16 @@
 		</junit>
 	</target>
 	
+	<!-- PROJECT IMPORTS -->
+	<exec executable="/usr/bin/wget">
+		<arg line="-P ${base.build.dir}" />
+		<arg line="--no-check-certificate" />
+		<arg line="-nc" />
+		<arg line="https://github.com/downloads/buglabs/bug-osgi/common-osgi.xml" />
+	</exec>
+	<property name="common.ant.file" location="${base.build.dir}/common-osgi.xml" />
+	<import file="${common.ant.file}" />
+	
 	<!-- JUnit tests -->
 	<property environment="env" />
 	<property name="report.misc" value="${env.TEST_HOST}" />
@@ -49,15 +59,4 @@
 	<property name="checkstyle.config" location="${base.build.dir}/toolbox/checkstyle/buglabs_checks.xml" />
 	<property name="checkstyle.dir" location="checkstyle-reports" />
 	<property name="checkstyle.src" location="src/" />
-	
-
-	<!-- PROJECT IMPORTS -->
-	<exec executable="/usr/bin/wget">
-			<arg line="-P ${base.build.dir}" />
-			<arg line="--no-check-certificate" />
-			<arg line="-nc" />
-			<arg line="https://github.com/downloads/buglabs/bug-osgi/common-osgi.xml" />
-		</exec>
-		<property name="common.ant.file" location="${base.build.dir}/common-osgi.xml" />
-		<import file="${common.ant.file}" />
 </project>

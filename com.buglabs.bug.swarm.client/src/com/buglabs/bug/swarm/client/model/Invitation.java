@@ -10,8 +10,8 @@ import java.util.Map;
 import org.codehaus.jackson.JsonNode;
 import org.touge.restclient.ReSTClient.ResponseDeserializer;
 
-import com.buglabs.bug.swarm.client.ISwarmResourcesClient;
 import com.buglabs.bug.swarm.client.ISwarmInviteClient.InvitationState;
+import com.buglabs.bug.swarm.client.ISwarmResourcesClient;
 import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
 
 /**

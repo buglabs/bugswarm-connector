@@ -7,11 +7,10 @@ import java.util.Map;
 import org.touge.restclient.ReSTClient;
 import org.touge.restclient.ReSTClient.Response;
 
+import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.client.IUserResourceClient;
 import com.buglabs.bug.swarm.client.SwarmWSResponse;
-import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.client.model.SwarmModel;
-import com.buglabs.bug.swarm.client.model.SwarmResourceModel;
 import com.buglabs.bug.swarm.client.model.UserResourceModel;
 
 /**
@@ -38,7 +37,6 @@ public class UserResourceWSClient extends AbstractSwarmWSClient implements IUser
 	public UserResourceModel add(String resourceName, String description, String machineType, float longitude, float latitude) throws IOException {
 		validateParams(resourceName, description, machineType);
 
-		// TODO: allow for position coordinates
 		Map<String, Object> props = toMap(				
 				"name", resourceName, 
 				"description", description, 

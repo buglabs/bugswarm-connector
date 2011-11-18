@@ -1,15 +1,9 @@
 package com.buglabs.bug.swarm.client.model;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.touge.restclient.ReSTClient;
 
 import com.buglabs.bug.swarm.client.ISwarmResourcesClient;
 import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
@@ -28,46 +22,6 @@ public class SwarmResourceModel extends ModelBase {
 	private final String userId;
 	private final String resourceId;
 	private final String swarmId;
-	/*
-	*//**
-	 * Deserialize to List of SwarmResourceModel.
-	 *//*
-	public static final ReSTClient.ResponseDeserializer<SwarmResourceModel> DESERIALIZER = 
-		new ReSTClient.ResponseDeserializer<SwarmResourceModel>() {
-	
-		@Override
-		public SwarmResourceModel deserialize(InputStream input, int responseCode, Map<String, List<String>> headers)
-			throws IOException {
-			if (responseCode == 404)
-				return null;
-			
-			return SwarmResourceModel.deserialize(null, objectMapper.readTree(input));			
-		}
-	};
-	
-	*//**
-	 * Deserialize to List of SwarmResourceModel.
-	 *//*
-	public static final ReSTClient.ResponseDeserializer<List<SwarmResourceModel>> LIST_DESERIALIZER = 
-		new ReSTClient.ResponseDeserializer<List<SwarmResourceModel>>() {
-	
-		@Override
-		public List<SwarmResourceModel> deserialize(InputStream input, int responseCode, Map<String, List<String>> headers)
-			throws IOException {
-			if (responseCode == 404)
-				return Collections.emptyList();
-			
-			List<SwarmResourceModel> srml= new ArrayList<SwarmResourceModel>();
-			JsonNode jtree = objectMapper.readTree(input);
-			
-			for (JsonNode jn : jtree)
-				srml.add(SwarmResourceModel.deserialize(null, jn));
-			
-			return srml;			
-		}
-	};
-	*/
-	//public static List<?> jsonListOf(Input)
 
 	/**
 	 * @param createdAt

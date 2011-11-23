@@ -41,8 +41,11 @@ public class SwarmKeysWSClient implements ISwarmKeysClient {
 						
 			JsonNode jn = objectMapper.readTree(input);
 			
-			for (JsonNode rm : jn)
-				rml.add(SwarmKey.deserialize(rm));
+			if (jn.isArray())
+				for (JsonNode rm : jn)
+					rml.add(SwarmKey.deserialize(rm));
+			else 
+				rml.add(SwarmKey.deserialize(jn));
 			
 			return rml;
 		}

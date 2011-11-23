@@ -3,6 +3,7 @@ package com.buglabs.bug.swarm.client;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
+import com.buglabs.bug.swarm.client.impl.SwarmKeysWSClient;
 import com.buglabs.bug.swarm.client.impl.SwarmSessionImp;
 import com.buglabs.bug.swarm.client.impl.SwarmWSClient;
 
@@ -65,5 +66,14 @@ public class SwarmClientFactory {
 			hostname = hostname.split(":")[0];
 		}
 		return new SwarmSessionImp(hostname, port, apiKey, resourceId, swarmIds);
+	}
+
+	/**
+	 * Get an instance of the API Keys client.
+	 * @param hostname name of host.
+	 * @return instance of API Keys client.
+	 */
+	public static ISwarmKeysClient getAPIKeyClient(String hostname) {
+		return new SwarmKeysWSClient(hostname);
 	}
 }

@@ -19,6 +19,18 @@ public class SwarmKey extends ModelBase {
 	private final ISwarmKeysClient.KeyType type;
 	private final String userId;
 	
+	@Override
+	public String toString() {		
+		return key + " (" + type.toString() + ", " + userId + ", " + createdAt + ")";
+	}
+	
+	/**
+	 * @param createdAt creation date
+	 * @param key key
+	 * @param active if active
+	 * @param type type of key
+	 * @param userId user id
+	 */
 	public SwarmKey(String createdAt, String key, boolean active, KeyType type, String userId) {
 		super();
 		this.createdAt = createdAt;
@@ -28,22 +40,37 @@ public class SwarmKey extends ModelBase {
 		this.userId = userId;
 	}
 
+	/**
+	 * @return date created at
+	 */
 	public String getCreatedAt() {
 		return createdAt;
 	}
 
+	/**
+	 * @return key
+	 */
 	public String getKey() {
 		return key;
 	}
 
+	/**
+	 * @return true if active
+	 */
 	public boolean isActive() {
 		return active;
 	}
 
+	/**
+	 * @return type of key
+	 */
 	public ISwarmKeysClient.KeyType getType() {
 		return type;
 	}
 
+	/**
+	 * @return user id
+	 */
 	public String getUserId() {
 		return userId;
 	}

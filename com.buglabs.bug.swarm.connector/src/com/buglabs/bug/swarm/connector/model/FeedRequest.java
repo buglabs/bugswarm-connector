@@ -3,6 +3,7 @@ package com.buglabs.bug.swarm.connector.model;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -136,6 +137,8 @@ public class FeedRequest {
 						Entry<String, JsonNode> pn = jni.next();
 						if (pn.getKey().equals("frequency"))
 							frp.put(pn.getKey(), pn.getValue().asInt());
+						else if (pn.getValue().isArray())
+							frp.put(pn.getKey(), mapper.readValue(pn.getValue(), List.class));
 						else
 							frp.put(pn.getKey(), pn.getValue().asText());
 					}

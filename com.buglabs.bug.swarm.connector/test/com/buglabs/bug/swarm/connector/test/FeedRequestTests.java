@@ -23,6 +23,7 @@ public class FeedRequestTests extends TestCase {
 		
 		assertTrue(fr.getParams().containsKey("format"));
 		assertTrue(fr.getParams().containsKey("foo"));
+		System.out.println(fr.getParams().get("foo").getClass().getName());
 		assertTrue(fr.getParams().get("foo") instanceof List);
 		assertTrue(((List) fr.getParams().get("foo")).size() == 2);
 	}

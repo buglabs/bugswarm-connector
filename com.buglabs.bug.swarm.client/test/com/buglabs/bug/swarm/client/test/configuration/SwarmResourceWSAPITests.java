@@ -7,12 +7,12 @@ import java.util.Random;
 import junit.framework.TestCase;
 
 import com.buglabs.bug.swarm.client.ISwarmClient;
-import com.buglabs.bug.swarm.client.ISwarmResourcesClient;
-import com.buglabs.bug.swarm.client.SwarmClientFactory;
-import com.buglabs.bug.swarm.client.SwarmWSResponse;
 import com.buglabs.bug.swarm.client.ISwarmInviteClient.InvitationResponse;
 import com.buglabs.bug.swarm.client.ISwarmInviteClient.InvitationState;
+import com.buglabs.bug.swarm.client.ISwarmResourcesClient;
 import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
+import com.buglabs.bug.swarm.client.SwarmClientFactory;
+import com.buglabs.bug.swarm.client.SwarmWSResponse;
 import com.buglabs.bug.swarm.client.model.Invitation;
 import com.buglabs.bug.swarm.client.model.SwarmModel;
 import com.buglabs.bug.swarm.client.model.SwarmResourceModel;
@@ -316,12 +316,18 @@ public class SwarmResourceWSAPITests extends TestCase {
 				AccountConfig.getConfiguration2().getHostname(Protocol.HTTP),
 				AccountConfig.getConfiguration2().getConfingurationAPIKey());
 		membersClient = client.getSwarmResourceClient();
+		
+		boolean error = false;
+		try {
 		rc = membersClient.remove(
 				AccountConfig.testSwarmId, 
 				DEFAULT_MEMBER_TYPE, 
 				AccountConfig.getConfiguration2().getUsername(),
 				AccountConfig.testUserResource1.getResourceId());
+		} catch (IOException e) {
+			error = true;
+		}
 		
-		assertTrue(rc.isError());
+		assertTrue(error);
 	}
 }

@@ -12,6 +12,7 @@ import com.buglabs.bug.swarm.client.ISwarmClient;
 import com.buglabs.bug.swarm.client.ISwarmConfiguration;
 import com.buglabs.bug.swarm.client.ISwarmInviteClient;
 import com.buglabs.bug.swarm.client.ISwarmInviteClient.InvitationResponse;
+import com.buglabs.bug.swarm.client.ISwarmKeysClient;
 import com.buglabs.bug.swarm.client.ISwarmResourcesClient;
 import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.client.IUserResourceClient;
@@ -33,6 +34,7 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 	private SwarmBinaryUploadWSClient uploadClient;
 	private UserResourceWSClient resourceClient;
 	private SwarmInviteWSClient inviteClient;
+	private SwarmKeysWSClient keysClient;
 
 	/**
 	 * Create a client from a url and apikey.
@@ -168,6 +170,14 @@ public class SwarmWSClient extends AbstractSwarmWSClient implements ISwarmClient
 			inviteClient = new SwarmInviteWSClient(swarmHostUrl.toString(), apiKey, httpClient);
 
 		return inviteClient;		
+	}
+	
+	@Override
+	public ISwarmKeysClient getSwarmKeysClient() {
+		if (keysClient == null)
+			keysClient = new SwarmKeysWSClient(swarmHostUrl.toString());
+
+		return keysClient;		
 	}
 
 	@Override

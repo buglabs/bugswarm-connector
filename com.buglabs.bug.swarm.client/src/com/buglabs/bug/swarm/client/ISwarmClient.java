@@ -111,4 +111,9 @@ public interface ISwarmClient {
 	 * @return an instance of ISwarmInviteClient.
 	 */
 	ISwarmInviteClient getSwarmInviteClient();
+	
+	/**
+	 * @return an instance of ISwarmKeysClient.
+	 */
+	ISwarmKeysClient getSwarmKeysClient();
 }

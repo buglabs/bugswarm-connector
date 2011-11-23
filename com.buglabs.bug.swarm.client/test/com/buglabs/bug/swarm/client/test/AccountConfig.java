@@ -2,10 +2,16 @@ package com.buglabs.bug.swarm.client.test;
 
 
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import com.buglabs.bug.swarm.client.ISwarmKeysClient;
+import com.buglabs.bug.swarm.client.ISwarmKeysClient.KeyType;
+import com.buglabs.bug.swarm.client.SwarmClientFactory;
+import com.buglabs.bug.swarm.client.model.SwarmKey;
 import com.buglabs.bug.swarm.client.model.UserResourceModel;
 
 /**
@@ -41,13 +47,33 @@ public final class AccountConfig {
 	 */
 	public static Configuration getConfiguration() {
 		if (config == null) {
-			config = new Configuration(null, 
-					getHostSystemProperty(), 
-					getConfigurationAPIKeySystemProperty(), 
-					getProducerAPIKeySystemProperty(), 
-					getUsernameProperty(),
-					DEFAULT_HTTP_SERVER_PORT, 
-					DEFAULT_XMPP_SERVER_PORT);
+			ISwarmKeysClient keyClient = SwarmClientFactory.getAPIKeyClient("api." + getHostSystemProperty());
+			try {
+				List<SwarmKey> keys = keyClient.create(getUsernameProperty(), getUsernameProperty(), null);
+				
+				String configurationKey = null;
+				String participationKey = null;
+				
+				for (SwarmKey key : keys) {
+					if (key.getType() == KeyType.CONFIGURATION)
+						configurationKey = key.getKey();
+					else if (key.getType() == KeyType.PARTICIPATION)
+						participationKey = key.getKey();
+				}
+				
+				if (configurationKey == null || participationKey == null)
+					throw new IllegalStateException("Invalid API keys.");
+				
+				config = new Configuration(null, 
+						getHostSystemProperty(), 
+						configurationKey, 
+						participationKey, 
+						getUsernameProperty(),
+						DEFAULT_HTTP_SERVER_PORT, 
+						DEFAULT_XMPP_SERVER_PORT);				
+			} catch (IOException e) {
+				throw new IllegalStateException("Unable to create API keys.");
+			}
 		}
 		
 		return config;
@@ -58,14 +84,33 @@ public final class AccountConfig {
 	 */
 	public static Configuration getConfiguration2() {
 		if (config2 == null) {
-			config2 = new Configuration(
-					null,
-					getHostSystemProperty(), 
-					getConfigurationAPIKeySystemProperty2(), 
-					getProducerAPIKeySystemProperty2(),
-					getUsernameProperty2(), 
-					DEFAULT_HTTP_SERVER_PORT, 
-					DEFAULT_XMPP_SERVER_PORT);
+			ISwarmKeysClient keyClient = SwarmClientFactory.getAPIKeyClient("api." + getHostSystemProperty());
+			try {
+				List<SwarmKey> keys = keyClient.create(getUsernameProperty2(), getUsernameProperty2(), null);
+				
+				String configurationKey = null;
+				String participationKey = null;
+				
+				for (SwarmKey key : keys) {
+					if (key.getType() == KeyType.CONFIGURATION)
+						configurationKey = key.getKey();
+					else if (key.getType() == KeyType.PARTICIPATION)
+						participationKey = key.getKey();
+				}
+				
+				if (configurationKey == null || participationKey == null)
+					throw new IllegalStateException("Invalid API keys.");
+				
+				config2 = new Configuration(null, 
+						getHostSystemProperty(), 
+						configurationKey, 
+						participationKey, 
+						getUsernameProperty2(),
+						DEFAULT_HTTP_SERVER_PORT, 
+						DEFAULT_XMPP_SERVER_PORT);				
+			} catch (IOException e) {
+				throw new IllegalStateException("Unable to create API keys.");
+			}
 		}
 		
 		return config2;
@@ -85,41 +130,13 @@ public final class AccountConfig {
 		return System.getProperty(SWARM_TEST_CONFIGURATION_KEY).split(",")[1];
 	}
 	
-	private static String getConfigurationAPIKeySystemProperty() {
+	private static String getUsernameProperty2() {
 		if (System.getProperty(SWARM_TEST_CONFIGURATION_KEY) == null)
 			throw new RuntimeException("Test API Key must be defined to execute tests: " + SWARM_TEST_CONFIGURATION_KEY);
 		
 		return System.getProperty(SWARM_TEST_CONFIGURATION_KEY).split(",")[2];
 	}
-
-	private static String getProducerAPIKeySystemProperty() {
-		if (System.getProperty(SWARM_TEST_CONFIGURATION_KEY) == null)
-			throw new RuntimeException("Test API Key must be defined to execute tests: " + SWARM_TEST_CONFIGURATION_KEY);
-		
-		return System.getProperty(SWARM_TEST_CONFIGURATION_KEY).split(",")[3];
-	}
 	
-	private static String getUsernameProperty2() {
-		if (System.getProperty(SWARM_TEST_CONFIGURATION_KEY) == null)
-			throw new RuntimeException("Test API Key must be defined to execute tests: " + SWARM_TEST_CONFIGURATION_KEY);
-		
-		return System.getProperty(SWARM_TEST_CONFIGURATION_KEY).split(",")[4];
-	}
-	
-	private static String getConfigurationAPIKeySystemProperty2() {
-		if (System.getProperty(SWARM_TEST_CONFIGURATION_KEY) == null)
-			throw new RuntimeException("Test API Key must be defined to execute tests: " + SWARM_TEST_CONFIGURATION_KEY);
-		
-		return System.getProperty(SWARM_TEST_CONFIGURATION_KEY).split(",")[5];
-	}
-
-	private static String getProducerAPIKeySystemProperty2() {
-		if (System.getProperty(SWARM_TEST_CONFIGURATION_KEY) == null)
-			throw new RuntimeException("Test API Key must be defined to execute tests: " + SWARM_TEST_CONFIGURATION_KEY);
-		
-		return System.getProperty(SWARM_TEST_CONFIGURATION_KEY).split(",")[6];
-	}
-
 	/**
 	 * @return
 	 */

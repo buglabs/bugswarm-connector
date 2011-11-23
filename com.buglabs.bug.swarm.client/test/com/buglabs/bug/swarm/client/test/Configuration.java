@@ -35,7 +35,7 @@ public class Configuration {
 	/**
 	 * Stores the configuration.
 	 */
-	private Dictionary<String, Object> config;
+	private final Dictionary<String, Object> config;
 
 	/**
 	 * Create a configuration from discrete parameters.

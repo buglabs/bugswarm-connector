@@ -11,6 +11,12 @@ import org.touge.restclient.ReSTClient;
 
 import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
 
+/**
+ * Model base class for common functionality for Model classes in swarm.client.
+ * 
+ * @author kgilmer
+ *
+ */
 public abstract class ModelBase {
 
 	protected static ObjectMapper objectMapper = new ObjectMapper();
@@ -26,7 +32,7 @@ public abstract class ModelBase {
 			if (responseCode == 404)
 				return null;
 			
-			return (JsonNode) objectMapper.readTree(input);
+			return objectMapper.readTree(input);
 		}
 	};
 	

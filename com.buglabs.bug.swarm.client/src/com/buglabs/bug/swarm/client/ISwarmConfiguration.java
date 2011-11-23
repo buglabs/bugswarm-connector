@@ -20,7 +20,9 @@ public interface ISwarmConfiguration {
 
 	/**
 	 * Upload binary data to swarm.
-	 * 	
+	 * 
+	 * @param userId user id
+	 * @param resourceId resource id
 	 * @param filename
 	 *            Abstract name of file
 	 * @param payload
@@ -120,6 +122,7 @@ public interface ISwarmConfiguration {
 	/**
 	 * Use this method to keep track of what invitations you have received for a specific resource.
 	 * 
+	 * @param resourceId resource id
 	 * @return List of received invitations for specific resource.
 	 * @throws IOException on I/O error
 	 */
@@ -130,7 +133,7 @@ public interface ISwarmConfiguration {
 	 * 
 	 * @param resourceId resource id
 	 * @param invitationId invitation id
-	 * @param acceptInvitation if true, will attempt to accept invitation, otherwise will reject.
+	 * @param action Action to take on response
 	 * @return an Invitation type with response populated.
 	 * @throws IOException on I/O error
 	 */
@@ -157,7 +160,7 @@ public interface ISwarmConfiguration {
 	 *            consumer or producer
 	 * @param userId
 	 *            user id
-	 * @param resource resource id
+	 * @param resourceId resource id
 	 * @return HTTP response of operation
 	 * @throws IOException on I/O error
 	 */

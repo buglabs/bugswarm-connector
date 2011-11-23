@@ -14,6 +14,8 @@ public interface ISwarmBinaryUploadClient {
 	/**
 	 * Upload binary data to swarm.
 	 * 	
+	 * @param userId user id
+	 * @param resourceId resource id
 	 * @param filename
 	 *            Abstract name of file
 	 * @param payload

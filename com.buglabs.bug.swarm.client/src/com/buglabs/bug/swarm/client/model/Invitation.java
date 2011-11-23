@@ -51,6 +51,9 @@ public class Invitation extends ModelBase {
 	 *  "status": "new"
 	 */
 	
+	/**
+	 * Deserializer for Invitation
+	 */
 	public static final ResponseDeserializer<Invitation> DESERIALIZER = new ResponseDeserializer<Invitation>() {
 
 		@Override
@@ -65,6 +68,9 @@ public class Invitation extends ModelBase {
 		
 	};
 	
+	/**
+	 * Deserializer for lists of Invitation
+	 */
 	public static final ResponseDeserializer<List<Invitation>> LIST_DESERIALIZER = new ResponseDeserializer<List<Invitation>>() {
 
 		@Override
@@ -92,6 +98,16 @@ public class Invitation extends ModelBase {
 	private final String acceptedAt;
 	private final String sentAt;
 	
+	/**
+	 * @param id id of invitation
+	 * @param description description of invitation
+	 * @param type type of invitation
+	 * @param resourceId resource id associated with invitation
+	 * @param fromUser user originating invitation
+	 * @param toUser target user of invitation
+	 * @param status status of invitation
+	 * @param sentAt date at which invitation was sent
+	 */
 	public Invitation(String id, String description, MemberType type, String resourceId, String fromUser, String toUser, InvitationState status,
 			String sentAt) {
 		this.id = id;
@@ -120,6 +136,17 @@ public class Invitation extends ModelBase {
 	}
 
 
+	/**
+	 * @param id id of invitation
+	 * @param description description of invitation
+	 * @param type type of invitation
+	 * @param resourceId resource id associated with invitation
+	 * @param fromUser user originating invitation
+	 * @param toUser target user of invitation
+	 * @param status status of invitation
+	 * @param acceptedAt date when inviation was accepted
+	 * @param sentAt date at which invitation was sent
+	 */
 	public Invitation(String id, String description, MemberType type, String resourceId, String fromUser, String toUser, InvitationState status,
 			String acceptedAt, String sentAt) {
 		this.id = id;

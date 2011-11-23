@@ -20,9 +20,13 @@ public interface ISwarmInviteClient {
 	 */
 	public enum InvitationResponse {
 		/**
-		 * There are two types of members, 'consumer' and 'producer'.
+		 * A response to accept an invitation.
 		 */
-		ACCEPT("accept"), REJECT("reject");
+		ACCEPT("accept"), 
+		/**
+		 * A response to reject an invitation.
+		 */
+		REJECT("reject");
 
 		/**
 		 * Name of member.
@@ -48,9 +52,17 @@ public interface ISwarmInviteClient {
 	 */
 	public enum InvitationState {
 		/**
-		 * There are two types of members, 'consumer' and 'producer'.
+		 * Accepted state.
 		 */
-		ACCEPTED("accepted"), REJECTED("rejected"), NEW("new");
+		ACCEPTED("accepted"), 
+		/**
+		 * Rejected state.
+		 */
+		REJECTED("rejected"), 
+		/**
+		 * New or undecided state.
+		 */
+		NEW("new");
 
 		/**
 		 * Name of member.
@@ -106,6 +118,7 @@ public interface ISwarmInviteClient {
 	/**
 	 * Use this method to keep track of what invitations you have received for a specific resource.
 	 * 
+	 * @param resourceId resource id
 	 * @return List of received invitations for specific resource.
 	 * @throws IOException on I/O error
 	 */
@@ -116,7 +129,7 @@ public interface ISwarmInviteClient {
 	 * 
 	 * @param resourceId resource id
 	 * @param invitationId invitation id
-	 * @param acceptInvitation if true, will attempt to accept invitation, otherwise will reject.
+	 * @param action InvitationResponse of intended action
 	 * @return an Invitation type with response populated.
 	 * @throws IOException on I/O error
 	 */

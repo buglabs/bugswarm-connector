@@ -99,6 +99,7 @@ public class Activator implements BundleActivator, ManagedService, IConnectorSer
 		Activator.context = null;
 		log = null;
 		cmSr.unregister();
+		csSr.unregister();
 	}
 
 	/**

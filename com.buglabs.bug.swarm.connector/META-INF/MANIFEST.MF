@@ -6,6 +6,8 @@ Bundle-Version: 0.3.0.qualifier
 Bundle-Activator: com.buglabs.bug.swarm.connector.osgi.Activator
 Bundle-Vendor: Bug Labs, Inc.
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: 
+ com.buglabs.bug.swarm.connector.osgi.pub
 Import-Package: 
  com.buglabs.bug.dragonfly.module,
  com.buglabs.bug.swarm.client,

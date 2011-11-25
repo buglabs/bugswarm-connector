@@ -16,6 +16,7 @@ import org.osgi.util.tracker.ServiceTracker;
 
 import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
 import com.buglabs.bug.swarm.connector.Configuration;
+import com.buglabs.bug.swarm.connector.osgi.pub.IConnectorServiceStatus;
 import com.buglabs.bug.swarm.connector.ui.ConfigInitRunnable;
 import com.buglabs.bug.swarm.connector.ui.SwarmConfigKeys;
 import com.buglabs.osgi.sewing.pub.ISewingService;
@@ -28,7 +29,7 @@ import com.buglabs.util.osgi.ServiceTrackerUtil;
  * @author kgilmer
  * 
  */
-public class Activator implements BundleActivator, ManagedService {
+public class Activator implements BundleActivator, ManagedService, IConnectorServiceStatus {
 	// public static final String CONFIG_PID_BUGSWARM = "BUGSWARM";
 
 	/**
@@ -49,6 +50,8 @@ public class Activator implements BundleActivator, ManagedService {
 	private BUGSwarmConnector connector;
 
 	private ServiceTracker sewingST;
+
+	private ServiceRegistration<?> csSr;
 
 	/**
 	 * @return BundleContext
@@ -77,6 +80,7 @@ public class Activator implements BundleActivator, ManagedService {
 		log = LogServiceUtil.getLogService(context);
 		cmSr = context.registerService(ManagedService.class.getName(), this, getCMDictionary());
 		sewingST = ServiceTrackerUtil.openServiceTracker(context, new ConfigInitRunnable(context, log), configurationServices);
+		csSr = context.registerService(IConnectorServiceStatus.class.getName(), this, null);
 	}
 
 	/*
@@ -204,5 +208,13 @@ public class Activator implements BundleActivator, ManagedService {
 			properties.remove(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE_ID);
 		
 		config.update(properties);
+	}
+
+	@Override
+	public Status getStatus() {
+		if (connector == null)
+			return Status.INACTIVE;
+		
+		return Status.ACTIVE;
 	}	
 }

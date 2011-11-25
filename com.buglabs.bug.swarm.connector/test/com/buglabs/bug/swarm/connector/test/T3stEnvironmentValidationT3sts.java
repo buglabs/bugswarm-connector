@@ -3,22 +3,32 @@ package com.buglabs.bug.swarm.connector.test;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.Dictionary;
 import java.util.List;
 
 import junit.framework.TestCase;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.touge.restclient.ReSTClient;
 
 import com.buglabs.bug.swarm.client.ISwarmClient;
 import com.buglabs.bug.swarm.client.ISwarmConfiguration;
+import com.buglabs.bug.swarm.client.ISwarmKeysClient;
+import com.buglabs.bug.swarm.client.ISwarmKeysClient.KeyType;
+import com.buglabs.bug.swarm.client.ISwarmMessageListener;
 import com.buglabs.bug.swarm.client.ISwarmSession;
 import com.buglabs.bug.swarm.client.SwarmClientFactory;
+import com.buglabs.bug.swarm.client.model.SwarmKey;
 import com.buglabs.bug.swarm.client.model.SwarmModel;
 import com.buglabs.bug.swarm.client.model.UserResourceModel;
 import com.buglabs.bug.swarm.connector.Configuration;
 import com.buglabs.bug.swarm.connector.Configuration.Protocol;
+import com.buglabs.bug.swarm.connector.osgi.OSGiUtil;
+import com.buglabs.bug.swarm.connector.osgi.pub.IConnectorServiceStatus;
+import com.buglabs.bug.swarm.connector.osgi.pub.IConnectorServiceStatus.Status;
+import com.buglabs.bug.swarm.connector.ui.SwarmConfigKeys;
 
 /**
  * Tests the high-level BUGSwarmConnector test environment.
@@ -29,6 +39,9 @@ import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 public class T3stEnvironmentValidationT3sts extends TestCase {
 
 	
+	private boolean presenceRecieved;
+	private boolean exceptionOccurred;
+
 	/**
 	 * Test that the bugswarm-connector bundle is installed and running in the OSGi framework instance.
 	 * 
@@ -64,6 +77,15 @@ public class T3stEnvironmentValidationT3sts extends TestCase {
 	 * @throws IOException 
 	 */
 	public void testCreateConfigurationClient() throws IOException {		
+		ISwarmKeysClient keyClient = 
+				SwarmClientFactory.getAPIKeyClient(AccountConfig.getConfiguration().getHostname(Protocol.HTTP));
+		
+		SwarmKey pkey = keyClient.create(AccountConfig.getConfiguration().getUsername(), AccountConfig.getConfiguration().getUsername(), KeyType.PARTICIPATION).get(0);
+		SwarmKey ckey = keyClient.create(AccountConfig.getConfiguration().getUsername(), AccountConfig.getConfiguration().getUsername(), KeyType.CONFIGURATION).get(0);
+		
+		AccountConfig.getConfiguration().setParticipationAPIKey(pkey.getKey());
+		AccountConfig.getConfiguration().setConfingurationAPIKey(ckey.getKey());
+		
 		ISwarmClient wsClient = SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration().getHostname(Protocol.HTTP), 
 				AccountConfig.getConfiguration().getConfingurationAPIKey());
@@ -111,6 +133,8 @@ public class T3stEnvironmentValidationT3sts extends TestCase {
 			urm = existingResources.get(0);
 		}
 		
+		AccountConfig.testUserResource = urm;
+		
 		List<SwarmModel> swarms = cclient.listSwarms();
 		
 		assertNotNull(swarms);
@@ -130,6 +154,8 @@ public class T3stEnvironmentValidationT3sts extends TestCase {
 		
 		assertNotNull(psession);
 		assertTrue(psession.isConnected());
+		
+		AccountConfig.testSwarmId = testSwarmId;
 	}
 	
 	/**
@@ -149,4 +175,136 @@ public class T3stEnvironmentValidationT3sts extends TestCase {
 		
 		assertTrue(html.contains("Device settings"));
 	}
+	
+	public void testConnectorStatusServiceAvailable() {
+		assertNotNull(Activator.getDefault());		
+		BundleContext context = Activator.getDefault().getContext();		
+		assertNotNull(context);
+		
+		Object svc = OSGiUtil.getServiceInstance(context, IConnectorServiceStatus.class.getName());
+		
+		assertNotNull(svc);
+				
+	}
+	
+	public void testConfigurationAdminPresent() throws IOException, InterruptedException {
+		assertNotNull(Activator.getDefault());		
+		BundleContext context = Activator.getDefault().getContext();		
+		assertNotNull(context);
+		
+		Object svc = OSGiUtil.getServiceInstance(context, ConfigurationAdmin.class.getName());
+		
+		assertNotNull(svc);
+		assertTrue(svc instanceof ConfigurationAdmin);
+		
+		ConfigurationAdmin ca = (ConfigurationAdmin) svc;
+		
+		org.osgi.service.cm.Configuration config = ca.getConfiguration(SwarmConfigKeys.CONFIG_PID_BUGSWARM, null);
+		
+		assertNotNull(config);
+		
+		Dictionary d = config.getProperties();
+		
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME, AccountConfig.getConfiguration().getUsername());
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY, AccountConfig.getConfiguration().getParticipationAPIKey());
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY, AccountConfig.getConfiguration().getConfingurationAPIKey());
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_DEVICE_LABEL, AccountConfig.generateRandomResourceName());
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_ENABLED, Boolean.toString(true));
+		
+		IConnectorServiceStatus statusService = (IConnectorServiceStatus) OSGiUtil.getServiceInstance(context, IConnectorServiceStatus.class.getName());
+		
+		assertNotNull(statusService);
+					
+		config.update(d);
+		
+		Thread.sleep(1000);
+		
+		assertTrue(statusService.getStatus() == IConnectorServiceStatus.Status.ACTIVE);
+	}
+	
+	public void testConnectorSendsPresence() throws UnknownHostException, IOException, InterruptedException {
+		//testCreateParticipationClient();
+		Configuration c = AccountConfig.getConfiguration();
+		
+		assertNotNull(Activator.getDefault());		
+		BundleContext context = Activator.getDefault().getContext();		
+		assertNotNull(context);
+		
+		Object svc = OSGiUtil.getServiceInstance(context, ConfigurationAdmin.class.getName());
+		
+		assertNotNull(svc);
+		assertTrue(svc instanceof ConfigurationAdmin);
+		
+		ConfigurationAdmin ca = (ConfigurationAdmin) svc;
+		
+		org.osgi.service.cm.Configuration config = ca.getConfiguration(SwarmConfigKeys.CONFIG_PID_BUGSWARM, null);
+		
+		assertNotNull(config);
+		
+		Dictionary d = config.getProperties();		
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME, AccountConfig.getConfiguration().getUsername());
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY, AccountConfig.getConfiguration().getParticipationAPIKey());
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY, AccountConfig.getConfiguration().getConfingurationAPIKey());
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_DEVICE_LABEL, AccountConfig.generateRandomResourceName());
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_ENABLED, Boolean.toString(false));
+				
+		config.update(d);
+		
+		Thread.sleep(1000);
+		
+		IConnectorServiceStatus statusService = (IConnectorServiceStatus) OSGiUtil.getServiceInstance(context, IConnectorServiceStatus.class.getName());	
+		assertNotNull(statusService);
+		
+		assertTrue(statusService.getStatus() == Status.INACTIVE);
+		
+		ISwarmSession psession = SwarmClientFactory.createSwarmSession(
+				c.getHostname(Protocol.HTTP), 
+				c.getParticipationAPIKey(), 
+				AccountConfig.testUserResource.getResourceId(), AccountConfig.testSwarmId);
+		
+		assertNotNull(psession);
+		assertTrue(psession.isConnected());
+		
+		presenceRecieved = false;
+		exceptionOccurred = false;
+		
+		psession.addListener(new ISwarmMessageListener() {
+
+			@Override
+			public void presenceEvent(String fromSwarm, String fromResource, boolean isAvailable) {
+				presenceRecieved = true;
+			}
+
+			@Override
+			public void exceptionOccurred(ExceptionType type, String message) {
+				exceptionOccurred = false;
+			}			
+		});
+
+		d = config.getProperties();		
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME, AccountConfig.getConfiguration().getUsername());
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY, AccountConfig.getConfiguration().getParticipationAPIKey());
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY, AccountConfig.getConfiguration().getConfingurationAPIKey());
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_DEVICE_LABEL, AccountConfig.generateRandomResourceName());
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_ENABLED, Boolean.toString(true));
+				
+		config.update(d);
+		Thread.sleep(1000);
+		
+		assertTrue(statusService.getStatus() == IConnectorServiceStatus.Status.ACTIVE);
+		
+		assertTrue(presenceRecieved);
+		assertFalse(exceptionOccurred);
+	}
+	
+	/**
+	 * Taken from the swarm-server tests:
+	 * 
+	 *  it('should allow to connect as a producer resource only'
+ 	 *  it('should allow to connect as a consumer resource only'
+  		it('should allow to connect as producer and consumer'
+ 		it('should connect, join and send messages to more than one swarm'
+ 		it('should not lose messages if connection goes down'
+ 		it('should re-connect if connection goes down'
+	 */
 }

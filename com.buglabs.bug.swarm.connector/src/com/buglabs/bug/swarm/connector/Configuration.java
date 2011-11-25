@@ -2,6 +2,7 @@ package com.buglabs.bug.swarm.connector;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Random;
 
 import com.buglabs.bug.swarm.connector.osgi.Activator;
 import com.buglabs.bug.swarm.connector.ui.SwarmConfigKeys;
@@ -32,7 +33,9 @@ public class Configuration {
 	private static final String HTTP_PREFIX = "api.";	
 	private static final int DEFAULT_XMPP_SERVER_PORT = 5222;
 	private static final int DEFAULT_HTTP_SERVER_PORT = 80;
-	private static final String DEFAULT_DEVICE_LABEL = "BUG";
+	private static final Random rnd = new Random();
+	private static final String DEFAULT_DEVICE_LABEL = "BUG-" + Integer.toHexString(rnd.nextInt());
+	
 	/**
 	 * Stores the configuration.
 	 */
@@ -253,5 +256,13 @@ public class Configuration {
 			return false;
 
 		return true;
+	}
+
+	public void setParticipationAPIKey(String key) {
+		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY, key);
+	}
+
+	public void setConfingurationAPIKey(String key) {
+		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY, key);
 	}
 }

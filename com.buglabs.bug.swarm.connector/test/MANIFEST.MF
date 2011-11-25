@@ -8,6 +8,7 @@ Bundle-Vendor: Bug Labs, Inc.
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: 
  junit.framework,
+ com.buglabs.bug.swarm.connector.osgi.pub,
  com.buglabs.bug.dragonfly.module,
  com.buglabs.osgi.sewing.pub,
  com.buglabs.osgi.sewing.pub.util,

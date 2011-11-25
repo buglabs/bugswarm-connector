@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -220,9 +221,10 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	private String getResourceDescription() {
 		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z");
 		
-		return "BUG device resource created on " + sdf.format(Calendar.getInstance().getTime() + ".");
+		Date date = Calendar.getInstance().getTime();
+		return "BUG device resource created on " + sdf.format(date) + ".";
 	}
-
+	
 	/**
 	 * @return Immutable list of swarms that client is a member of, for
 	 *         read-only purposes.

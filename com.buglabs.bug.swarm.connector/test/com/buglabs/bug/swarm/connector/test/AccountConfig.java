@@ -1,9 +1,17 @@
 package com.buglabs.bug.swarm.connector.test;
 
+
+
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import com.buglabs.bug.swarm.client.ISwarmKeysClient;
+import com.buglabs.bug.swarm.client.ISwarmKeysClient.KeyType;
+import com.buglabs.bug.swarm.client.SwarmClientFactory;
+import com.buglabs.bug.swarm.client.model.SwarmKey;
 import com.buglabs.bug.swarm.client.model.UserResourceModel;
 import com.buglabs.bug.swarm.connector.Configuration;
 
@@ -22,7 +30,7 @@ public final class AccountConfig {
 	private static final int DEFAULT_XMPP_SERVER_PORT = 5222;
 	private static final int DEFAULT_HTTP_SERVER_PORT = 80;
 	
-	protected static String testSwarmId;
+	public static String testSwarmId;
 	
 	private static Configuration config;
 	private static Random r;
@@ -32,21 +40,41 @@ public final class AccountConfig {
 	private static Configuration config2;
 	public static String testInviteId;
 	
-	protected static final int CONNECTOR_INIT_SLEEP_MILLIS = 10000;
+	public static final int CONNECTOR_INIT_SLEEP_MILLIS = 10000;
 	public static final long CONNECTOR_FEED_CHANGE_SLEEP_MILLIS = 1000;
 	
 	/**
 	 * @return
 	 */
-	protected static Configuration getConfiguration() {
+	public static Configuration getConfiguration() {
 		if (config == null) {
-			config = new Configuration(null, 
-					getHostSystemProperty(), 
-					getConfigurationAPIKeySystemProperty(), 
-					getProducerAPIKeySystemProperty(), 
-					getUsernameProperty(),
-					DEFAULT_HTTP_SERVER_PORT, 
-					DEFAULT_XMPP_SERVER_PORT);
+			ISwarmKeysClient keyClient = SwarmClientFactory.getAPIKeyClient("api." + getHostSystemProperty());
+			try {
+				List<SwarmKey> keys = keyClient.create(getUsernameProperty(), getUsernameProperty(), null);
+				
+				String configurationKey = null;
+				String participationKey = null;
+				
+				for (SwarmKey key : keys) {
+					if (key.getType() == KeyType.CONFIGURATION)
+						configurationKey = key.getKey();
+					else if (key.getType() == KeyType.PARTICIPATION)
+						participationKey = key.getKey();
+				}
+				
+				if (configurationKey == null || participationKey == null)
+					throw new IllegalStateException("Invalid API keys.");
+				
+				config = new Configuration(null, 
+						getHostSystemProperty(), 
+						configurationKey, 
+						participationKey, 
+						getUsernameProperty(),
+						DEFAULT_HTTP_SERVER_PORT, 
+						DEFAULT_XMPP_SERVER_PORT);				
+			} catch (IOException e) {
+				throw new IllegalStateException("Unable to create API keys.");
+			}
 		}
 		
 		return config;
@@ -55,16 +83,35 @@ public final class AccountConfig {
 	/**
 	 * @return
 	 */
-	protected static Configuration getConfiguration2() {
+	public static Configuration getConfiguration2() {
 		if (config2 == null) {
-			config2 = new Configuration(
-					null,
-					getHostSystemProperty(), 
-					getConfigurationAPIKeySystemProperty2(), 
-					getProducerAPIKeySystemProperty2(),
-					getUsernameProperty2(), 
-					DEFAULT_HTTP_SERVER_PORT, 
-					DEFAULT_XMPP_SERVER_PORT);
+			ISwarmKeysClient keyClient = SwarmClientFactory.getAPIKeyClient("api." + getHostSystemProperty());
+			try {
+				List<SwarmKey> keys = keyClient.create(getUsernameProperty2(), getUsernameProperty2(), null);
+				
+				String configurationKey = null;
+				String participationKey = null;
+				
+				for (SwarmKey key : keys) {
+					if (key.getType() == KeyType.CONFIGURATION)
+						configurationKey = key.getKey();
+					else if (key.getType() == KeyType.PARTICIPATION)
+						participationKey = key.getKey();
+				}
+				
+				if (configurationKey == null || participationKey == null)
+					throw new IllegalStateException("Invalid API keys.");
+				
+				config2 = new Configuration(null, 
+						getHostSystemProperty(), 
+						configurationKey, 
+						participationKey, 
+						getUsernameProperty2(),
+						DEFAULT_HTTP_SERVER_PORT, 
+						DEFAULT_XMPP_SERVER_PORT);				
+			} catch (IOException e) {
+				throw new IllegalStateException("Unable to create API keys.");
+			}
 		}
 		
 		return config2;
@@ -84,45 +131,17 @@ public final class AccountConfig {
 		return System.getProperty(SWARM_TEST_CONFIGURATION_KEY).split(",")[1];
 	}
 	
-	private static String getConfigurationAPIKeySystemProperty() {
+	private static String getUsernameProperty2() {
 		if (System.getProperty(SWARM_TEST_CONFIGURATION_KEY) == null)
 			throw new RuntimeException("Test API Key must be defined to execute tests: " + SWARM_TEST_CONFIGURATION_KEY);
 		
 		return System.getProperty(SWARM_TEST_CONFIGURATION_KEY).split(",")[2];
 	}
-
-	private static String getProducerAPIKeySystemProperty() {
-		if (System.getProperty(SWARM_TEST_CONFIGURATION_KEY) == null)
-			throw new RuntimeException("Test API Key must be defined to execute tests: " + SWARM_TEST_CONFIGURATION_KEY);
-		
-		return System.getProperty(SWARM_TEST_CONFIGURATION_KEY).split(",")[3];
-	}
 	
-	private static String getUsernameProperty2() {
-		if (System.getProperty(SWARM_TEST_CONFIGURATION_KEY) == null)
-			throw new RuntimeException("Test API Key must be defined to execute tests: " + SWARM_TEST_CONFIGURATION_KEY);
-		
-		return System.getProperty(SWARM_TEST_CONFIGURATION_KEY).split(",")[4];
-	}
-	
-	private static String getConfigurationAPIKeySystemProperty2() {
-		if (System.getProperty(SWARM_TEST_CONFIGURATION_KEY) == null)
-			throw new RuntimeException("Test API Key must be defined to execute tests: " + SWARM_TEST_CONFIGURATION_KEY);
-		
-		return System.getProperty(SWARM_TEST_CONFIGURATION_KEY).split(",")[5];
-	}
-
-	private static String getProducerAPIKeySystemProperty2() {
-		if (System.getProperty(SWARM_TEST_CONFIGURATION_KEY) == null)
-			throw new RuntimeException("Test API Key must be defined to execute tests: " + SWARM_TEST_CONFIGURATION_KEY);
-		
-		return System.getProperty(SWARM_TEST_CONFIGURATION_KEY).split(",")[6];
-	}
-
 	/**
 	 * @return
 	 */
-	protected static String generateRandomSwarmName() {		
+	public static String generateRandomSwarmName() {		
 		if (r == null)
 			r = new Random();
 		
@@ -132,14 +151,14 @@ public final class AccountConfig {
 	/**
 	 * @return
 	 */
-	protected static String generateRandomResourceName() {		
+	public static String generateRandomResourceName() {		
 		if (r == null)
 			r = new Random();
 		
 		return "TestResource-" + r.nextFloat();					
 	}
 
-	protected static String getTestSwarmDescription() {
+	public static String getTestSwarmDescription() {
 		return "TestSwarmDescription-" + AccountConfig.class.getSimpleName();
 	}
 

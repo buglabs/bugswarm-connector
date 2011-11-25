@@ -63,7 +63,7 @@ echo "report.src=$WORKSPACE/com.buglabs.bug.swarm.client/test" > $BLACKBOX_ROOT/
 echo "testrunner.report.dir=$REPORT_DIR" >> $BLACKBOX_ROOT/properties/test.properties
 echo "bugswarm_test_host=$TEST_HOST" >> $BLACKBOX_ROOT/properties/test.properties
 echo "testrunner.report.dir=$REPORT_DIR" >> $BLACKBOX_ROOT/properties/test.properties
-echo "report.misc=test.bugswarm.net,connector_test,3077514aa9aa5a5826cfd9d04ee059db1a18057d,7339d4a60c729308086341600d44c6424a4079cb,connector_test2,ddef1fa815d8549fa184e2716405f2cc553b5316,af9c58ce70d031934826bd9662f00420863e752b" >> $BLACKBOX_ROOT/properties/test.properties
+echo "report.misc=test.bugswarm.net,connector_test,connector_test2">> $BLACKBOX_ROOT/properties/test.properties
 echo "testrunner.shutdown.delay=60000" >> $BLACKBOX_ROOT/properties/test.properties
 
 cd $BLACKBOX_ROOT

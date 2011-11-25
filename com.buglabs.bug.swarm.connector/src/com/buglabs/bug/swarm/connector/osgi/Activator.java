@@ -51,7 +51,7 @@ public class Activator implements BundleActivator, ManagedService, IConnectorSer
 
 	private ServiceTracker sewingST;
 
-	private ServiceRegistration<?> csSr;
+	private ServiceRegistration csSr;
 
 	/**
 	 * @return BundleContext

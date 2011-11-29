@@ -11,7 +11,6 @@ import com.buglabs.bug.swarm.client.ISwarmClient;
 import com.buglabs.bug.swarm.client.ISwarmInviteClient.InvitationResponse;
 import com.buglabs.bug.swarm.client.ISwarmInviteClient.InvitationState;
 import com.buglabs.bug.swarm.client.ISwarmJsonMessageListener;
-import com.buglabs.bug.swarm.client.ISwarmMessageListener.ExceptionType;
 import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.client.ISwarmSession;
 import com.buglabs.bug.swarm.client.ISwarmStringMessageListener;
@@ -272,7 +271,7 @@ public class ParticipationAPITests extends TestCase {
 		Thread.sleep(5000);
 		
 		assertTrue(psession1PresenceMessageRecieved);
-		assertTrue(psession1MessageRecieved);
+		assertFalse(psession1MessageRecieved);
 		assertFalse(psession1ExceptionRecieved);
 		
 		assertTrue(psession2PresenceMessageRecieved);

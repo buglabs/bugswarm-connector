@@ -38,8 +38,8 @@ wget -P $BUNDLE_DIR/ http://$BUILD_SERVER/job/bugswarm-connector-$SWARM_BRANCH/l
 rm $APP_DIR/bugswarm-devicestats.jar
 wget -P $APP_DIR/ http://$BUILD_SERVER/job/bugswarm-connector-$SWARM_BRANCH/lastSuccessfulBuild/artifact/dist/bugswarm-devicestats.jar
 
-rm $BUNDLE_DIR/com.buglabs.bug.swarm.restclient.jar
-wget -P $BUNDLE_DIR/ http://$BUILD_SERVER/job/bugswarm-connector-$SWARM_BRANCH/lastSuccessfulBuild/artifact/dist/com.buglabs.bug.swarm.restclient.jar
+rm $BUNDLE_DIR/com.buglabs.bug.swarm.client.jar
+wget -P $BUNDLE_DIR/ http://$BUILD_SERVER/job/bugswarm-connector-$SWARM_BRANCH/lastSuccessfulBuild/artifact/dist/com.buglabs.bug.swarm.client.jar
 
 rm $BUNDLE_DIR/org.touge.restclient.jar
 wget -P $BUNDLE_DIR/ http://$BUILD_SERVER/job/bugswarm-connector-$SWARM_BRANCH/lastSuccessfulBuild/artifact/dist/org.touge.restclient.jar

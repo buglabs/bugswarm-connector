@@ -275,7 +275,7 @@ public class ParticipationAPITests extends TestCase {
 		assertFalse(psession1ExceptionRecieved);
 		
 		assertTrue(psession2PresenceMessageRecieved);
-		assertTrue(psession2MessageRecieved);
+		assertFalse(psession2MessageRecieved);
 		assertFalse(psession2ExceptionRecieved);
 		
 		psession1.close();

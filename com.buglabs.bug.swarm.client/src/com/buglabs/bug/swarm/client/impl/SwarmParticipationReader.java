@@ -59,7 +59,11 @@ public class SwarmParticipationReader extends Thread {
 	public void run() {
 		running = true;
 		String line = null;
-		try {
+		String disconnectMessage = "Server disconnect";
+		
+		readinput:
+			
+		try {			
 			while ((line = reader.readLine()) != null) {
 				line = line.trim();
 				//Filter empty lines and line length lines.
@@ -137,14 +141,15 @@ public class SwarmParticipationReader extends Thread {
 				Thread.sleep(100);
 			}
 		} catch (IOException e) {
-			if (!shuttingDown)
-				for (ISwarmMessageListener listener : listeners)
-					listener.exceptionOccurred(ExceptionType.SERVER_UNEXPECTED_DISCONNECT, e.getMessage());
+			disconnectMessage = e.getMessage();
 		} catch (InterruptedException e) {
 			return;
 		} finally {
-			running = false;
-			debugOut("Reader exited", false);
+			//Relying on first element of listeners being the SwarmSessionImpl.  See line 56.
+			if (!shuttingDown)
+				listeners.get(0).exceptionOccurred(ExceptionType.SERVER_UNEXPECTED_DISCONNECT, disconnectMessage);
+			
+			running = false;			
 		}
 	}
 	

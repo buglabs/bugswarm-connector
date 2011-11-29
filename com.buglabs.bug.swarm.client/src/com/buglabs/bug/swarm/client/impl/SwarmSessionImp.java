@@ -24,17 +24,18 @@ import com.buglabs.bug.swarm.client.ISwarmSession;
  * @author kgilmer
  *
  */
-public class SwarmSessionImp implements ISwarmSession {
-	private final Socket socket;
+public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
+	private Socket socket;
 	private final String apiKey;
 	private static final String CRLF = "\r\n";
 	private final String hostname;
-	private final OutputStream soutput;
+	private OutputStream soutput;
 	private final List<ISwarmMessageListener> listeners;
 	private SwarmParticipationReader readerThread;
 	private final static ObjectMapper mapper = new ObjectMapper();
 	private final String[] swarmIds;
 	private final String resourceId;
+	private final int port;	
 
 	/**
 	 * @param hostname host of server
@@ -47,19 +48,29 @@ public class SwarmSessionImp implements ISwarmSession {
 	 */
 	public SwarmSessionImp(String hostname, int port, String apiKey, String resourceId, String ... swarmIds) throws UnknownHostException, IOException {		
 		this.hostname = hostname;
+		this.port = port;
 		this.apiKey = apiKey;
 		this.resourceId = resourceId;
 		this.swarmIds = swarmIds;		
-		this.socket = new Socket(hostname, port);
-		this.soutput = socket.getOutputStream();
 		this.listeners = new CopyOnWriteArrayList<ISwarmMessageListener>();
-		
-		//TODO: server seems to disconnect after some amount of time.  Rather than create one socket connection here,
-		//create a thread that will reconnect to the server when it disconnects, up until the client explicitly closes the session.
-		this.readerThread = new SwarmParticipationReader(socket.getInputStream(), apiKey, listeners);
-		this.readerThread.start();	
+		this.listeners.add(this);
+		this.socket = createSocket(hostname, port);
 
 		sendHeader();	
+	}
+
+
+	private Socket createSocket(String hostname, int port) throws UnknownHostException, IOException {
+		Socket socket = new Socket(hostname, port);
+		this.soutput = socket.getOutputStream();		
+		
+		if (readerThread != null)
+			readerThread.interrupt();
+		
+		this.readerThread = new SwarmParticipationReader(socket.getInputStream(), apiKey, listeners);
+		this.readerThread.start();
+		
+		return socket;
 	}
 
 
@@ -231,8 +242,9 @@ public class SwarmSessionImp implements ISwarmSession {
 	 * @throws IOException on socket I/O error
 	 */
 	private void writeOut(String message) throws IOException {
-		if (!isConnected())
-			throw new IOException("Connection has closed");
+		if (!isConnected()) {
+			this.socket = createSocket(hostname, port);
+		}			
 		
 		debugOut(message, true);
 		
@@ -254,7 +266,7 @@ public class SwarmSessionImp implements ISwarmSession {
 	}
 
 	@Override
-	public void close() {
+	public void close() {		
 		if (readerThread != null)
 			readerThread.shuttingDown();
 		
@@ -289,5 +301,26 @@ public class SwarmSessionImp implements ISwarmSession {
 	public boolean isConnected() {
 		//TODO: Fix the connected state such that if the reader disconnects, it is rebound until the client explicitly closes the connection.
 		return readerThread != null && socket != null && readerThread.isRunning() && socket.isConnected();
+	}
+
+
+	@Override
+	public void presenceEvent(String fromSwarm, String fromResource, boolean isAvailable) {		
+	}
+
+
+	@Override
+	public void exceptionOccurred(ExceptionType type, String message) {
+		if (type == ExceptionType.SERVER_UNEXPECTED_DISCONNECT) {
+			try {
+				this.socket = createSocket(hostname, port);
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}		
 	}
 }

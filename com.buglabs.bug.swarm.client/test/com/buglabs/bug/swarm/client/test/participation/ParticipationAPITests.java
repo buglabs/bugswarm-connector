@@ -110,7 +110,7 @@ public class ParticipationAPITests extends TestCase {
 	 * 
 	 * @throws IOException
 	 */
-	private void sendInvite() throws IOException {
+	private void sendInvite(MemberType type) throws IOException {
 		ISwarmClient client = SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration().getHostname(Configuration.Protocol.HTTP),
 				AccountConfig.getConfiguration().getConfingurationAPIKey());
@@ -122,7 +122,7 @@ public class ParticipationAPITests extends TestCase {
 				AccountConfig.testSwarmId, 
 				AccountConfig.getConfiguration2().getUsername(), 
 				AccountConfig.testUserResource2.getResourceId(), 
-				MemberType.CONSUMER, 
+				type, 
 				description);
 		
 		assertNotNull(invite);
@@ -144,7 +144,7 @@ public class ParticipationAPITests extends TestCase {
 	 * @throws InterruptedException 
 	 */
 	public void testSwarmParticipationAPI() throws IOException, InterruptedException {
-		sendInvite();
+		sendInvite(MemberType.PRODUCER);
 		acceptInvitation();
 		ISwarmClient client = SwarmClientFactory.getSwarmClient(
 				AccountConfig.getConfiguration().getHostname(Configuration.Protocol.HTTP),
@@ -299,7 +299,7 @@ public class ParticipationAPITests extends TestCase {
 		assertNotNull(AccountConfig.testSwarmId);
 		assertNotNull(AccountConfig.testInviteId);
 		
-		sendInvite();
+		sendInvite(MemberType.PRODUCER);
 		List<Invitation> receivedInvites = client2.getSwarmInviteClient().getRecievedInvitations(AccountConfig.testUserResource2.getResourceId());
 		
 		assertNotNull(receivedInvites);

@@ -7,7 +7,6 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import com.buglabs.bug.swarm.client.ISwarmClient;
-import com.buglabs.bug.swarm.client.ISwarmMessageListener.ExceptionType;
 import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.client.ISwarmSession;
 import com.buglabs.bug.swarm.client.ISwarmStringMessageListener;
@@ -100,7 +99,7 @@ public class SessionManagementTests extends TestCase {
 	 * 
 	 * //Disabling for now to speed up build.
 	 */
-	private void t3st3MinuteSession() throws UnknownHostException, IOException, InterruptedException {
+	public void test3MinuteSession() throws UnknownHostException, IOException, InterruptedException {
 		assertNotNull(AccountConfig.getConfiguration().getHostname(Configuration.Protocol.HTTP));
 		assertNotNull(AccountConfig.getConfiguration().getParticipationAPIKey());
 		assertNotNull(AccountConfig.testUserResource.getResourceId());

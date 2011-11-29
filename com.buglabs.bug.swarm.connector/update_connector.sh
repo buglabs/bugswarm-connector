@@ -1,13 +1,16 @@
 #!/bin/sh
-# This script is intented to be run on a BUG.  It will download the latest connector jars from the build server
+# This script is intended to be run on a BUG.  It will download the latest connector jars from the build server
 # and update the running Felix system if active.
+
+if [ $# -eq "0" ]; then
+	echo "SWARM_BRANCH unspecified, assuming 'master'."
+	SWARM_BRANCH=master
+fi
 
 SWARM_HOSTNAME="test.bugswarm.net"
 BUILD_SERVER="192.168.20.16:8085"
 BUNDLE_DIR=/usr/share/osgi/bundle
 APP_DIR=/usr/share/osgi/apps
-
-SWARM_BRANCH=0.3
 
 echo "Updating connector and dependencies to latest jars available from $BUILD_SERVER."
 

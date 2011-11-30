@@ -8,9 +8,9 @@ import junit.framework.TestCase;
 import com.buglabs.bug.swarm.client.ISwarmKeysClient;
 import com.buglabs.bug.swarm.client.ISwarmKeysClient.KeyType;
 import com.buglabs.bug.swarm.client.SwarmClientFactory;
+import com.buglabs.bug.swarm.client.model.Configuration.Protocol;
 import com.buglabs.bug.swarm.client.model.SwarmKey;
 import com.buglabs.bug.swarm.client.test.AccountConfig;
-import com.buglabs.bug.swarm.client.test.Configuration.Protocol;
 
 
 /**

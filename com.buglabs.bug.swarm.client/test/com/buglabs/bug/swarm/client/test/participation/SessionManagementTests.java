@@ -12,10 +12,10 @@ import com.buglabs.bug.swarm.client.ISwarmSession;
 import com.buglabs.bug.swarm.client.ISwarmStringMessageListener;
 import com.buglabs.bug.swarm.client.SwarmClientFactory;
 import com.buglabs.bug.swarm.client.SwarmWSResponse;
+import com.buglabs.bug.swarm.client.model.Configuration;
 import com.buglabs.bug.swarm.client.model.SwarmModel;
 import com.buglabs.bug.swarm.client.model.UserResourceModel;
 import com.buglabs.bug.swarm.client.test.AccountConfig;
-import com.buglabs.bug.swarm.client.test.Configuration;
 
 /**
  * Tests for session management between swarm.client and the server.

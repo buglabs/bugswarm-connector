@@ -84,4 +84,9 @@ public final class SwarmConfigKeys {
 	 * The swarm-server created resource id associated with the device.
 	 */
 	public static final String CONFIG_KEY_BUGSWARM_RESOURCE_ID = "com.buglabs.bugswarm.resourceId";
+
+	/**
+	 * Nickname used to identify the resource in management ui.
+	 */
+	public static final String CONFIG_KEY_BUGSWARM_DEVICE_LABEL = "com.buglabs.bugswarm.devicelabel";
 }

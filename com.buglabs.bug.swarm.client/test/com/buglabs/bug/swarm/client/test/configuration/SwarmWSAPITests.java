@@ -9,10 +9,10 @@ import junit.framework.TestCase;
 import com.buglabs.bug.swarm.client.ISwarmClient;
 import com.buglabs.bug.swarm.client.SwarmClientFactory;
 import com.buglabs.bug.swarm.client.SwarmWSResponse;
+import com.buglabs.bug.swarm.client.model.Configuration.Protocol;
 import com.buglabs.bug.swarm.client.model.SwarmModel;
 import com.buglabs.bug.swarm.client.model.UserResourceModel;
 import com.buglabs.bug.swarm.client.test.AccountConfig;
-import com.buglabs.bug.swarm.client.test.Configuration.Protocol;
 
 /**
  * Unit tests for ISwarmWSClient implementation.

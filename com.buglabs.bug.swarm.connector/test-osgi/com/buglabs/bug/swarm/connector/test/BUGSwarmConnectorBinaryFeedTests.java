@@ -8,9 +8,9 @@ import com.buglabs.bug.swarm.client.ISwarmClient;
 import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
 import com.buglabs.bug.swarm.client.SwarmClientFactory;
 import com.buglabs.bug.swarm.client.SwarmWSResponse;
+import com.buglabs.bug.swarm.client.model.Configuration.Protocol;
 import com.buglabs.bug.swarm.client.model.SwarmModel;
 import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
-import com.buglabs.bug.swarm.connector.Configuration.Protocol;
 import com.buglabs.util.simplerestclient.HTTPException;
 
 /**

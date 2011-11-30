@@ -26,10 +26,12 @@ public class Activator implements BundleActivator {
 		instance = this;
 	}
 	
+	@Override
 	public void start(BundleContext context) throws Exception {
 		this.context = context;
 		regs = new ArrayList<ServiceRegistration>();
 		regs.add(context.registerService(TestSuite.class.getName(), new TestSuite(TestEnvironmentValidationTests.class), null));
+		regs.add(context.registerService(TestSuite.class.getName(), new TestSuite(BUGSwarmConnectorBinaryFeedTests.class), null));
 		
 		System.out.println(this.getClass().getName() + " added " + regs.size() + " suites for OSGi testing.");
 	}
@@ -42,6 +44,7 @@ public class Activator implements BundleActivator {
 		return context;
 	}
 	
+	@Override
 	public void stop(BundleContext context) throws Exception {
 		for (ServiceRegistration sr : regs)
 			sr.unregister();

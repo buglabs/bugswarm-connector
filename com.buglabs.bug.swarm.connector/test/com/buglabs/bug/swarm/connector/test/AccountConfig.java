@@ -11,9 +11,9 @@ import java.util.Random;
 import com.buglabs.bug.swarm.client.ISwarmKeysClient;
 import com.buglabs.bug.swarm.client.ISwarmKeysClient.KeyType;
 import com.buglabs.bug.swarm.client.SwarmClientFactory;
+import com.buglabs.bug.swarm.client.model.Configuration;
 import com.buglabs.bug.swarm.client.model.SwarmKey;
 import com.buglabs.bug.swarm.client.model.UserResourceModel;
-import com.buglabs.bug.swarm.connector.Configuration;
 
 /**
  * Unit tests for ISwarmWSClient implementation.

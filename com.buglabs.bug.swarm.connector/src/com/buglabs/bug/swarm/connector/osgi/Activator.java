@@ -14,8 +14,8 @@ import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
 import org.osgi.util.tracker.ServiceTracker;
 
+import com.buglabs.bug.swarm.client.model.Configuration;
 import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
-import com.buglabs.bug.swarm.connector.Configuration;
 import com.buglabs.bug.swarm.connector.osgi.pub.IConnectorServiceStatus;
 import com.buglabs.bug.swarm.connector.ui.ConfigInitRunnable;
 import com.buglabs.bug.swarm.connector.ui.SwarmConfigKeys;
@@ -123,7 +123,15 @@ public class Activator implements BundleActivator, ManagedService, IConnectorSer
 		// Swarm client being started.
 		if (Configuration.isValid(config) && connector == null) {
 			log.log(LogService.LOG_DEBUG, this.getClass().getSimpleName() + " starting connector.");
-			Configuration nc = new Configuration(config);
+			Configuration nc = new Configuration(
+					config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE_ID).toString(),
+					config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER).toString(),
+					config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY).toString(),
+					config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY).toString(),
+					config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME).toString(),
+					Integer.parseInt(config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_HTTP_PORT).toString()),
+					Integer.parseInt(config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_XMPP_PORT).toString())
+					);
 			log.log(LogService.LOG_DEBUG, this.getClass().getSimpleName() + " connector configuration: " + nc);
 			connector = new BUGSwarmConnector(context, nc);
 			connector.start();
@@ -143,17 +151,6 @@ public class Activator implements BundleActivator, ManagedService, IConnectorSer
 			state = "active";		
 		log.log(LogService.LOG_WARNING, this.getClass().getSimpleName() + " configuration changed but no action performed.  Connector is " + state);
 		log.log(LogService.LOG_DEBUG, "Config: " + config.toString());
-	}
-
-	/**
-	 * @param defaultValue Default value if undefined.
-	 * @return Hostname property as defined as a OSGi property, or defaultValue if
-	 *         undefined.
-	 *         
-	 */
-	public static Object getBundleContextProperty(String key, Object defaultValue) {
-		Object property = context.getProperty(key);
-		return property == null ? defaultValue : property;
 	}
 
 	/**

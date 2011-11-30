@@ -43,8 +43,8 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.osgi.service.log.LogService;
 
-import com.buglabs.bug.swarm.connector.Configuration;
-import com.buglabs.bug.swarm.connector.Configuration.Protocol;
+import com.buglabs.bug.swarm.client.model.Configuration;
+import com.buglabs.bug.swarm.client.model.Configuration.Protocol;
 import com.buglabs.bug.swarm.connector.model.Jid;
 import com.buglabs.bug.swarm.connector.osgi.Activator;
 

@@ -1,11 +1,10 @@
-package com.buglabs.bug.swarm.connector;
+package com.buglabs.bug.swarm.client.model;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Random;
 
-import com.buglabs.bug.swarm.connector.osgi.Activator;
-import com.buglabs.bug.swarm.connector.ui.SwarmConfigKeys;
+import com.buglabs.bug.swarm.client.test.SwarmConfigKeys;
 
 /**
  * Convenience class to capture the configuration of a swarm connection.
@@ -74,23 +73,6 @@ public class Configuration {
 		
 		if (resourceId != null)
 			config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE_ID, resourceId);
-	}
-
-	/**
-	 * @param config
-	 *            pre-loaded Configuration
-	 */
-	public Configuration(final Dictionary<String, Object> config) {
-		this.config = config;
-
-		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, 
-				Activator.getBundleContextProperty(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, DEFAULT_HOSTNAME));
-		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_HTTP_PORT, Activator.
-				getBundleContextProperty(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_HTTP_PORT, DEFAULT_HTTP_SERVER_PORT));
-		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_XMPP_PORT, Activator.
-				getBundleContextProperty(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_XMPP_PORT, DEFAULT_XMPP_SERVER_PORT));
-		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_DEVICE_LABEL, Activator.
-				getBundleContextProperty(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_DEVICE_LABEL, DEFAULT_DEVICE_LABEL));
 	}
 
 	/**

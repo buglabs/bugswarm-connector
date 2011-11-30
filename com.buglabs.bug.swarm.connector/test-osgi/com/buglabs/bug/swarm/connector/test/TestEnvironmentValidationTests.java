@@ -36,7 +36,7 @@ import com.buglabs.bug.swarm.connector.ui.SwarmConfigKeys;
  * @author kgilmer
  * 
  */
-public class T3stEnvironmentValidationT3sts extends TestCase {
+public class TestEnvironmentValidationTests extends TestCase {
 
 	
 	private boolean presenceRecieved;

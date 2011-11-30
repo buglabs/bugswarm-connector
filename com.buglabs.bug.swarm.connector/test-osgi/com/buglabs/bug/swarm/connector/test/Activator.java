@@ -29,7 +29,7 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 		this.context = context;
 		regs = new ArrayList<ServiceRegistration>();
-		regs.add(context.registerService(TestSuite.class.getName(), new TestSuite(T3stEnvironmentValidationT3sts.class), null));
+		regs.add(context.registerService(TestSuite.class.getName(), new TestSuite(TestEnvironmentValidationTests.class), null));
 		
 		System.out.println(this.getClass().getName() + " added " + regs.size() + " suites for OSGi testing.");
 	}

@@ -18,7 +18,7 @@ import com.buglabs.bug.swarm.connector.Configuration.Protocol;
  * @author kgilmer
  * 
  */
-public class BUGSwarmConnectorFeedT3sts extends TestCase {
+public class BUGSwarmConnectorFeedTests extends TestCase {
 	
 	/**
 	 * As of 0.3 (?) the feed api has been removed, and there is

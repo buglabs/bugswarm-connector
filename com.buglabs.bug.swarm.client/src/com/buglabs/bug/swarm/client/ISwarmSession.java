@@ -55,6 +55,23 @@ public interface ISwarmSession {
 	void request(String feedName) throws IOException;
 	
 	/**
+	 * Request a specific feed from a swarm, updates sent upon interval (seconds).
+	 * 
+	 * @param feedName name of feed
+	 * @param interval send feed every <> seconds
+	 * @throws IOException on I/O error
+	 */
+	void request(String feedName, int interval) throws IOException;
+	
+	/**
+	 * Cancel a previous request that had an interval set.
+	 * 
+	 * @param feedName name of feed
+	 * @throws IOException on I/O error
+	 */
+	void cancelRequest(String feedName) throws IOException;
+	
+	/**
 	 * Join an existing swarm with an existing resource.
 	 * @param swarmId
 	 * @param resourceId

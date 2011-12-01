@@ -181,7 +181,9 @@ public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
 
 	@Override
 	public void send(Map<String, ?> payload) throws IOException {					
-		writeOut(mapper.writeValueAsString(createPayloadMap(resourceId, payload)));		
+		writeOut(
+				mapper.writeValueAsString(
+						createPayloadMap(resourceId, payload)));		
 	}
 
 
@@ -238,6 +240,33 @@ public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
 		
 		map.put("message", toMap("payload", payload));
 		map.put("from", toMap("resource", resourceId));
+		
+		return map;
+	}
+	
+	/**
+	 * Generate a feed request message.
+	 * 
+	 * @param feedName name of feed
+	 * @param interval interval in seconds of update, 0 for no recurring updates.
+	 * @param cancel if previous request should be cancelled
+	 * @return map of request
+	 */
+	private Map<String, Object> createFeedRequestMap(String feedName, int interval, boolean cancel) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		map.put("type", "get");
+		map.put("feed", feedName);
+		
+		Map<String, Object> params = new HashMap<String, Object>();
+		map.put("parameters", params);
+		
+		
+		if (interval > 0)
+			map.put("frequency", interval);
+		
+		if (cancel)
+			map.put("status", "off");
 		
 		return map;
 	}
@@ -306,7 +335,6 @@ public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
 	
 	@Override
 	public boolean isConnected() {
-		//TODO: Fix the connected state such that if the reader disconnects, it is rebound until the client explicitly closes the connection.
 		return readerThread != null && socket != null && readerThread.isRunning() && socket.isConnected();
 	}
 
@@ -334,7 +362,24 @@ public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
 
 	@Override
 	public void request(String feedName) throws IOException {
-		// TODO Implement
-		throw new RuntimeException("Unimplemented");
+		writeOut(
+				mapper.writeValueAsString(
+						createFeedRequestMap(feedName, 0, false)));		
+	}
+
+
+	@Override
+	public void request(String feedName, int interval) throws IOException {
+		writeOut(
+				mapper.writeValueAsString(
+						createFeedRequestMap(feedName, interval, false)));		
+	}
+
+
+	@Override
+	public void cancelRequest(String feedName) throws IOException {
+		writeOut(
+				mapper.writeValueAsString(
+						createFeedRequestMap(feedName, 0, true)));		
 	}
 }

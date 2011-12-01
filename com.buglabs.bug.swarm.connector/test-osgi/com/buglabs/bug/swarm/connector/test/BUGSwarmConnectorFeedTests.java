@@ -27,12 +27,16 @@ import com.buglabs.bug.swarm.connector.osgi.Activator;
  */
 public class BUGSwarmConnectorFeedTests extends TwoParticipantsOneSwarmTestCase {
 	
+	private static final String TEST_FEED_NAME = "test-feed";
+
 	/**
 	 * Test that connector/producer can create a feed and the consumer receives notification of the new feed.
+	 * 
 	 * @throws IOException 
 	 * @throws UnknownHostException 
+	 * @throws InterruptedException 
 	 */
-	public void testConsumerReceivesNewFeedAnnouncement() throws UnknownHostException, IOException {
+	public void testConsumerReceivesNewFeedAnnouncement() throws UnknownHostException, IOException, InterruptedException {
 		Configuration c1 = AccountConfig.getConfiguration();
 		Configuration c2 = AccountConfig.getConfiguration2();
 		
@@ -41,7 +45,8 @@ public class BUGSwarmConnectorFeedTests extends TwoParticipantsOneSwarmTestCase 
 				c1.getHostname(Protocol.HTTP), c1.getParticipationAPIKey(), AccountConfig.testUserResource2.getResourceId(), AccountConfig.testSwarmId);
 		
 		assertNotNull(session);
-		session.addListener(new TestListener());
+		TestListener testListener = new TestListener();
+		session.addListener(testListener);
 		
 		//Create new feed
 		Map<String, Object> feed = new HashMap<String, Object>();
@@ -53,7 +58,11 @@ public class BUGSwarmConnectorFeedTests extends TwoParticipantsOneSwarmTestCase 
 		ServiceRegistration sr = context.registerService(Map.class.getName(), feed, getServiceProperties());
 		
 		//Request feed
-		//session.
+		session.request(TEST_FEED_NAME);
+		
+		//Check that message recieved
+		Thread.sleep(1000);
+		assertTrue(testListener.getMessage());
 		
 		//Cleanup
 		sr.unregister();
@@ -62,7 +71,7 @@ public class BUGSwarmConnectorFeedTests extends TwoParticipantsOneSwarmTestCase 
 	private Dictionary getServiceProperties() {
 		Dictionary d = new Hashtable();
 		
-		d.put("SWARM.FEED.NAME", "test-feed");
+		d.put("SWARM.FEED.NAME", TEST_FEED_NAME);
 		d.put("SWARM.FEED.TIMESTAMP", System.currentTimeMillis());
 		
 		return d;
@@ -80,6 +89,7 @@ public class BUGSwarmConnectorFeedTests extends TwoParticipantsOneSwarmTestCase 
 	private class TestListener implements ISwarmStringMessageListener {
 		private boolean presence = false;
 		private boolean exception = false;
+		private boolean message = false;
 		
 		@Override
 		public void presenceEvent(String fromSwarm, String fromResource, boolean isAvailable) {
@@ -98,10 +108,14 @@ public class BUGSwarmConnectorFeedTests extends TwoParticipantsOneSwarmTestCase 
 		public boolean getException() {
 			return exception;
 		}
+		
+		public boolean getMessage() {
+			return message;
+		}
 
 		@Override
 		public void messageRecieved(String payload, String fromSwarm, String fromResource, boolean isPublic) {
-			
+			message  = true;
 		}
 	}
 }

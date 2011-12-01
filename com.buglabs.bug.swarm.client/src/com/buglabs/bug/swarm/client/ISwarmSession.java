@@ -14,29 +14,45 @@ import java.util.Map;
  *
  */
 public interface ISwarmSession {
+	
+	/**
+	 * The type of session.  See http://developer.bugswarm.net/participation_api.html.
+	 *
+	 */
+	public enum SessionType {
+		CONSUMPTION, PRODUCTION;
+	}
 
 	/**
 	 * Send a payload to all member swarms.
-	 * @param payload
-	 * @throws IOException
+	 * @param payload message payload
+	 * @throws IOException on I/O error
 	 */
 	void send(Map<String, ?> payload) throws IOException;
 	
 	/**
 	 * Send a payload to specific swarms.
-	 * @param payload
-	 * @param swarmIds
-	 * @throws IOException
+	 * @param payload message payload 
+	 * @param swarmIds set of swarm ids
+	 * @throws IOException on I/O error
 	 */
 	void send(Map<String, ?> payload, String ... swarmIds) throws IOException;
 	
 	/**
 	 * Send a payload to specific resources associated with specific swarms.
-	 * @param payload
-	 * @param swarmAndResource
-	 * @throws IOException
+	 * @param payload message payload
+	 * @param swarmAndResource set of swarm/resource pairs
+	 * @throws IOException on I/O error
 	 */
 	void send(Map<String, ?> payload, List<Map.Entry<String, String>> swarmAndResource) throws IOException;
+	
+	/**
+	 * Request a specific feed from a swarm.
+	 * 
+	 * @param feedName name of feed 
+	 * @throws IOException on I/O error
+	 */
+	void request(String feedName) throws IOException;
 	
 	/**
 	 * Join an existing swarm with an existing resource.
@@ -49,13 +65,13 @@ public interface ISwarmSession {
 	/**
 	 * Listen to events from swarm server.
 	 * 
-	 * @param listener
+	 * @param listener listener
 	 */
 	void addListener(ISwarmMessageListener listener);
 	
 	/**
 	 * Remove listener.
-	 * @param listener
+	 * @param listener listener
 	 */
 	void removeListener(ISwarmMessageListener listener);
 	
@@ -64,5 +80,8 @@ public interface ISwarmSession {
 	 */
 	boolean isConnected();
 	
+	/**
+	 * Close the session.
+	 */
 	void close();
 }

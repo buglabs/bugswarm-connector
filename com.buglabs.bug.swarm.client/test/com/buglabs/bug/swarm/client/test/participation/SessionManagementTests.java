@@ -68,7 +68,7 @@ public class SessionManagementTests extends TestCase {
 		assertNotNull(AccountConfig.testUserResource.getResourceId());
 		assertNotNull(AccountConfig.testSwarmId);
 		
-		ISwarmSession session = SwarmClientFactory.createSwarmSession(
+		ISwarmSession session = SwarmClientFactory.createProductionSession(
 				AccountConfig.getConfiguration().getHostname(Configuration.Protocol.HTTP),
 				AccountConfig.getConfiguration().getParticipationAPIKey(),
 				AccountConfig.testUserResource.getResourceId(), 
@@ -105,7 +105,7 @@ public class SessionManagementTests extends TestCase {
 		assertNotNull(AccountConfig.testUserResource.getResourceId());
 		assertNotNull(AccountConfig.testSwarmId);
 		
-		ISwarmSession session = SwarmClientFactory.createSwarmSession(
+		ISwarmSession session = SwarmClientFactory.createProductionSession(
 				AccountConfig.getConfiguration().getHostname(Configuration.Protocol.HTTP),
 				AccountConfig.getConfiguration().getParticipationAPIKey(),
 				AccountConfig.testUserResource.getResourceId(), 

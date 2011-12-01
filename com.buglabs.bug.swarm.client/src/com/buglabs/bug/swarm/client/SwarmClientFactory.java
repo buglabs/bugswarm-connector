@@ -3,6 +3,7 @@ package com.buglabs.bug.swarm.client;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
+import com.buglabs.bug.swarm.client.ISwarmSession.SessionType;
 import com.buglabs.bug.swarm.client.impl.SwarmKeysWSClient;
 import com.buglabs.bug.swarm.client.impl.SwarmSessionImp;
 import com.buglabs.bug.swarm.client.impl.SwarmWSClient;
@@ -45,7 +46,7 @@ public class SwarmClientFactory {
 	}
 	
 	/**
-	 * Create a session with a swarm server.  This session allows for participation (presence, messages) among swarm clients.
+	 * Create a production session with a swarm server.  This session allows for participation (presence, messages) among swarm clients.
 	 * 
 	 * @param hostname of swarm server
 	 * @param apiKey of user
@@ -55,7 +56,28 @@ public class SwarmClientFactory {
 	 * @throws UnknownHostException if unable to resolve hostname
 	 * @throws IOException on I/O error
 	 */
-	public static ISwarmSession createSwarmSession(String hostname, String apiKey, String resourceId, String ... swarmIds) throws UnknownHostException, IOException {
+	public static ISwarmSession createProductionSession(String hostname, String apiKey, String resourceId, String ... swarmIds) throws UnknownHostException, IOException {
+		
+		return createSession(hostname, SessionType.PRODUCTION, apiKey, resourceId, swarmIds);
+	}
+	
+	/**
+	 * Create a consumption session with a swarm server.  This session allows for participation (presence, messages) among swarm clients.
+	 * 
+	 * @param hostname of swarm server
+	 * @param apiKey of user
+	 * @param resourceId associated with session
+	 * @param swarmIds swarms to connect with
+	 * @return a swarm session
+	 * @throws UnknownHostException if unable to resolve hostname
+	 * @throws IOException on I/O error
+	 */
+	public static ISwarmSession createConsumptionSession(String hostname, String apiKey, String resourceId, String ... swarmIds) throws UnknownHostException, IOException {
+		
+		return createSession(hostname, SessionType.CONSUMPTION, apiKey, resourceId, swarmIds);
+	}
+	
+	private static ISwarmSession createSession(String hostname, SessionType type, String apiKey, String resourceId, String ... swarmIds) throws UnknownHostException, IOException {
 		if (hostname.toLowerCase().startsWith("http://"))
 			hostname = hostname.substring("http://".length());
 		
@@ -65,7 +87,7 @@ public class SwarmClientFactory {
 			port = Integer.parseInt(hostname.split(":")[1]);
 			hostname = hostname.split(":")[0];
 		}
-		return new SwarmSessionImp(hostname, port, apiKey, resourceId, swarmIds);
+		return new SwarmSessionImp(hostname, type, port, apiKey, resourceId, swarmIds);
 	}
 
 	/**

@@ -35,7 +35,8 @@ public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
 	private final static ObjectMapper mapper = new ObjectMapper();
 	private final String[] swarmIds;
 	private final String resourceId;
-	private final int port;	
+	private final int port;
+	private final SessionType type;	
 
 	/**
 	 * @param hostname host of server
@@ -46,8 +47,9 @@ public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
 	 * @throws UnknownHostException on host resolution error
 	 * @throws IOException on I/O error
 	 */
-	public SwarmSessionImp(String hostname, int port, String apiKey, String resourceId, String ... swarmIds) throws UnknownHostException, IOException {		
+	public SwarmSessionImp(String hostname, ISwarmSession.SessionType type, int port, String apiKey, String resourceId, String ... swarmIds) throws UnknownHostException, IOException {		
 		this.hostname = hostname;
+		this.type = type;
 		this.port = port;
 		this.apiKey = apiKey;
 		this.resourceId = resourceId;
@@ -83,7 +85,12 @@ public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
 	 */
 	private void sendHeader() throws IOException {
 		StringBuilder header = new StringBuilder();
-		header.append("POST ");
+		
+		if (type == SessionType.PRODUCTION)
+			header.append("POST ");
+		else
+			header.append("GET ");
+		
 		header.append(createStreamUrl());
 		header.append(" HTTP/1.1").append(CRLF);
 		header.append("Host: ");
@@ -322,5 +329,12 @@ public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
 				e.printStackTrace();
 			}
 		}		
+	}
+
+
+	@Override
+	public void request(String feedName) throws IOException {
+		// TODO Implement
+		throw new RuntimeException("Unimplemented");
 	}
 }

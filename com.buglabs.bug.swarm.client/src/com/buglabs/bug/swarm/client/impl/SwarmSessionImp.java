@@ -40,6 +40,7 @@ public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
 
 	/**
 	 * @param hostname host of server
+	 * @param type type of session to create
 	 * @param port port on server 
 	 * @param apiKey api key
 	 * @param resourceId resource id

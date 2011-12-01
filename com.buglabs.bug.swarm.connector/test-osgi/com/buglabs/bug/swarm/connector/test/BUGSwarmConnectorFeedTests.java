@@ -1,16 +1,23 @@
 package com.buglabs.bug.swarm.connector.test;
 
-import java.util.List;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Random;
 
-import junit.framework.TestCase;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 
-import com.buglabs.bug.swarm.client.ISwarmClient;
-import com.buglabs.bug.swarm.client.ISwarmResourcesClient.MemberType;
+import com.buglabs.bug.swarm.client.ISwarmSession;
+import com.buglabs.bug.swarm.client.ISwarmStringMessageListener;
 import com.buglabs.bug.swarm.client.SwarmClientFactory;
-import com.buglabs.bug.swarm.client.SwarmWSResponse;
+import com.buglabs.bug.swarm.client.model.Configuration;
 import com.buglabs.bug.swarm.client.model.Configuration.Protocol;
-import com.buglabs.bug.swarm.client.model.SwarmModel;
-import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
+import com.buglabs.bug.swarm.connector.osgi.Activator;
+
 
 /**
  * Tests the high-level BUGSwarmConnector class in regards to feeds.
@@ -18,327 +25,83 @@ import com.buglabs.bug.swarm.connector.BUGSwarmConnector;
  * @author kgilmer
  * 
  */
-public class BUGSwarmConnectorFeedTests extends TestCase {
+public class BUGSwarmConnectorFeedTests extends TwoParticipantsOneSwarmTestCase {
 	
 	/**
-	 * As of 0.3 (?) the feed api has been removed, and there is
-	 * nothing currently to replace it.  Since unable to query 
-	 * feeds am removing these tests.
-	 * 
-	 * TODO: When/if there is a way to access feeds via an API the tests
-	 * should be changed to use that new API.
+	 * Test that connector/producer can create a feed and the consumer receives notification of the new feed.
+	 * @throws IOException 
+	 * @throws UnknownHostException 
 	 */
-	@Override
-	protected void setUp() throws Exception {
-		System.out.println("setUp()");
-		ISwarmClient c =  SwarmClientFactory.getSwarmClient(
-				AccountConfig.getConfiguration().getHostname(Protocol.HTTP), 
-				AccountConfig.getConfiguration().getConfingurationAPIKey());
+	public void testConsumerReceivesNewFeedAnnouncement() throws UnknownHostException, IOException {
+		Configuration c1 = AccountConfig.getConfiguration();
+		Configuration c2 = AccountConfig.getConfiguration2();
 		
+		//Listen to swarm
+		ISwarmSession session = SwarmClientFactory.createConsumptionSession(
+				c1.getHostname(Protocol.HTTP), c1.getParticipationAPIKey(), AccountConfig.testUserResource2.getResourceId(), AccountConfig.testSwarmId);
+		
+		assertNotNull(session);
+		session.addListener(new TestListener());
+		
+		//Create new feed
+		Map<String, Object> feed = new HashMap<String, Object>();
+		loadRandomValues(feed);
+				
+		//Register feed
+		BundleContext context = Activator.getContext();
+		assertNotNull(context);
+		ServiceRegistration sr = context.registerService(Map.class.getName(), feed, getServiceProperties());
+		
+		//Request feed
+		//session.
+		
+		//Cleanup
+		sr.unregister();
+	}
 	
-		List<SwarmModel> swarms = c.list();
-
-		for (SwarmModel sm : swarms) {
-			if (sm.getUserId().equals(AccountConfig.getConfiguration().getUsername())) {
-				c.destroy(sm.getId());
-			}
-		}
-	
-		AccountConfig.testSwarmId = c.create(AccountConfig.generateRandomSwarmName(), false, "A test swarm.");
-
-		SwarmWSResponse response = c.getSwarmResourceClient().add(
-				AccountConfig.testSwarmId, 
-				MemberType.PRODUCER,
-				AccountConfig.getConfiguration().getResource());
-		assertFalse(response.isError());
-		// Resource 'web' is required so that http streaming will work
-		response = c.getSwarmResourceClient().add(
-				AccountConfig.testSwarmId, 
-				MemberType.CONSUMER, 
-				"web");
-		assertFalse(response.isError());
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		System.out.println("tearDown()");
-		ISwarmClient c =  SwarmClientFactory.getSwarmClient(
-				AccountConfig.getConfiguration().getHostname(Protocol.HTTP), 
-				AccountConfig.getConfiguration().getConfingurationAPIKey());
+	private Dictionary getServiceProperties() {
+		Dictionary d = new Hashtable();
 		
-		SwarmWSResponse response = c.destroy(AccountConfig.testSwarmId);
-		assertFalse(response.isError());
-	}
-
-	/*
-	 * Test initializing the connector.  
-	 * @throws InterruptedException
-	 */
-	public void testInitializeConnector() throws InterruptedException {
-		BUGSwarmConnector connector = new BUGSwarmConnector(Activator.getDefault().getContext(), AccountConfig.getConfiguration());
-
-		connector.start();
-		Thread.sleep(AccountConfig.CONNECTOR_INIT_SLEEP_MILLIS);
-
-		assertTrue(connector.isInitialized());
-
-		connector.interrupt();
-		connector.shutdown();
-
-		Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
-	}
- /*
-	*//**
-	 * https://github.com/buglabs/bugswarm/wiki/Swarm-Feeds-API.
-	 * 
-	 * Test 'Querying available Feeds in a Swarm'
-	 * 
-	 * @throws IOException on I/O error
-	 * @throws InterruptedException if interrupted
-	 *//*
-	public void testGetFeedsGlobal() throws IOException, InterruptedException {
-		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
-
-		// Start the connector
-		connector.start();
-
-		// Wait for the feeds to initialize
-		Thread.sleep(AccountConfig.CONNECTOR_INIT_SLEEP_MILLIS);
-
-		HTTPRequest request = new HTTPRequest();
-		Map<String, String> headers = new HashMap<String, String>();
-		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getConfingurationAPIKey());
-
-		HTTPResponse response = request.get(AccountConfig.getConfiguration().getHostname(Protocol.HTTP) 
-				+ "/swarms/" + AccountConfig.testSwarmId + "/feeds?stream=true", headers);
+		d.put("SWARM.FEED.NAME", "test-feed");
+		d.put("SWARM.FEED.TIMESTAMP", System.currentTimeMillis());
 		
-		StreamScanner scanner = new StreamScanner(response.getStream());
-		scanner.start();
-
-		Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
-
-		assertTrue(scanner.hasInputBeenRecieved());
-
-		for (String r : scanner.getResponses()) {
-			Object o = JSONValue.parse(r);
-
-			assertNotNull(o);
-			assertTrue(o instanceof JSONObject);
-
-			JSONObject ja = (JSONObject) o;
-
-			assertFalse(ja.isEmpty());
-		}
-
-		scanner.interrupt();
-		connector.interrupt();
-		connector.shutdown();
+		return d;
 	}
 
-	*//**
-	 * https://github.com/buglabs/bugswarm/wiki/Swarm-Feeds-API.
-	 * 
-	 * Test 'Querying available Feeds in a Swarm Resource'
-	 * 
-	 * @throws IOException
-	 * @throws InterruptedException
-	 *//*
-	public void testGetFeedsResource() throws IOException, InterruptedException {
-		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
-
-		// Start the connector
-		connector.start();
-
-		// Wait for the feeds to initialize
-		Thread.sleep(AccountConfig.CONNECTOR_INIT_SLEEP_MILLIS);
-
-		HTTPRequest request = new HTTPRequest();
-		Map<String, String> headers = new HashMap<String, String>();
-		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getConfingurationAPIKey());
-
-		HTTPResponse response = request.get(AccountConfig.getConfiguration().getHostname(Protocol.HTTP) + "/swarms/" + AccountConfig.testSwarmId + "/resources/"
-				+ AccountConfig.getConfiguration().getResource() + "/feeds?stream=true", headers);
-
-		StreamScanner scanner = new StreamScanner(response.getStream());
-		scanner.start();
-
-		Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
-
-		assertTrue(scanner.hasInputBeenRecieved());
-
-		for (String r : scanner.getResponses()) {
-			Object o = JSONValue.parse(r);
-
-			assertNotNull(o);
-			assertTrue(o instanceof JSONObject);
-
-			JSONObject ja = (JSONObject) o;
-
-			assertFalse(ja.isEmpty());
-		}
-
-		scanner.interrupt();
-		connector.interrupt();
-		connector.shutdown();
+	private void loadRandomValues(Map<String, Object> feed) {
+		Random r = new Random();
+		
+		int l = r.nextInt(50) + 50;
+		
+		for (int i = 0; i < l; ++i)
+			feed.put("key-" + i, r.nextDouble());
 	}
 
-	*//**
-	 * https://github.com/buglabs/bugswarm/wiki/Swarm-Feeds-API
-	 * 
-	 * Test 'Querying a Swarm Feed'
-	 * 
-	 * @throws IOException
-	 * @throws InterruptedException
-	 *//*
-	public void testGetSpecificFeed() throws IOException, InterruptedException {
-		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
-
-		// Start the connector
-		connector.start();
-
-		// Wait for the feeds to initialize
-		Thread.sleep(AccountConfig.CONNECTOR_INIT_SLEEP_MILLIS);
-
-		HTTPRequest request = new HTTPRequest();
-		Map<String, String> headers = new HashMap<String, String>();
-		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getConfingurationAPIKey());
-
-		HTTPResponse response = request.get(AccountConfig.getConfiguration().getHostname(Protocol.HTTP) + 
-				"/swarms/" + AccountConfig.testSwarmId + "/resources/"
-				+ AccountConfig.getConfiguration().getResource() + "/feeds?stream=true", headers);
-
-		StreamScanner scanner = new StreamScanner(response.getStream());
-		scanner.start();
-
-		Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
-
-		assertTrue(scanner.hasInputBeenRecieved());
-		int responseCount = 0;
-		for (String r : scanner.getResponses()) {
-			responseCount++;
-			Object o = JSONValue.parse(r);
-
-			assertNotNull(o);
-			assertTrue(o instanceof JSONObject);
-
-			JSONObject ja = (JSONObject) o;
-
-			assertFalse(ja.isEmpty());
-			assertTrue(ja.containsKey("payload"));
-
-			Object payloadObject = ja.get("payload");
-
-			assertTrue(payloadObject instanceof JSONArray);
-
-			JSONArray payloadArray = (JSONArray) payloadObject;
-
-			// For each key, which is a feed, query the actual feed.
-			for (Object key : payloadArray) {
-				assertTrue(key instanceof JSONObject);
-				JSONObject jo = (JSONObject) key;
-
-				for (Object rk : jo.keySet()) {
-					String url = AccountConfig.getConfiguration().getHostname(Protocol.HTTP) 
-					+ "/swarms/" + AccountConfig.testSwarmId + "/feeds/" + rk;
-					
-					System.out.println("Get data for feed " + rk + " to " + url);
-
-					HTTPResponse response2 = request.get(url, headers);
-					
-					StreamScanner scanner2 = new StreamScanner(response2.getStream());
-					scanner2.start();
-
-					Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
-
-					assertTrue(scanner2.hasInputBeenRecieved());		
-					scanner2.interrupt();
-				}
-			}
+	private class TestListener implements ISwarmStringMessageListener {
+		private boolean presence = false;
+		private boolean exception = false;
+		
+		@Override
+		public void presenceEvent(String fromSwarm, String fromResource, boolean isAvailable) {
+			presence = true;
 		}
 
-		assertTrue(responseCount > 0);
-		scanner.interrupt();
-		connector.interrupt();
-		connector.shutdown();
-	}
-
-	*//**
-	 * https://github.com/buglabs/bugswarm/wiki/Swarm-Feeds-API
-	 * 
-	 * Test 'Querying a feed from a specific Swarm Resource of type producer'
-	 * 
-	 * @throws IOException
-	 * @throws InterruptedException
-	 *//*
-	public void testGetSpecificFeedFromResource() throws IOException, InterruptedException {
-		BUGSwarmConnector connector = new BUGSwarmConnector(AccountConfig.getConfiguration());
-
-		// Start the connector
-		connector.start();
-
-		// Wait for the feeds to initialize
-		Thread.sleep(AccountConfig.CONNECTOR_INIT_SLEEP_MILLIS);
-
-		HTTPRequest request = new HTTPRequest();
-		Map<String, String> headers = new HashMap<String, String>();
-		headers.put("X-BugSwarmApiKey", AccountConfig.getConfiguration().getConfingurationAPIKey());
-
-		HTTPResponse response = request.get(AccountConfig.getConfiguration().getHostname(Protocol.HTTP) + "/swarms/" + AccountConfig.testSwarmId + "/resources/"
-				+ AccountConfig.getConfiguration().getResource() + "/feeds?stream=true", headers);
-
-		StreamScanner scanner = new StreamScanner(response.getStream());
-		scanner.start();
-
-		Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
-
-		assertTrue(scanner.hasInputBeenRecieved());
-
-		for (String r : scanner.getResponses()) {
-			Object o = JSONValue.parse(r);
-
-			assertNotNull(o);
-			assertTrue(o instanceof JSONObject);
-
-			JSONObject ja = (JSONObject) o;
-
-			assertFalse(ja.isEmpty());
-			assertTrue(ja.containsKey("payload"));
-
-			Object payloadObject = ja.get("payload");
-
-			assertTrue(payloadObject instanceof JSONArray);
-
-			JSONArray payloadArray = (JSONArray) payloadObject;
-
-			// For each key, which is a feed, query the actual feed.
-			for (Object key : payloadArray) {
-				assertTrue(key instanceof JSONObject);
-				JSONObject jo = (JSONObject) key;
-
-				for (Object rk : jo.keySet()) {
-					String url = 
-						AccountConfig.getConfiguration().getHostname(Protocol.HTTP)
-						+ "/swarms/" + AccountConfig.testSwarmId + "/resources/" 
-						+ AccountConfig.getConfiguration().getResource() +  "/feeds/" + rk;
-					
-					System.out.println("Get data for feed " + rk + " sending to " + url);
-
-					HTTPResponse response2 = request.get(url,
-							headers);
-
-					StreamScanner scanner2 = new StreamScanner(response2.getStream());
-					scanner2.start();
-
-					Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
-
-					assertTrue(scanner2.hasInputBeenRecieved());
-					scanner2.interrupt();
-				}
-			}
+		@Override
+		public void exceptionOccurred(ExceptionType type, String message) {
+			exception = true;
+		}
+		
+		public boolean getPresence() {
+			return presence;
+		}
+		
+		public boolean getException() {
+			return exception;
 		}
 
-		scanner.interrupt();
-		connector.interrupt();
-		connector.shutdown();
+		@Override
+		public void messageRecieved(String payload, String fromSwarm, String fromResource, boolean isPublic) {
+			
+		}
 	}
-*/}
+}

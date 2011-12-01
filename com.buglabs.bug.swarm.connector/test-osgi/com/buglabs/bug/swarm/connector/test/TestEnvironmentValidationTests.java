@@ -147,7 +147,7 @@ public class TestEnvironmentValidationTests extends TestCase {
 		}
 			
 		
-		ISwarmSession psession = SwarmClientFactory.createSwarmSession(
+		ISwarmSession psession = SwarmClientFactory.createProductionSession(
 				c.getHostname(Protocol.HTTP), 
 				c.getParticipationAPIKey(), 
 				urm.getResourceId(), testSwarmId);
@@ -257,7 +257,7 @@ public class TestEnvironmentValidationTests extends TestCase {
 		
 		assertTrue(statusService.getStatus() == Status.INACTIVE);
 		
-		ISwarmSession psession = SwarmClientFactory.createSwarmSession(
+		ISwarmSession psession = SwarmClientFactory.createProductionSession(
 				c.getHostname(Protocol.HTTP), 
 				c.getParticipationAPIKey(), 
 				AccountConfig.testUserResource.getResourceId(), AccountConfig.testSwarmId);

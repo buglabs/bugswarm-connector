@@ -35,6 +35,12 @@ import com.buglabs.bug.swarm.client.model.UserResourceModel;
  * invite created and sent to connector_test2
  * invite accepted by connector_test2 as consumer
  * 
+ * After setUp() has been run, the configuration will be loaded with the following values:
+ * 
+ * AccountConfig.testSwarmId
+ * AccountConfig.testUserResource
+ * AccountConfig.testUserResource2
+ * 
  * @author kgilmer
  *
  */

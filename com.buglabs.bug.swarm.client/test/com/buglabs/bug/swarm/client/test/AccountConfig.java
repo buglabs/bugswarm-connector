@@ -74,7 +74,7 @@ public final class AccountConfig {
 						DEFAULT_HTTP_SERVER_PORT, 
 						DEFAULT_XMPP_SERVER_PORT);				
 			} catch (IOException e) {
-				throw new IllegalStateException("Unable to create API keys.");
+				throw new IllegalStateException("Unable to create API keys.", e);
 			}
 		}
 		

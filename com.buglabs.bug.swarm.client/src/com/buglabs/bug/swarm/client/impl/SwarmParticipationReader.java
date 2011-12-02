@@ -127,6 +127,8 @@ public class SwarmParticipationReader extends Thread {
 							} else if (listener instanceof ISwarmStringMessageListener) {
 								String payload = jmessage.get("message").get("payload").asText();
 								((ISwarmStringMessageListener)listener).messageRecieved(payload, swarmId, resourceId, isPublic);
+							} else if (listener instanceof SwarmSessionImp) {
+								//The session impl only listens for exceptions so it can re-establish the socket connection.  
 							} else {
 								throw new IllegalArgumentException("Listener " + listener.getClass().getName() + " is abstract.  Use a concrete listener");
 							}

@@ -30,8 +30,8 @@ public class Configuration {
 	private static final String HTTP_SCHEME = "HTTP://";
 	private static final String XMPP_PREFIX = "";
 	private static final String HTTP_PREFIX = "api.";	
-	private static final int DEFAULT_XMPP_SERVER_PORT = 5222;
-	private static final int DEFAULT_HTTP_SERVER_PORT = 80;
+	public static final int DEFAULT_XMPP_SERVER_PORT = 5222;
+	public static final int DEFAULT_HTTP_SERVER_PORT = 80;
 	private static final Random rnd = new Random();
 	private static final String DEFAULT_DEVICE_LABEL = "BUG-" + Integer.toHexString(rnd.nextInt());
 	
@@ -58,7 +58,7 @@ public class Configuration {
 	 * 
 	 */
 	public Configuration(final String resourceId, final String hostname, final String consumerApiKey, 
-			final String producerApiKey, final String username, final int httpPort, final int xmppPort) {
+			final String producerApiKey, final String username, final String deviceLabel, final int httpPort, final int xmppPort) {
 		if (hostname.contains("://"))
 			throw new IllegalArgumentException("Hostname must note include a scheme.");
 
@@ -70,6 +70,7 @@ public class Configuration {
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_ENABLED, Boolean.toString(true));
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_HTTP_PORT, httpPort);
 		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_XMPP_PORT, xmppPort);
+		config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_DEVICE_LABEL, deviceLabel);
 		
 		if (resourceId != null)
 			config.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE_ID, resourceId);
@@ -206,7 +207,8 @@ public class Configuration {
 		if (!hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_ENABLED)
 				|| !hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY)
 				|| !hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY)
-				|| !hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME))
+				|| !hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME)
+				|| !hasEntry(config, SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER))
 			return false;
 
 		if (!Boolean.parseBoolean(config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_ENABLED).toString()))

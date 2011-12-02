@@ -70,6 +70,7 @@ public final class AccountConfig {
 						configurationKey, 
 						participationKey, 
 						getUsernameProperty(),
+						"devicelabel",
 						DEFAULT_HTTP_SERVER_PORT, 
 						DEFAULT_XMPP_SERVER_PORT);				
 			} catch (IOException e) {
@@ -106,6 +107,7 @@ public final class AccountConfig {
 						getHostSystemProperty(), 
 						configurationKey, 
 						participationKey, 
+						"devicelabel2",
 						getUsernameProperty2(),
 						DEFAULT_HTTP_SERVER_PORT, 
 						DEFAULT_XMPP_SERVER_PORT);				

@@ -81,23 +81,23 @@ public abstract class TwoParticipantsOneSwarmTestCase extends TestCase {
 		assertTrue(invite.getStatus() == InvitationState.NEW);
 		
 		for (Invitation i : cclient2.getRecievedInvitations(user2resource.getResourceId()))
-			cclient1.respond(i.getResourceId(), i.getId(), InvitationResponse.ACCEPT);
+			cclient2.respond(i.getResourceId(), i.getId(), InvitationResponse.ACCEPT);
 		
 		//Validate that both users are members of test swarm.		
 		boolean creatorInSwarm = false;
 		for (SwarmModel sm : cclient1.listSwarms())
-			if (sm.getId() == testSwarm)
+			if (sm.getId().equals(testSwarm))
 				creatorInSwarm = true;
 		
 		boolean consumerInSwarm = false;
 		for (SwarmModel sm : cclient2.listSwarms())
-			if (sm.getId() == testSwarm)
+			if (sm.getId().equals(testSwarm))
 				consumerInSwarm = true;
 		
 		assertTrue(creatorInSwarm);
 		assertTrue(consumerInSwarm);
 	}
-
+	
 	/**
 	 * Delete all resources for given configurations.
 	 * @param configs

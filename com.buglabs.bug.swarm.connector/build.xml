@@ -7,7 +7,7 @@
 		<delete dir="${basedir}/build" />
 
 		<property name="dist.jar.name" value="${ant.project.name}-tests" />
-		<property name="manifest.location" location="${basedir}/test/MANIFEST.MF"/>
+		<property name="manifest.location" location="${basedir}/test-osgi/MANIFEST.MF"/>
 		<antcall target="build"></antcall>
 		<antcall target="document"></antcall>
 		<antcall target="build.jars"></antcall>

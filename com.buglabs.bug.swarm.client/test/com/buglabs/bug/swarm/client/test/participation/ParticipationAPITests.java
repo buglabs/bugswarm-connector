@@ -32,12 +32,12 @@ public class ParticipationAPITests extends TestCase {
 	
 	private static final String description = "invite test description";
 	
-	boolean psession1MessageRecieved = false;
-	boolean psession2MessageRecieved = false;
-	boolean psession1PresenceMessageRecieved = false;
-	boolean psession2PresenceMessageRecieved = false;
-	boolean psession1ExceptionRecieved = false;
-	boolean psession2ExceptionRecieved = false;
+	volatile boolean psession1MessageRecieved = false;
+	volatile boolean psession2MessageRecieved = false;
+	volatile boolean psession1PresenceMessageRecieved = false;
+	volatile boolean psession2PresenceMessageRecieved = false;
+	volatile boolean psession1ExceptionRecieved = false;
+	volatile boolean psession2ExceptionRecieved = false;
 
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
@@ -268,7 +268,7 @@ public class ParticipationAPITests extends TestCase {
 		psession2.join(AccountConfig.testSwarmId, AccountConfig.testUserResource2.getResourceId());
 		psession2.send(AccountConfig.generateRandomPayload());
 		
-		Thread.sleep(5000);
+		Thread.sleep(10000);
 		
 		assertTrue(psession1PresenceMessageRecieved);
 		//assertFalse(psession1MessageRecieved);

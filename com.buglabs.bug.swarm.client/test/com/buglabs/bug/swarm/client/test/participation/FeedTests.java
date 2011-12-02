@@ -42,14 +42,17 @@ public class FeedTests extends TwoParticipantsOneSwarmTestCase {
 		assertNotNull(produceClient);
 		assertNotNull(consumeClient);
 		
-		TestListener testListener = new TestListener();
-		consumeClient.addListener(testListener);
+		TestListener consumerListener = new TestListener();
+		consumeClient.addListener(consumerListener);
+		
+		TestListener producerListener = new TestListener();
+		produceClient.addListener(producerListener);
 		
 		produceClient.send(generateRandomPayload());
 		
 		Thread.sleep(1000);
 		
-		assertTrue(testListener.getMessage());
+		assertTrue(consumerListener.getMessage());
 		
 		produceClient.close();
 		consumeClient.close();
@@ -58,7 +61,7 @@ public class FeedTests extends TwoParticipantsOneSwarmTestCase {
 	private Map<String, ?> generateRandomPayload() {
 		Map<String, Object> m = new HashMap<String, Object>();
 		
-		int l = rnd.nextInt(50) + 50;
+		int l = rnd.nextInt(5) + 5;
 		
 		for (int i = 0; i < l; ++i)
 			m.put("key-" + i, rnd.nextDouble());

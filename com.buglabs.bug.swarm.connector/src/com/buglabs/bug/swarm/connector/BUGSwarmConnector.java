@@ -97,7 +97,7 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	/**
 	 * Timer that manages all the active streaming feeds.
 	 */
-	private final Timer timer = new Timer();
+	private Timer timer = new Timer();
 	
 	/**
 	 * A lock used to filter bursts of OSGi service events and only send the BUG message when events are finished.
@@ -242,6 +242,7 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 		
 		if (timer != null) {
 			timer.cancel();
+			timer = null;
 		}		
 			
 		if (xmppClient != null) {
@@ -538,7 +539,7 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 				// A lock is used to only send one event every LOCAL_CHANGE_DELAY_MILLIS to the server.  A TimerTask is used to update
 				// the swarm peers after the interval, and only one task is created within LOCAL_CHANGE_DELAY_MILLIS.
 				synchronized (localEventUpdate) {
-					if (!localEventUpdate) {
+					if (!localEventUpdate && timer != null) {
 						localEventUpdate = true;
 					
 						timer.schedule(new TimerTask() {

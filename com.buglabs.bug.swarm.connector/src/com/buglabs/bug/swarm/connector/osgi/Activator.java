@@ -123,14 +123,24 @@ public class Activator implements BundleActivator, ManagedService, IConnectorSer
 		// Swarm client being started.
 		if (Configuration.isValid(config) && connector == null) {
 			log.log(LogService.LOG_DEBUG, this.getClass().getSimpleName() + " starting connector.");
+			
+			int xmppPort = Configuration.DEFAULT_XMPP_SERVER_PORT;
+			if (config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_XMPP_PORT) != null)
+				xmppPort = Integer.parseInt(config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_XMPP_PORT).toString());
+			
+			int httpPort = Configuration.DEFAULT_HTTP_SERVER_PORT;
+			if (config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_HTTP_PORT) != null)
+				httpPort = Integer.parseInt(config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_HTTP_PORT).toString());
+			
 			Configuration nc = new Configuration(
-					config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE_ID).toString(),
-					config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER).toString(),
-					config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY).toString(),
-					config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY).toString(),
-					config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME).toString(),
-					Integer.parseInt(config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_HTTP_PORT).toString()),
-					Integer.parseInt(config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_XMPP_PORT).toString())
+					toStringOrNull(config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_RESOURCE_ID)),
+					toStringOrNull(config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER)),
+					toStringOrNull(config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY)),
+					toStringOrNull(config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY)),
+					toStringOrNull(config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME)),
+					toStringOrNull(config.get(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_DEVICE_LABEL)),
+					httpPort,
+					xmppPort
 					);
 			log.log(LogService.LOG_DEBUG, this.getClass().getSimpleName() + " connector configuration: " + nc);
 			connector = new BUGSwarmConnector(context, nc);
@@ -153,6 +163,12 @@ public class Activator implements BundleActivator, ManagedService, IConnectorSer
 		log.log(LogService.LOG_DEBUG, "Config: " + config.toString());
 	}
 
+	private static String toStringOrNull(Object in) {
+		if (in == null)
+			return null;
+		
+		return in.toString();
+	}
 	/**
 	 * Calling .equals on these with identical kvps returns false. Doing it the
 	 * hard way.

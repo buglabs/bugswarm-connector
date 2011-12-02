@@ -205,10 +205,13 @@ public class TestEnvironmentValidationTests extends TestCase {
 		
 		Dictionary d = config.getProperties();
 		
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_SERVER, AccountConfig.getConfiguration().getHostname(Protocol.XMPP));
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_USERNAME, AccountConfig.getConfiguration().getUsername());
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_PARTICIPATION_APIKEY, AccountConfig.getConfiguration().getParticipationAPIKey());
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_CONFIGURATION_APIKEY, AccountConfig.getConfiguration().getConfingurationAPIKey());
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_DEVICE_LABEL, AccountConfig.generateRandomResourceName());
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_XMPP_PORT, AccountConfig.getConfiguration().getXMPPPort());
+		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_HTTP_PORT, AccountConfig.getConfiguration().getHTTPPort());
 		d.put(SwarmConfigKeys.CONFIG_KEY_BUGSWARM_ENABLED, Boolean.toString(true));
 		
 		IConnectorServiceStatus statusService = (IConnectorServiceStatus) OSGiUtil.getServiceInstance(context, IConnectorServiceStatus.class.getName());

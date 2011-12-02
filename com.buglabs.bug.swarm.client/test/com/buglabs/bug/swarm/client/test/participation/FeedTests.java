@@ -27,8 +27,9 @@ public class FeedTests extends TwoParticipantsOneSwarmTestCase {
 	 * 
 	 * @throws UnknownHostException
 	 * @throws IOException
+	 * @throws InterruptedException 
 	 */
-	public void testFeedSendReceive() throws UnknownHostException, IOException {
+	public void testFeedSendReceive() throws UnknownHostException, IOException, InterruptedException {
 		Configuration ac1 = AccountConfig.getConfiguration();
 		Configuration ac2 = AccountConfig.getConfiguration2();
 		
@@ -45,6 +46,8 @@ public class FeedTests extends TwoParticipantsOneSwarmTestCase {
 		consumeClient.addListener(testListener);
 		
 		produceClient.send(generateRandomPayload());
+		
+		Thread.sleep(1000);
 		
 		assertTrue(testListener.getMessage());
 		

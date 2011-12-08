@@ -26,8 +26,12 @@ public class PrivateMessageHandler extends AbstractMessageHandler implements Mes
 	@Override
 	public void processMessage(Chat chat, Message message) {
 		try {
-			if (message.getError() == null)
+			if (message.getError() == null){
+				Activator.getLog().log(
+						LogService.LOG_INFO,
+						"Swarm " + swarmId + " received new private message from " + message.getFrom()+" with body "+ message.getBody());
 				handleSwarmRequest(message.getBody(), chat.getParticipant());
+			}
 			else 
 				handleError(message, chat.getParticipant());
 		} catch (ParseException e) {

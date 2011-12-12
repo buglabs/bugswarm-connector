@@ -1,11 +1,16 @@
 package com.buglabs.bug.swarm.connector.xmpp;
 
+import java.text.ParseException;
+
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.ChatManagerListener;
 import org.jivesoftware.smack.MessageListener;
+import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.osgi.service.log.LogService;
+import org.w3c.dom.views.AbstractView;
 
+import com.buglabs.bug.swarm.connector.model.Jid;
 import com.buglabs.bug.swarm.connector.osgi.Activator;
 
 /**
@@ -19,6 +24,7 @@ public class SwarmAssociationHandler implements ChatManagerListener, MessageList
 	private final SwarmXMPPClient swarmXMPPClient;
 	private final ISwarmServerRequestListener listener;
 
+	
 	/**
 	 * @param swarmXMPPClient
 	 * @param listener
@@ -43,7 +49,21 @@ public class SwarmAssociationHandler implements ChatManagerListener, MessageList
 			} catch (Exception e) {
 				Activator.getLog().log(LogService.LOG_ERROR, "Failed to join swarm.", e);
 			}
-		}		
+		}
+		//this is the proverbial "connector connects to a swarm where webui is already waiting
+		//receives a PM from webui asking for device-stats
+		else if (message.getBody().contains("feed")){
+			Activator.getLog().log(LogService.LOG_DEBUG, "Received new Private Message from: "+chat.getParticipant()+" requesting "+message.getBody());
+			String swarmId = chat.getParticipant().split("@")[0];				
+			AbstractMessageHandler handler = new PrivateMessageHandler(swarmXMPPClient.getJid(), swarmId, swarmXMPPClient.getRequestListeners());
+			try {
+				handler.handleSwarmRequest(message.getBody(), chat.getParticipant());
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			
+			
+		}
 	}
 
 }

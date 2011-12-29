@@ -64,5 +64,9 @@ public class SwarmAssociationHandler implements ChatManagerListener, MessageList
 
 
 		}
+		else{
+			Activator.getLog().log(LogService.LOG_DEBUG, "processMessage in SwarmAssociationHandler, Participant: "+chat.getParticipant());
+			Activator.getLog().log(LogService.LOG_DEBUG, "Chat Created in SwarmAssociationHandler, message body: "+message.getBody());
+		}
 	}
 }

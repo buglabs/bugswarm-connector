@@ -364,7 +364,7 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 		TimerTask task = null;
 		
 		if (feed instanceof BinaryFeed) {
-			task = new BinaryFeedResponseTask(wsClient, jid, swarmId, (BinaryFeed) feed, log);
+			task = new BinaryFeedResponseTask(xmppClient, wsClient, jid, swarmId, (BinaryFeed) feed, log);
 		} else {
 			task = new FeedResponseTask(xmppClient, jid, swarmId, feed, log);
 		}

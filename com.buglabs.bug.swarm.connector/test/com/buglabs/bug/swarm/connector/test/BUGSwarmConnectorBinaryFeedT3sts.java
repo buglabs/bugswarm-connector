@@ -97,4 +97,13 @@ public class BUGSwarmConnectorBinaryFeedT3sts extends TestCase {
 
 		Thread.sleep(AccountConfig.CONNECTOR_FEED_CHANGE_SLEEP_MILLIS);
 	}
+	
+	public void testUpload() throws InterruptedException{
+		ISwarmClient c =  SwarmClientFactory.getSwarmClient(
+				AccountConfig.getConfiguration().getHostname(Protocol.HTTP), 
+				AccountConfig.getConfiguration().getConfingurationAPIKey());
+		//TODO: finish this
+		
+		
+	}
 }

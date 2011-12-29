@@ -29,7 +29,8 @@ public class SwarmAssociationHandler implements ChatManagerListener, MessageList
 	}
 
 	@Override
-	public void chatCreated(Chat chat, boolean createdLocally) {	
+	public void chatCreated(Chat chat, boolean createdLocally) {
+		Activator.getLog().log(LogService.LOG_INFO, "Chat Created in SwarmAssociationHandler, Participant: "+chat.getParticipant());
 		chat.addMessageListener(this);
 	}
 
@@ -44,6 +45,11 @@ public class SwarmAssociationHandler implements ChatManagerListener, MessageList
 				Activator.getLog().log(LogService.LOG_ERROR, "Failed to join swarm.", e);
 			}
 		}		
+		else{
+			Activator.getLog().log(LogService.LOG_INFO, "processMessage in SwarmAssociationHandler, Participant: "+chat.getParticipant());
+			Activator.getLog().log(LogService.LOG_INFO, "Chat Created in SwarmAssociationHandler, message body: "+message.getBody());
+		}
+			
 	}
 
 }

@@ -396,4 +396,7 @@ public class SwarmXMPPClient {
 			if (name.contains(identity))
 				chatCache.remove(name);	
 	}
+	public List<ISwarmServerRequestListener> getRequestListeners() {
+		return requestListeners;
+	}
 }

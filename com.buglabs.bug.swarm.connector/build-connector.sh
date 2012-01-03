@@ -60,6 +60,18 @@ if [ ! -f $DEPS_DIR/json-lib-2.4-jdk15-osgi.jar ]; then
 fi
 
 
+###  still need jackson for http client =/
+
+if [ ! -f $DEPS_DIR/jackson-core-asl-1.9.1.jar ]; then
+	wget --no-check-certificate -nc -O $DEPS_DIR/jackson-core-asl-1.9.1.jar "http://repository.codehaus.org/org/codehaus/jackson/jackson-core-asl/1.9.1/jackson-core-asl-1.9.1.jar"
+fi
+
+if [ ! -f $DEPS_DIR/jackson-mapper-asl-1.9.1.jar ]; then
+	wget --no-check-certificate -nc -O $DEPS_DIR/jackson-mapper-asl-1.9.1.jar "http://repository.codehaus.org/org/codehaus/jackson/jackson-mapper-asl/1.9.1/jackson-mapper-asl-1.9.1.jar"
+fi
+
+
+
 ###### Get source dependencies that will be compiled
 if [ -d bug-osgi ]; then
 	cd bug-osgi

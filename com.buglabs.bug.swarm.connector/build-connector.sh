@@ -83,6 +83,7 @@ else
 	git clone git://github.com/kgilmer/touge.git
 	cd touge
 	git checkout d08e3947c053d6bbe4d91bc1ac99112d7f969aab
+	cd ..
 fi	
 
 if [ -d smack-smackx-osgi ]; then
@@ -90,13 +91,11 @@ if [ -d smack-smackx-osgi ]; then
 	git reset --hard
 	git checkout $BUILD_BRANCH
 	git pull
-	git checkout d08e3947c053d6bbe4d91bc1ac99112d7f969aab
 	cd ..
 else
 	git clone git://github.com/buglabs/smack-smackx-osgi.git
 	cd smack-smackx-osgi
 	git checkout $BUILD_BRANCH
-	git checkout d08e3947c053d6bbe4d91bc1ac99112d7f969aab
 	cd ..
 fi
 # Do not compile and run smack and smackx tests

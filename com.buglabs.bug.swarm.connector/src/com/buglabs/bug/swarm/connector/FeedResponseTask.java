@@ -3,7 +3,9 @@ package com.buglabs.bug.swarm.connector;
 import java.io.IOException;
 import java.util.TimerTask;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import net.sf.json.JSON;
+import net.sf.json.xml.XMLSerializer;
+
 import org.jivesoftware.smack.XMPPException;
 import org.osgi.service.log.LogService;
 
@@ -25,7 +27,6 @@ public class FeedResponseTask extends TimerTask {
 	private final String swarmId;
 	private final Feed feed;
 	private final LogService log;
-	private static ObjectMapper mapper = new ObjectMapper();
 	
 	/**
 	 * @param xmppClient instance of XMPP client that will be used to send the response.
@@ -49,10 +50,11 @@ public class FeedResponseTask extends TimerTask {
 		try {
 			if (feed instanceof ServiceFeedAdapter) {
 				document = ((ServiceFeedAdapter) feed).callGet(null);
-			} else {				
-				document = mapper.writeValueAsString(feed);
+			} else {			
+				XMLSerializer xmlSerializer = new XMLSerializer();  
+				JSON json = xmlSerializer.read( document );
+				document = json.toString();
 			}
-		
  			xmppClient.sendFeedToUser(jid, swarmId, document);
 		} catch (XMPPException e) {
 			log.log(LogService.LOG_ERROR, "Error occurred while sending feeds to " + jid, e);

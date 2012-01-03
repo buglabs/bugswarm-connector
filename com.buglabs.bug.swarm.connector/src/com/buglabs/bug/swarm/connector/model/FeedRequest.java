@@ -7,8 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
+
 
 /**
  * A swarm-server based Feed request.
@@ -25,7 +26,6 @@ public class FeedRequest {
 	public enum FeedType { 
 		get, put, post, delete;		
 	}
-	private static ObjectMapper mapper;
 	private final FeedType type;
 	private final String name;
 	private final Map<String, Object> params;
@@ -118,29 +118,29 @@ public class FeedRequest {
 	/**
 	 * @param jsonString json document from server as a String
 	 * @return FeedRequest object or null if invalid or incomplete message.
+	 * @see <a href="http://developer.bugswarm.net/hardware.html">
 	 */
 	public static FeedRequest parseJSON(String jsonString) {
-		if (mapper == null)
-			mapper = new ObjectMapper();
 		
 		
-		JsonNode jn;
+		
+		JSONObject jn;
 		try {
-			jn = mapper.readTree(jsonString);
+			jn = ((JSONObject) JSONSerializer.toJSON( jsonString ));
 			
 			if (jn.has("type") && jn.has("feed")) {
-				String type = jn.get("type").getTextValue();
-				String name = jn.get("feed").getTextValue();
+				String type = jn.get("type").toString();
+				String name = jn.get("feed").toString();
 				Map<String, Object> frp = new HashMap<String, Object>();
 				if (jn.has("params")) {
-					for (Iterator<Entry<String, JsonNode>> jni = jn.get("params").getFields(); jni.hasNext();) {
-						Entry<String, JsonNode> pn = jni.next();
-						if (pn.getKey().equals("frequency"))
-							frp.put(pn.getKey(), pn.getValue().asInt());
-						else if (pn.getValue().isArray())
-							frp.put(pn.getKey(), mapper.readValue(pn.getValue(), List.class));
+					JSONObject params = ((JSONObject)jn.get("params"));
+					for (@SuppressWarnings("unchecked")
+					Iterator<String> keys = params.keys(); keys.hasNext();) {
+						String key = keys.next().toString();
+						if (key.equals("frequency"))
+							frp.put(key, Integer.parseInt((String) params.get(key)));
 						else
-							frp.put(pn.getKey(), pn.getValue().asText());
+							frp.put(key, params.get(key).toString());
 					}
 				}
 				

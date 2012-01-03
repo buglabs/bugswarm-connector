@@ -55,13 +55,10 @@ if [ ! -f $DEPS_DIR/commons-io-2.1.jar ]; then
 	rm -Rf /tmp/commons-io-2.1*
 fi
 
-if [ ! -f $DEPS_DIR/jackson-core-asl-1.9.1.jar ]; then
-	wget --no-check-certificate -nc -O $DEPS_DIR/jackson-core-asl-1.9.1.jar "http://bugcommunity.com/downloads/files/jackson-core-asl-1.9.1.jar"
+if [ ! -f $DEPS_DIR/json-lib-2.4-jdk15-osgi.jar ]; then
+	wget --no-check-certificate -nc -O $DEPS_DIR/json-lib-2.4-jdk15-osgi.jar "http://bugcommunity.com/downloads/files/json-lib-2.4-jdk15-osgi.jar"
 fi
 
-if [ ! -f $DEPS_DIR/jackson-mapper-asl-1.9.1.jar ]; then
-	wget --no-check-certificate -nc -O $DEPS_DIR/jackson-mapper-asl-1.9.1.jar "http://bugcommunity.com/downloads/files/jackson-mapper-asl-1.9.1.jar"
-fi
 
 ###### Get source dependencies that will be compiled
 if [ -d bug-osgi ]; then

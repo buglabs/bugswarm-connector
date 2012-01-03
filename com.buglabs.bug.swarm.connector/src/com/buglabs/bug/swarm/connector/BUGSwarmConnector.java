@@ -12,9 +12,11 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
+
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
+
 import org.jivesoftware.smack.Chat;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
@@ -103,7 +105,6 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	 */
 	private volatile Boolean localEventUpdate = false;
 	
-	private static ObjectMapper mapper = new ObjectMapper();
 	/**
 	 * A Map of active "streaming" feeds.  These feeds are running as TimerTasks in a Timer 
 	 * and sending response messages to the swarm server at regular intervals.
@@ -271,7 +272,7 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	 * @throws JsonMappingException on Json parsing error
 	 * @throws IOException on Json parsing error
 	 */
-	private String getCapabilities() throws JsonGenerationException, JsonMappingException, IOException {
+	private String getCapabilities() throws IOException {
 		Map<String, Object> root = new HashMap<String, Object>();
 		Map<String, Object> c = new HashMap<String, Object>();
 		
@@ -279,8 +280,8 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 		c.put("modules", getModuleMap());
 		
 		root.put("capabilities", c);
-			
-		return mapper.writeValueAsString(root);
+		return ((JSONObject) JSONSerializer.toJSON( c )).toString();  
+		
 	}
 
 	/**
@@ -565,7 +566,7 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 					Feed feed = Feed.createForType(event.getServiceReference());
 					
 					if (feed != null) {							
-						String message = mapper.writeValueAsString(feed);
+						String message = ((JSONObject) JSONSerializer.toJSON( feed )).toString();
 						
 						for (SwarmModel swarm : memberSwarms) 	
 							xmppClient.sendPublicMessage(swarm.getId(), message);		

@@ -22,8 +22,7 @@ if [ ! -f $BUNDLE_DIR/smack-smackx-osgi.jar ]; then
 	wget -P $BUNDLE_DIR/ http://$BUILD_SERVER/job/bugswarm-connector-$SWARM_BRANCH/lastSuccessfulBuild/artifact/dist/smack-smackx-osgi.jar
 fi
 
-wget -nc -P $BUNDLE_DIR "http://repository.codehaus.org/org/codehaus/jackson/jackson-core-asl/1.9.1/jackson-core-asl-1.9.1.jar"
-wget -nc -P $BUNDLE_DIR "http://repository.codehaus.org/org/codehaus/jackson/jackson-mapper-asl/1.9.1/jackson-mapper-asl-1.9.1.jar"
+wget -nc -P $BUNDLE_DIR "http://bugcommunity.com/downloads/files/json-lib-2.4-jdk15-osgi.jar"
 
 if [ ! -f $BUNDLE_DIR/commons-io-2.1.jar ]; then
 	wget -O /tmp/commons-io-2.1-bin.zip -nc "http://www.meisei-u.ac.jp/mirror/apache/dist/commons/io/binaries/commons-io-2.1-bin.zip"

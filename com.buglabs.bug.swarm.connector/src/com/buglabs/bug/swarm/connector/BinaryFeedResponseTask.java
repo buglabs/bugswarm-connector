@@ -3,7 +3,6 @@ package com.buglabs.bug.swarm.connector;
 import java.io.IOException;
 import java.util.TimerTask;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.jivesoftware.smack.XMPPException;
 import org.osgi.service.log.LogService;
 
@@ -27,7 +26,6 @@ public class BinaryFeedResponseTask extends TimerTask {
 	private BinaryFeed feed;
 	private final LogService log;
 	private SwarmXMPPClient xmppClient;
-	private static ObjectMapper mapper = new ObjectMapper();
 
 	
 	/**

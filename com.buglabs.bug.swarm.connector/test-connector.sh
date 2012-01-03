@@ -53,10 +53,10 @@ cp $DIST_DIR/smack-smackx-osgi.jar $BLACKBOX_ROOT/bundle
 chmod u+x $BLACKBOX_ROOT/bundle/*
 
 cp $DEPS_DIR/commons-io-2.1.jar $BLACKBOX_ROOT/bundle      
-cp $DEPS_DIR/jackson-core-asl-1.9.1.jar $BLACKBOX_ROOT/bundle    
+cp $DEPS_DIR/json-lib-2.4-jdk15-osgi.jar $BLACKBOX_ROOT/bundle    
 cp $DEPS_DIR/osgi.core.jar $BLACKBOX_ROOT/bundle
 cp $DEPS_DIR/hamcrest-core-1.3.0RC2.jar $BLACKBOX_ROOT/bundle 
-cp $DEPS_DIR/jackson-mapper-asl-1.9.1.jar $BLACKBOX_ROOT/bundle        
+cp $DEPS_DIR/json-lib-2.4-jdk15-osgi.jar $BLACKBOX_ROOT/bundle        
 cp $DEPS_DIR/osgi.cmpn.jar $BLACKBOX_ROOT/bundle
 
 echo "report.src=$WORKSPACE/com.buglabs.bug.swarm.client/test" > $BLACKBOX_ROOT/properties/test.properties

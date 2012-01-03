@@ -77,9 +77,12 @@ if [ -d touge ]; then
 	cd touge
 	git reset --hard
 	git pull
+	git checkout d08e3947c053d6bbe4d91bc1ac99112d7f969aab
 	cd ..
 else
 	git clone git://github.com/kgilmer/touge.git
+	cd touge
+	git checkout d08e3947c053d6bbe4d91bc1ac99112d7f969aab
 fi	
 
 if [ -d smack-smackx-osgi ]; then

@@ -34,7 +34,7 @@ public enum SwarmWSResponse {
 
 	private final int code;
 	private String message;
-	
+	private Map headers;
 	/**
 	 * Deserialize to SwarmWSResponse.
 	 */
@@ -51,6 +51,7 @@ public enum SwarmWSResponse {
 				
 				if (serverMessage.length() > 0)
 					response.setMessage(serverMessage);
+				response.setHeaders(headers);
 			}
 			
 			return response;							
@@ -66,6 +67,21 @@ public enum SwarmWSResponse {
 	SwarmWSResponse(final int code, final String message) {
 		this.code = code;
 		this.message = message;
+	}
+
+	/**
+	 * 
+	 * @param headers
+	 * 		HTTP response headers
+	 */
+	protected void setHeaders(Map<String, List<String>> headers) {
+		this.headers = headers;
+	}
+	/**
+	 * @return HTTP response headers
+	 */
+	public Map getHeaders(){
+		return headers;
 	}
 
 	@Override

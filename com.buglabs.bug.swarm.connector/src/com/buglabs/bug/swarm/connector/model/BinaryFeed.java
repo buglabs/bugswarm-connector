@@ -43,7 +43,7 @@ public class BinaryFeed extends Feed {
 	 */
 	public BinaryFeed(String name, Map<?, ?> properties) {
 		super(name, null);
-
+		System.out.println("created binary feed object");
 		payload = (InputStream) properties.get(BinaryFeed.FEED_PAYLOAD_KEY);
 	}
 

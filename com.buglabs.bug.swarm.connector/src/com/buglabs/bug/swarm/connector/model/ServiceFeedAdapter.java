@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.osgi.service.log.LogService;
 
 import com.buglabs.services.ws.IWSResponse;
 import com.buglabs.services.ws.PublicWSDefinition;
@@ -33,6 +34,7 @@ public class ServiceFeedAdapter extends Feed {
 	 */
 	public ServiceFeedAdapter(final PublicWSProvider service) {
 		super(service.getPublicName(), adaptServiceToFeedMap(service));
+		System.out.println("service: "+service.getPublicName());
 		this.service = service;
 	}
 	
@@ -42,16 +44,24 @@ public class ServiceFeedAdapter extends Feed {
 	 * @throws IOException if unable to call method or error in call.
 	 */
 	public String callGet(String parameters) throws IOException {
+		System.out.println(parameters);
 		IWSResponse response = service.execute(GET, parameters);
 		
-		if (response.getMimeType().indexOf("text") > -1) {
+		
+		if (response != null && response.getMimeType().indexOf("text") > -1) {
 			//Response is text.  Wrap it in JSon.
 			Map<String, String> m = new HashMap<String, String>();
 			m.put(service.getPublicName(), response.getContent().toString());
 			
 			return mapper.writeValueAsString(m);
 		}
-		
+		if (response != null && response.getMimeType().indexOf("image") > -1) {
+			return null;
+		}
+		if (response == null){
+			
+			System.out.println("response is null");
+		}
 		throw new IOException("Unable to execute method.");
 	}
 

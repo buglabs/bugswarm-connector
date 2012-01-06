@@ -23,6 +23,7 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.dragonfly.module.IModuleControl;
+import com.buglabs.bug.module.camera.pub.ICamera2Device;
 import com.buglabs.bug.swarm.client.ISwarmClient;
 import com.buglabs.bug.swarm.client.SwarmClientFactory;
 import com.buglabs.bug.swarm.client.model.SwarmModel;
@@ -354,6 +355,7 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 
 	@Override
 	public void feedRequest(final Jid jid, final String swarmId, final FeedRequest feedRequest) {
+		log.log(LogService.LOG_DEBUG, feedRequest.getName());
 		Feed feed = getBUGFeed(context, feedRequest.getName());
 		
 		if (feed == null) {			
@@ -364,8 +366,10 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 		TimerTask task = null;
 		
 		if (feed instanceof BinaryFeed) {
-			task = new BinaryFeedResponseTask(wsClient, jid, swarmId, (BinaryFeed) feed, log);
+			log.log(LogService.LOG_DEBUG, "creating new BinaryFeedResponseTask");
+			task = new BinaryFeedResponseTask(xmppClient, wsClient, jid, swarmId, (BinaryFeed) feed, log);
 		} else {
+			log.log(LogService.LOG_DEBUG, "creating new FeedResponseTask");
 			task = new FeedResponseTask(xmppClient, jid, swarmId, feed, log);
 		}
 		
@@ -389,6 +393,18 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	 * @return Feed of type name or null if feed does not exist.
 	 */
 	public static Feed getBUGFeed(BundleContext context, final String name) {
+		log.log(LogService.LOG_DEBUG, "in getBUGFeed "+name);
+		if (name.equals("Picture")){
+			log.log(LogService.LOG_DEBUG, "processing Picture request, binding to OSGi service");
+			ICamera2Device camera = (ICamera2Device) context.getService(context.getServiceReference(com.buglabs.bug.module.camera.pub.ICamera2Device.class.getName()));
+			log.log(LogService.LOG_DEBUG, Boolean.toString(camera==null));
+			HashMap content = new HashMap();
+			content.put(BinaryFeed.FEED_PAYLOAD_KEY, camera.grabFull());
+			log.log(LogService.LOG_DEBUG, "grabbed full");
+
+			return new BinaryFeed("Picture",content);
+		}
+		
 		//Look for native feed that matches feed name.
 		Map feed = (Map) OSGiUtil.getServiceInstance(
 				context, Map.class.getName(), 
@@ -396,6 +412,8 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 		
 		if (feed != null)
 			return new Feed(name, feed);
+		
+		log.log(LogService.LOG_DEBUG, "getBugFeed: name, "+name);
 		
 		//Look for web service that matches the feed name.
 		PublicWSProvider webService = 

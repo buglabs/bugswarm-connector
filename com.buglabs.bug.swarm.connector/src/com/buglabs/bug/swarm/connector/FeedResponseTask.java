@@ -48,7 +48,6 @@ public class FeedResponseTask extends TimerTask {
 		
 		try {
 			if (feed instanceof ServiceFeedAdapter) {
-				log.log(LogService.LOG_DEBUG, "in FeedResponseTask for"+feed.getName());
 				document = ((ServiceFeedAdapter) feed).callGet(null);
 			} else {				
 				document = mapper.writeValueAsString(feed);

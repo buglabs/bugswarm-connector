@@ -54,13 +54,16 @@ public class BinaryFeedResponseTask extends TimerTask {
 	//4) 
 	public void run() {
 		try {
+			log.log(LogService.LOG_DEBUG, "in BinaryFeedResponse");
 			SwarmWSResponse resp = wsClient.getSwarmBinaryUploadClient()
-				.upload(jid.getUsername(), jid.getResource(), feed.getName(), feed.getPayload());
-			String uploadUrl = (String) resp.getHeaders().get("Location");
+				.upload(jid.getUsername(), jid.getResource(), feed.getName()+".jpeg", feed.getPayload());
+			String uploadUrl = (String) resp.getHeaders().get("location");
 			if(uploadUrl==null)
 				throw new IOException();
-			else			
+			else{			
 				xmppClient.sendFeedToUser(jid, swarmId, uploadUrl);
+				log.log(LogService.LOG_DEBUG, "sent");
+			}
 		} catch (XMPPException e) {
 			log.log(LogService.LOG_ERROR, "Error occurred while sending feeds to " + jid, e);
 		} catch (IOException e) {

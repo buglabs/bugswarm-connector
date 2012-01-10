@@ -1,6 +1,8 @@
 package com.buglabs.bug.swarm.connector;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -364,7 +366,7 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 		}
 			
 		TimerTask task = null;
-		
+		dLog("instanceof in feedRequest?"+Boolean.toString(feed instanceof BinaryFeed));
 		if (feed instanceof BinaryFeed) {
 			log.log(LogService.LOG_DEBUG, "creating new BinaryFeedResponseTask");
 			task = new BinaryFeedResponseTask(xmppClient, wsClient, jid, swarmId, (BinaryFeed) feed, log);
@@ -393,18 +395,6 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	 * @return Feed of type name or null if feed does not exist.
 	 */
 	public static Feed getBUGFeed(BundleContext context, final String name) {
-		log.log(LogService.LOG_DEBUG, "in getBUGFeed "+name);
-		if (name.equals("Picture")){
-			log.log(LogService.LOG_DEBUG, "processing Picture request, binding to OSGi service");
-			ICamera2Device camera = (ICamera2Device) context.getService(context.getServiceReference(com.buglabs.bug.module.camera.pub.ICamera2Device.class.getName()));
-			log.log(LogService.LOG_DEBUG, Boolean.toString(camera==null));
-			HashMap content = new HashMap();
-			content.put(BinaryFeed.FEED_PAYLOAD_KEY, camera.grabFull());
-			log.log(LogService.LOG_DEBUG, "grabbed full");
-
-			return new BinaryFeed("Picture",content);
-		}
-		
 		//Look for native feed that matches feed name.
 		Map feed = (Map) OSGiUtil.getServiceInstance(
 				context, Map.class.getName(), 
@@ -424,7 +414,19 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 						return service.getPublicName().equals(name);
 					}
 			
-		});		
+		});
+		
+		if (webService.getPublicName().equals("Picture")) {
+
+			HashMap map = new HashMap();
+
+			map.put(BinaryFeed.FEED_PAYLOAD_KEY,
+					new ByteArrayInputStream((webService.execute(1, null).getContent().toString().getBytes())));
+			BinaryFeed bfeed = new BinaryFeed("Picture", map);
+			dLog("returning bfeed");
+			return bfeed;
+
+		}
 		
 		if (webService != null)
 			return new ServiceFeedAdapter(webService);
@@ -617,5 +619,10 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 				log.log(LogService.LOG_ERROR, "Error occurred while updating member swarms.", e);
 			}
 		}
+	}
+	
+	private static void dLog(String message){
+		log.log(LogService.LOG_DEBUG, message);
+
 	}
 }

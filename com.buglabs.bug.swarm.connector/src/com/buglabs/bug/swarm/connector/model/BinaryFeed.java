@@ -43,8 +43,13 @@ public class BinaryFeed extends Feed {
 	 */
 	public BinaryFeed(String name, Map<?, ?> properties) {
 		super(name, null);
-		System.out.println("created binary feed object");
+		System.out.println("created binary feed object for"+name);
+		try{
 		payload = (InputStream) properties.get(BinaryFeed.FEED_PAYLOAD_KEY);
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 
 	/**

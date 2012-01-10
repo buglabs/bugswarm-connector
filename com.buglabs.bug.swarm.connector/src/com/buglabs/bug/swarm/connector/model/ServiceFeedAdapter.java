@@ -56,11 +56,10 @@ public class ServiceFeedAdapter extends Feed {
 			return mapper.writeValueAsString(m);
 		}
 		if (response != null && response.getMimeType().indexOf("image") > -1) {
-			return null;
-		}
-		if (response == null){
 			
-			System.out.println("response is null");
+		}
+		if (response == null){			
+			return "";
 		}
 		throw new IOException("Unable to execute method.");
 	}

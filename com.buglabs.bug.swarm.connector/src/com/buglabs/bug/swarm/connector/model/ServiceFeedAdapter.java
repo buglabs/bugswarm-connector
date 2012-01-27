@@ -1,5 +1,6 @@
 package com.buglabs.bug.swarm.connector.model;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +45,6 @@ public class ServiceFeedAdapter extends Feed {
 	 * @throws IOException if unable to call method or error in call.
 	 */
 	public String callGet(String parameters) throws IOException {
-		System.out.println(parameters);
 		IWSResponse response = service.execute(GET, parameters);
 		
 		
@@ -62,6 +62,10 @@ public class ServiceFeedAdapter extends Feed {
 			return "";
 		}
 		throw new IOException("Unable to execute method.");
+	}
+	
+	public ByteArrayInputStream callGetBinary(String parameters) throws IOException{
+		return (ByteArrayInputStream)service.execute(GET, parameters).getContent();
 	}
 
 	/**

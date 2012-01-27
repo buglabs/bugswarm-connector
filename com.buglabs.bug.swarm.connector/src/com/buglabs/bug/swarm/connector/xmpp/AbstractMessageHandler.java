@@ -52,7 +52,7 @@ public abstract class AbstractMessageHandler {
 	 * @param sender JID of originator of message
 	 * @throws ParseException 
 	 */
-	protected void handleSwarmRequest(String rawMessage, String sender) throws ParseException {		
+	protected void handleSwarmRequest(String rawMessage, String sender, String recipient) throws ParseException {		
 		//This occurs when multiple connectors are in a swarm.  The message is ignored.
 		if (rawMessage.startsWith("{\"capabilities"))
 			return;
@@ -71,7 +71,7 @@ public abstract class AbstractMessageHandler {
 			}
 		} else if (freq.isFeedRequest()) {
 			for (ISwarmServerRequestListener listener : requestListeners) {				
-				listener.feedRequest(new Jid(sender), swarmId, freq);				
+				listener.feedRequest(new Jid(sender), new Jid(recipient), swarmId, freq);				
 			}
 		} else if (freq.isFeedMetaRequest()) {
 			for (ISwarmServerRequestListener listener : requestListeners) {

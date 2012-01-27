@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -356,12 +358,12 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	}
 
 	@Override
-	public void feedRequest(final Jid jid, final String swarmId, final FeedRequest feedRequest) {
+	public void feedRequest(final Jid requester,  final Jid recipient, final String swarmId, final FeedRequest feedRequest) {
 		log.log(LogService.LOG_DEBUG, feedRequest.getName());
 		Feed feed = getBUGFeed(context, feedRequest.getName());
 		
 		if (feed == null) {			
-			log.log(LogService.LOG_WARNING, "Request for non-existant feed " + feedRequest.getName() + " from client " + jid);
+			log.log(LogService.LOG_WARNING, "Request for non-existant feed " + feedRequest.getName() + " from client " + requester);
 			return;
 		}
 			
@@ -369,21 +371,22 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 		dLog("instanceof in feedRequest?"+Boolean.toString(feed instanceof BinaryFeed));
 		if (feed instanceof BinaryFeed) {
 			log.log(LogService.LOG_DEBUG, "creating new BinaryFeedResponseTask");
-			task = new BinaryFeedResponseTask(xmppClient, wsClient, jid, swarmId, (BinaryFeed) feed, log);
+			task = new BinaryFeedResponseTask(xmppClient, config.getConfingurationAPIKey(), wsClient, requester, recipient, swarmId, feed, log);
 		} else {
 			log.log(LogService.LOG_DEBUG, "creating new FeedResponseTask");
-			task = new FeedResponseTask(xmppClient, jid, swarmId, feed, log);
+			task = new FeedResponseTask(xmppClient, requester, swarmId, feed, log);
 		}
 		
-		if (feedRequest.hasFrequency() && !containsActiveTask(jid, swarmId, feed)) {
+		if (feedRequest.hasFrequency() && !containsActiveTask(requester, swarmId, feed)) {
 			if (activeTasks == null) 
 				activeTasks = new HashMap<String, TimerTask>();
 			
 			//TODO: this is not matching up with the blacklist
-			activeTasks.put(jid.toString() + swarmId + feed.getName(), task);
+			activeTasks.put(requester.toString() + swarmId + feed.getName(), task);
 			
 			timer.schedule(task, 0, feedRequest.getFrequency() * MILLIS_IN_SECONDS);
-		} else {		
+		} else {	
+			System.out.println("no frequency specified");
 			timer.schedule(task, 0);
 		}
 	}
@@ -394,6 +397,7 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	 * @param name name of feed.
 	 * @return Feed of type name or null if feed does not exist.
 	 */
+	@SuppressWarnings("unchecked")
 	public static Feed getBUGFeed(BundleContext context, final String name) {
 		//Look for native feed that matches feed name.
 		Map feed = (Map) OSGiUtil.getServiceInstance(
@@ -406,7 +410,7 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 		log.log(LogService.LOG_DEBUG, "getBugFeed: name, "+name);
 		
 		//Look for web service that matches the feed name.
-		PublicWSProvider webService = 
+		final PublicWSProvider webService = 
 				OSGiUtil.getServiceInstance(context, PublicWSProvider.class.getName(), null, new ServiceMatcher<PublicWSProvider>() {
 
 					@Override
@@ -418,10 +422,37 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 		
 		if (webService.getPublicName().equals("Picture")) {
 
-			HashMap map = new HashMap();
+			final ConcurrentHashMap<String, ByteArrayInputStream> map = new ConcurrentHashMap<String, ByteArrayInputStream>();
 
-			map.put(BinaryFeed.FEED_PAYLOAD_KEY,
-					new ByteArrayInputStream((webService.execute(1, null).getContent().toString().getBytes())));
+			map.put(BinaryFeed.FEED_PAYLOAD_KEY, (ByteArrayInputStream)(webService.execute(1, null).getContent()));
+			
+			
+			
+			new Thread(){
+				private ByteArrayInputStream is;
+
+				public void run(){
+					
+					while(true){
+					HashMap map = new HashMap<String, ByteArrayInputStream>();
+					synchronized(map)	 {
+						is = (ByteArrayInputStream)(webService.execute(1, null).getContent());
+						try {
+							System.out.println("fuckiiiin length:"+IOUtils.toByteArray(is).length);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					map.put(BinaryFeed.FEED_PAYLOAD_KEY, is);
+					dLog("put in another pic");
+					}
+					try {
+						Thread.sleep(5000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					}
+				}
+			}.start();
 			BinaryFeed bfeed = new BinaryFeed("Picture", map);
 			dLog("returning bfeed");
 			return bfeed;
@@ -624,5 +655,12 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 	private static void dLog(String message){
 		log.log(LogService.LOG_DEBUG, message);
 
+	}
+	
+	public String getConfigurationKey(){
+		if (wsClient!=null){
+			return config.getConfingurationAPIKey();
+		}
+		return null;
 	}
 }

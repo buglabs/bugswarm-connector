@@ -1,15 +1,28 @@
 package com.buglabs.bug.swarm.connector;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.TimerTask;
 
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.InputStreamBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.jivesoftware.smack.XMPPException;
 import org.osgi.service.log.LogService;
 
 import com.buglabs.bug.swarm.client.ISwarmClient;
-import com.buglabs.bug.swarm.client.SwarmWSResponse;
 import com.buglabs.bug.swarm.connector.model.BinaryFeed;
+import com.buglabs.bug.swarm.connector.model.Feed;
 import com.buglabs.bug.swarm.connector.model.Jid;
 import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
 
@@ -20,55 +33,105 @@ import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
  *
  */
 public class BinaryFeedResponseTask extends TimerTask {
-	
+
+	private static final String LOCATION = "location";
 	private final ISwarmClient wsClient;
-	private final Jid jid;
+	private final Jid feedRequester;
 	private final String swarmId;
-	private BinaryFeed feed;
+	private Feed feed;
 	private final LogService log;
 	private SwarmXMPPClient xmppClient;
+	private Jid thisJid;
+	private DefaultHttpClient client;
+	private String configurationAPIKey;
 	private static ObjectMapper mapper = new ObjectMapper();
 
-	
+
 	/**
 	 * @param xmppClient instance of ws client
+	 * @param recipient 
 	 * @param wsClient2 jid of destination
 	 * @param swarmId id of associated swarm
 	 * @param feed binary feed that has been requested
 	 * @param log instance of log service
 	 */
-	public BinaryFeedResponseTask(SwarmXMPPClient xmppClient, ISwarmClient wsClient, Jid jid, String swarmId, BinaryFeed feed, LogService log) {
+	public BinaryFeedResponseTask(SwarmXMPPClient xmppClient, String configurationAPIKey, ISwarmClient wsClient, Jid feedRequester, Jid thisJid, String swarmId, Feed feed, LogService log) {
 		this.xmppClient = xmppClient;
+		this.configurationAPIKey = configurationAPIKey;
 		this.wsClient = wsClient;
-		this.jid = jid;
+		this.feedRequester = feedRequester;
+		this.thisJid = thisJid;
 		this.swarmId = swarmId;
 		this.feed = feed;
-		this.log = log;		
+		this.log = log;
+		client = new DefaultHttpClient();		
 	}	
-	
+
 	@Override
-	//IRL conversation with camilo, new workflow is:
-	//1) WebUI requests a binary feed
-	//2) connector responds by uploading binary file via MIME post to BASE_URL/upload
-	//3) connector parses the header response for Location field for the url of the newly uploaded file
-	//4) 
 	public void run() {
 		try {
-			log.log(LogService.LOG_DEBUG, "in BinaryFeedResponse");
-			SwarmWSResponse resp = wsClient.getSwarmBinaryUploadClient()
-				.upload(jid.getUsername(), jid.getResource(), feed.getName()+".jpeg", feed.getPayload());
-			String uploadUrl = (String) resp.getHeaders().get("location");
+			String uploadUrl = upload();
 			if(uploadUrl==null)
 				throw new IOException();
 			else{			
-				xmppClient.sendFeedToUser(jid, swarmId, uploadUrl);
-				log.log(LogService.LOG_DEBUG, "sent");
+				xmppClient.sendFeedToUser(feedRequester, swarmId, "{\"Camera\": {\"location\": \""+uploadUrl+"\"}}");
 			}
 		} catch (XMPPException e) {
-			log.log(LogService.LOG_ERROR, "Error occurred while sending feeds to " + jid, e);
+			log.log(LogService.LOG_ERROR, "Error occurred while sending feeds to " + feedRequester, e);
 		} catch (IOException e) {
-			log.log(LogService.LOG_ERROR, "Error occurred while sending binary feed to " + jid, e);
+			log.log(LogService.LOG_ERROR, "Error occurred while sending binary feed to " + feedRequester, e);
 		}
+	}
+
+	/**
+	 * 
+	 * @return the url location returned after a successful uload
+	 */
+
+	protected String upload() {
+		String location = null;
+		try {
+			HttpPost httppost = new HttpPost(
+					"http://api.test.bugswarm.net/upload");
+			// not InputStream!
+			// https://issues.apache.org/jira/browse/HTTPCLIENT-1014
+			log.log(LogService.LOG_DEBUG, "length: "+((BinaryFeed) feed).getPayload().length);
+			ByteArrayBody file = new ByteArrayBody(
+					((BinaryFeed) feed).getPayload(), "image/jpeg",
+					"Picture.jpeg");
+			
+			// TODO: fix below, user_id
+			// StringBody user_id = new StringBody(thisJid.getResource());
+			StringBody resource_id = new StringBody(thisJid.getResource());
+
+			MultipartEntity reqEntity = new MultipartEntity();
+			// reqEntity.addPart("user_id", user_id);
+			reqEntity.addPart("resource_id", resource_id);
+			reqEntity.addPart("file", file);
+			httppost.setHeader("x-bugswarmapikey", configurationAPIKey);
+			httppost.setEntity(reqEntity);
+
+			HttpResponse response = client.execute(httppost);
+			HttpEntity resEntity = response.getEntity();
+
+			for (Header header : response.getAllHeaders()) {
+				System.out.println(header.getName());
+				if (header.getName().equals(LOCATION)) {
+					location = header.getValue();
+					System.out.println(location);
+					break;
+				}
+			}
+
+			EntityUtils.consume(resEntity);
+			//client.getConnectionManager().shutdown();
+
+			return location;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "null";
 	}
 
 }

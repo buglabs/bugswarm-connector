@@ -39,14 +39,16 @@ public interface ISwarmServerRequestListener {
 	/**
 	 * A swarm-server based client is requesting data from a specific feed.
 	 * 
-	 * @param jid
+	 * @param requester
 	 *            JID of requester
 	 * @param swarmId
 	 *            swarmID that binds
+	 * @param recipient
+	 * 			  JID of recipient (this)
 	 * @param feedRequest
 	 *            name of feed being requested
 	 */
-	void feedRequest(final Jid jid, final String swarmId, final FeedRequest feedRequest);
+	void feedRequest(final Jid requester, final Jid recipient, final String swarmId, final FeedRequest feedRequest);
 
 	/**
 	 * @param jid

@@ -25,8 +25,8 @@ public class SwarmRequestListener implements ISwarmServerRequestListener {
 	}
 
 	@Override
-	public void feedRequest(Jid jid, String swarmId, FeedRequest feedRequest) {
-		System.out.println("feedRequest() " + jid + " " + swarmId);
+	public void feedRequest(Jid feedRequester, Jid thisJid, String swarmId, FeedRequest feedRequest) {
+		System.out.println("feedRequest() " + feedRequester + " " + swarmId);
 	}
 
 	@Override

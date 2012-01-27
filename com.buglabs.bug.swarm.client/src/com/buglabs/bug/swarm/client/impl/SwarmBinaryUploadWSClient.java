@@ -43,7 +43,8 @@ public class SwarmBinaryUploadWSClient extends AbstractSwarmWSClient implements 
 		}
 
 		Map<String, Object> params = toMap(	(Object) "user_id", userId,
-											"resource_id", resourceId);		
+											"resource_id", resourceId,
+											"x-bugswarmapikey",apiKey);		
 		params.put("file", new ReSTClient.FormInputStream(new ByteArrayInputStream(payload), elems[0], elems[1]));
 
 		return httpClient.callPostMultipart(swarmHostUrl.copy("upload"), params, 

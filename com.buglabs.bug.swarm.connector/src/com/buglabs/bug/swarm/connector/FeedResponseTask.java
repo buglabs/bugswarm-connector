@@ -45,7 +45,7 @@ public class FeedResponseTask extends TimerTask {
 	@Override
 	public void run() {
 		String document = null;
-		
+		dLog(feed.getName());
 		try {
 			if (feed instanceof ServiceFeedAdapter) {
 				document = ((ServiceFeedAdapter) feed).callGet(null);
@@ -59,6 +59,10 @@ public class FeedResponseTask extends TimerTask {
 		} catch (IOException e) {
 			log.log(LogService.LOG_ERROR, "Error occurred while getting feed data.", e);
 		}
+	}
+
+	private void dLog(String message) {
+		log.log(LogService.LOG_DEBUG, message);
 	}
 
 }

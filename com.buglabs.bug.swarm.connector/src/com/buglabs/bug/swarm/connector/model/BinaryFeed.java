@@ -58,6 +58,9 @@ public class BinaryFeed extends Feed {
 	 *             on I/O error
 	 */
 	public byte[] getPayload() throws IOException {
+		System.out.println("payload is null? "+ payload == null);
+		byte[] array = IOUtils.toByteArray(payload);
+		System.out.println("array length" +array.length);
 		return IOUtils.toByteArray(payload);
 	}
 

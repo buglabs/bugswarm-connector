@@ -2,6 +2,7 @@ package com.buglabs.bug.swarm.connector;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -333,7 +334,9 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 			}
 			
 		});
-		
+		if (feedNames.contains("Picture")){
+			feedNames.add("Camera");
+		}
 		return feedNames;
 	}
 
@@ -422,27 +425,33 @@ public class BUGSwarmConnector extends Thread implements ISwarmServerRequestList
 		
 		if (webService.getPublicName().equals("Picture")) {
 
-			final ConcurrentHashMap<String, ByteArrayInputStream> map = new ConcurrentHashMap<String, ByteArrayInputStream>();
+			final ConcurrentHashMap<String, byte[]> map = new ConcurrentHashMap<String, byte[]>();			
+			
+			try {
+				map.put(BinaryFeed.FEED_PAYLOAD_KEY, IOUtils.toByteArray((InputStream) webService.execute(1, null).getContent()));
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 
-			map.put(BinaryFeed.FEED_PAYLOAD_KEY, (ByteArrayInputStream)(webService.execute(1, null).getContent()));
-			
-			
-			
 			new Thread(){
 				private ByteArrayInputStream is;
-
+				private byte[] image;
 				public void run(){
 					
 					while(true){
-					HashMap map = new HashMap<String, ByteArrayInputStream>();
 					synchronized(map)	 {
 						is = (ByteArrayInputStream)(webService.execute(1, null).getContent());
 						try {
-							System.out.println("fuckiiiin length:"+IOUtils.toByteArray(is).length);
-						} catch (IOException e) {
-							e.printStackTrace();
+							image = IOUtils.toByteArray(is);
+						} catch (IOException e1) {
+							e1.printStackTrace();
 						}
-					map.put(BinaryFeed.FEED_PAYLOAD_KEY, is);
+						
+						System.out.println("fuckiiiin length:"+image.length);
+						
+						
+						map.put(BinaryFeed.FEED_PAYLOAD_KEY, image);
+					
 					dLog("put in another pic");
 					}
 					try {

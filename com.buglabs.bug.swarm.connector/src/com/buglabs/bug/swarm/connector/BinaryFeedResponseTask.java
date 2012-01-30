@@ -88,7 +88,7 @@ public class BinaryFeedResponseTask extends TimerTask {
 	 * @return the url location returned after a successful uload
 	 */
 
-	protected String upload() {
+	protected synchronized String upload() {
 		String location = null;
 		try {
 			HttpPost httppost = new HttpPost(

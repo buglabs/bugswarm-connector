@@ -30,7 +30,7 @@ public class BinaryFeed extends Feed {
 	/**
 	 * Input stream of payload.
 	 */
-	private InputStream payload;
+	private Map properties;
 
 	/**
 	 * Constructs the Binary Feed with the name and a map of necessary
@@ -44,12 +44,7 @@ public class BinaryFeed extends Feed {
 	public BinaryFeed(String name, Map<?, ?> properties) {
 		super(name, null);
 		System.out.println("created binary feed object for"+name);
-		try{
-		payload = (InputStream) properties.get(BinaryFeed.FEED_PAYLOAD_KEY);
-		}
-		catch(Exception e){
-			e.printStackTrace();
-		}
+		this.properties = properties;
 	}
 
 	/**
@@ -58,10 +53,7 @@ public class BinaryFeed extends Feed {
 	 *             on I/O error
 	 */
 	public byte[] getPayload() throws IOException {
-		System.out.println("payload is null? "+ payload == null);
-		byte[] array = IOUtils.toByteArray(payload);
-		System.out.println("array length" +array.length);
-		return IOUtils.toByteArray(payload);
+		return (byte[]) properties.get(BinaryFeed.FEED_PAYLOAD_KEY);
 	}
 
 }

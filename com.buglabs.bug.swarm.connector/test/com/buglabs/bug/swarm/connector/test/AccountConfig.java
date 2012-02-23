@@ -43,6 +43,9 @@ public final class AccountConfig {
 	public static final int CONNECTOR_INIT_SLEEP_MILLIS = 10000;
 	public static final long CONNECTOR_FEED_CHANGE_SLEEP_MILLIS = 1000;
 	
+	public static final boolean CONNECTOR_KEEPALIVE = true;
+	public static final boolean CONNECTOR_AUTORECONNECT = true;
+	
 	/**
 	 * @return
 	 */

@@ -42,7 +42,7 @@ public class BUGSwarmConnectorFeedTests extends TwoParticipantsOneSwarmTestCase 
 		
 		//Listen to swarm
 		ISwarmSession session = SwarmClientFactory.createConsumptionSession(
-				c1.getHostname(Protocol.HTTP), c1.getParticipationAPIKey(), AccountConfig.testUserResource2.getResourceId(), AccountConfig.testSwarmId);
+				c1.getHostname(Protocol.HTTP), c1.getParticipationAPIKey(), AccountConfig.testUserResource2.getResourceId(), AccountConfig.CONNECTOR_KEEPALIVE, AccountConfig.CONNECTOR_AUTORECONNECT, AccountConfig.testSwarmId);
 		
 		assertNotNull(session);
 		TestListener testListener = new TestListener();

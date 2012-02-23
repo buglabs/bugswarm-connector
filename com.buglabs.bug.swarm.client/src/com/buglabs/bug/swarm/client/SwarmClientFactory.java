@@ -20,6 +20,7 @@ public class SwarmClientFactory {
 	 * Default port of swarm server participation API.
 	 */
 	private static final int DEFAULT_SWARM_SERVER_PORT = 80;
+	private static boolean keepalive;
 
 	private SwarmClientFactory() {
 		//Static utility class.
@@ -56,9 +57,9 @@ public class SwarmClientFactory {
 	 * @throws UnknownHostException if unable to resolve hostname
 	 * @throws IOException on I/O error
 	 */
-	public static ISwarmSession createProductionSession(String hostname, String apiKey, String resourceId, String ... swarmIds) throws UnknownHostException, IOException {
+	public static ISwarmSession createProductionSession(String hostname, String apiKey, String resourceId, boolean keepalive, boolean autoreconnect, String ... swarmIds) throws UnknownHostException, IOException {
 		
-		return createSession(hostname, SessionType.PRODUCTION, apiKey, resourceId, swarmIds);
+		return createSession(hostname, SessionType.PRODUCTION, apiKey, resourceId, keepalive, autoreconnect, swarmIds);
 	}
 	
 	/**
@@ -72,12 +73,12 @@ public class SwarmClientFactory {
 	 * @throws UnknownHostException if unable to resolve hostname
 	 * @throws IOException on I/O error
 	 */
-	public static ISwarmSession createConsumptionSession(String hostname, String apiKey, String resourceId, String ... swarmIds) throws UnknownHostException, IOException {
+	public static ISwarmSession createConsumptionSession(String hostname, String apiKey, String resourceId, boolean keepalive, boolean autoreconnect, String ... swarmIds) throws UnknownHostException, IOException {
 		
-		return createSession(hostname, SessionType.CONSUMPTION, apiKey, resourceId, swarmIds);
+		return createSession(hostname, SessionType.CONSUMPTION, apiKey, resourceId, keepalive, autoreconnect, swarmIds);
 	}
 	
-	private static ISwarmSession createSession(String hostname, SessionType type, String apiKey, String resourceId, String ... swarmIds) throws UnknownHostException, IOException {
+	private static ISwarmSession createSession(String hostname, SessionType type, String apiKey, String resourceId, boolean keepalive, boolean autoreconnect, String ... swarmIds) throws UnknownHostException, IOException {
 		if (hostname.toLowerCase().startsWith("http://"))
 			hostname = hostname.substring("http://".length());
 		
@@ -87,7 +88,7 @@ public class SwarmClientFactory {
 			port = Integer.parseInt(hostname.split(":")[1]);
 			hostname = hostname.split(":")[0];
 		}
-		return new SwarmSessionImp(hostname, type, port, apiKey, resourceId, swarmIds);
+		return new SwarmSessionImp(hostname, type, port, apiKey, resourceId, keepalive, autoreconnect, swarmIds);
 	}
 
 	/**

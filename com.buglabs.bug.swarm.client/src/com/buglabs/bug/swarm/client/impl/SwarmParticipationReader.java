@@ -65,6 +65,7 @@ public class SwarmParticipationReader extends Thread {
 			
 		try {			
 			while ((line = reader.readLine()) != null) {
+				System.out.println("line: "+line);
 				line = line.trim();
 				//Filter empty lines and line length lines.
 				if (line.length() == 0 || isNumeric(line))

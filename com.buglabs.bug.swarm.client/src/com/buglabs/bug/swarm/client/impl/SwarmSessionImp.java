@@ -5,10 +5,13 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.codehaus.jackson.JsonGenerationException;
@@ -33,10 +36,14 @@ public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
 	private final List<ISwarmMessageListener> listeners;
 	private SwarmParticipationReader readerThread;
 	private final static ObjectMapper mapper = new ObjectMapper();
+	protected static final long MAX_INTERVAL = 60000; //timeout
 	private final String[] swarmIds;
 	private final String resourceId;
 	private final int port;
-	private final SessionType type;	
+	private final SessionType type;
+	private boolean keepalive;
+	private boolean autoreconnect;
+	private long timestamp;	
 
 	/**
 	 * @param hostname host of server
@@ -44,27 +51,61 @@ public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
 	 * @param port port on server 
 	 * @param apiKey api key
 	 * @param resourceId resource id
+	 * @param autoreconnect 
+	 * @param keepalive 
 	 * @param swarmIds list of swarms to join
 	 * @throws UnknownHostException on host resolution error
 	 * @throws IOException on I/O error
 	 */
-	public SwarmSessionImp(String hostname, ISwarmSession.SessionType type, int port, String apiKey, String resourceId, String ... swarmIds) throws UnknownHostException, IOException {		
+	public SwarmSessionImp(String hostname, ISwarmSession.SessionType type, int port, String apiKey, String resourceId, boolean keepalive, boolean autoreconnect, String ... swarmIds) throws UnknownHostException, IOException {		
 		this.hostname = hostname;
 		this.type = type;
 		this.port = port;
 		this.apiKey = apiKey;
 		this.resourceId = resourceId;
+		this.keepalive = keepalive;
+		this.autoreconnect = autoreconnect;
 		this.swarmIds = swarmIds;		
 		this.listeners = new CopyOnWriteArrayList<ISwarmMessageListener>();
 		this.listeners.add(this);
 		this.socket = createSocket(hostname, port);
 
-		sendHeader();	
+		sendHeader();
+		if (keepalive)
+			createKeepAliveThread();
+	}
+
+	//every 60 seconds, see if a message has been sent by comparing 
+	//the local timestamp to the global.  if they're the same
+	//no message has been sent, send a \n, otherwise just keep truckin
+	private void createKeepAliveThread() {
+		System.out.println("creating keepalive thread");
+		final Timer timer = new Timer();
+		timer.schedule(new TimerTask() {
+		  private long localtimestamp = timestamp;
+
+		public void run() {
+			  System.out.println("in run for keepalive timer task, localtimestamp == timestamp?"+(localtimestamp == timestamp));
+			  if (localtimestamp==timestamp){
+				  try {
+					writeOut("\n");
+					System.out.println("wrote out");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}  
+			  }
+			localtimestamp = timestamp;
+
+			  
+		  }
+		}, 0, 60000);
 	}
 
 
 	private Socket createSocket(String hostname, int port) throws UnknownHostException, IOException {
+		System.out.println("creating socket");
 		Socket socket = new Socket(hostname, port);
+		socket.setSoTimeout(60000);
 		this.soutput = socket.getOutputStream();		
 		
 		if (readerThread != null)
@@ -72,6 +113,7 @@ public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
 		
 		this.readerThread = new SwarmParticipationReader(socket.getInputStream(), apiKey, listeners);
 		this.readerThread.start();
+		//sendHeader();
 		
 		return socket;
 	}
@@ -112,7 +154,12 @@ public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
 		//need to write one chunk into the stream before the platform will send data do us
 		//I chose \ because it's the keepalive as well
 		//see https://github.com/buglabs/bugswarm-connector/issues/30
-		writeOut("\n");
+		soutput.write(Integer.toHexString("\n".length()).getBytes());
+		soutput.write(CRLF.getBytes());
+		soutput.write("\n".getBytes());
+		soutput.write(CRLF.getBytes());
+		soutput.flush();
+		System.out.println("sent header");
 	}
 
 	/**
@@ -279,8 +326,9 @@ public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
 	 * @throws IOException on socket I/O error
 	 */
 	private void writeOut(String message) throws IOException {
-		if (!isConnected()) {
+		if (!isConnected() && autoreconnect) {
 			this.socket = createSocket(hostname, port);
+			sendHeader();
 		}			
 		
 		debugOut(message, true);
@@ -290,6 +338,7 @@ public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
 		soutput.write(message.getBytes());
 		soutput.write(CRLF.getBytes());
 		soutput.flush();
+		timestamp = (new Date()).getTime();
 	}
 
 	@Override
@@ -347,6 +396,7 @@ public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
 
 	@Override
 	public void exceptionOccurred(ExceptionType type, String message) {
+		System.out.println(message);
 		if (type == ExceptionType.SERVER_UNEXPECTED_DISCONNECT) {
 			try {
 				this.socket = createSocket(hostname, port);

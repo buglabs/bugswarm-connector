@@ -34,7 +34,7 @@ import com.buglabs.bug.swarm.connector.xmpp.SwarmXMPPClient;
  */
 public class BinaryFeedResponseTask extends TimerTask {
 
-	private static final String LOCATION = "location";
+	private static final String LOCATION = "Location";
 	private final ISwarmClient wsClient;
 	private final Jid feedRequester;
 	private final String swarmId;
@@ -88,7 +88,7 @@ public class BinaryFeedResponseTask extends TimerTask {
 	 * @return the url location returned after a successful uload
 	 */
 
-	protected synchronized String upload() {
+	protected String upload() {
 		String location = null;
 		try {
 			HttpPost httppost = new HttpPost(
@@ -102,10 +102,12 @@ public class BinaryFeedResponseTask extends TimerTask {
 			
 			// TODO: fix below, user_id
 			// StringBody user_id = new StringBody(thisJid.getResource());
-			StringBody resource_id = new StringBody(thisJid.getResource());
-
+			System.out.println(thisJid.getResource().split("-")[0]);
+			StringBody resource_id = new StringBody(thisJid.getResource().split("-")[0]);
+			
 			MultipartEntity reqEntity = new MultipartEntity();
 			// reqEntity.addPart("user_id", user_id);
+			System.out.println("feed requester: "+feedRequester);
 			reqEntity.addPart("resource_id", resource_id);
 			reqEntity.addPart("file", file);
 			httppost.setHeader("x-bugswarmapikey", configurationAPIKey);

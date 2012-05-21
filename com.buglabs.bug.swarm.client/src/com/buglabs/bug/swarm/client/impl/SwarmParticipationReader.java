@@ -65,7 +65,6 @@ public class SwarmParticipationReader extends Thread {
 			
 		try {			
 			while ((line = reader.readLine()) != null) {
-				System.out.println("line: "+line);
 				line = line.trim();
 				//Filter empty lines and line length lines.
 				if (line.length() == 0 || isNumeric(line))
@@ -80,8 +79,8 @@ public class SwarmParticipationReader extends Thread {
 						listener.exceptionOccurred(ExceptionType.SERVER_MESSAGE_PARSE_ERROR, "Unparsable message: " + line);
 					continue;
 				}
-				
-				debugOut(line, false);
+				//uncomment below to print all messages received by the reader
+				//debugOut(line, false);
 				
 				//Parse the message string into a JsonNode.
 				JsonNode jmessage = mapper.readTree(line);

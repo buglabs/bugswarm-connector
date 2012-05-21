@@ -79,17 +79,14 @@ public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
 	//the local timestamp to the global.  if they're the same
 	//no message has been sent, send a \n, otherwise just keep truckin
 	private void createKeepAliveThread() {
-		System.out.println("creating keepalive thread");
 		final Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
 		  private long localtimestamp = timestamp;
 
 		public void run() {
-			  System.out.println("in run for keepalive timer task, localtimestamp == timestamp?"+(localtimestamp == timestamp));
 			  if (localtimestamp==timestamp){
 				  try {
 					writeOut("\n");
-					System.out.println("wrote out");
 				} catch (IOException e) {
 					e.printStackTrace();
 				}  
@@ -103,7 +100,6 @@ public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
 
 
 	private Socket createSocket(String hostname, int port) throws UnknownHostException, IOException {
-		System.out.println("creating socket");
 		Socket socket = new Socket(hostname, port);
 		socket.setSoTimeout(60000);
 		this.soutput = socket.getOutputStream();		
@@ -159,7 +155,6 @@ public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
 		soutput.write("\n".getBytes());
 		soutput.write(CRLF.getBytes());
 		soutput.flush();
-		System.out.println("sent header");
 	}
 
 	/**
@@ -256,8 +251,8 @@ public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
 		
 		buffer.append(Integer.toHexString(ps.getBytes().length)).append(CRLF);
 		buffer.append(ps).append(CRLF);
-		
-		debugOut(buffer.toString(), true);
+		//uncomment to get join messages
+		//debugOut(buffer.toString(), true);
 		soutput.write(buffer.toString().getBytes());
 		soutput.flush();
 	}
@@ -331,10 +326,11 @@ public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
 			sendHeader();
 		}			
 		
-		debugOut(message, true);
-		
-		soutput.write(Integer.toHexString(message.length()).getBytes());
+		//debugOut(message, true);
+		//new framing requires sending a \r\n after each message.
+		soutput.write(Integer.toHexString(message.length()+CRLF.length()).getBytes());
 		soutput.write(CRLF.getBytes());
+		message = message+CRLF;
 		soutput.write(message.getBytes());
 		soutput.write(CRLF.getBytes());
 		soutput.flush();
@@ -363,8 +359,8 @@ public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
 			
 			buffer.append(Integer.toHexString(ps.getBytes().length)).append(CRLF);
 			buffer.append(ps).append(CRLF);
-			
-			debugOut(buffer.toString(), true);
+			//uncomment to get close messages
+			//debugOut(buffer.toString(), true);
 			soutput.write(buffer.toString().getBytes());
 			soutput.flush();
 		} catch (IOException e) {			
@@ -396,7 +392,6 @@ public class SwarmSessionImp implements ISwarmSession, ISwarmMessageListener {
 
 	@Override
 	public void exceptionOccurred(ExceptionType type, String message) {
-		System.out.println(message);
 		if (type == ExceptionType.SERVER_UNEXPECTED_DISCONNECT) {
 			try {
 				this.socket = createSocket(hostname, port);
